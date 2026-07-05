@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<ruleset name="Custom"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
+    <description>
+        bestpractices + errorprone + design, sin las reglas que no encajan
+        con Spring Boot / JPA / records ni con DataSeeder (un fixture de
+        datos de siembra, no logica de negocio: es normal que tenga varios
+        metodos y que cada uno sea una lista larga y lineal de setters).
+    </description>
+
+    <rule ref="category/java/bestpractices.xml"/>
+
+    <rule ref="category/java/errorprone.xml">
+        <!-- Caso3Pistas..Caso6Pistas y CasoProgreso son portadores de datos
+             inmutables con accesores al estilo record (pista5(), caso()...);
+             el campo y el metodo comparten nombre a proposito. -->
+        <exclude name="AvoidFieldNameMatchingMethodName"/>
+    </rule>
+
+    <rule ref="category/java/design.xml">
+        <!-- Rompería @SpringBootApplication convertirla en utility class. -->
+        <exclude name="UseUtilityClass"/>
+        <!-- De-facto imposible de cumplir con Spring MVC + JPA (cadenas de
+             getters de una entidad son el patron normal aqui). -->
+        <exclude name="LawOfDemeter"/>
+        <!-- Normal en un controlador con varias dependencias inyectadas. -->
+        <exclude name="CouplingBetweenObjects"/>
+        <!-- SecurityFilterChain de Spring Security exige "throws Exception". -->
+        <exclude name="SignatureDeclareThrowsException"/>
+        <!-- DataSeeder: un metodo por expediente es la unidad natural de
+             lectura, no logica de negocio con ramas que complicarse. -->
+        <exclude name="NcssCount"/>
+        <exclude name="TooManyMethods"/>
+        <!-- CasoProgreso es, deliberadamente, un DTO sin comportamiento. -->
+        <exclude name="DataClass"/>
+        <!-- CasoController coordina varias entidades/repositorios porque el
+             caso lo exige (registros, pistas, sospechosos, combate,
+             veredicto); mas imports no implica peor diseno aqui. -->
+        <exclude name="ExcessiveImports"/>
+    </rule>
+
+    <rule ref="category/java/design.xml/NcssCount">
+        <properties>
+            <!-- Igual que el default, salvo para metodos: un caso completo
+                 (registros + pistas + sospechosos) puede rondar 100 lineas
+                 sin que eso sea complejidad real, es una lista de setters. -->
+            <property name="methodReportLevel" value="150"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/java/design.xml/TooManyMethods">
+        <properties>
+            <!-- DataSeeder tiene un metodo por expediente (8) mas el
+                 corcho de conceptos y el punto de entrada: natural, no
+                 una clase que haya crecido sin control. -->
+            <property name="maxmethods" value="15"/>
+        </properties>
+    </rule>
+</ruleset>

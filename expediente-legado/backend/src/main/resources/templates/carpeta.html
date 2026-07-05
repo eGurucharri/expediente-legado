@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mi carpeta · SIGA-98</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/legacy-theme.css}">
+    <link rel="stylesheet" th:href="@{/css/prometeo-ui.css}">
+</head>
+<body class="siga-body">
+<div class="siga-flicker-overlay" aria-hidden="true"></div>
+<nav th:replace="~{fragments/chrome :: barra}"></nav>
+
+<div class="container py-4">
+    <div th:if="${mensaje}" class="alert alert-warning" th:text="${mensaje}"></div>
+
+    <div class="siga-window mb-4">
+        <div class="siga-titlebar">Carpeta personal · avance de investigación</div>
+        <div class="p-3">
+            <ul class="list-inline mb-0">
+                <li class="list-inline-item me-3 mb-2" th:each="p : ${progreso}">
+                    <span th:if="${p.resuelto}" class="badge text-bg-success">✔</span>
+                    <span th:unless="${p.resuelto}" class="badge text-bg-secondary" th:text="${p.pistasDescubiertas} + '/' + ${p.totalPistas}"></span>
+                    <span th:text="${p.caso.titulo}"></span>
+                </li>
+            </ul>
+            <p th:if="${todosResueltos}" class="alert alert-warning mt-3 mb-0" data-siga-todos-resueltos="true">
+                Ha dado cierre a los cinco expedientes bajo su cargo. Revise el corcho: hay una entrada nueva.
+            </p>
+        </div>
+    </div>
+
+    <div class="siga-window">
+        <div class="siga-titlebar">Corcho de investigación</div>
+        <div class="p-3">
+            <p th:if="${#lists.isEmpty(conceptos)}" class="text-muted mb-0">
+                Todavía no ha descubierto ninguna pista. Investigue un expediente para empezar a llenar esta carpeta.
+            </p>
+            <div class="row row-cols-1 row-cols-md-2 g-3">
+                <div class="col" th:each="cv : ${conceptos}">
+                    <div class="siga-record h-100" th:id="'concepto-' + ${cv.concepto.id}">
+                        <div class="siga-record-header d-flex justify-content-between">
+                            <span th:text="${cv.concepto.nombre}"></span>
+                            <span class="badge text-bg-dark" th:text="${cv.concepto.tipo}"></span>
+                        </div>
+                        <div class="siga-record-body" th:utext="${cv.resumenHtml}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/chrome :: menu}"></div>
+<div th:replace="~{fragments/chrome :: datosJuego}"></div>
+<div th:replace="~{fragments/chrome :: extras}"></div>
+<script th:src="@{/js/legacy-glitch.js}"></script>
+<script th:src="@{/js/prometeo-ui.js}"></script>
+</body>
+</html>

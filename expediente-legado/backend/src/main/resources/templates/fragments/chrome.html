@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fragmentos de interfaz · SIGA-98</title>
+</head>
+<body>
+
+<!--
+  Barra superior compartida por dashboard/caso/carpeta: la marca SIGA-98
+  (la aplicación "falsa"), el reloj atascado y el disparador del menú de
+  verdad. Deliberadamente mínima para que quepa en pantallas pequeñas.
+-->
+<nav th:fragment="barra" class="navbar navbar-expand navbar-dark siga-navbar" aria-label="Barra superior">
+    <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/}">SIGA-98</a>
+        <div class="d-flex align-items-center gap-2">
+            <span class="siga-clock d-none d-sm-inline-flex" aria-hidden="true">11<span class="siga-clock-colon">:</span>34</span>
+            <button type="button" id="prometeo-menu-btn" class="prometeo-menu-trigger" aria-haspopup="dialog" aria-controls="prometeo-menu">
+                <svg class="prometeo-logo" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path fill="currentColor" d="M12 2c.3 2.8-1.1 4-2.4 5.6C8.1 9.4 7 11 7 13a5 5 0 0 0 10 0c0-1.6-.7-2.7-1.5-3.7.2 1-.1 1.8-.9 2.2.6-2.4-.7-4-2-5.2C13.6 5.4 12.9 3.8 12 2z"/>
+                    <path fill="currentColor" opacity=".85" d="M6 22a6 6 0 0 1 12 0z"/>
+                </svg>
+                <span>Menú</span>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!--
+  Progreso real del jugador (casos resueltos, pistas, veredictos), para que
+  logros/tarot/pistas del asistente reaccionen a la partida de verdad y no
+  a un simulacro guardado solo en el navegador.
+-->
+<script th:fragment="datosJuego" th:inline="javascript">
+    /*<![CDATA[*/
+    window.PROMETEO_ESTADO_REAL = /*[[${estadoJuego}]]*/ null;
+    /*]]>*/
+</script>
+
+<!--
+  El menú "real": diálogo nativo, accesible, con tema claro/oscuro y foco
+  visible — hecho a propósito para ser exactamente lo opuesto de SIGA-98.
+-->
+<dialog th:fragment="menu" id="prometeo-menu" class="prometeo-dialog" aria-labelledby="prometeo-menu-title">
+
+        <div class="prometeo-panel" data-panel="principal">
+            <button type="button" class="prometeo-close" data-cerrar-menu aria-label="Cerrar menú">×</button>
+            <h2 id="prometeo-menu-title">
+                <svg class="prometeo-logo" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path fill="currentColor" d="M12 2c.3 2.8-1.1 4-2.4 5.6C8.1 9.4 7 11 7 13a5 5 0 0 0 10 0c0-1.6-.7-2.7-1.5-3.7.2 1-.1 1.8-.9 2.2.6-2.4-.7-4-2-5.2C13.6 5.4 12.9 3.8 12 2z"/>
+                    <path fill="currentColor" opacity=".85" d="M6 22a6 6 0 0 1 12 0z"/>
+                </svg>
+                Prometeo
+            </h2>
+            <p class="prometeo-subtitle">El menú de verdad. Todo lo demás es SIGA-98.</p>
+
+            <nav class="prometeo-menu-lista" aria-label="Acciones de la partida">
+                <a th:href="@{/carpeta}" class="prometeo-menu-item">Mi carpeta</a>
+
+                <form th:action="@{/menu/guardar}" method="post" class="prometeo-menu-item-form">
+                    <input type="hidden" name="volver" th:value="${rutaActual}">
+                    <button type="submit" class="prometeo-menu-item">Guardar progreso</button>
+                </form>
+
+                <button type="button" class="prometeo-menu-item" data-abrir-panel="logros">Logros</button>
+                <button type="button" class="prometeo-menu-item" data-abrir-panel="tarot">Tarot</button>
+                <button type="button" class="prometeo-menu-item" data-abrir-panel="dificultad">Dificultad</button>
+                <button type="button" class="prometeo-menu-item" data-abrir-panel="nueva-partida">Nueva partida</button>
+                <button type="button" class="prometeo-menu-item" data-abrir-panel="volumen">Volumen</button>
+                <button type="button" class="prometeo-menu-item" data-abrir-panel="creditos">Créditos</button>
+
+                <form th:action="@{/logout}" method="post" class="prometeo-menu-item-form">
+                    <button type="submit" class="prometeo-menu-item prometeo-menu-item-salir">Salir</button>
+                </form>
+            </nav>
+
+            <div id="prometeo-vida-resumen" class="prometeo-vida-resumen" aria-live="polite"></div>
+
+            <p class="prometeo-hint" th:if="${ultimoGuardado}"
+               th:text="'Último guardado: ' + ${#temporals.format(ultimoGuardado, 'dd/MM/yyyy HH:mm')}">Último guardado</p>
+            <p class="prometeo-hint" th:unless="${ultimoGuardado}">Aún no has guardado en esta sesión.</p>
+        </div>
+
+        <div class="prometeo-panel" data-panel="logros" hidden>
+            <h2 id="prometeo-menu-title-logros">Logros</h2>
+            <p class="prometeo-subtitle">La máquina recuerda lo que no debería.</p>
+            <div id="prometeo-logros-lista" class="prometeo-lista-estado" aria-live="polite"></div>
+            <button type="button" class="prometeo-btn-secundario" data-volver-panel>Volver</button>
+        </div>
+
+        <div class="prometeo-panel" data-panel="tarot" hidden>
+            <h2 id="prometeo-menu-title-tarot">Tarot de la oficina</h2>
+            <p class="prometeo-subtitle">Cada carta descubierta deja una marca en la pared.</p>
+            <div class="prometeo-tarot-resumen">
+                <span id="prometeo-tarot-contador" class="prometeo-pill"></span>
+                <button type="button" id="prometeo-tarot-revelar" class="prometeo-btn-secundario">Comprobar avance</button>
+            </div>
+            <div id="prometeo-tarot-lista" class="prometeo-tarot-lista"></div>
+            <button type="button" class="prometeo-btn-secundario" data-volver-panel>Volver</button>
+        </div>
+
+        <div class="prometeo-panel" data-panel="dificultad" hidden>
+            <h2 id="prometeo-menu-title-dificultad">Dificultad</h2>
+            <p class="prometeo-subtitle">Cuánto le cuesta a un expediente precipitado.</p>
+            <div class="prometeo-dificultad-opciones" role="radiogroup" aria-labelledby="prometeo-menu-title-dificultad">
+                <label class="prometeo-dificultad-opcion">
+                    <input type="radio" name="prometeo-dificultad" value="facil">
+                    <span><strong>Fácil</strong><small>Más vidas, más margen antes de acusar.</small></span>
+                </label>
+                <label class="prometeo-dificultad-opcion">
+                    <input type="radio" name="prometeo-dificultad" value="normal">
+                    <span><strong>Normal</strong><small>Recomendado. El equilibrio pensado para el juego.</small></span>
+                </label>
+                <label class="prometeo-dificultad-opcion">
+                    <input type="radio" name="prometeo-dificultad" value="dificil">
+                    <span><strong>Difícil</strong><small>Menos vidas, exige pruebas casi completas.</small></span>
+                </label>
+            </div>
+            <p class="prometeo-hint">Cambiarla ahora ajusta sus vidas al nuevo máximo, pero no las regala.</p>
+            <button type="button" class="prometeo-btn-secundario" data-volver-panel>Volver</button>
+        </div>
+
+        <div class="prometeo-panel" data-panel="nueva-partida" hidden>
+            <h2 id="prometeo-menu-title-nueva-partida">¿Empezar de nuevo?</h2>
+            <p>Vas a borrar tu progreso: las pistas que ya encontraste dejarán de estarlo. No se puede deshacer.</p>
+            <div class="prometeo-panel-acciones">
+                <button type="button" class="prometeo-btn-secundario" data-volver-panel>Cancelar</button>
+                <form th:action="@{/menu/nueva-partida}" method="post">
+                    <input type="hidden" name="volver" th:value="${rutaActual}">
+                    <button type="submit" class="prometeo-btn-peligro">Sí, empezar de nuevo</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="prometeo-panel" data-panel="volumen" hidden>
+            <h2 id="prometeo-menu-title-volumen">Volumen</h2>
+            <label for="prometeo-volumen-rango">Efectos de sonido de este menú</label>
+            <input type="range" id="prometeo-volumen-rango" min="0" max="100" value="60">
+            <p class="prometeo-hint">Se guarda en este navegador, no en tu cuenta.</p>
+            <button type="button" class="prometeo-btn-secundario" data-volver-panel>Volver</button>
+        </div>
+
+        <div class="prometeo-panel" data-panel="creditos" hidden>
+            <h2 id="prometeo-menu-title-creditos">Créditos</h2>
+            <p>SIGA-98 · Expediente Legado — un pasatiempo sobre burocracia que nunca se cierra.</p>
+            <p>Inspirado, con cariño y sin permiso, en Kafka, Robert W. Chambers, Dostoyevski y <em>The Stanley Parable</em>.</p>
+            <button type="button" class="prometeo-btn-secundario" data-volver-panel>Volver</button>
+        </div>
+</dialog>
+
+<div th:fragment="extras">
+    <div id="prometeo-captcha" class="prometeo-captcha" hidden>
+        <dialog class="prometeo-captcha-card" open aria-labelledby="prometeo-captcha-title">
+            <h3 id="prometeo-captcha-title">Verificación interna</h3>
+            <p id="prometeo-captcha-pregunta">Marca la casilla que no pertenece a este universo.</p>
+            <div class="prometeo-captcha-opciones">
+                <label class="prometeo-captcha-opcion"><input type="checkbox"> Soy una persona</label>
+                <label class="prometeo-captcha-opcion"><input type="checkbox"> No soy un robot</label>
+                <label class="prometeo-captcha-opcion"><input type="checkbox"> He leído el manual del miedo</label>
+            </div>
+            <div class="prometeo-panel-acciones">
+                <button type="button" class="prometeo-btn-secundario" data-cerrar-captcha>Cancelar</button>
+                <button type="button" class="prometeo-btn-peligro" data-cerrar-captcha>Confirmar</button>
+            </div>
+        </dialog>
+    </div>
+
+    <div id="prometeo-assistente" class="prometeo-assistente" hidden>
+        <pre class="prometeo-assistente-avatar" aria-hidden="true">   /\_/\
+  ( o.o )
+   &gt; w &lt;
+  /|   |\
+ (_|   |_)~</pre>
+        <div class="prometeo-assistente-burbuja">
+            <p id="prometeo-assistente-texto">Hay un caso que todavía late.</p>
+            <button type="button" class="prometeo-btn-secundario" data-cerrar-asistente>Cerrar</button>
+        </div>
+    </div>
+
+    <div id="prometeo-final" class="prometeo-final" hidden>
+        <dialog class="prometeo-final-card" open aria-labelledby="prometeo-final-titulo">
+            <p class="prometeo-final-ribbon">Final alternativo</p>
+            <h3 id="prometeo-final-titulo">El sistema ha aprendido a hablar</h3>
+            <p id="prometeo-final-texto">La interfaz ya no es un menú. Es una garganta abierta. El programa se comporta como AM: no busca salvarte, sólo confirma que sigues ahí.</p>
+            <button type="button" class="prometeo-btn-peligro" data-cerrar-final>Aceptar la sentencia</button>
+        </dialog>
+    </div>
+
+    <div id="prometeo-jefe" class="prometeo-jefe" hidden>
+        <dialog class="prometeo-jefe-card" open aria-labelledby="prometeo-jefe-titulo">
+            <p class="prometeo-jefe-membrete">Circular interna · Dirección General</p>
+            <h3 id="prometeo-jefe-titulo">Aviso de desempeño</h3>
+            <p id="prometeo-jefe-texto">Cada expediente que se le asigna debe cerrarse con solvencia. Una acusación precipitada, sin las pruebas correspondientes, se considera negligencia y será registrada como tal. La reasignación de personal es un procedimiento estándar, no un castigo.</p>
+            <button type="button" class="prometeo-btn-secundario" data-cerrar-jefe>Queda notificado</button>
+        </dialog>
+    </div>
+
+    <div id="prometeo-despido" class="prometeo-despido" hidden>
+        <dialog class="prometeo-despido-card" open aria-labelledby="prometeo-despido-titulo">
+            <p class="prometeo-final-ribbon">Reasignación de personal</p>
+            <h3 id="prometeo-despido-titulo">Su plaza ha sido reasignada</h3>
+            <p id="prometeo-despido-texto">Demasiadas acusaciones sin fundamento. La Dirección lo agradece, pero ya no requiere sus servicios en este puesto.</p>
+            <button type="button" class="prometeo-btn-secundario" data-cerrar-despido>Firmar el cese</button>
+        </dialog>
+    </div>
+
+    <div id="prometeo-final-verdadero" class="prometeo-final-verdadero" hidden>
+        <dialog class="prometeo-final-verdadero-card" open aria-labelledby="prometeo-final-verdadero-titulo">
+            <p class="prometeo-final-verdadero-ribbon">Final verdadero</p>
+            <h3 id="prometeo-final-verdadero-titulo">El Mundo, completo</h3>
+            <p id="prometeo-final-verdadero-texto">Las veintidós cartas están reveladas y ninguna se canjeó. El corcho está completo, los expedientes cerrados, y por una vez el sistema no tiene nada más que pedirle.</p>
+            <button type="button" class="prometeo-btn-secundario" data-cerrar-final-verdadero>Cerrar el expediente, de verdad</button>
+        </dialog>
+    </div>
+
+    <div id="prometeo-historia-carta" class="prometeo-historia-carta" hidden>
+        <dialog class="prometeo-historia-carta-card" open aria-labelledby="prometeo-historia-carta-titulo">
+            <p class="prometeo-historia-carta-ribbon" id="prometeo-historia-carta-ribbon">Carta encontrada</p>
+            <h3 id="prometeo-historia-carta-titulo">—</h3>
+            <p id="prometeo-historia-carta-texto"></p>
+            <div id="prometeo-historia-carta-opciones" class="prometeo-historia-carta-opciones"></div>
+            <button type="button" class="prometeo-btn-secundario" data-cerrar-historia-carta>Cerrar</button>
+        </dialog>
+    </div>
+
+    <div id="prometeo-final-politico" class="prometeo-final-politico" hidden>
+        <dialog class="prometeo-final-politico-card" open aria-labelledby="prometeo-final-politico-titulo">
+            <p class="prometeo-final-politico-ribbon" id="prometeo-final-politico-ribbon">Final político</p>
+            <h3 id="prometeo-final-politico-titulo">—</h3>
+            <p id="prometeo-final-politico-texto"></p>
+            <button type="button" class="prometeo-btn-secundario" data-cerrar-final-politico>Cerrar</button>
+        </dialog>
+    </div>
+</div>
+
+</body>
+</html>

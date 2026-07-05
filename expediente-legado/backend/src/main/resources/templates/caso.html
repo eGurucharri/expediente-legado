@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${caso.titulo} + ' · SIGA-98'">Caso · SIGA-98</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/legacy-theme.css}">
+    <link rel="stylesheet" th:href="@{/css/prometeo-ui.css}">
+</head>
+<body class="siga-body">
+<div class="siga-flicker-overlay" aria-hidden="true"></div>
+<nav th:replace="~{fragments/chrome :: barra}"></nav>
+
+<div class="container py-4">
+    <div th:if="${mensaje}" class="alert alert-success" th:text="${mensaje}"></div>
+    <div th:if="${accionReciente == 'acusacion'}" data-siga-accion-reciente="acusacion" hidden></div>
+
+    <div class="siga-window mb-4">
+        <div class="siga-titlebar">
+            <span th:text="${caso.titulo}">Título del caso</span>
+            <span th:if="${caso.confidencial}" class="badge text-bg-warning ms-2">CLASIFICADO</span>
+        </div>
+        <div class="p-3">
+            <p th:text="${caso.descripcion}"></p>
+        </div>
+    </div>
+
+    <form id="form-combinar" th:action="@{/casos/{casoId}/combinar(casoId=${caso.id})}" method="post"></form>
+    <form th:each="rv : ${registros}" th:if="${rv.pista != null and !rv.pista.descubierta}"
+          th:id="'form-pista-' + ${rv.pista.id}"
+          th:action="@{/casos/{casoId}/pistas/{pistaId}/descubrir(casoId=${caso.id},pistaId=${rv.pista.id})}"
+          method="post"></form>
+
+    <div class="siga-window mb-4">
+        <div class="siga-titlebar d-flex justify-content-between align-items-center">
+            <span>Registros del sistema legado</span>
+            <span class="badge text-bg-light text-dark" th:text="${pistasEncontradas} + ' / ' + ${totalPistas} + ' cotejados'"></span>
+        </div>
+        <div class="p-3">
+            <p class="text-muted small">Algunos documentos esconden un detalle. Léalos con calma.</p>
+            <div class="siga-record mb-3" th:each="rv : ${registros}">
+                <div class="d-flex align-items-start gap-2">
+                    <input class="form-check-input mt-1" type="checkbox" name="registroIds"
+                           th:value="${rv.registro.id}" form="form-combinar"
+                           aria-label="Seleccionar este documento para combinarlo con otro">
+                    <div class="flex-grow-1">
+                        <div class="siga-record-header d-flex justify-content-between align-items-center flex-wrap gap-1">
+                            <span>
+                                <span th:text="${rv.registro.tipo}"></span> · <span th:text="${rv.registro.folio}"></span> · <span th:text="${rv.registro.fecha}"></span>
+                            </span>
+                            <button type="button" class="siga-abrir-documento btn btn-sm btn-outline-secondary py-0 px-2"
+                                    th:attr="data-documento='documento-' + ${rv.registro.id}">
+                                Ver documento
+                            </button>
+                        </div>
+                        <div class="siga-record-body" th:utext="${rv.contenidoHtml}"></div>
+
+                        <div th:if="${rv.pista != null and rv.pista.descubierta}" class="mt-2">
+                            <div class="siga-nota-marginal"
+                                 th:classappend="${pistaDescubiertaId != null and pistaDescubiertaId == rv.pista.id} ? ' siga-revelado' : ''"
+                                 th:text="${rv.pista.descripcion}"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <p class="text-muted small mb-0">Marque dos documentos que crea relacionados para combinarlos.</p>
+                <button type="submit" form="form-combinar" class="btn btn-sm siga-btn">🧩 Combinar seleccionados</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="siga-window mb-4" th:if="${!#lists.isEmpty(conclusiones)}">
+        <div class="siga-titlebar d-flex justify-content-between align-items-center">
+            <span>Conclusiones cruzadas</span>
+            <span class="badge text-bg-light text-dark" th:text="${conclusionesEncontradas} + ' / ' + ${totalConclusiones} + ' conclusiones'"></span>
+        </div>
+        <div class="p-3">
+            <div th:each="c : ${conclusiones}" class="mb-2">
+                <div th:if="${c.descubierta}" class="siga-nota-marginal"
+                     th:classappend="${pistaDescubiertaId != null and pistaDescubiertaId == c.id} ? ' siga-revelado' : ''"
+                     th:text="${c.descripcion}"></div>
+                <p th:unless="${c.descubierta}" class="text-muted small mb-0">
+                    Hay una conclusión pendiente de anotar. Combine dos documentos relacionados para descubrirla.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="siga-window" th:if="${!#lists.isEmpty(sospechosos)}">
+        <div class="siga-titlebar">Presentar acusación</div>
+        <div class="p-3">
+            <div th:if="${veredicto != null}" data-siga-veredicto="true">
+                <p class="mb-2">Acusó a: <strong th:text="${veredicto.sospechoso.nombre}"></strong></p>
+                <div class="siga-nota-marginal siga-revelado" th:text="${veredicto.sospechoso.desenlace}"></div>
+            </div>
+
+            <div th:if="${veredicto == null and combate != null}" data-siga-combate="true">
+                <p class="mb-1">Enfrentamiento en curso contra: <strong th:text="${combate.nombreSospechoso}"></strong></p>
+                <progress class="siga-resistencia mb-2" th:value="${combate.resistenciaPorcentaje}" max="100"
+                          th:attr="aria-label='Resistencia: ' + ${combate.resistenciaPorcentaje} + '%'"></progress>
+                <p class="text-muted small">Resistencia: <span th:text="${combate.resistenciaPorcentaje}"></span>%</p>
+                <div class="siga-nota-marginal siga-revelado mb-3" th:text="${combate.ataqueActual}"></div>
+                <form th:action="@{/casos/{casoId}/combate/avanzar(casoId=${caso.id})}" method="post">
+                    <button type="submit" class="btn siga-btn"
+                            th:text="${combate.etiquetaAccion}"
+                            th:attr="title=${combate.etiquetaAccion}; aria-label=${combate.etiquetaAccion}">
+                        Avanzar
+                    </button>
+                </form>
+            </div>
+
+            <form th:if="${veredicto == null and combate == null}"
+                  th:action="@{/casos/{casoId}/acusar(casoId=${caso.id})}" method="post">
+                <p class="text-muted small">No hay una respuesta correcta: cada acusación cierra el expediente de una forma distinta.</p>
+                <div class="form-check mb-2" th:each="s : ${sospechosos}">
+                    <input class="form-check-input" type="radio" name="sospechosoId" th:value="${s.id}"
+                           id="sospechoso" th:id="'sospechoso-' + ${s.id}"
+                           title="Seleccionar sospechoso" th:attr="title=${s.nombre}; aria-labelledby='label-sospechoso-' + ${s.id}"
+                           required>
+                    <label class="form-check-label" id="label-sospechoso" th:id="'label-sospechoso-' + ${s.id}"
+                           for="sospechoso" th:for="'sospechoso-' + ${s.id}">
+                        <strong th:text="${s.nombre}"></strong> — <span th:text="${s.descripcion}"></span>
+                    </label>
+                </div>
+                <button type="submit" class="btn siga-btn">Presentar acusación</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<dialog th:each="rv : ${registros}" th:id="'documento-' + ${rv.registro.id}"
+        class="documento-dialog" th:classappend="'documento-' + ${#strings.toLowerCase(rv.registro.tipo)}">
+    <button type="button" class="documento-cerrar" data-cerrar-documento aria-label="Cerrar documento">×</button>
+    <div class="documento-encabezado" th:switch="${rv.registro.tipo.name()}">
+        <span th:case="'FAX'">📠 TRANSMISIÓN ENTRANTE</span>
+        <span th:case="'ACTA'">ACTA ADMINISTRATIVA</span>
+        <span th:case="'MEMORANDO'">MEMORÁNDUM INTERNO</span>
+        <span th:case="'EMPLEADO'">EXPEDIENTE DE PERSONAL</span>
+        <span th:case="'FACTURA'">FACTURA</span>
+        <span th:case="'OFICIO'">OFICIO</span>
+        <span th:case="'CIRCULAR'">CIRCULAR</span>
+        <span th:case="*" th:text="${rv.registro.tipo}"></span>
+    </div>
+    <div class="documento-meta">
+        <span th:text="'Folio ' + ${rv.registro.folio}"></span>
+        <span th:if="${rv.registro.fecha != null}" th:text="${rv.registro.fecha}"></span>
+    </div>
+    <div class="documento-cuerpo" th:utext="${rv.contenidoHtml}"></div>
+    <div class="documento-pie" th:switch="${rv.registro.tipo.name()}">
+        <span th:case="'FAX'">— FIN DE TRANSMISIÓN —</span>
+        <span th:case="'ACTA'">SELLADO Y RUBRICADO</span>
+        <span th:case="*"></span>
+    </div>
+</dialog>
+
+<div th:replace="~{fragments/chrome :: menu}"></div>
+<div th:replace="~{fragments/chrome :: datosJuego}"></div>
+<div th:replace="~{fragments/chrome :: extras}"></div>
+<script th:src="@{/js/legacy-glitch.js}"></script>
+<script th:src="@{/js/prometeo-ui.js}"></script>
+<script th:src="@{/js/documento-viewer.js}"></script>
+</body>
+</html>

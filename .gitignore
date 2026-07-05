@@ -1,0 +1,29 @@
+# Compilados y artefactos de build
+**/target/
+*.class
+
+# Logs
+*.log
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Secretos y configuración local (credenciales de desarrollo, nunca en el repo)
+.env
+.env.*
+!.env.example
+
+# Configuración local de Claude Code (permisos específicos de esta máquina)
+.claude/settings.local.json
+
+# Cache/logs de sesión de herramientas de modernización automática
+.github/modernize/

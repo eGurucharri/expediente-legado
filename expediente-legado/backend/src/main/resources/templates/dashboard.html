@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Expedientes · SIGA-98</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/legacy-theme.css}">
+    <link rel="stylesheet" th:href="@{/css/prometeo-ui.css}">
+</head>
+<body class="siga-body">
+<div class="siga-flicker-overlay" aria-hidden="true"></div>
+<nav th:replace="~{fragments/chrome :: barra}"></nav>
+
+<div class="container py-4">
+    <div th:if="${mensaje}" class="alert alert-warning" th:text="${mensaje}"></div>
+
+    <div class="siga-window">
+        <div class="siga-titlebar">Expedientes de investigación</div>
+        <div class="p-3">
+            <div class="table-responsive">
+                <table class="table siga-table mb-0">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Título</th>
+                        <th>Año del suceso</th>
+                        <th>Estado</th>
+                        <th>Tu avance</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="cv : ${casos}">
+                        <td th:text="${cv.caso.id}"></td>
+                        <td>
+                            <span th:text="${cv.caso.titulo}"></span>
+                            <span th:if="${cv.caso.confidencial}" class="badge text-bg-warning ms-1">CLASIFICADO</span>
+                        </td>
+                        <td th:text="${cv.caso.anioSuceso}"></td>
+                        <td>
+                            <span class="badge" th:classappend="${cv.caso.estado.name() == 'ABIERTO'} ? 'text-bg-warning' : 'text-bg-success'"
+                                  th:text="${cv.caso.estado}"></span>
+                        </td>
+                        <td>
+                            <span th:if="${cv.resuelto}" class="badge text-bg-success">Resuelto</span>
+                            <span th:unless="${cv.resuelto}" th:text="${cv.pistasDescubiertas} + ' / ' + ${cv.totalPistas} + ' pistas'"></span>
+                        </td>
+                        <td>
+                            <a th:href="@{/casos/{id}(id=${cv.caso.id})}" class="btn btn-sm siga-btn">Abrir expediente</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/chrome :: menu}"></div>
+<div th:replace="~{fragments/chrome :: datosJuego}"></div>
+<div th:replace="~{fragments/chrome :: extras}"></div>
+<script th:src="@{/js/legacy-glitch.js}"></script>
+<script th:src="@{/js/prometeo-ui.js}"></script>
+</body>
+</html>

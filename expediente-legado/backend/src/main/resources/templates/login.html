@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Acceso · SIGA-98</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/legacy-theme.css}">
+    <link rel="stylesheet" th:href="@{/css/prometeo-ui.css}">
+</head>
+<body class="siga-body d-flex align-items-center justify-content-center min-vh-100 py-4">
+<div class="siga-flicker-overlay" aria-hidden="true"></div>
+<div class="siga-window siga-login-window">
+    <div class="siga-titlebar d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <span>SIGA · Sistema Integral de Gestión Administrativa v2.1</span>
+        <span class="siga-clock" aria-hidden="true">11<span class="siga-clock-colon">:</span>34</span>
+    </div>
+    <div class="p-4">
+        <p class="text-muted small mb-3">Terminal restaurada desde respaldo — acceso restringido a personal autorizado.</p>
+
+        <div th:if="${param.error}" class="alert alert-danger py-2">Usuario o contraseña incorrectos.</div>
+        <div th:if="${param.logout}" class="alert alert-secondary py-2">Sesión finalizada.</div>
+
+        <form th:action="@{/login}" method="post">
+            <div class="mb-3">
+                <label class="form-label" for="login-usuario">Usuario</label>
+                <input id="login-usuario" type="text" name="username" class="form-control siga-input" required autofocus>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="login-password">Contraseña</label>
+                <input id="login-password" type="password" name="password" class="form-control siga-input" required>
+            </div>
+            <button type="submit" class="btn siga-btn w-100">Ingresar</button>
+        </form>
+        <p class="text-muted small mt-3 mb-0">Cuenta demo: auditor01 / auditor-local-123</p>
+        <p class="text-muted small mt-3 mb-0 d-flex align-items-center gap-1">
+            <svg class="prometeo-logo" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path fill="currentColor" d="M12 2c.3 2.8-1.1 4-2.4 5.6C8.1 9.4 7 11 7 13a5 5 0 0 0 10 0c0-1.6-.7-2.7-1.5-3.7.2 1-.1 1.8-.9 2.2.6-2.4-.7-4-2-5.2C13.6 5.4 12.9 3.8 12 2z"/>
+                <path fill="currentColor" opacity=".85" d="M6 22a6 6 0 0 1 12 0z"/>
+            </svg>
+            Prometeo
+        </p>
+    </div>
+</div>
+<script th:src="@{/js/legacy-glitch.js}"></script>
+</body>
+</html>

@@ -1,0 +1,388 @@
+body.siga-body {
+    background: #c0c0c0;
+    font-family: "Tahoma", "Segoe UI", sans-serif;
+}
+
+.siga-navbar {
+    background-color: #000080;
+}
+
+.siga-login-window {
+    max-width: 420px;
+    width: 100%;
+}
+
+.siga-window {
+    background: #d4d0c8;
+    border: 2px solid #808080;
+    box-shadow: inset -1px -1px #404040, inset 1px 1px #ffffff;
+}
+
+.siga-titlebar {
+    background: linear-gradient(90deg, #000080, #1084d0);
+    color: #fff;
+    font-weight: bold;
+    padding: 6px 10px;
+    font-size: 0.95rem;
+}
+
+.siga-input {
+    border-radius: 0;
+    border: 2px solid #808080;
+    box-shadow: inset 1px 1px #404040, inset -1px -1px #ffffff;
+}
+
+.siga-btn {
+    background: #d4d0c8;
+    border: 2px solid #808080;
+    box-shadow: inset -1px -1px #404040, inset 1px 1px #ffffff;
+    color: #000;
+    border-radius: 0;
+}
+
+.siga-btn:hover {
+    background: #c8c4bc;
+    color: #000;
+}
+
+.siga-table {
+    background: #fff;
+}
+
+.siga-record {
+    border: 1px solid #808080;
+    background: #fffef0;
+    padding: 8px 10px;
+    font-family: "Courier New", monospace;
+    font-size: 0.9rem;
+}
+
+.siga-record-header {
+    font-weight: bold;
+    color: #000080;
+    margin-bottom: 4px;
+}
+
+/* Frase gatillo dentro del propio documento: parece parte del texto hasta
+   que se repara en ella. Nada de botones con lupa gritando "pista aquí". */
+.siga-hotspot {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 2px;
+    cursor: pointer;
+}
+
+.siga-hotspot:hover,
+.siga-hotspot:focus-visible {
+    background: rgba(0, 0, 128, 0.1);
+}
+
+.siga-hotspot-visto {
+    background: #fff9b0;
+    color: inherit;
+    padding: 0 2px;
+}
+
+/* Pista ya cotejada: se ve como una nota adhesiva prendida al documento,
+   no como un aviso de sistema. */
+.siga-nota-marginal {
+    background: #fff9b0;
+    border: 1px solid #e2d267;
+    box-shadow: 2px 3px 4px rgba(0, 0, 0, 0.25);
+    transform: rotate(-0.6deg);
+    padding: 8px 10px;
+    font-family: "Segoe Print", "Comic Sans MS", cursive, sans-serif;
+    font-size: 0.85rem;
+    color: #4a4014;
+    max-width: 32rem;
+}
+
+/* Animación de revelado: el papel "cae" en su sitio, como un sello. Solo
+   se aplica a la nota recién descubierta, no a las ya vistas. */
+@keyframes siga-revelado {
+    0% {
+        opacity: 0;
+        transform: scale(1.35) rotate(-9deg);
+    }
+    55% {
+        opacity: 1;
+        transform: scale(0.95) rotate(1.5deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(-0.6deg);
+    }
+}
+
+.siga-revelado {
+    animation: siga-revelado 0.5s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .siga-revelado {
+        animation: none;
+    }
+}
+
+.wiki-link {
+    color: #000080;
+    font-weight: bold;
+    text-decoration: underline dotted;
+}
+
+.wiki-link:hover {
+    color: #1084d0;
+}
+
+.wiki-link-locked {
+    color: #808080;
+    font-style: italic;
+    border-bottom: 1px dotted #808080;
+    cursor: help;
+}
+
+/* Reloj de la esquina: siempre marca las 11:34. Los dos puntos parpadean
+   como si el reloj estuviera funcionando con normalidad. */
+.siga-clock {
+    display: inline-flex;
+    align-items: center;
+    font-family: "Courier New", monospace;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    color: #00ff66;
+    background: #001a0d;
+    border: 1px solid #003c1f;
+    box-shadow: inset 1px 1px #000;
+    padding: 2px 8px;
+}
+
+.siga-clock-colon {
+    animation: siga-clock-blink 1s step-start infinite;
+}
+
+@keyframes siga-clock-blink {
+    50% {
+        opacity: 0;
+    }
+}
+
+/* Parpadeo sutil al cargar la pantalla, como un monitor antiguo
+   calentando. La duración exacta la fija legacy-glitch.js en cada carga
+   para que nunca sea idéntico dos veces seguidas. */
+.siga-flicker-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    background: #000;
+    opacity: 0;
+    animation: siga-flicker var(--siga-flicker-duration, 700ms) ease-out 1 both;
+}
+
+@keyframes siga-flicker {
+    0% {
+        opacity: 0.35;
+    }
+    10% {
+        opacity: 0.05;
+    }
+    22% {
+        opacity: 0.22;
+    }
+    40% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .siga-flicker-overlay {
+        display: none;
+    }
+}
+
+/* Barra de "resistencia" del enfrentamiento final: un boss-bar de toda la
+   vida, pero disfrazado de indicador de trámite, no de vida/maná. */
+.siga-resistencia {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 22px;
+    border: 2px solid #808080;
+    box-shadow: inset 1px 1px #404040, inset -1px -1px #ffffff;
+    background: #1a0000;
+    overflow: hidden;
+}
+
+.siga-resistencia::-webkit-progress-bar {
+    background: #1a0000;
+}
+
+.siga-resistencia::-webkit-progress-value,
+.siga-resistencia::-moz-progress-bar {
+    background: repeating-linear-gradient(45deg, #a6321f, #a6321f 8px, #c73e28 8px, #c73e28 16px);
+    transition: width 0.4s ease-out;
+}
+
+/* Visor de documentos: cada tipo de registro simula ser el papel que dice
+   ser, no una tarjeta genérica con el mismo aspecto para todo. */
+.documento-dialog {
+    position: relative;
+    border: none;
+    padding: 0;
+    width: min(94vw, 560px);
+    max-height: min(88vh, 720px);
+    overflow: auto;
+    background: #fffef0;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.documento-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.documento-cerrar {
+    position: sticky;
+    float: right;
+    top: 0.4rem;
+    right: 0.4rem;
+    width: 2rem;
+    height: 2rem;
+    margin: 0.4rem 0.4rem 0 0;
+    border: none;
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: 4px;
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.documento-encabezado {
+    clear: both;
+    text-align: center;
+    font-weight: bold;
+    padding: 0.5rem 1rem 0.25rem;
+    letter-spacing: 0.05em;
+}
+
+.documento-meta {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 1.25rem;
+    font-size: 0.78rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.documento-cuerpo {
+    padding: 0.5rem 1.25rem 1.25rem;
+    white-space: pre-wrap;
+    line-height: 1.5;
+}
+
+.documento-pie {
+    text-align: center;
+    padding: 0.4rem 1rem 0.9rem;
+    font-size: 0.72rem;
+    color: #777;
+    letter-spacing: 0.08em;
+}
+
+/* FAX: papel térmico, monoespaciado, líneas de escaneado. */
+.documento-fax {
+    background: #e9e9e4;
+    font-family: "Courier New", monospace;
+    color: #333;
+    border-top: 4px dashed #999;
+    border-bottom: 4px dashed #999;
+}
+
+.documento-fax .documento-encabezado {
+    background: #333;
+    color: #d8ffd8;
+}
+
+.documento-fax .documento-cuerpo {
+    background: repeating-linear-gradient(
+        0deg, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.03) 1px, transparent 1px, transparent 3px);
+}
+
+/* ACTA: formal, con un sello circular en la esquina. */
+.documento-acta {
+    font-family: Georgia, "Times New Roman", serif;
+}
+
+.documento-acta .documento-encabezado {
+    border-bottom: 2px solid #000080;
+    font-size: 1.05rem;
+}
+
+.documento-acta .documento-cuerpo {
+    position: relative;
+}
+
+.documento-acta .documento-pie::before {
+    content: "";
+    display: inline-block;
+    width: 46px;
+    height: 46px;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+    border: 2px solid #7a2416;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 3px #fffef0, inset 0 0 0 4px #7a2416;
+}
+
+/* MEMORÁNDUM: membrete de oficina. */
+.documento-memorando .documento-encabezado {
+    background: #000080;
+    color: #fff;
+}
+
+/* EXPEDIENTE DE PERSONAL: ficha con máquina de escribir y foto ausente. */
+.documento-empleado {
+    font-family: "Courier New", monospace;
+}
+
+.documento-empleado .documento-cuerpo {
+    padding-left: 5.5rem;
+    position: relative;
+    min-height: 4rem;
+}
+
+.documento-empleado .documento-cuerpo::before {
+    content: "S/F";
+    position: absolute;
+    left: 1.25rem;
+    top: 0;
+    width: 3.2rem;
+    height: 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #d4d0c8;
+    border: 1px solid #808080;
+    color: #808080;
+    font-size: 0.7rem;
+}
+
+/* FACTURA: renglones de formulario. */
+.documento-factura .documento-cuerpo {
+    background: repeating-linear-gradient(
+        0deg, transparent, transparent 1.4em, #d9d4c0 1.4em, #d9d4c0 calc(1.4em + 1px));
+}
+
+/* OFICIO / CIRCULAR: carta formal con membrete simple. */
+.documento-oficio .documento-encabezado,
+.documento-circular .documento-encabezado {
+    border-bottom: 1px solid #808080;
+}

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!--
+        EI_EXPOSE_REP / EI_EXPOSE_REP2: las entidades JPA (y los records que
+        las envuelven para las vistas) necesitan exponer sus referencias tal
+        cual para que Hibernate y Thymeleaf funcionen. Aqui no es un bug real,
+        es como se usan JPA y los records en todo el proyecto.
+    -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+</FindBugsFilter>

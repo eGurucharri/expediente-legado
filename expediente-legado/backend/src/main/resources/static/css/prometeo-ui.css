@@ -1,0 +1,863 @@
+/*
+ * Capa "real" de la interfaz: el menú de Prometeo. A propósito usa otro
+ * lenguaje visual que legacy-theme.css (SIGA-98): tipografía legible,
+ * contraste alto, foco visible y soporte de tema claro/oscuro. Es el
+ * contraste deliberado frente a la aplicación falsa.
+ */
+
+.prometeo-menu-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #fff;
+    color: #14110f;
+    border: 1px solid #fff;
+    border-radius: 6px;
+    padding: 0.35rem 0.75rem;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.prometeo-menu-trigger:hover {
+    background: #f0e6da;
+}
+
+.prometeo-logo {
+    width: 1.1em;
+    height: 1.1em;
+    flex-shrink: 0;
+    color: #d9660b;
+}
+
+.prometeo-dialog {
+    border: none;
+    border-radius: 12px;
+    padding: 0;
+    width: min(92vw, 420px);
+    max-height: min(85vh, 640px);
+    overflow-y: auto;
+    color: #14110f;
+    background: #fffdf9;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+.prometeo-dialog::backdrop {
+    background: rgba(10, 8, 6, 0.55);
+}
+
+.prometeo-panel {
+    position: relative;
+    padding: 1.5rem;
+}
+
+.prometeo-panel h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.15rem;
+    margin: 0 0 0.35rem;
+}
+
+.prometeo-subtitle {
+    color: #5b544c;
+    font-size: 0.85rem;
+    margin: 0 0 1.25rem;
+}
+
+.prometeo-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: none;
+    background: transparent;
+    font-size: 1.4rem;
+    line-height: 1;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #14110f;
+}
+
+.prometeo-close:hover {
+    background: #f0e6da;
+}
+
+.prometeo-menu-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.prometeo-menu-item-form {
+    margin: 0;
+}
+
+.prometeo-menu-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: #f4ede3;
+    color: #14110f;
+    border: 1px solid #e3d7c6;
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.95rem;
+    text-decoration: none;
+    cursor: pointer;
+    min-height: 44px;
+}
+
+.prometeo-menu-item:hover {
+    background: #ebdfcd;
+}
+
+.prometeo-menu-item-salir {
+    background: transparent;
+    border-color: transparent;
+    color: #7a3b2e;
+}
+
+.prometeo-hint {
+    color: #5b544c;
+    font-size: 0.8rem;
+    margin: 1rem 0 0;
+}
+
+.prometeo-lista-estado {
+    display: grid;
+    gap: 0.7rem;
+    margin: 0.9rem 0 1rem;
+}
+
+.prometeo-achievement-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.75rem 0.9rem;
+    border-radius: 10px;
+    background: #f5ece0;
+    border: 1px solid #e3d7c6;
+}
+
+.prometeo-achievement-item.is-unlocked {
+    background: #fff4d9;
+    border-color: #d5a24d;
+}
+
+.prometeo-achievement-item strong {
+    font-size: 0.95rem;
+}
+
+.prometeo-achievement-item span {
+    color: #5b544c;
+    font-size: 0.82rem;
+}
+
+.prometeo-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    background: #f0e6da;
+    color: #5b544c;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.prometeo-tarot-resumen {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+}
+
+.prometeo-tarot-lista {
+    display: grid;
+    gap: 0.7rem;
+    margin: 0.8rem 0 1rem;
+}
+
+.prometeo-tarot-card {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.8rem 0.95rem;
+    border-radius: 10px;
+    border: 1px solid #e3d7c6;
+    background: #f8f1e7;
+}
+
+.prometeo-tarot-card.is-collected {
+    background: #fff5db;
+    border-color: #d5a24d;
+}
+
+.prometeo-tarot-card.is-sealed {
+    opacity: 0.82;
+}
+
+.prometeo-tarot-card strong {
+    display: block;
+    font-size: 0.95rem;
+}
+
+.prometeo-tarot-card small {
+    color: #5b544c;
+}
+
+.prometeo-tarot-card .prometeo-tarot-requisito {
+    display: block;
+    margin-top: 0.3rem;
+    font-size: 0.72rem;
+    color: #8a7f6c;
+    text-align: right;
+}
+
+.prometeo-captcha {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    background: rgba(10, 8, 6, 0.7);
+}
+
+.prometeo-captcha-card {
+    width: min(92vw, 360px);
+    padding: 1.1rem;
+    border-radius: 12px;
+    background: #fffdf9;
+    border: 1px solid #d9cbb4;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+.prometeo-captcha-card h3 {
+    margin: 0 0 0.4rem;
+    font-size: 1rem;
+}
+
+.prometeo-captcha-card p {
+    margin: 0 0 0.75rem;
+    color: #5b544c;
+    font-size: 0.9rem;
+}
+
+.prometeo-captcha-opciones {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0.6rem 0 0.9rem;
+}
+
+.prometeo-captcha-opcion {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.9rem;
+    color: #14110f;
+}
+
+.prometeo-panel-acciones {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.prometeo-assistente {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 1800;
+    display: flex;
+    align-items: flex-end;
+    gap: 0.75rem;
+    max-width: min(92vw, 340px);
+    pointer-events: auto;
+}
+
+.prometeo-assistente.is-visible {
+    animation: prometeo-float-in 0.35s ease-out;
+}
+
+.prometeo-assistente-avatar {
+    width: auto;
+    min-width: 84px;
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0.5rem 0.65rem;
+    border-radius: 16px;
+    background: #0b0f0b;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+    font-family: "Courier New", monospace;
+    font-size: 0.62rem;
+    line-height: 1.15;
+    color: #6fffa0;
+    white-space: pre;
+    animation: prometeo-lince-respirar 3.4s ease-in-out infinite;
+}
+
+/* Cada estado de ánimo del lince tiene su propia animación y matiz de color. */
+.prometeo-assistente.is-guino .prometeo-assistente-avatar {
+    color: #ffe37a;
+    animation: prometeo-lince-guino 2.6s ease-in-out infinite;
+}
+
+.prometeo-assistente.is-alerta .prometeo-assistente-avatar {
+    color: #ff8f7a;
+    animation: prometeo-lince-alerta 0.5s ease-in-out infinite;
+}
+
+.prometeo-assistente.is-triste .prometeo-assistente-avatar {
+    color: #8fae95;
+    opacity: 0.85;
+    animation: prometeo-lince-respirar 5s ease-in-out infinite;
+}
+
+@keyframes prometeo-lince-respirar {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-2px); }
+}
+
+@keyframes prometeo-lince-guino {
+    0%, 60%, 100% { transform: rotate(0deg); }
+    30% { transform: rotate(-2deg); }
+}
+
+@keyframes prometeo-lince-alerta {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(-1px, -1px); }
+    75% { transform: translate(1px, -1px); }
+}
+
+.prometeo-assistente-burbuja {
+    padding: 0.8rem 0.9rem;
+    border-radius: 14px 14px 14px 4px;
+    background: rgba(255, 253, 249, 0.98);
+    border: 1px solid #e3d7c6;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+}
+
+.prometeo-assistente-burbuja p {
+    margin: 0 0 0.5rem;
+    font-size: 0.88rem;
+    line-height: 1.4;
+    color: #14110f;
+}
+
+@keyframes prometeo-float-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.prometeo-final {
+    position: fixed;
+    inset: 0;
+    z-index: 2200;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    background: rgba(7, 6, 5, 0.86);
+}
+
+.prometeo-final-card {
+    width: min(92vw, 420px);
+    padding: 1.15rem;
+    border-radius: 16px;
+    background: #130f0d;
+    color: #f7eadc;
+    border: 1px solid #b56e1f;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.prometeo-final-ribbon {
+    margin: 0 0 0.55rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    color: #f1c56f;
+}
+
+.prometeo-final-card h3 {
+    margin: 0 0 0.55rem;
+    font-size: 1.05rem;
+}
+
+.prometeo-final-card p {
+    margin: 0 0 0.9rem;
+    line-height: 1.5;
+    color: #ead8c3;
+}
+
+/* Circular del jefe: misma disposición que el final alternativo, pero con
+   un acento frío y burocrático — es una amenaza vestida de memorándum. */
+.prometeo-jefe {
+    position: fixed;
+    inset: 0;
+    z-index: 2100;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    background: rgba(7, 8, 9, 0.86);
+}
+
+.prometeo-jefe-card {
+    width: min(92vw, 420px);
+    padding: 1.15rem;
+    border-radius: 8px;
+    background: #14171b;
+    color: #e2e6ea;
+    border: 1px solid #4a5568;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.prometeo-jefe-membrete {
+    margin: 0 0 0.55rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-size: 0.68rem;
+    color: #7fa8c9;
+}
+
+.prometeo-jefe-card h3 {
+    margin: 0 0 0.55rem;
+    font-size: 1.05rem;
+}
+
+.prometeo-jefe-card p {
+    margin: 0 0 0.9rem;
+    line-height: 1.5;
+    color: #ccd3da;
+}
+
+/* Reasignación (fin por vidas agotadas): mismo tono sombrío que el final
+   alternativo, para que se sienta como un mal desenlace de verdad. */
+.prometeo-despido {
+    position: fixed;
+    inset: 0;
+    z-index: 2200;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    background: rgba(7, 6, 5, 0.86);
+}
+
+.prometeo-despido-card {
+    width: min(92vw, 420px);
+    padding: 1.15rem;
+    border-radius: 16px;
+    background: #130f0d;
+    color: #f7eadc;
+    border: 1px solid #a6321f;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.prometeo-despido-card h3 {
+    margin: 0 0 0.55rem;
+    font-size: 1.05rem;
+}
+
+.prometeo-despido-card p {
+    margin: 0 0 0.9rem;
+    line-height: 1.5;
+    color: #ead8c3;
+}
+
+/* Final verdadero: mismo patrón, acento dorado para que se lea como el
+   único desenlace luminoso del juego. */
+.prometeo-final-verdadero {
+    position: fixed;
+    inset: 0;
+    z-index: 2300;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    background: rgba(10, 8, 4, 0.88);
+}
+
+.prometeo-final-verdadero-card {
+    width: min(92vw, 420px);
+    padding: 1.15rem;
+    border-radius: 16px;
+    background: #1a1509;
+    color: #fbf3e1;
+    border: 1px solid #f1c56f;
+    box-shadow: 0 20px 70px rgba(241, 197, 111, 0.25);
+}
+
+.prometeo-final-verdadero-ribbon {
+    margin: 0 0 0.55rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    color: #f1c56f;
+}
+
+.prometeo-final-verdadero-card h3 {
+    margin: 0 0 0.55rem;
+    font-size: 1.05rem;
+}
+
+.prometeo-final-verdadero-card p {
+    margin: 0 0 0.9rem;
+    line-height: 1.5;
+    color: #ecdfc2;
+}
+
+/* Relato de una carta oculta: mismo patrón de overlay, con un panel de
+   cuatro opciones (comunismo de lujo / centrista / socialdemócrata /
+   neoliberal) que sustituye al botón único de los otros finales. */
+.prometeo-historia-carta {
+    position: fixed;
+    inset: 0;
+    z-index: 2150;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    background: rgba(10, 8, 16, 0.86);
+}
+
+.prometeo-historia-carta-card {
+    width: min(92vw, 460px);
+    max-height: min(88vh, 640px);
+    overflow-y: auto;
+    padding: 1.15rem;
+    border-radius: 12px;
+    background: #17131f;
+    color: #ece6f5;
+    border: 1px solid #5b4a7a;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.prometeo-historia-carta-ribbon {
+    margin: 0 0 0.55rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-size: 0.68rem;
+    color: #b79fe0;
+}
+
+.prometeo-historia-carta-card h3 {
+    margin: 0 0 0.55rem;
+    font-size: 1.05rem;
+}
+
+.prometeo-historia-carta-card > p {
+    margin: 0 0 0.9rem;
+    line-height: 1.5;
+    color: #d9d0ea;
+}
+
+.prometeo-historia-carta-opciones {
+    display: grid;
+    gap: 0.55rem;
+    margin: 0 0 1rem;
+}
+
+.prometeo-historia-carta-opcion {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0.6rem 0.75rem;
+    height: auto;
+    min-height: 44px;
+}
+
+.prometeo-historia-carta-opcion strong {
+    display: block;
+    font-size: 0.88rem;
+    margin-bottom: 0.2rem;
+}
+
+.prometeo-historia-carta-opcion small {
+    display: block;
+    color: #5b544c;
+    font-size: 0.78rem;
+    line-height: 1.4;
+}
+
+.prometeo-historia-carta-opcion:disabled {
+    opacity: 0.55;
+    cursor: default;
+}
+
+.prometeo-historia-carta-opcion.is-elegida {
+    opacity: 1;
+    border-color: #b79fe0;
+    background: #2a2140;
+}
+
+.prometeo-historia-carta-opcion.is-elegida small {
+    color: #cabce3;
+}
+
+/* Final político: comparte estructura con el resto de finales, con
+   acento morado para diferenciarlo del verdadero (dorado) y el
+   alternativo (rojo). */
+.prometeo-final-politico {
+    position: fixed;
+    inset: 0;
+    z-index: 2300;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    background: rgba(10, 8, 16, 0.88);
+}
+
+.prometeo-final-politico-card {
+    width: min(92vw, 420px);
+    padding: 1.15rem;
+    border-radius: 16px;
+    background: #17131f;
+    color: #ece6f5;
+    border: 1px solid #8a6fd1;
+    box-shadow: 0 20px 70px rgba(138, 111, 209, 0.25);
+}
+
+.prometeo-final-politico-ribbon {
+    margin: 0 0 0.55rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    color: #b79fe0;
+}
+
+.prometeo-final-politico-card h3 {
+    margin: 0 0 0.55rem;
+    font-size: 1.05rem;
+}
+
+.prometeo-final-politico-card p {
+    margin: 0 0 0.9rem;
+    line-height: 1.5;
+    color: #d9d0ea;
+}
+
+/* Resumen de vida en el panel principal: corazones/celdas simples, sin
+   depender de emoji para que combine con el resto de la tipografía. */
+.prometeo-vida-resumen {
+    margin: 0.9rem 0;
+    font-size: 0.85rem;
+    color: #5b544c;
+    letter-spacing: 0.05em;
+}
+
+.prometeo-vida-resumen strong {
+    color: #14110f;
+    margin-right: 0.4rem;
+}
+
+.prometeo-vida-pip {
+    display: inline-block;
+    width: 0.8em;
+}
+
+.prometeo-vida-pip.is-llena { color: #a6321f; }
+.prometeo-vida-pip.is-vacia { color: #d9cbb4; }
+
+/* Selector de dificultad: mismo patrón visual que el resto de opciones. */
+.prometeo-dificultad-opciones {
+    display: grid;
+    gap: 0.55rem;
+    margin: 0.8rem 0 1rem;
+}
+
+.prometeo-dificultad-opcion {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    padding: 0.65rem 0.8rem;
+    border-radius: 8px;
+    background: #f4ede3;
+    border: 1px solid #e3d7c6;
+    cursor: pointer;
+}
+
+.prometeo-dificultad-opcion input {
+    margin-top: 0.2rem;
+}
+
+.prometeo-dificultad-opcion strong {
+    display: block;
+    font-size: 0.92rem;
+}
+
+.prometeo-dificultad-opcion small {
+    color: #5b544c;
+    font-size: 0.78rem;
+}
+
+/* Arte pixelado de las cartas de tarot: crispEdges evita el suavizado y
+   mantiene el aspecto de icono retro a cualquier tamaño de pantalla. */
+.prometeo-tarot-pixelart {
+    width: 3.4rem;
+    height: 4.25rem;
+    flex-shrink: 0;
+    border-radius: 4px;
+    background: #100b18;
+    border: 1px solid #3a2f4a;
+    image-rendering: pixelated;
+}
+
+.prometeo-tarot-card {
+    align-items: flex-start;
+}
+
+.prometeo-tarot-card-cuerpo {
+    display: flex;
+    gap: 0.65rem;
+    align-items: flex-start;
+    flex: 1;
+}
+
+.prometeo-tarot-canjear {
+    margin-top: 0.4rem;
+    font-size: 0.78rem;
+    padding: 0.35rem 0.7rem;
+    min-height: 2.2rem;
+}
+
+.prometeo-btn-secundario,
+.prometeo-btn-peligro {
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    min-height: 44px;
+}
+
+.prometeo-btn-secundario {
+    background: #eee6d9;
+    border: 1px solid #d9cbb4;
+    color: #14110f;
+}
+
+.prometeo-btn-peligro {
+    background: #a6321f;
+    border: 1px solid #7a2416;
+    color: #fff;
+}
+
+.prometeo-btn-peligro:hover {
+    background: #8c2a19;
+}
+
+#prometeo-volumen-rango {
+    width: 100%;
+    margin: 0.75rem 0;
+}
+
+/* Foco visible en toda la capa Prometeo: nunca lo suprimimos. */
+.prometeo-menu-trigger:focus-visible,
+.prometeo-close:focus-visible,
+.prometeo-menu-item:focus-visible,
+.prometeo-btn-secundario:focus-visible,
+.prometeo-btn-peligro:focus-visible,
+.prometeo-dificultad-opcion input:focus-visible,
+#prometeo-volumen-rango:focus-visible {
+    outline: 3px solid #1a6fd1;
+    outline-offset: 2px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .prometeo-dialog {
+        background: #211d19;
+        color: #f3ece2;
+    }
+
+    .prometeo-subtitle,
+    .prometeo-hint {
+        color: #bdb2a2;
+    }
+
+    .prometeo-close {
+        color: #f3ece2;
+    }
+
+    .prometeo-close:hover {
+        background: #332c26;
+    }
+
+    .prometeo-menu-item {
+        background: #332c26;
+        border-color: #453b32;
+        color: #f3ece2;
+    }
+
+    .prometeo-menu-item:hover {
+        background: #443a30;
+    }
+
+    .prometeo-menu-item-salir {
+        color: #e79484;
+    }
+
+    .prometeo-btn-secundario {
+        background: #332c26;
+        border-color: #453b32;
+        color: #f3ece2;
+    }
+
+    .prometeo-achievement-item {
+        background: #332c26;
+        border-color: #453b32;
+    }
+
+    .prometeo-achievement-item span,
+    .prometeo-tarot-card small,
+    .prometeo-captcha-card p {
+        color: #bdb2a2;
+    }
+
+    .prometeo-tarot-card .prometeo-tarot-requisito {
+        color: #8f8574;
+    }
+
+    .prometeo-tarot-card {
+        background: #2c241e;
+        border-color: #453b32;
+    }
+
+    .prometeo-tarot-card.is-collected {
+        background: #3f3022;
+        border-color: #c08f3c;
+    }
+
+    .prometeo-captcha-card {
+        background: #211d19;
+        border-color: #453b32;
+        color: #f3ece2;
+    }
+
+    .prometeo-assistente-burbuja {
+        background: rgba(33, 29, 25, 0.95);
+        border-color: #453b32;
+    }
+
+    .prometeo-assistente-burbuja p {
+        color: #f3ece2;
+    }
+}
+
+@media (max-width: 420px) {
+    .prometeo-dialog {
+        width: 100vw;
+        max-height: 100vh;
+        height: 100%;
+        border-radius: 0;
+    }
+}
