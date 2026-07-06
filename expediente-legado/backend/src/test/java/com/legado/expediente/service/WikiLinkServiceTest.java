@@ -4,7 +4,9 @@ import com.legado.expediente.model.Concepto;
 import com.legado.expediente.model.ConceptoTipo;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -48,5 +50,26 @@ class WikiLinkServiceTest {
         String result = wikiLinkService.render("[[Contrato]] <b>y</b>", Collections.singletonList(concepto));
 
         assertEquals("<a href=\"#concepto-7\" class=\"wiki-link\">Contrato</a> &lt;b&gt;y&lt;/b&gt;", result);
+    }
+
+    @Test
+    void extraerReferenciasDevuelveLosNombresEnOrdenDeAparicion() {
+        List<String> nombres = wikiLinkService.extraerReferencias(
+                "Visto junto a [[I. Karamázov]] y también citado por [[P. Smerdiakov]].");
+
+        assertEquals(Arrays.asList("I. Karamázov", "P. Smerdiakov"), nombres);
+    }
+
+    @Test
+    void extraerReferenciasPreservaAcentosSinPasarPorEscapadoHtml() {
+        List<String> nombres = wikiLinkService.extraerReferencias("[[Comité Ad Honorem]]");
+
+        assertEquals(Collections.singletonList("Comité Ad Honorem"), nombres);
+    }
+
+    @Test
+    void extraerReferenciasDevuelveListaVaciaSinReferenciasOTextoNulo() {
+        assertEquals(Collections.emptyList(), wikiLinkService.extraerReferencias("Sin referencias aquí."));
+        assertEquals(Collections.emptyList(), wikiLinkService.extraerReferencias(null));
     }
 }

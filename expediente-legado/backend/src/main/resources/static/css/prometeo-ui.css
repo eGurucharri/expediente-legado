@@ -853,6 +853,77 @@
     }
 }
 
+/* Mapa de conexiones del corcho: mismo contenido que la lista de abajo,
+   en forma de grafo. Vive dentro de la ventana SIGA-98 pero con estética
+   Prometeo, a propósito — es la capa real asomando entre las grietas. */
+.prometeo-grafo-panel {
+    margin-bottom: 1rem;
+}
+
+.prometeo-grafo-svg {
+    width: 100%;
+    height: min(60vh, 380px);
+    background: #14110f;
+    border: 1px solid #3a2f4a;
+    border-radius: 8px;
+}
+
+.prometeo-grafo-arista {
+    stroke: #5b4a7a;
+    stroke-width: 1.5;
+}
+
+.prometeo-grafo-nodo circle {
+    stroke: #14110f;
+    stroke-width: 1.5;
+    cursor: pointer;
+    transition: r 0.15s ease-out;
+}
+
+.prometeo-grafo-nodo:hover circle,
+.prometeo-grafo-nodo:focus-visible circle {
+    r: 13;
+}
+
+.prometeo-grafo-nodo:focus-visible {
+    outline: none;
+}
+
+.prometeo-grafo-nodo text {
+    fill: #ece6f5;
+    font-size: 11px;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    pointer-events: none;
+}
+
+.prometeo-grafo-leyenda {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+    margin: 0.6rem 0 0;
+    font-size: 0.78rem;
+    color: #5b544c;
+}
+
+.prometeo-grafo-leyenda-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.prometeo-grafo-punto {
+    display: inline-block;
+    width: 0.65rem;
+    height: 0.65rem;
+    border-radius: 50%;
+}
+
+.prometeo-grafo-punto.is-persona { background: #caa23c; }
+.prometeo-grafo-punto.is-empresa { background: #7fa8c9; }
+.prometeo-grafo-punto.is-comite { background: #c96f6f; }
+.prometeo-grafo-punto.is-lugar { background: #7fbf8a; }
+.prometeo-grafo-punto.is-documento { background: #b79fe0; }
+
 @media (max-width: 420px) {
     .prometeo-dialog {
         width: 100vw;

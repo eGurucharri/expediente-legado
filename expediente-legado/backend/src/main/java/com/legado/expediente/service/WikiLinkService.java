@@ -4,6 +4,7 @@ import com.legado.expediente.model.Concepto;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.HtmlUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,21 @@ import java.util.regex.Pattern;
 public class WikiLinkService {
 
     private static final Pattern REFERENCIA = Pattern.compile("\\[\\[([^\\[\\]]+)]]");
+
+    /**
+     * Nombres citados entre dobles corchetes en el texto crudo (sin escapar
+     * ni resolver si están desbloqueados), en el orden en que aparecen.
+     * Sirve para construir el grafo de conexiones del corcho.
+     */
+    public List<String> extraerReferencias(String textoCrudo) {
+        String texto = textoCrudo == null ? "" : textoCrudo;
+        Matcher matcher = REFERENCIA.matcher(texto);
+        List<String> nombres = new ArrayList<>();
+        while (matcher.find()) {
+            nombres.add(matcher.group(1));
+        }
+        return nombres;
+    }
 
     public String render(String textoCrudo, List<Concepto> conceptosDesbloqueados) {
         String textoSeguro = textoCrudo == null ? "" : textoCrudo;
