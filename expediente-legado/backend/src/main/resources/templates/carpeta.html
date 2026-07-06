@@ -32,12 +32,26 @@
     </div>
 
     <div class="siga-window">
-        <div class="siga-titlebar">Corcho de investigación</div>
+        <div class="siga-titlebar d-flex justify-content-between align-items-center">
+            <span>Corcho de investigación</span>
+            <button type="button" id="prometeo-grafo-toggle" class="prometeo-btn-secundario" hidden>Ver mapa de conexiones</button>
+        </div>
         <div class="p-3">
+            <div id="prometeo-grafo-panel" class="prometeo-grafo-panel" hidden>
+                <svg id="prometeo-grafo-svg" class="prometeo-grafo-svg" viewBox="0 0 600 380"
+                     role="img" aria-label="Mapa de conexiones entre los conceptos desbloqueados"></svg>
+                <p class="prometeo-grafo-leyenda">
+                    <span class="prometeo-grafo-leyenda-item"><i class="prometeo-grafo-punto is-persona"></i>Persona</span>
+                    <span class="prometeo-grafo-leyenda-item"><i class="prometeo-grafo-punto is-empresa"></i>Empresa</span>
+                    <span class="prometeo-grafo-leyenda-item"><i class="prometeo-grafo-punto is-comite"></i>Comité</span>
+                    <span class="prometeo-grafo-leyenda-item"><i class="prometeo-grafo-punto is-lugar"></i>Lugar</span>
+                    <span class="prometeo-grafo-leyenda-item"><i class="prometeo-grafo-punto is-documento"></i>Documento</span>
+                </p>
+            </div>
             <p th:if="${#lists.isEmpty(conceptos)}" class="text-muted mb-0">
                 Todavía no ha descubierto ninguna pista. Investigue un expediente para empezar a llenar esta carpeta.
             </p>
-            <div class="row row-cols-1 row-cols-md-2 g-3">
+            <div id="prometeo-grafo-lista" class="row row-cols-1 row-cols-md-2 g-3">
                 <div class="col" th:each="cv : ${conceptos}">
                     <div class="siga-record h-100" th:id="'concepto-' + ${cv.concepto.id}">
                         <div class="siga-record-header d-flex justify-content-between">
@@ -52,10 +66,22 @@
     </div>
 </div>
 
+<!--
+  Datos del grafo de conexiones (nodos = conceptos desbloqueados, aristas =
+  referencias [[...]] entre ellos ya resueltas). Solo tiene sentido en esta
+  página, así que no vive en el fragmento compartido datosJuego.
+-->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    window.PROMETEO_GRAFO_CONCEPTOS = /*[[${grafoConceptos}]]*/ null;
+    /*]]>*/
+</script>
+
 <div th:replace="~{fragments/chrome :: menu}"></div>
 <div th:replace="~{fragments/chrome :: datosJuego}"></div>
 <div th:replace="~{fragments/chrome :: extras}"></div>
 <script th:src="@{/js/legacy-glitch.js}"></script>
 <script th:src="@{/js/prometeo-ui.js}"></script>
+<script th:src="@{/js/concept-graph.js}"></script>
 </body>
 </html>

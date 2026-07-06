@@ -16,7 +16,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Controller
@@ -46,6 +49,44 @@ public class CarpetaController {
     public record ConceptoVista(Concepto concepto, String resumenHtml) {
     }
 
+    public record NodoGrafo(Long id, String nombre, String tipo) {
+    }
+
+    public record AristaGrafo(Long origen, Long destino) {
+    }
+
+    public record GrafoConceptos(List<NodoGrafo> nodos, List<AristaGrafo> aristas) {
+    }
+
+    private GrafoConceptos construirGrafo(List<Concepto> desbloqueados) {
+        Map<String, Long> idPorNombre = new HashMap<>();
+        for (Concepto c : desbloqueados) {
+            idPorNombre.putIfAbsent(c.getNombre(), c.getId());
+        }
+
+        List<NodoGrafo> nodos = desbloqueados.stream()
+                .map(c -> new NodoGrafo(c.getId(), c.getNombre(), c.getTipo().name()))
+                .toList();
+
+        Set<String> aristasVistas = new HashSet<>();
+        List<AristaGrafo> aristas = new ArrayList<>();
+        for (Concepto c : desbloqueados) {
+            for (String nombreReferenciado : wikiLinkService.extraerReferencias(c.getResumen())) {
+                Long destinoId = idPorNombre.get(nombreReferenciado);
+                if (destinoId == null || destinoId.equals(c.getId())) {
+                    continue;
+                }
+                long a = Math.min(c.getId(), destinoId);
+                long b = Math.max(c.getId(), destinoId);
+                if (aristasVistas.add(a + "-" + b)) {
+                    aristas.add(new AristaGrafo(a, b));
+                }
+            }
+        }
+
+        return new GrafoConceptos(nodos, aristas);
+    }
+
     @GetMapping("/carpeta")
     public String carpeta(Authentication authentication, Model model) {
         Usuario usuario = usuarioContexto.actual(authentication);
@@ -70,6 +111,7 @@ public class CarpetaController {
                 .toList();
 
         model.addAttribute("conceptos", conceptos);
+        model.addAttribute("grafoConceptos", construirGrafo(desbloqueados));
         model.addAttribute("progreso", progresoService.progreso(casosBase, descubiertas));
         model.addAttribute("todosResueltos", todosResueltos);
         model.addAttribute("rutaActual", "/carpeta");
