@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -58,7 +59,7 @@ public class ResumenJuegoService {
         List<ProgresoService.CasoProgreso> progreso = progresoService.progreso(casosVisibles, descubiertas);
 
         Set<Long> casosConVeredicto = veredictoRepository.findByUsuarioId(usuario.getId()).stream()
-                .map(v -> v.getCaso().getId())
+                .map(v -> Objects.requireNonNull(v.getCaso(), "un veredicto siempre tiene caso").getId())
                 .collect(Collectors.toSet());
 
         int casosResueltos = 0;

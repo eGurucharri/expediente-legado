@@ -112,12 +112,11 @@ public class CasoController {
         List<RegistroVista> registrosVista = registroLegadoRepository.findByCasoId(id).stream()
                 .map(r -> {
                     Pista p = pistaPorRegistro.get(r.getId());
-                    PistaVista pv = p == null ? null
-                            : new PistaVista(p.getId(), p.getDescripcion(), descubiertas.contains(p.getId()));
-                    String html = hotspotService.render(r.getContenido(),
-                            p == null ? null : p.getFraseGatillo(),
-                            p == null ? null : p.getId(),
-                            pv != null && pv.descubierta());
+                    boolean descubierta = p != null && descubiertas.contains(p.getId());
+                    PistaVista pv = p == null ? null : new PistaVista(p.getId(), p.getDescripcion(), descubierta);
+                    String fraseGatillo = p == null ? null : p.getFraseGatillo();
+                    Long pistaId = p == null ? null : p.getId();
+                    String html = hotspotService.render(r.getContenido(), fraseGatillo, pistaId, descubierta);
                     html = cartaOcultaService.aplicar(html, r.getFolio());
                     return new RegistroVista(r, pv, html);
                 })

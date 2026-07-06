@@ -1,5 +1,6 @@
 package com.legado.expediente.service;
 
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.HtmlUtils;
 
@@ -16,7 +17,7 @@ import java.util.Map;
 @Service
 public class CartaOcultaService {
 
-    private record Anzuelo(String fraseGatillo, String cartaId) {
+    private record Anzuelo(@NonNull String fraseGatillo, @NonNull String cartaId) {
     }
 
     private static final Map<String, Anzuelo> CARTAS_POR_FOLIO = Map.of(
