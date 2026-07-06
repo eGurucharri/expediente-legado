@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 @Controller
@@ -71,13 +72,14 @@ public class CarpetaController {
         Set<String> aristasVistas = new HashSet<>();
         List<AristaGrafo> aristas = new ArrayList<>();
         for (Concepto c : desbloqueados) {
+            long origenId = Objects.requireNonNull(c.getId(), "un concepto ya persistido siempre tiene id");
             for (String nombreReferenciado : wikiLinkService.extraerReferencias(c.getResumen())) {
                 Long destinoId = idPorNombre.get(nombreReferenciado);
-                if (destinoId == null || destinoId.equals(c.getId())) {
+                if (destinoId == null || destinoId == origenId) {
                     continue;
                 }
-                long a = Math.min(c.getId(), destinoId);
-                long b = Math.max(c.getId(), destinoId);
+                long a = Math.min(origenId, destinoId);
+                long b = Math.max(origenId, destinoId);
                 if (aristasVistas.add(a + "-" + b)) {
                     aristas.add(new AristaGrafo(a, b));
                 }
