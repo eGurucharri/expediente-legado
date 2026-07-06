@@ -1049,7 +1049,7 @@
 
         tarotLista.querySelectorAll("[data-canjear-carta]").forEach(function (boton) {
             boton.addEventListener("click", function () {
-                canjearCartaPorVida(boton.getAttribute("data-canjear-carta"));
+                canjearCartaPorVida(boton.getAttribute("data-canjear-carta"), boton);
             });
         });
     }
@@ -1191,13 +1191,37 @@
         }
     }
 
-    function canjearCartaPorVida(idCarta) {
+    /**
+     * Canjear una carta es irreversible y cierra la puerta al final
+     * verdadero (issue #7), así que el primer clic solo arma la
+     * confirmación (cambia el texto y el color del botón); hace falta un
+     * segundo clic dentro de los siguientes 3s para que se ejecute de
+     * verdad. Pasado ese tiempo, o si se repinta la lista antes, vuelve
+     * a su estado normal sin canjear nada.
+     */
+    function canjearCartaPorVida(idCarta, boton) {
         var carta = state.tarot.find(function (c) {
             return c.id === idCarta;
         });
         if (!carta || !carta.collected || carta.gastada) {
             return;
         }
+
+        if (boton && !boton.classList.contains("is-confirmando")) {
+            boton.textContent = "¿Seguro? Pierde el final verdadero";
+            boton.classList.add("is-confirmando", "prometeo-btn-peligro");
+            boton.classList.remove("prometeo-btn-secundario");
+            tic(320);
+            window.setTimeout(function () {
+                if (boton.classList.contains("is-confirmando")) {
+                    boton.textContent = "Canjear por una vida";
+                    boton.classList.remove("is-confirmando", "prometeo-btn-peligro");
+                    boton.classList.add("prometeo-btn-secundario");
+                }
+            }, 3000);
+            return;
+        }
+
         carta.gastada = true;
         var anterior = state.vida;
         var max = DIFICULTADES[state.dificultad].vidasMax;
