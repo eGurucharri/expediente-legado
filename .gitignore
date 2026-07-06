@@ -27,3 +27,6 @@ Thumbs.db
 
 # Cache/logs de sesión de herramientas de modernización automática
 .github/modernize/
+
+# Notas de Claude Code para sí mismo: uso local, no se versiona
+CLAUDE.md
