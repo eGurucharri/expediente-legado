@@ -78,6 +78,21 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!--
+            E2E real de navegador (issue #12): dirige un Chromium headless de
+            verdad contra la app ya desplegada (docker compose up), para
+            cubrir lo que el resto de tests (Proxy fakes, sin Spring context)
+            no puede: foco/Tab, JS del cliente, animaciones. Las clases *E2E
+            no terminan en *Test, así que "mvn test" normal no las ejecuta
+            (necesitan la app viva en ${e2e.baseUrl}); se lanzan a mano con
+            "mvn test -Dtest=NombreE2E".
+        -->
+        <dependency>
+            <groupId>com.microsoft.playwright</groupId>
+            <artifactId>playwright</artifactId>
+            <version>1.52.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
