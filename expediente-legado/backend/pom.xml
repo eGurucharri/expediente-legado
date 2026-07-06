@@ -13,7 +13,7 @@
 
     <groupId>com.legado</groupId>
     <artifactId>expediente-legado</artifactId>
-    <version>0.2.0-SNAPSHOT</version>
+    <version>0.3.0-SNAPSHOT</version>
     <name>expediente-legado</name>
     <description>SIGA-98: aventura de investigacion sobre un antiguo sistema de administracion</description>
 
