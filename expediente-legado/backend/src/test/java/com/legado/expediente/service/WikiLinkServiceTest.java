@@ -22,19 +22,14 @@ class WikiLinkServiceTest {
         unlocked.setTipo(ConceptoTipo.PERSONA);
         unlocked.setResumen("Resumen");
 
-        Concepto locked = new Concepto();
-        locked.setId(12L);
-        locked.setNombre("Documento secreto");
-        locked.setTipo(ConceptoTipo.DOCUMENTO);
-        locked.setResumen("Resumen");
-
         String result = wikiLinkService.render(
                 "Revisar [[Comité Ad Honorem]] y [[Documento secreto]]",
                 Collections.singletonList(unlocked)
         );
 
         assertEquals(
-                "Revisar <span class=\"wiki-link-locked\" title=\"Expediente no localizado\">Comit&eacute; Ad Honorem</span> y <span class=\"wiki-link-locked\" title=\"Expediente no localizado\">Documento secreto</span>",
+                "Revisar <a href=\"#concepto-11\" class=\"wiki-link\">Comit&eacute; Ad Honorem</a> y "
+                        + "<span class=\"wiki-link-locked\" title=\"Expediente no localizado\">Documento secreto</span>",
                 result
         );
     }
