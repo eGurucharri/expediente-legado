@@ -124,11 +124,11 @@
 
         <div class="prometeo-panel" data-panel="nueva-partida" hidden>
             <h2 id="prometeo-menu-title-nueva-partida">¿Empezar de nuevo?</h2>
-            <p>Vas a borrar tu progreso: las pistas que ya encontraste dejarán de estarlo. No se puede deshacer.</p>
+            <p>Vas a borrar tu progreso: las pistas que ya encontraste dejarán de estarlo. No se puede deshacer.
+               Se cerrará la sesión.</p>
             <div class="prometeo-panel-acciones">
                 <button type="button" class="prometeo-btn-secundario" data-volver-panel>Cancelar</button>
                 <form th:action="@{/menu/nueva-partida}" method="post">
-                    <input type="hidden" name="volver" th:value="${rutaActual}">
                     <button type="submit" class="prometeo-btn-peligro">Sí, empezar de nuevo</button>
                 </form>
             </div>

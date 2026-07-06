@@ -6,7 +6,10 @@ import com.legado.expediente.repository.DescubrimientoRepository;
 import com.legado.expediente.repository.UsuarioRepository;
 import com.legado.expediente.repository.VeredictoRepository;
 import com.legado.expediente.service.UsuarioContexto;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -50,14 +53,13 @@ public class MenuController {
     }
 
     @PostMapping("/menu/nueva-partida")
-    public String nuevaPartida(@RequestParam(defaultValue = "/") String volver,
-                                Authentication authentication, RedirectAttributes redirectAttributes) {
+    public String nuevaPartida(Authentication authentication, HttpServletRequest request, HttpServletResponse response) {
         Usuario usuario = usuarioContexto.actual(authentication);
         descubrimientoRepository.deleteByUsuarioId(usuario.getId());
         veredictoRepository.deleteByUsuarioId(usuario.getId());
         combateEnCursoRepository.deleteByUsuarioId(usuario.getId());
-        redirectAttributes.addFlashAttribute("mensaje", "Partida reiniciada. El expediente vuelve a estar en blanco.");
-        return "redirect:" + rutaSegura(volver);
+        new SecurityContextLogoutHandler().logout(request, response, authentication);
+        return "redirect:/login?reiniciado";
     }
 
     private String rutaSegura(String ruta) {
