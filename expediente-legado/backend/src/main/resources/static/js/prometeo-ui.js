@@ -960,7 +960,8 @@
             pasoPorDespidoAlgunaVez: Boolean(datos.pasoPorDespidoAlgunaVez),
             vioFinalAlternativoAlgunaVez: Boolean(datos.vioFinalAlternativoAlgunaVez),
             historiasCartas: datos.historiasCartas || {},
-            finalPoliticoShown: Boolean(datos.finalPoliticoShown)
+            finalPoliticoShown: Boolean(datos.finalPoliticoShown),
+            saludoVisto: Boolean(datos.saludoVisto)
         };
     }
 
@@ -1875,6 +1876,14 @@
     }, 400);
 
     window.setTimeout(function () {
+        if (state.saludoVisto) {
+            // Ya se presentó antes: a partir de aquí siempre habla según el
+            // contexto real, nunca repitiendo el saludo fijo (issue #1).
+            mostrarAsistente();
+            return;
+        }
+        state.saludoVisto = true;
+        guardarEstado();
         mostrarAsistente("Hola. Yo soy el lince de la oficina, y hoy parece que alguien ha dejado la puerta entreabierta. No mire lo que no debería estar donde está.", "guino");
     }, 700);
 
