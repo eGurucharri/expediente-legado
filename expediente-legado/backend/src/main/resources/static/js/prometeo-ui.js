@@ -50,6 +50,10 @@
         dificil: { vidasMax: 2, umbralEvidencia: 0.75 }
     };
 
+    // Compartido entre la trampa de foco de los modales y la navegación por mando.
+    var FOCO_SELECTOR = "a[href], button:not([disabled]), input:not([disabled]), "
+        + "select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])";
+
     var state = cargarEstado();
 
     /**
@@ -981,6 +985,9 @@
         if (finalAlternativo) {
             finalAlternativo.hidden = true;
         }
+        if (contenedorConFocoAtrapado === finalAlternativo) {
+            liberarFoco();
+        }
     }
 
     function desbloquearLogro(id) {
@@ -1164,6 +1171,7 @@
             return;
         }
         despidoModal.hidden = false;
+        atraparFoco(despidoModal);
         state.despidoShown = true;
         guardarEstado();
         desbloquearLogro("reasignado");
@@ -1222,6 +1230,7 @@
         });
         if (elMundo && elMundo.collected && !elMundo.gastada) {
             finalVerdaderoModal.hidden = false;
+            atraparFoco(finalVerdaderoModal);
             state.finalVerdaderoShown = true;
             guardarEstado();
             desbloquearLogro("final-verdadero");
@@ -1267,6 +1276,7 @@
         });
 
         historiaCartaModal.hidden = false;
+        atraparFoco(historiaCartaModal);
         tic(660);
     }
 
@@ -1327,6 +1337,7 @@
         finalPoliticoTitulo.textContent = final.titulo;
         finalPoliticoTexto.textContent = final.texto;
         finalPoliticoModal.hidden = false;
+        atraparFoco(finalPoliticoModal);
         state.finalPoliticoShown = true;
         guardarEstado();
         tic(1046);
@@ -1353,6 +1364,7 @@
             return;
         }
         jefeModal.hidden = false;
+        atraparFoco(jefeModal);
         state.jefeVisto = true;
         guardarEstado();
         tic(220);
@@ -1649,6 +1661,74 @@
         }
     }
 
+    /**
+     * Trampa de foco manual para los modales que se muestran/ocultan a
+     * mano (captcha, jefe, despido, final alternativo, final verdadero,
+     * historia de una carta, final político): ninguno usa showModal(),
+     * así que sin esto Tab se escapa hacia la página de fondo mientras el
+     * modal sigue encima (issue #6). El asistente queda fuera a propósito:
+     * es un aviso no bloqueante, no un diálogo, y no debe robar el foco.
+     */
+    var elementoConFocoPrevio = null;
+    var contenedorConFocoAtrapado = null;
+    var manejadorTrampaFoco = null;
+
+    function elementosFocoDentroDe(contenedor) {
+        return Array.prototype.slice.call(contenedor.querySelectorAll(FOCO_SELECTOR)).filter(function (el) {
+            return el.offsetParent !== null;
+        });
+    }
+
+    function atraparFoco(contenedor) {
+        if (contenedorConFocoAtrapado === contenedor) {
+            var yaDentro = elementosFocoDentroDe(contenedor);
+            if (yaDentro.length) {
+                yaDentro[0].focus();
+            }
+            return;
+        }
+        liberarFoco();
+        elementoConFocoPrevio = document.activeElement;
+        contenedorConFocoAtrapado = contenedor;
+
+        var iniciales = elementosFocoDentroDe(contenedor);
+        if (iniciales.length) {
+            iniciales[0].focus();
+        }
+
+        manejadorTrampaFoco = function (evento) {
+            if (evento.key !== "Tab") {
+                return;
+            }
+            var lista = elementosFocoDentroDe(contenedor);
+            if (!lista.length) {
+                return;
+            }
+            var primero = lista[0];
+            var ultimo = lista[lista.length - 1];
+            if (evento.shiftKey && document.activeElement === primero) {
+                evento.preventDefault();
+                ultimo.focus();
+            } else if (!evento.shiftKey && document.activeElement === ultimo) {
+                evento.preventDefault();
+                primero.focus();
+            }
+        };
+        document.addEventListener("keydown", manejadorTrampaFoco, true);
+    }
+
+    function liberarFoco() {
+        if (manejadorTrampaFoco) {
+            document.removeEventListener("keydown", manejadorTrampaFoco, true);
+            manejadorTrampaFoco = null;
+        }
+        if (elementoConFocoPrevio && typeof elementoConFocoPrevio.focus === "function") {
+            elementoConFocoPrevio.focus();
+        }
+        elementoConFocoPrevio = null;
+        contenedorConFocoAtrapado = null;
+    }
+
     function mostrarCaptcha() {
         if (!captcha || !preguntaCaptcha) {
             return;
@@ -1661,6 +1741,7 @@
         ];
         preguntaCaptcha.textContent = preguntas[Math.floor(Math.random() * preguntas.length)];
         captcha.hidden = false;
+        atraparFoco(captcha);
         var boton = captcha.querySelector("[data-cerrar-captcha]");
         if (boton) {
             boton.focus();
@@ -1712,6 +1793,7 @@
         ];
         textoFinal.textContent = mensajes[Math.floor(Math.random() * mensajes.length)] + " El programa se comporta como AM: no te ofrece salida, sólo una réplica más larga.";
         finalAlternativo.hidden = false;
+        atraparFoco(finalAlternativo);
         state.finalShown = true;
         state.vioFinalAlternativoAlgunaVez = true;
         guardarEstado();
@@ -1731,6 +1813,9 @@
     function ocultarCaptcha() {
         if (captcha) {
             captcha.hidden = true;
+        }
+        if (contenedorConFocoAtrapado === captcha) {
+            liberarFoco();
         }
     }
 
@@ -1943,6 +2028,9 @@
         finalAlternativo.querySelectorAll("[data-cerrar-final]").forEach(function (boton) {
             boton.addEventListener("click", function () {
                 finalAlternativo.hidden = true;
+                if (contenedorConFocoAtrapado === finalAlternativo) {
+                    liberarFoco();
+                }
             });
         });
     }
@@ -1951,6 +2039,9 @@
         jefeModal.querySelectorAll("[data-cerrar-jefe]").forEach(function (boton) {
             boton.addEventListener("click", function () {
                 jefeModal.hidden = true;
+                if (contenedorConFocoAtrapado === jefeModal) {
+                    liberarFoco();
+                }
                 tic(520);
             });
         });
@@ -1960,6 +2051,9 @@
         despidoModal.querySelectorAll("[data-cerrar-despido]").forEach(function (boton) {
             boton.addEventListener("click", function () {
                 despidoModal.hidden = true;
+                if (contenedorConFocoAtrapado === despidoModal) {
+                    liberarFoco();
+                }
                 tic(300);
             });
         });
@@ -1969,6 +2063,9 @@
         finalVerdaderoModal.querySelectorAll("[data-cerrar-final-verdadero]").forEach(function (boton) {
             boton.addEventListener("click", function () {
                 finalVerdaderoModal.hidden = true;
+                if (contenedorConFocoAtrapado === finalVerdaderoModal) {
+                    liberarFoco();
+                }
                 tic(1046);
             });
         });
@@ -1978,6 +2075,9 @@
         historiaCartaModal.querySelectorAll("[data-cerrar-historia-carta]").forEach(function (boton) {
             boton.addEventListener("click", function () {
                 historiaCartaModal.hidden = true;
+                if (contenedorConFocoAtrapado === historiaCartaModal) {
+                    liberarFoco();
+                }
                 tic(520);
             });
         });
@@ -1987,6 +2087,9 @@
         finalPoliticoModal.querySelectorAll("[data-cerrar-final-politico]").forEach(function (boton) {
             boton.addEventListener("click", function () {
                 finalPoliticoModal.hidden = true;
+                if (contenedorConFocoAtrapado === finalPoliticoModal) {
+                    liberarFoco();
+                }
                 tic(1046);
             });
         });
@@ -2048,8 +2151,6 @@
      * visibles, A confirma (equivale a un clic) y B retrocede un panel
      * o cierra el menú. No hay cursor, así que todo se hace por foco.
      */
-    var FOCO_SELECTOR = "a[href], button:not([disabled]), input:not([disabled]), "
-        + "select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])";
     var gamepadUltimaAccion = 0;
     var GAMEPAD_REPETICION_MS = 220;
     var gamepadActivo = false;
