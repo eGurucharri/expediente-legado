@@ -20,6 +20,7 @@
 
         <div th:if="${param.error}" class="alert alert-danger py-2">Usuario o contraseña incorrectos.</div>
         <div th:if="${param.logout}" class="alert alert-secondary py-2">Sesión finalizada.</div>
+        <div th:if="${param.reiniciado}" class="alert alert-secondary py-2">Partida reiniciada. El expediente vuelve a estar en blanco.</div>
 
         <form th:action="@{/login}" method="post">
             <div class="mb-3">
