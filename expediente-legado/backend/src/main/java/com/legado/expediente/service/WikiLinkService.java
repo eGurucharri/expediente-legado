@@ -42,7 +42,10 @@ public class WikiLinkService {
         Map<String, Long> idsPorNombre = new HashMap<>();
         for (Concepto concepto : conceptosDesbloqueados) {
             if (concepto != null && concepto.getNombre() != null) {
-                idsPorNombre.putIfAbsent(concepto.getNombre(), concepto.getId());
+                // La clave debe estar escapada igual que el texto en el que se busca
+                // (más abajo): si no, un nombre con tilde (é → &eacute;) nunca coincide
+                // y el concepto se muestra siempre como bloqueado aunque esté desbloqueado.
+                idsPorNombre.putIfAbsent(HtmlUtils.htmlEscape(concepto.getNombre()), concepto.getId());
             }
         }
 
