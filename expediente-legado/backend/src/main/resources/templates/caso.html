@@ -41,6 +41,7 @@
             <p class="text-muted small">Algunos documentos esconden un detalle. Léalos con calma.</p>
             <div class="siga-record mb-3" th:each="rv : ${registros}">
                 <div class="d-flex align-items-start gap-2">
+                    <span class="siga-doc-icono" th:attr="data-siga-doc-tipo=${rv.registro.tipo}" aria-hidden="true"></span>
                     <input class="form-check-input mt-1" type="checkbox" name="registroIds"
                            th:value="${rv.registro.id}" form="form-combinar"
                            aria-label="Seleccionar este documento para combinarlo con otro">
@@ -161,6 +162,7 @@
 <div th:replace="~{fragments/chrome :: extras}"></div>
 <script th:src="@{/js/legacy-glitch.js}"></script>
 <script th:src="@{/js/legacy-retratos.js}"></script>
+<script th:src="@{/js/legacy-documentos.js}"></script>
 <script th:src="@{/js/prometeo-logic.js}"></script>
 <script th:src="@{/js/prometeo-ui.js}"></script>
 <script th:src="@{/js/documento-viewer.js}"></script>
