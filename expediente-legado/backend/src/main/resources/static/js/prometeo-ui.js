@@ -664,13 +664,13 @@
                 { eje: "comunismo", etiqueta: "Comunismo de lujo automatizado",
                     texto: "Abolir la caja. Que las 47 pesetas se repartan entre todos los empleados a "
                         + "partes iguales, incluidos los que ya no trabajan aquí." },
-                { eje: "centrista", etiqueta: "Vía centrista",
+                { eje: "centrista", etiqueta: "Centrismo radical del término medio",
                     texto: "Formar una mesa de diálogo entre las 47 pesetas que faltan y las que sobran, "
                         + "sin comprometerse a ningún resultado antes de la próxima legislatura contable." },
-                { eje: "socialdemocrata", etiqueta: "Vía socialdemócrata",
+                { eje: "socialdemocrata", etiqueta: "Socialdemocracia nórdica de catálogo IKEA",
                     texto: "Crear una comisión de seguimiento del desajuste, con informe anual y "
                         + "compromiso de revisión en cuatro años." },
-                { eje: "neoliberal", etiqueta: "Vía neoliberal",
+                { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Privatizar la discrepancia. Sacarla a concurso. El mejor postor se queda con "
                         + "las 47 pesetas y con la culpa." }
             ]
@@ -684,13 +684,13 @@
                 { eje: "comunismo", etiqueta: "Comunismo de lujo automatizado",
                     texto: "Eliminar el trámite. La silla 4-B pasa a pertenecer a quien la necesite, sin "
                         + "formulario, sin firma, sin 4-B." },
-                { eje: "centrista", etiqueta: "Vía centrista",
+                { eje: "centrista", etiqueta: "Centrismo radical del término medio",
                     texto: "Rebautizar el trámite como 'silla 4-B (en revisión)' y dejarlo así "
                         + "indefinidamente, para no sentar precedente en ningún sentido." },
-                { eje: "socialdemocrata", etiqueta: "Vía socialdemócrata",
+                { eje: "socialdemocrata", etiqueta: "Socialdemocracia nórdica de catálogo IKEA",
                     texto: "Aprobar la silla con carácter provisional, sujeta a una evaluación de impacto "
                         + "silla-trabajador cada dos años." },
-                { eje: "neoliberal", etiqueta: "Vía neoliberal",
+                { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Externalizar la silla 4-B a una empresa de mobiliario que cobre por uso. "
                         + "Quien necesite sentarse, que puje." }
             ]
@@ -704,13 +704,13 @@
                 { eje: "comunismo", etiqueta: "Comunismo de lujo automatizado",
                     texto: "Abolir los departamentos. Montalvo trabaja donde quiera, cuando quiera, o no "
                         + "trabaja, y el departamento se adapta a Montalvo." },
-                { eje: "centrista", etiqueta: "Vía centrista",
+                { eje: "centrista", etiqueta: "Centrismo radical del término medio",
                     texto: "Trasladarlo a un departamento intermedio, a medio camino entre el anterior y "
                         + "el siguiente, hasta nuevo aviso." },
-                { eje: "socialdemocrata", etiqueta: "Vía socialdemócrata",
+                { eje: "socialdemocrata", etiqueta: "Socialdemocracia nórdica de catálogo IKEA",
                     texto: "Garantizar estabilidad mediante un contrato de traspasos regulados, con "
                         + "derecho a apelar cada reasignación." },
-                { eje: "neoliberal", etiqueta: "Vía neoliberal",
+                { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Que Montalvo compita por su propio puesto cada trimestre. La motivación, "
                         + "dicen, mejora con la incertidumbre." }
             ]
@@ -724,13 +724,13 @@
                 { eje: "comunismo", etiqueta: "Comunismo de lujo automatizado",
                     texto: "Cancelar el contrato y declarar la función patrimonio común: que la "
                         + "represente quien quiera, gratis, para siempre." },
-                { eje: "centrista", etiqueta: "Vía centrista",
+                { eje: "centrista", etiqueta: "Centrismo radical del término medio",
                     texto: "Renovar el contrato 'con reservas', sin especificar cuáles, para poder "
                         + "invocarlas después si hace falta." },
-                { eje: "socialdemocrata", etiqueta: "Vía socialdemócrata",
+                { eje: "socialdemocrata", etiqueta: "Socialdemocracia nórdica de catálogo IKEA",
                     texto: "Renovar con una cláusula de revisión social que garantice condiciones dignas "
                         + "al elenco, sea quien sea el elenco." },
-                { eje: "neoliberal", etiqueta: "Vía neoliberal",
+                { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Renovar y ampliar. Si el público no sabe que es público, es un mercado sin "
                         + "competencia. Hay que explotarlo." }
             ]
@@ -744,13 +744,13 @@
                 { eje: "comunismo", etiqueta: "Comunismo de lujo automatizado",
                     texto: "Aprobarlo de una vez por todas y liberar el recurso que llevaba pidiendo "
                         + "desde 1978, sin más trámite." },
-                { eje: "centrista", etiqueta: "Vía centrista",
+                { eje: "centrista", etiqueta: "Centrismo radical del término medio",
                     texto: "Reenviarlo a estudio, otra vez, sin fecha límite, para que el ciclo se "
                         + "resuelva solo con el tiempo." },
-                { eje: "socialdemocrata", etiqueta: "Vía socialdemócrata",
+                { eje: "socialdemocrata", etiqueta: "Socialdemocracia nórdica de catálogo IKEA",
                     texto: "Aprobarlo parcialmente, con revisión programada para dentro de otros catorce "
                         + "años, por si acaso." },
-                { eje: "neoliberal", etiqueta: "Vía neoliberal",
+                { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Subastar el memorando al mejor postor. Quien lo compre, que decida qué hacer "
                         + "con él." }
             ]
@@ -764,13 +764,13 @@
                 { eje: "comunismo", etiqueta: "Comunismo de lujo automatizado",
                     texto: "Publicarla entera, sin editar, y disolver la empresa en una asamblea abierta "
                         + "a cualquiera que quisiera entrar." },
-                { eje: "centrista", etiqueta: "Vía centrista",
+                { eje: "centrista", etiqueta: "Centrismo radical del término medio",
                     texto: "Publicar un resumen, sin las partes 'susceptibles de generar controversia', "
                         + "que resultan ser casi todas." },
-                { eje: "socialdemocrata", etiqueta: "Vía socialdemócrata",
+                { eje: "socialdemocrata", etiqueta: "Socialdemocracia nórdica de catálogo IKEA",
                     texto: "Publicarla con un informe de acompañamiento que explique el contexto y "
                         + "proponga reformas graduales." },
-                { eje: "neoliberal", etiqueta: "Vía neoliberal",
+                { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Vender los derechos a quien mejor la sepa monetizar. La verdad, bien "
                         + "gestionada, es un activo." }
             ]
@@ -784,13 +784,13 @@
                 { eje: "comunismo", etiqueta: "Comunismo de lujo automatizado",
                     texto: "Repartirla a partes iguales entre todos los que alguna vez trabajaron en el "
                         + "expediente, herederos o no." },
-                { eje: "centrista", etiqueta: "Vía centrista",
+                { eje: "centrista", etiqueta: "Centrismo radical del término medio",
                     texto: "Congelarla indefinidamente hasta que los herederos 'lleguen a un consenso', "
                         + "sin fijar ningún mecanismo para lograrlo." },
-                { eje: "socialdemocrata", etiqueta: "Vía socialdemócrata",
+                { eje: "socialdemocrata", etiqueta: "Socialdemocracia nórdica de catálogo IKEA",
                     texto: "Repartirla según necesidad certificada, con una comisión de herederos que "
                         + "revise cada solicitud." },
-                { eje: "neoliberal", etiqueta: "Vía neoliberal",
+                { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Sacarla a subasta entre los propios herederos. Gana quien más pueda pagar "
                         + "por lo que ya era suyo." }
             ]
@@ -803,13 +803,13 @@
                 { eje: "comunismo", etiqueta: "Comunismo de lujo automatizado",
                     texto: "Devolverle el nombre, borrar el número de todos los archivos y hacerlo "
                         + "público como acto reparador." },
-                { eje: "centrista", etiqueta: "Vía centrista",
+                { eje: "centrista", etiqueta: "Centrismo radical del término medio",
                     texto: "Dejar el expediente como está, ni número ni nombre, 'por respeto a todas las "
                         + "partes', sin especificar cuáles." },
-                { eje: "socialdemocrata", etiqueta: "Vía socialdemócrata",
+                { eje: "socialdemocrata", etiqueta: "Socialdemocracia nórdica de catálogo IKEA",
                     texto: "Abrir una investigación oficial, con plazo, presupuesto y un informe final "
                         + "que probablemente nadie lea." },
-                { eje: "neoliberal", etiqueta: "Vía neoliberal",
+                { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Vender el expediente a un interesado externo. La identidad, como todo, tiene "
                         + "un precio de mercado." }
             ]
@@ -828,7 +828,7 @@
                 + "abundancia, así que, por costumbre, alguien redacta un acta."
         },
         centrista: {
-            ribbon: "Final: vía centrista",
+            ribbon: "Final: centrismo radical del término medio",
             titulo: "Todo queda, oficialmente, en revisión",
             texto: "Ningún expediente se cierra ni se abre del todo. Se crea una mesa de diálogo "
                 + "entre el pasado y el presente del archivo, sin fecha de conclusión ni "
@@ -837,7 +837,7 @@
                 + "escritorio, y el mismo expediente, indefinidamente 'en revisión'."
         },
         socialdemocrata: {
-            ribbon: "Final: vía socialdemócrata",
+            ribbon: "Final: socialdemocracia nórdica de catálogo IKEA",
             titulo: "Se aprueba una reforma gradual del archivo",
             texto: "Los ocho expedientes se cierran con una comisión de seguimiento para cada uno, "
                 + "informe anual y cláusula de revisión a cuatro años. El Comité Ad Honorem acepta "
@@ -846,7 +846,7 @@
                 + "la señal de que el acuerdo fue justo'."
         },
         neoliberal: {
-            ribbon: "Final: vía neoliberal",
+            ribbon: "Final: neoliberalismo disruptivo de startup unicornio",
             titulo: "El archivo sale a bolsa",
             texto: "SIGA-98 se privatiza. Los ocho expedientes se venden por separado al mejor "
                 + "postor, incluido el suyo. El Comité Ad Honorem se convierte en accionista "
@@ -1276,6 +1276,9 @@
     function resolverHistoriaCarta(cartaId, eje) {
         state.historiasCartas[cartaId] = eje;
         guardarEstado();
+        document.querySelectorAll("[data-carta-oculta='" + cartaId + "']").forEach(function (hotspot) {
+            hotspot.classList.add("siga-hotspot-visto");
+        });
         var huboNovedad = desbloquearCarta(cartaId);
         if (huboNovedad) {
             marcarProgreso();
@@ -2076,6 +2079,9 @@
     }
 
     document.querySelectorAll("[data-carta-oculta]").forEach(function (hotspot) {
+        if (state.historiasCartas[hotspot.getAttribute("data-carta-oculta")]) {
+            hotspot.classList.add("siga-hotspot-visto");
+        }
         hotspot.addEventListener("click", function () {
             mostrarHistoriaCarta(hotspot.getAttribute("data-carta-oculta"));
         });
