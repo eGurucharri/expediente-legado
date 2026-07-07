@@ -31,6 +31,19 @@
     color: #d9660b;
 }
 
+/* HUD de vida en la barra superior (issue #16): visible en todo momento,
+   no solo dentro del menú. Vive sobre el navbar oscuro de SIGA-98, así
+   que usa su propio contraste en vez del de .prometeo-vida-resumen. */
+.prometeo-vida-hud {
+    display: inline-flex;
+    gap: 0.15rem;
+    font-size: 0.95rem;
+    line-height: 1;
+}
+
+.prometeo-vida-hud .prometeo-vida-pip.is-llena { color: #ff6b52; }
+.prometeo-vida-hud .prometeo-vida-pip.is-vacia { color: rgba(255, 255, 255, 0.3); }
+
 .prometeo-dialog {
     border: none;
     border-radius: 12px;
