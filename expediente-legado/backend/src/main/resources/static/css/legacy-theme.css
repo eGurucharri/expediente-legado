@@ -386,3 +386,68 @@ body.siga-body {
 .documento-circular .documento-encabezado {
     border-bottom: 1px solid #808080;
 }
+
+/*
+ * Retratos de sospechosos (issue #4): fotocopias/escaneos maltrechos del
+ * propio SIGA-98, no ilustraciones "cuidadas" — a propósito lo contrario
+ * del pixel-art limpio del tarot de Prometeo. Cada sospechoso trae su
+ * propio dibujo (legacy-retratos.js), pero el deterioro (trama de líneas,
+ * grano, desenfoque de mala impresora matricial) se aplica igual a todos
+ * desde aquí, para que no dependa de repetirlo dibujo a dibujo.
+ */
+.siga-sospechoso-fila {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+}
+
+.siga-retrato {
+    position: relative;
+    flex-shrink: 0;
+    width: 3.4rem;
+    height: 4.25rem;
+    background: #d4d0c8;
+    border: 1px solid #808080;
+    box-shadow: inset 1px 1px #404040, inset -1px -1px #fffef0;
+    overflow: hidden;
+    /* Puramente decorativo (aria-hidden): nunca debe robarle el clic al
+       radio/label de al lado. */
+    pointer-events: none;
+}
+
+[data-siga-veredicto] .siga-retrato {
+    width: 4.6rem;
+    height: 5.75rem;
+    margin-bottom: 0.6rem;
+}
+
+.siga-retrato svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+    filter: contrast(1.1) brightness(0.97);
+}
+
+.siga-retrato::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.16) 0, rgba(0, 0, 0, 0.16) 1px, transparent 1px, transparent 3px),
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0, rgba(255, 255, 255, 0.05) 1px, transparent 1px, transparent 4px);
+    mix-blend-mode: multiply;
+}
+
+.siga-retrato[data-siga-retrato-vacio]::before {
+    content: "S/F";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #808080;
+    font-size: 0.7rem;
+    font-family: "Courier New", monospace;
+}
