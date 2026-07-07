@@ -20,6 +20,7 @@
     var textoFinal = document.getElementById("prometeo-final-texto");
     var rango = document.getElementById("prometeo-volumen-rango");
     var vidaResumen = document.getElementById("prometeo-vida-resumen");
+    var vidaHud = document.getElementById("prometeo-vida-hud");
     var jefeModal = document.getElementById("prometeo-jefe");
     var despidoModal = document.getElementById("prometeo-despido");
     var finalVerdaderoModal = document.getElementById("prometeo-final-verdadero");
@@ -1122,7 +1123,7 @@
      * verdadero, que exige las cuatro intactas.
      */
     function renderVida() {
-        if (!vidaResumen) {
+        if (!vidaResumen && !vidaHud) {
             return;
         }
         var max = DIFICULTADES[state.dificultad].vidasMax;
@@ -1130,7 +1131,13 @@
         for (var i = 0; i < max; i++) {
             pips += "<span class='prometeo-vida-pip " + (i < state.vida ? "is-llena" : "is-vacia") + "'>&#9679;</span>";
         }
-        vidaResumen.innerHTML = "<strong>Vida</strong>" + pips;
+        if (vidaResumen) {
+            vidaResumen.innerHTML = "<strong>Vida</strong>" + pips;
+        }
+        if (vidaHud) {
+            vidaHud.setAttribute("aria-label", "Vida: " + state.vida + " de " + max);
+            vidaHud.innerHTML = pips;
+        }
     }
 
     function mostrarDespido() {
