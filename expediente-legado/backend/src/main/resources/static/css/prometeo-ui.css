@@ -366,6 +366,21 @@
     color: #14110f;
 }
 
+/* Réplicas al lince (issue #17): solo aparecen para las bolsas de
+   mensajes que las traen; el resto sigue siendo de solo lectura. */
+.prometeo-assistente-respuestas {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin: 0 0 0.6rem;
+}
+
+.prometeo-assistente-respuesta {
+    text-align: left;
+    font-size: 0.82rem;
+    padding: 0.4rem 0.6rem;
+}
+
 @keyframes prometeo-float-in {
     from {
         opacity: 0;

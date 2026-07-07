@@ -15,6 +15,7 @@
     var preguntaCaptcha = document.getElementById("prometeo-captcha-pregunta");
     var asistente = document.getElementById("prometeo-assistente");
     var textoAsistente = document.getElementById("prometeo-assistente-texto");
+    var respuestasAsistente = document.getElementById("prometeo-assistente-respuestas");
     var avatarAsistente = document.querySelector(".prometeo-assistente-avatar");
     var finalAlternativo = document.getElementById("prometeo-final");
     var textoFinal = document.getElementById("prometeo-final-texto");
@@ -1403,12 +1404,48 @@
         ];
     }
 
+    /**
+     * A diferencia del resto de bolsas (solo texto), estas admiten
+     * "respuestas": 2-3 réplicas que el jugador puede elegir, cada una con
+     * su propio remate del lince — issue #17. mostrarAsistente() sabe leer
+     * ambos formatos (ver normalizarMensaje).
+     */
     var POOL_DESCUBRIMIENTO = [
-        "Vaya, encontró algo. Ojalá no lo hubiera hecho.",
-        "Eso que acaba de leer... olvídelo enseguida, será lo mejor.",
-        "No le dé demasiada importancia a lo que acaba de descubrir. Seguro que no cambia nada.",
-        "Qué pena que se haya fijado en eso. Ya no hay forma de no haberlo visto.",
-        "No lo anote en ningún sitio. Mejor que se le olvide antes de cerrar el expediente."
+        {
+            texto: "Vaya, encontró algo. Ojalá no lo hubiera hecho.",
+            respuestas: [
+                { etiqueta: "Pues yo creo que sí importa", reaccion: "Eso dicen todos. Luego se les pasa." },
+                { etiqueta: "¿Y si es justo lo que faltaba?", reaccion: "Ojalá. Pero no se haga ilusiones tan pronto." }
+            ]
+        },
+        {
+            texto: "Eso que acaba de leer... olvídelo enseguida, será lo mejor.",
+            respuestas: [
+                { etiqueta: "No pienso olvidarlo", reaccion: "Muy suyo. Ya me avisará cuando cambie de idea." },
+                { etiqueta: "¿Por qué debería olvidarlo?", reaccion: "Por nada en concreto. Pura recomendación general." }
+            ]
+        },
+        {
+            texto: "No le dé demasiada importancia a lo que acaba de descubrir. Seguro que no cambia nada.",
+            respuestas: [
+                { etiqueta: "Y si cambia todo, ¿qué?", reaccion: "Entonces habré estado equivocado. No sería la primera vez." },
+                { etiqueta: "Le voy a dar toda la importancia", reaccion: "Perfecto. Luego no diga que no se lo avisé." }
+            ]
+        },
+        {
+            texto: "Qué pena que se haya fijado en eso. Ya no hay forma de no haberlo visto.",
+            respuestas: [
+                { etiqueta: "No es ninguna pena, es un avance", reaccion: "Avance, retroceso... a mí todo el archivo me parece igual de plano." },
+                { etiqueta: "¿Preferiría que no mirase nada?", reaccion: "Preferiría muchas cosas. Casi ninguna sucede." }
+            ]
+        },
+        {
+            texto: "No lo anote en ningún sitio. Mejor que se le olvide antes de cerrar el expediente.",
+            respuestas: [
+                { etiqueta: "Ya lo he anotado", reaccion: "Cómo no. Bueno, ya es tarde para el consejo, entonces." },
+                { etiqueta: "¿Y si lo necesito luego?", reaccion: "Para eso están los expedientes, supongo. Yo solo comento." }
+            ]
+        }
     ];
     var POOL_COMBINACION_FALLIDA = [
         "No insista combinando esos papeles. Seguro que no encajan.",
@@ -1740,25 +1777,61 @@
         tic(780);
     }
 
+    /**
+     * Las bolsas normales son solo texto; unas pocas (issue #17) traen
+     * "respuestas" para que el jugador pueda replicarle al lince. Este
+     * normalizador deja pasar ambos formatos como { texto, respuestas? }.
+     */
+    function normalizarMensaje(entrada) {
+        return typeof entrada === "string" ? { texto: entrada } : entrada;
+    }
+
+    function renderRespuestasAsistente(respuestas) {
+        if (!respuestasAsistente) {
+            return;
+        }
+        respuestasAsistente.innerHTML = "";
+        if (!respuestas || !respuestas.length) {
+            respuestasAsistente.hidden = true;
+            return;
+        }
+        respuestasAsistente.hidden = false;
+        respuestas.forEach(function (opcion) {
+            var boton = document.createElement("button");
+            boton.type = "button";
+            boton.className = "prometeo-btn-secundario prometeo-assistente-respuesta";
+            boton.textContent = opcion.etiqueta;
+            boton.addEventListener("click", function () {
+                textoAsistente.textContent = opcion.reaccion;
+                respuestasAsistente.hidden = true;
+                respuestasAsistente.innerHTML = "";
+                tic(480);
+            });
+            respuestasAsistente.appendChild(boton);
+        });
+    }
+
     function mostrarAsistente(mensaje, mood) {
         if (!asistente || !textoAsistente || state.finalShown) {
             return;
         }
 
         var seleccion = mensaje ? { pool: [mensaje], mood: mood || "guino" } : elegirMensajeContextual();
-        var candidatos = seleccion.pool.length > 1
-            ? seleccion.pool.filter(function (texto) {
-                return texto !== state.ultimoMensajeAsistente;
+        var normalizados = seleccion.pool.map(normalizarMensaje);
+        var candidatos = normalizados.length > 1
+            ? normalizados.filter(function (item) {
+                return item.texto !== state.ultimoMensajeAsistente;
             })
-            : seleccion.pool;
+            : normalizados;
         var elegido = candidatos[Math.floor(Math.random() * candidatos.length)];
 
-        textoAsistente.textContent = elegido;
+        textoAsistente.textContent = elegido.texto;
+        renderRespuestasAsistente(elegido.respuestas);
         animarLince(seleccion.mood);
         asistente.hidden = false;
         asistente.classList.add("is-visible");
         state.assistantShown = true;
-        state.ultimoMensajeAsistente = elegido;
+        state.ultimoMensajeAsistente = elegido.texto;
         guardarEstado();
         tic(620);
     }
@@ -1767,6 +1840,10 @@
         if (asistente) {
             asistente.hidden = true;
             asistente.classList.remove("is-visible");
+        }
+        if (respuestasAsistente) {
+            respuestasAsistente.hidden = true;
+            respuestasAsistente.innerHTML = "";
         }
         detenerAnimacionLince();
     }
