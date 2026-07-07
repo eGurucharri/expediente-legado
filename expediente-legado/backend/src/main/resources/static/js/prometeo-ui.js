@@ -39,6 +39,7 @@
     var LLAVE_VOLUMEN = "prometeo-volumen";
     var LLAVE_ESTADO = "prometeo-estado";
     var real = window.PROMETEO_ESTADO_REAL || null;
+    var PrometeoLogic = window.PrometeoLogic;
 
     /**
      * Vidas y umbral de "acusación precipitada" por dificultad. Normal es
@@ -874,31 +875,6 @@
         return "<svg viewBox='0 0 " + ancho + " " + alto + "' class='prometeo-tarot-pixelart' shape-rendering='crispEdges' aria-hidden='true'>" + rects + "</svg>";
     }
 
-    /**
-     * Combina el estado guardado en este navegador con la lista actual de
-     * logros/cartas: conserva el flag desbloqueado/collected de lo ya
-     * guardado (buscando también por alias, para ids renombrados) y adopta
-     * los metadatos y las entradas nuevas de la versión vigente.
-     */
-    function fusionarConGuardado(guardados, actuales, camposEstado, alias) {
-        alias = alias || {};
-        return actuales.map(function (item) {
-            var idsBuscados = [item.id].concat(alias[item.id] ? [alias[item.id]] : []);
-            var previo = guardados.find(function (g) {
-                return idsBuscados.indexOf(g.id) !== -1;
-            });
-            var copia = Object.assign({}, item);
-            if (previo) {
-                camposEstado.forEach(function (campo) {
-                    if (Object.prototype.hasOwnProperty.call(previo, campo)) {
-                        copia[campo] = previo[campo];
-                    }
-                });
-            }
-            return copia;
-        });
-    }
-
     function cargarEstado() {
         var datos = {};
         try {
@@ -942,8 +918,8 @@
             { id: "el-mundo", nombre: "El Mundo", descripcion: "Las veintiuna cartas anteriores, cerrando el círculo.", collected: false, gastada: false, requisito: "Reúna el resto de cartas sin gastar ninguna." }
         ];
 
-        var logros = fusionarConGuardado(datos.logros || [], logrosActuales, ["desbloqueado"], {});
-        var tarot = fusionarConGuardado(datos.tarot || [], tarotActual, ["collected", "gastada"],
+        var logros = PrometeoLogic.fusionarConGuardado(datos.logros || [], logrosActuales, ["desbloqueado"], {});
+        var tarot = PrometeoLogic.fusionarConGuardado(datos.tarot || [], tarotActual, ["collected", "gastada"],
             { "la-sacerdotisa": "el-ojo", "el-hierofante": "la-sombra", "el-emperador": "el-hombre-amarillo" });
         var dificultad = (datos.dificultad && DIFICULTADES[datos.dificultad]) ? datos.dificultad : "normal";
 
@@ -1060,14 +1036,7 @@
      * falten. Devuelve true si algo cambió, para poder avisar al jugador.
      */
     function desbloquearCarta(id) {
-        var carta = state.tarot.find(function (c) {
-            return c.id === id;
-        });
-        if (carta && !carta.collected) {
-            carta.collected = true;
-            return true;
-        }
-        return false;
+        return PrometeoLogic.desbloquearCartaEnLista(state.tarot, id);
     }
 
     function sincronizarConEstadoReal() {
@@ -1330,22 +1299,8 @@
             return;
         }
 
-        var conteo = { comunismo: 0, centrista: 0, socialdemocrata: 0, neoliberal: 0 };
-        idsHistorias.forEach(function (id) {
-            var eje = state.historiasCartas[id];
-            if (Object.prototype.hasOwnProperty.call(conteo, eje)) {
-                conteo[eje]++;
-            }
-        });
-
-        var ganador = "centrista";
-        var maxVotos = -1;
-        ["comunismo", "centrista", "socialdemocrata", "neoliberal"].forEach(function (eje) {
-            if (conteo[eje] > maxVotos) {
-                maxVotos = conteo[eje];
-                ganador = eje;
-            }
-        });
+        var ganador = PrometeoLogic.calcularEjeGanador(
+            state.historiasCartas, idsHistorias, ["comunismo", "centrista", "socialdemocrata", "neoliberal"]);
 
         mostrarFinalPolitico(ganador);
     }
@@ -1376,8 +1331,9 @@
         if (!caso || !caso.totalPistas) {
             return;
         }
-        var ratio = caso.pistasDescubiertas / caso.totalPistas;
-        if (ratio < DIFICULTADES[state.dificultad].umbralEvidencia) {
+        var precipitada = PrometeoLogic.esAcusacionPrecipitada(
+            caso.pistasDescubiertas, caso.totalPistas, DIFICULTADES[state.dificultad].umbralEvidencia);
+        if (precipitada) {
             perderVida(1);
             mostrarAsistente("No se preocupe por haber acusado tan rápido en «" + caso.titulo + "». Seguro que a la Dirección no le importa.", "alerta");
         }

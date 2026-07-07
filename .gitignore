@@ -1,6 +1,7 @@
 # Compilados y artefactos de build
 **/target/
 *.class
+node_modules/
 
 # Logs
 *.log

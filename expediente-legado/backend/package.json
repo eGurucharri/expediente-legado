@@ -1,0 +1,12 @@
+{
+  "name": "expediente-legado-js-tests",
+  "private": true,
+  "description": "Tests unitarios (Vitest) para la logica JS pura del cliente, ver issue #8. No forma parte del build ni del runtime servido por Spring Boot.",
+  "type": "commonjs",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
+  }
+}
