@@ -395,13 +395,37 @@ body.siga-body {
  * grano, desenfoque de mala impresora matricial) se aplica igual a todos
  * desde aquí, para que no dependa de repetirlo dibujo a dibujo.
  */
+/*
+ * El radio va antes del retrato y visible (issue #18: se quedaba medio
+ * escondido con las convenciones de .form-check de Bootstrap). El
+ * retrato vive dentro del <label>, así que pulsar la imagen entera
+ * también selecciona al sospechoso — comportamiento nativo de
+ * label[for], no hace falta JS.
+ */
 .siga-sospechoso-fila {
     display: flex;
     align-items: flex-start;
+    gap: 0.6rem;
+}
+
+.siga-sospechoso-radio {
+    margin-top: 0.35rem;
+    width: 1.1rem;
+    height: 1.1rem;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.siga-sospechoso-label {
+    display: flex;
+    align-items: flex-start;
     gap: 0.65rem;
+    flex: 1;
+    cursor: pointer;
 }
 
 .siga-retrato {
+    display: block;
     position: relative;
     flex-shrink: 0;
     width: 3.4rem;

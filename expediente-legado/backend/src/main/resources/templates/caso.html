@@ -115,17 +115,15 @@
             <form th:if="${veredicto == null and combate == null}"
                   th:action="@{/casos/{casoId}/acusar(casoId=${caso.id})}" method="post">
                 <p class="text-muted small">No hay una respuesta correcta: cada acusación cierra el expediente de una forma distinta.</p>
-                <div class="form-check siga-sospechoso-fila mb-2" th:each="s : ${sospechosos}">
-                    <div class="siga-retrato" th:attr="data-siga-retrato=${s.nombre}" aria-hidden="true"></div>
-                    <div>
-                        <input class="form-check-input" type="radio" name="sospechosoId" th:value="${s.id}"
-                               th:id="'sospechoso-' + ${s.id}"
-                               required>
-                        <label class="form-check-label" th:id="'label-sospechoso-' + ${s.id}"
-                               th:for="'sospechoso-' + ${s.id}">
-                            <strong th:text="${s.nombre}"></strong> — <span th:text="${s.descripcion}"></span>
-                        </label>
-                    </div>
+                <div class="siga-sospechoso-fila mb-2" th:each="s : ${sospechosos}">
+                    <input class="siga-sospechoso-radio" type="radio" name="sospechosoId" th:value="${s.id}"
+                           th:id="'sospechoso-' + ${s.id}"
+                           required>
+                    <label class="siga-sospechoso-label" th:id="'label-sospechoso-' + ${s.id}"
+                           th:for="'sospechoso-' + ${s.id}">
+                        <span class="siga-retrato" th:attr="data-siga-retrato=${s.nombre}" aria-hidden="true"></span>
+                        <span><strong th:text="${s.nombre}"></strong> — <span th:text="${s.descripcion}"></span></span>
+                    </label>
                 </div>
                 <button type="submit" class="btn siga-btn">Presentar acusación</button>
             </form>
