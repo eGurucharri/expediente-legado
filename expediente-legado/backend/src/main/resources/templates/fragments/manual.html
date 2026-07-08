@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fragmentos de interfaz · SIGA-98</title>
+</head>
+<body>
+
+<!--
+  Manual del usuario (issue #27): vive en Mi carpeta, no en RR. HH. — es
+  material de referencia del propio trabajo de investigación, no un
+  ajuste de cuenta. Temas como <section id="tema-x" class="siga-record">
+  estáticos: añadir uno nuevo es pegar un bloque aquí, sin tocar Java ni
+  el controlador. "Guardar progreso" vive aquí (issue #27) porque guardar
+  es parte del propio expediente, no de RR. HH.; no hay "cargar progreso"
+  como acción separada — la partida se carga sola al iniciar sesión, así
+  que el manual lo explica en vez de fingir un botón que no existe.
+-->
+<div th:fragment="manual" class="p-3 siga-manual">
+    <nav class="siga-manual-toc" aria-label="Temas del manual">
+        <a class="siga-btn" href="#tema-guardar">Guardar mi progreso</a>
+        <a class="siga-btn" href="#tema-pistas">Cómo encontrar pistas</a>
+        <a class="siga-btn" href="#tema-corcho">El corcho de investigación</a>
+        <a class="siga-btn" href="#tema-acusar">Presentar una acusación</a>
+    </nav>
+    <div class="siga-manual-contenido">
+        <section id="tema-guardar" class="siga-record">
+            <div class="siga-record-header">Guardar mi progreso</div>
+            <div class="siga-record-body">
+                <p>Su expediente se guarda automáticamente al avanzar: descubrir una pista, combinar
+                    documentos o presentar una acusación queda registrado al instante. Este botón solo
+                    actualiza la fecha del último guardado manual, por si quiere confirmarlo usted mismo.</p>
+                <p>No existe un botón de "cargar progreso" aparte: al iniciar sesión, su expediente
+                    vuelve a cargarse solo, tal y como lo dejó.</p>
+                <form th:action="@{/menu/guardar}" method="post">
+                    <input type="hidden" name="volver" th:value="${rutaActual}">
+                    <button type="submit" class="siga-btn">Guardar progreso</button>
+                </form>
+                <p class="text-muted small mt-2" th:if="${ultimoGuardado}"
+                   th:text="'Último guardado: ' + ${#temporals.format(ultimoGuardado, 'dd/MM/yyyy HH:mm')}">Último guardado</p>
+                <p class="text-muted small mt-2" th:unless="${ultimoGuardado}">Aún no ha guardado manualmente en esta sesión.</p>
+            </div>
+        </section>
+
+        <section id="tema-pistas" class="siga-record">
+            <div class="siga-record-header">Cómo encontrar pistas</div>
+            <div class="siga-record-body">
+                <p>Dentro de cada documento hay frases subrayadas con puntos: son el hilo del que tirar.
+                    Léalos con calma — los documentos no gritan "pista aquí", así que a veces hay que
+                    releer.</p>
+                <p>Algunas conclusiones solo aparecen al marcar dos documentos relacionados y pulsar
+                    "Combinar seleccionados".</p>
+                <p>Si le está costando encontrar algo, active "Activar pistas" en RR. HH.: resalta, en el
+                    expediente abierto, lo que todavía no ha descubierto.</p>
+            </div>
+        </section>
+
+        <section id="tema-corcho" class="siga-record">
+            <div class="siga-record-header">El corcho de investigación</div>
+            <div class="siga-record-body">
+                <p>Cada pista que descubre puede desbloquear conceptos — personas, documentos, comités —
+                    que quedan anotados aquí mismo, en Mi carpeta. Cuando dos conceptos se mencionan
+                    entre sí, el mapa de conexiones dibuja el vínculo.</p>
+                <p>Preste atención a lo que se repite entre expedientes distintos: el mismo comité, el
+                    mismo proveedor, la misma firma. Nada en este sistema es tan aislado como parece.</p>
+            </div>
+        </section>
+
+        <section id="tema-acusar" class="siga-record">
+            <div class="siga-record-header">Presentar una acusación</div>
+            <div class="siga-record-body">
+                <p>No hay una respuesta correcta: cada acusación cierra el expediente de una forma
+                    distinta, con su propio desenlace. Acusar con poca investigación puede costarle una
+                    vida — cuanta más evidencia reúna antes de acusar, menos riesgo corre.</p>
+                <p>Algunos sospechosos no se rinden sin más: presentan objeciones y hay que responderlas,
+                    una a una, hasta que alguno de los dos se queda sin argumentos.</p>
+            </div>
+        </section>
+    </div>
+</div>
+
+</body>
+</html>
