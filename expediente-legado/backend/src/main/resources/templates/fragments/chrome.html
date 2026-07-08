@@ -18,6 +18,12 @@
         <div class="d-flex align-items-center gap-2">
             <span class="siga-clock d-none d-sm-inline-flex" aria-hidden="true">11<span class="siga-clock-colon">:</span>34</span>
             <div id="prometeo-vida-hud" class="prometeo-vida-hud" aria-live="polite"></div>
+            <a th:href="@{/carpeta}" class="prometeo-menu-trigger">
+                <svg class="prometeo-logo" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path fill="currentColor" d="M3 6a2 2 0 0 1 2-2h4.2a2 2 0 0 1 1.6.8L12 6h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6z"/>
+                </svg>
+                <span>Mi carpeta</span>
+            </a>
             <button type="button" id="prometeo-menu-btn" class="prometeo-menu-trigger" aria-haspopup="dialog" aria-controls="prometeo-menu">
                 <svg class="prometeo-logo" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                     <path fill="currentColor" d="M12 2c.3 2.8-1.1 4-2.4 5.6C8.1 9.4 7 11 7 13a5 5 0 0 0 10 0c0-1.6-.7-2.7-1.5-3.7.2 1-.1 1.8-.9 2.2.6-2.4-.7-4-2-5.2C13.6 5.4 12.9 3.8 12 2z"/>
@@ -58,36 +64,28 @@
             <p class="prometeo-subtitle">Autoservicio del empleado. Sesión de personal autenticada.</p>
 
             <nav class="prometeo-menu-lista" aria-label="Acciones de la partida">
-                <a th:href="@{/carpeta}" class="prometeo-menu-item">Mi carpeta</a>
-
-                <form th:action="@{/menu/guardar}" method="post" class="prometeo-menu-item-form">
-                    <input type="hidden" name="volver" th:value="${rutaActual}">
-                    <button type="submit" class="prometeo-menu-item">Guardar progreso</button>
-                </form>
-
+                <p class="prometeo-menu-grupo-titulo">Su expediente de personal</p>
                 <button type="button" class="prometeo-menu-item" data-abrir-panel="logros">Logros</button>
                 <button type="button" class="prometeo-menu-item" data-abrir-panel="tarot">Tarot</button>
-                <button type="button" class="prometeo-menu-item" data-abrir-panel="dificultad">Dificultad</button>
-                <button type="button" class="prometeo-menu-item" data-abrir-panel="nueva-partida">Nueva partida</button>
-                <button type="button" class="prometeo-menu-item" data-abrir-panel="volumen">Volumen</button>
-                <button type="button" class="prometeo-menu-item" data-abrir-panel="creditos">Créditos</button>
 
+                <p class="prometeo-menu-grupo-titulo">Ajustes de servicio</p>
+                <button type="button" class="prometeo-menu-item" data-abrir-panel="dificultad">Dificultad</button>
+                <button type="button" class="prometeo-menu-item" data-abrir-panel="volumen">Volumen</button>
+                <label class="prometeo-toggle-pistas">
+                    <input type="checkbox" id="prometeo-activar-pistas">
+                    <span>Activar pistas</span>
+                </label>
+                <p class="prometeo-hint prometeo-hint-pistas">Resalta, en el expediente abierto, lo que todavía no ha encontrado.</p>
+
+                <p class="prometeo-menu-grupo-titulo">Situación laboral</p>
+                <button type="button" class="prometeo-menu-item" data-abrir-panel="nueva-partida">Nueva partida</button>
+                <button type="button" class="prometeo-menu-item" data-abrir-panel="creditos">Créditos</button>
                 <form th:action="@{/logout}" method="post" class="prometeo-menu-item-form">
                     <button type="submit" class="prometeo-menu-item prometeo-menu-item-salir">Salir</button>
                 </form>
             </nav>
 
-            <label class="prometeo-toggle-pistas">
-                <input type="checkbox" id="prometeo-activar-pistas">
-                <span>Activar pistas</span>
-            </label>
-            <p class="prometeo-hint">Resalta, en el expediente abierto, lo que todavía no ha encontrado.</p>
-
             <div id="prometeo-vida-resumen" class="prometeo-vida-resumen" aria-live="polite"></div>
-
-            <p class="prometeo-hint" th:if="${ultimoGuardado}"
-               th:text="'Último guardado: ' + ${#temporals.format(ultimoGuardado, 'dd/MM/yyyy HH:mm')}">Último guardado</p>
-            <p class="prometeo-hint" th:unless="${ultimoGuardado}">Aún no has guardado en esta sesión.</p>
         </div>
 
         <div class="prometeo-panel" data-panel="logros" hidden>

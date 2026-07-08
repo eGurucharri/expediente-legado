@@ -26,7 +26,11 @@
                 </li>
             </ul>
             <p th:if="${todosResueltos}" class="alert alert-warning mt-3 mb-0" data-siga-todos-resueltos="true">
-                Ha dado cierre a los cinco expedientes bajo su cargo. Revise el corcho: hay una entrada nueva.
+                Ha dado cierre a los cinco expedientes bajo su cargo. El corcho tiene una entrada nueva
+                — revísela, puede que abra una puerta que no sabía que existía.
+                <a th:if="${!conceptos.?[concepto.epilogo].isEmpty()}"
+                   th:href="'#concepto-' + ${conceptos.?[concepto.epilogo][0].concepto.id}"
+                   class="alert-link">Ver ahora</a>
             </p>
         </div>
     </div>
@@ -53,16 +57,23 @@
             </p>
             <div id="prometeo-grafo-lista" class="row row-cols-1 row-cols-md-2 g-3">
                 <div class="col" th:each="cv : ${conceptos}">
-                    <div class="siga-record h-100" th:id="'concepto-' + ${cv.concepto.id}">
+                    <div class="siga-record h-100" th:id="'concepto-' + ${cv.concepto.id}"
+                         th:classappend="${cv.concepto.epilogo} ? ' siga-record-epilogo' : ''">
                         <div class="siga-record-header d-flex justify-content-between">
                             <span th:text="${cv.concepto.nombre}"></span>
-                            <span class="badge text-bg-dark" th:text="${cv.concepto.tipo}"></span>
+                            <span th:if="${cv.concepto.epilogo}" class="badge text-bg-warning">ACREDITACIÓN ESPECIAL</span>
+                            <span th:unless="${cv.concepto.epilogo}" class="badge text-bg-dark" th:text="${cv.concepto.tipo}"></span>
                         </div>
                         <div class="siga-record-body" th:utext="${cv.resumenHtml}"></div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="siga-window mt-4">
+        <div class="siga-titlebar">Manual del usuario · SIGA-98</div>
+        <div th:replace="~{fragments/manual :: manual}"></div>
     </div>
 </div>
 

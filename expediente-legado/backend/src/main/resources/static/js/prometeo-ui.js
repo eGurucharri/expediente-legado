@@ -1227,6 +1227,41 @@
     }
 
     /**
+     * Issue #30: vida es un presupuesto de errores por partida (ligado a la
+     * comprobación de "acusación precipitada" dentro de una sola vuelta a
+     * los 8 casos), no meta-progresión — a diferencia de logros/tarot/
+     * dificultad, no debería sobrevivir a "Nueva partida". Como
+     * MenuController.nuevaPartida() no toca el localStorage (solo borra
+     * filas en servidor y cierra sesión), la corrección se hace aquí: si
+     * el servidor confirma cero progreso de investigación — cierto tanto
+     * para una cuenta nueva como para una recién reiniciada — se corrige
+     * sin más flags ni tocar el flujo de login.
+     *
+     * despidoShown va de la mano de vida por el mismo motivo por el que
+     * canjearVidaConCarta() ya lo reinicia al revivir desde 0 (línea
+     * ~1211): es el aviso de "se ha quedado sin vidas" de ESTA vuelta, no
+     * un logro de una vez en la vida. Si no se reinicia aquí, quien fue
+     * despedido en la partida anterior no vuelve a ver ese aviso nunca,
+     * aunque llegue a 0 vidas otra vez en la nueva partida.
+     */
+    function reiniciarVidaSiPartidaNueva() {
+        if (!real) {
+            return;
+        }
+        var sinProgreso = real.pistasDescubiertas === 0 && real.casosResueltos === 0
+            && real.veredictosEmitidos === 0;
+        if (!sinProgreso) {
+            return;
+        }
+        var max = DIFICULTADES[state.dificultad].vidasMax;
+        if (state.vida < max || state.despidoShown) {
+            state.vida = max;
+            state.despidoShown = false;
+            guardarEstado();
+        }
+    }
+
+    /**
      * Resalta las pistas sin descubrir del expediente abierto (issue #22):
      * ayuda opcional, no cambia ninguna mecánica. Solo afecta a hotspots de
      * pista real (con form=form-pista-N), nunca a las cartas ocultas.
@@ -2201,6 +2236,7 @@
     document.addEventListener("pointerdown", primerGestoReal, { once: true });
     document.addEventListener("keydown", primerGestoReal, { once: true });
 
+    reiniciarVidaSiPartidaNueva();
     renderLogros();
     renderTarot();
     renderVida();

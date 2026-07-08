@@ -13,7 +13,7 @@
 
     <groupId>com.legado</groupId>
     <artifactId>expediente-legado</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
     <name>expediente-legado</name>
     <description>SIGA-98: aventura de investigacion sobre un antiguo sistema de administracion</description>
 
@@ -23,7 +23,7 @@
         <checkstyle.version>10.20.1</checkstyle.version>
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
         <maven-pmd-plugin.version>3.25.0</maven-pmd-plugin.version>
-        <pmd.version>7.16.0</pmd.version>
+        <pmd.version>7.22.0</pmd.version>
         <spotbugs-maven-plugin.version>4.10.2.0</spotbugs-maven-plugin.version>
     </properties>
 
