@@ -22,6 +22,7 @@
     var rango = document.getElementById("prometeo-volumen-rango");
     var vidaResumen = document.getElementById("prometeo-vida-resumen");
     var vidaHud = document.getElementById("prometeo-vida-hud");
+    var activarPistasCheckbox = document.getElementById("prometeo-activar-pistas");
     var jefeModal = document.getElementById("prometeo-jefe");
     var despidoModal = document.getElementById("prometeo-despido");
     var finalVerdaderoModal = document.getElementById("prometeo-final-verdadero");
@@ -943,7 +944,8 @@
             vioFinalAlternativoAlgunaVez: Boolean(datos.vioFinalAlternativoAlgunaVez),
             historiasCartas: datos.historiasCartas || {},
             finalPoliticoShown: Boolean(datos.finalPoliticoShown),
-            saludoVisto: Boolean(datos.saludoVisto)
+            saludoVisto: Boolean(datos.saludoVisto),
+            pistasActivas: Boolean(datos.pistasActivas)
         };
     }
 
@@ -1220,6 +1222,17 @@
         state.vida = Math.min(state.vida, DIFICULTADES[nueva].vidasMax);
         guardarEstado();
         renderVida();
+    }
+
+    /**
+     * Resalta las pistas sin descubrir del expediente abierto (issue #22):
+     * ayuda opcional, no cambia ninguna mecánica. Solo afecta a hotspots de
+     * pista real (con form=form-pista-N), nunca a las cartas ocultas.
+     */
+    function aplicarPistasActivas(activo) {
+        state.pistasActivas = activo;
+        guardarEstado();
+        document.body.classList.toggle("prometeo-pistas-activas", activo);
     }
 
     function comprobarFinalVerdadero() {
@@ -2016,6 +2029,10 @@
     radiosDificultad.forEach(function (radio) {
         radio.checked = radio.value === state.dificultad;
     });
+    if (activarPistasCheckbox) {
+        activarPistasCheckbox.checked = state.pistasActivas;
+    }
+    document.body.classList.toggle("prometeo-pistas-activas", state.pistasActivas);
     sincronizarConEstadoReal();
     comprobarAcusacionReciente();
 
@@ -2179,6 +2196,13 @@
             }
         });
     });
+
+    if (activarPistasCheckbox) {
+        activarPistasCheckbox.addEventListener("change", function () {
+            aplicarPistasActivas(activarPistasCheckbox.checked);
+            tic(500);
+        });
+    }
 
     if (botonTarot) {
         botonTarot.addEventListener("click", function () {

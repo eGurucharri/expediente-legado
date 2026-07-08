@@ -77,6 +77,12 @@
                 </form>
             </nav>
 
+            <label class="prometeo-toggle-pistas">
+                <input type="checkbox" id="prometeo-activar-pistas">
+                <span>Activar pistas</span>
+            </label>
+            <p class="prometeo-hint">Resalta, en el expediente abierto, lo que todavía no ha encontrado.</p>
+
             <div id="prometeo-vida-resumen" class="prometeo-vida-resumen" aria-live="polite"></div>
 
             <p class="prometeo-hint" th:if="${ultimoGuardado}"
@@ -204,6 +210,7 @@
             <p class="prometeo-final-ribbon">Reasignación de personal</p>
             <h3 id="prometeo-despido-titulo">Su plaza ha sido reasignada</h3>
             <p id="prometeo-despido-texto">Demasiadas acusaciones sin fundamento. La Dirección lo agradece, pero ya no requiere sus servicios en este puesto.</p>
+            <p class="prometeo-hint">Se ha quedado sin vidas — es un aviso, no un cierre: el expediente sigue abierto y puede seguir investigando y acusando. Si le está costando encontrar pistas, "Activar pistas" en RR. HH. las resalta por usted.</p>
             <button type="button" class="prometeo-btn-secundario" data-cerrar-despido>Firmar el cese</button>
         </dialog>
     </div>
