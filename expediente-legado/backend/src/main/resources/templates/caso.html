@@ -101,17 +101,16 @@
 
             <div th:if="${veredicto == null and combate != null}" data-siga-combate="true">
                 <p class="mb-1">Enfrentamiento en curso contra: <strong th:text="${combate.nombreSospechoso}"></strong></p>
-                <progress class="siga-resistencia mb-2" th:value="${combate.resistenciaPorcentaje}" max="100"
-                          th:attr="aria-label='Resistencia: ' + ${combate.resistenciaPorcentaje} + '%'"></progress>
-                <p class="text-muted small">Resistencia: <span th:text="${combate.resistenciaPorcentaje}"></span>%</p>
-                <div class="siga-nota-marginal siga-revelado mb-3" th:text="${combate.ataqueActual}"></div>
-                <form th:action="@{/casos/{casoId}/combate/avanzar(casoId=${caso.id})}" method="post">
-                    <button type="submit" class="btn siga-btn"
-                            th:text="${combate.etiquetaAccion}"
-                            th:attr="title=${combate.etiquetaAccion},aria-label=${combate.etiquetaAccion}">
-                        Avanzar
-                    </button>
-                </form>
+                <div id="prometeo-combate-raiz"></div>
+                <form id="form-combate-finalizar" th:action="@{/casos/{casoId}/combate/finalizar(casoId=${caso.id})}" method="post"></form>
+                <script th:inline="javascript">
+                    /*<![CDATA[*/
+                    window.PROMETEO_COMBATE = {
+                        sospechoso: /*[[${combate.nombreSospechoso}]]*/ '',
+                        ataques: /*[[${combate.ataques}]]*/ []
+                    };
+                    /*]]>*/
+                </script>
             </div>
 
             <form th:if="${veredicto == null and combate == null}"

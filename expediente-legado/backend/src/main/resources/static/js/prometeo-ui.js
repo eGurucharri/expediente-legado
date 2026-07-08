@@ -23,6 +23,8 @@
     var vidaResumen = document.getElementById("prometeo-vida-resumen");
     var vidaHud = document.getElementById("prometeo-vida-hud");
     var activarPistasCheckbox = document.getElementById("prometeo-activar-pistas");
+    var combateRaiz = document.getElementById("prometeo-combate-raiz");
+    var formCombateFinalizar = document.getElementById("form-combate-finalizar");
     var jefeModal = document.getElementById("prometeo-jefe");
     var despidoModal = document.getElementById("prometeo-despido");
     var finalVerdaderoModal = document.getElementById("prometeo-final-verdadero");
@@ -909,7 +911,7 @@
             { id: "el-ermitanio", nombre: "El Ermitaño", descripcion: "Se quedó solo con el expediente después de que lo señalaran.", collected: false, gastada: false, requisito: "Pierda una vida por acusar sin fundamento." },
             { id: "la-rueda", nombre: "La Rueda de la Fortuna", descripcion: "El trámite gira y siempre cae del lado que no esperaba.", collected: false, gastada: false, requisito: "Hay algo oculto en «El trámite de la silla 4-B»." },
             { id: "la-justicia", nombre: "La Justicia", descripcion: "Pesa las pruebas después de haber decidido ya la sentencia.", collected: false, gastada: false, requisito: "Hay algo oculto en «El cierre de caja de 1999»." },
-            { id: "el-colgado", nombre: "El Colgado", descripcion: "Cuelga de una decisión que todavía no ha terminado de tomar.", collected: false, gastada: false, requisito: "Llegue a un enfrentamiento." },
+            { id: "el-colgado", nombre: "El Colgado", descripcion: "Cuelga de una decisión que todavía no ha terminado de tomar.", collected: false, gastada: false, requisito: "Gane un enfrentamiento." },
             { id: "la-muerte", nombre: "La Muerte", descripcion: "No es el final. Aquí nunca lo es.", collected: false, gastada: false, requisito: "Sea reasignado por acumular demasiados fallos." },
             { id: "la-templanza", nombre: "La Templanza", descripcion: "Cambia una certeza por otra cosa que todavía no sabe si necesita.", collected: false, gastada: false, requisito: "Canjee una carta por una vida." },
             { id: "el-diablo", nombre: "El Diablo", descripcion: "Le hizo marcar una casilla que no significaba nada. Y usted la marcó.", collected: false, gastada: false, requisito: "Tropiece con una verificación falsa." },
@@ -939,7 +941,7 @@
             finalVerdaderoShown: Boolean(datos.finalVerdaderoShown),
             despidoShown: Boolean(datos.despidoShown),
             perdioVidaAlgunaVez: Boolean(datos.perdioVidaAlgunaVez),
-            vioCombateAlgunaVez: Boolean(datos.vioCombateAlgunaVez),
+            ganoCombateAlgunaVez: Boolean(datos.ganoCombateAlgunaVez),
             pasoPorDespidoAlgunaVez: Boolean(datos.pasoPorDespidoAlgunaVez),
             vioFinalAlternativoAlgunaVez: Boolean(datos.vioFinalAlternativoAlgunaVez),
             historiasCartas: datos.historiasCartas || {},
@@ -1067,7 +1069,7 @@
         if (state.perdioVidaAlgunaVez && desbloquearCarta("el-ermitanio")) {
             huboNovedad = true;
         }
-        if (state.vioCombateAlgunaVez && desbloquearCarta("el-colgado")) {
+        if (state.ganoCombateAlgunaVez && desbloquearCarta("el-colgado")) {
             huboNovedad = true;
         }
         if (state.pasoPorDespidoAlgunaVez && desbloquearCarta("la-muerte")) {
@@ -1389,6 +1391,159 @@
         }
         coda.textContent = texto;
         coda.hidden = false;
+    }
+
+    /**
+     * Combate de cartas (issue #21), sustituye al viejo "Objetar/Insistir"
+     * de un solo botón: piedra-papel-tijera burocrático, con las réplicas
+     * del sospechoso (Sospechoso.ataques) como flavor de cada ronda en vez
+     * de datos de juego reales. Todo se resuelve en el cliente; el
+     * servidor solo se entera al final (POST a combate/finalizar), gane o
+     * pierda el jugador — no hay "sospechoso correcto", así que la
+     * acusación se resuelve igual en ambos casos.
+     */
+    var TIPOS_COMBATE = {
+        objecion: { etiqueta: "Objeción", vence: "silencio" },
+        silencio: { etiqueta: "Silencio", vence: "insistencia" },
+        insistencia: { etiqueta: "Insistencia", vence: "objecion" }
+    };
+    var ORDEN_TIPOS_COMBATE = ["objecion", "silencio", "insistencia"];
+    var VIDA_INICIAL_COMBATE = 3;
+    var combateActual = null;
+
+    function iniciarCombate() {
+        if (!window.PROMETEO_COMBATE || !combateRaiz) {
+            return;
+        }
+        combateActual = {
+            sospechoso: window.PROMETEO_COMBATE.sospechoso,
+            ataques: window.PROMETEO_COMBATE.ataques,
+            ronda: 0,
+            vidaJugador: VIDA_INICIAL_COMBATE,
+            vidaRival: VIDA_INICIAL_COMBATE,
+            ultimoTipoJugador: null,
+            terminado: null
+        };
+        renderCombate();
+    }
+
+    function jugarCartaCombate(tipo) {
+        if (!combateActual || combateActual.terminado) {
+            return;
+        }
+        var tipoRival = ORDEN_TIPOS_COMBATE[combateActual.ronda % ORDEN_TIPOS_COMBATE.length];
+        var combo = tipo === combateActual.ultimoTipoJugador;
+        var dano = combo ? 2 : 1;
+
+        if (tipo === tipoRival) {
+            // Mismo tipo que la réplica de esta ronda: empate, nadie pierde vida.
+        } else if (TIPOS_COMBATE[tipo].vence === tipoRival) {
+            combateActual.vidaRival = Math.max(0, combateActual.vidaRival - dano);
+        } else {
+            combateActual.vidaJugador = Math.max(0, combateActual.vidaJugador - dano);
+        }
+
+        combateActual.ultimoTipoJugador = tipo;
+        combateActual.ronda++;
+
+        if (combateActual.vidaRival === 0) {
+            combateActual.terminado = "gano";
+        } else if (combateActual.vidaJugador === 0) {
+            combateActual.terminado = "perdio";
+        }
+
+        tic(combo ? 700 : 480);
+        renderCombate();
+
+        if (combateActual.terminado) {
+            resolverFinCombate();
+        }
+    }
+
+    function resolverFinCombate() {
+        if (combateActual.terminado === "gano") {
+            state.ganoCombateAlgunaVez = true;
+            guardarEstado();
+            if (desbloquearCarta("el-colgado")) {
+                marcarProgreso();
+                renderTarot();
+                renderLogros();
+            }
+            mostrarAsistente("No hacía falta ganarle a " + combateActual.sospechoso
+                + ". Ahora tiene su carta, para lo que le sirva.", "guino");
+        } else {
+            perderVida(1);
+            mostrarAsistente("No se preocupe por haber perdido contra " + combateActual.sospechoso
+                + ". Seguro que a la Dirección no le importa.", "triste");
+        }
+    }
+
+    function renderCombate() {
+        if (!combateRaiz || !combateActual) {
+            return;
+        }
+        combateRaiz.innerHTML = "";
+
+        function pips(etiquetaTexto, vida) {
+            var cont = document.createElement("div");
+            cont.className = "prometeo-combate-barra";
+            var etiqueta = document.createElement("strong");
+            etiqueta.textContent = etiquetaTexto;
+            cont.appendChild(etiqueta);
+            for (var i = 0; i < VIDA_INICIAL_COMBATE; i++) {
+                var pip = document.createElement("span");
+                pip.className = "prometeo-vida-pip " + (i < vida ? "is-llena" : "is-vacia");
+                pip.innerHTML = "&#9679;";
+                cont.appendChild(pip);
+            }
+            return cont;
+        }
+
+        var barras = document.createElement("div");
+        barras.className = "prometeo-combate-barras";
+        barras.appendChild(pips("Usted", combateActual.vidaJugador));
+        barras.appendChild(pips(combateActual.sospechoso, combateActual.vidaRival));
+        combateRaiz.appendChild(barras);
+
+        if (!combateActual.terminado) {
+            var textoAtaque = combateActual.ataques[combateActual.ronda % combateActual.ataques.length];
+            var nota = document.createElement("div");
+            nota.className = "siga-nota-marginal mb-3";
+            nota.textContent = textoAtaque;
+            combateRaiz.appendChild(nota);
+
+            var opciones = document.createElement("div");
+            opciones.className = "prometeo-combate-opciones";
+            ORDEN_TIPOS_COMBATE.forEach(function (tipo) {
+                var boton = document.createElement("button");
+                boton.type = "button";
+                boton.className = "btn siga-btn";
+                boton.textContent = TIPOS_COMBATE[tipo].etiqueta;
+                boton.addEventListener("click", function () {
+                    jugarCartaCombate(tipo);
+                });
+                opciones.appendChild(boton);
+            });
+            combateRaiz.appendChild(opciones);
+        } else {
+            var nota2 = document.createElement("div");
+            nota2.className = "siga-nota-marginal siga-revelado mb-3";
+            nota2.textContent = combateActual.terminado === "gano"
+                ? "Ha ganado el enfrentamiento. Se ha hecho con su carta."
+                : "Ha perdido el enfrentamiento. Pierde una vida.";
+            combateRaiz.appendChild(nota2);
+
+            var cerrar = document.createElement("button");
+            cerrar.type = "button";
+            cerrar.className = "btn siga-btn";
+            cerrar.textContent = "Presentar cierre";
+            cerrar.addEventListener("click", function () {
+                if (formCombateFinalizar) {
+                    formCombateFinalizar.submit();
+                }
+            });
+            combateRaiz.appendChild(cerrar);
+        }
     }
 
     function mostrarJefeSiHaceFalta() {
@@ -1999,7 +2154,7 @@
             return;
         }
 
-        var esPesado = document.querySelector(".siga-resistencia") !== null;
+        var esPesado = document.querySelector("[data-siga-combate]") !== null;
         var nivelBase = esPesado ? 0.05 : 0.028;
 
         var gain = ctx.createGain();
@@ -2046,11 +2201,6 @@
     document.addEventListener("pointerdown", primerGestoReal, { once: true });
     document.addEventListener("keydown", primerGestoReal, { once: true });
 
-    if (document.querySelector(".siga-resistencia") && !state.vioCombateAlgunaVez) {
-        state.vioCombateAlgunaVez = true;
-        guardarEstado();
-    }
-
     renderLogros();
     renderTarot();
     renderVida();
@@ -2064,6 +2214,7 @@
     sincronizarConEstadoReal();
     comprobarAcusacionReciente();
     variarDesenlaceSegunProgreso();
+    iniciarCombate();
 
     if (!state.assistantShown && !state.finalShown) {
         setInterval(comprobarEstadoDeJuego, 15000);

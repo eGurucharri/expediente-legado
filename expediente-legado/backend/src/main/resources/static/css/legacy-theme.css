@@ -234,28 +234,42 @@ body.prometeo-pistas-activas .siga-hotspot[form] {
     }
 }
 
-/* Barra de "resistencia" del enfrentamiento final: un boss-bar de toda la
-   vida, pero disfrazado de indicador de trámite, no de vida/maná. */
-.siga-resistencia {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    width: 100%;
-    height: 22px;
-    border: 2px solid #808080;
-    box-shadow: inset 1px 1px #404040, inset -1px -1px #ffffff;
-    background: #1a0000;
-    overflow: hidden;
+/*
+ * Combate de cartas (issue #21): piedra-papel-tijera burocrático dentro
+ * de la propia ventana "Presentar acusación" de SIGA-98, no un panel
+ * aparte — de ahí que reutilice .siga-nota-marginal/.siga-btn en vez de
+ * inventar un lenguaje visual nuevo para tres botones y dos barras.
+ */
+.prometeo-combate-barras {
+    display: flex;
+    gap: 1.25rem;
+    margin-bottom: 0.9rem;
+    flex-wrap: wrap;
 }
 
-.siga-resistencia::-webkit-progress-bar {
-    background: #1a0000;
+.prometeo-combate-barra {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
 }
 
-.siga-resistencia::-webkit-progress-value,
-.siga-resistencia::-moz-progress-bar {
-    background: repeating-linear-gradient(45deg, #a6321f, #a6321f 8px, #c73e28 8px, #c73e28 16px);
-    transition: width 0.4s ease-out;
+.prometeo-combate-barra strong {
+    min-width: 0;
+}
+
+.prometeo-combate-barra .prometeo-vida-pip.is-llena {
+    color: #a6321f;
+}
+
+.prometeo-combate-barra .prometeo-vida-pip.is-vacia {
+    color: #c8c4bc;
+}
+
+.prometeo-combate-opciones {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 /* Visor de documentos: cada tipo de registro simula ser el papel que dice
