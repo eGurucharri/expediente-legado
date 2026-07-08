@@ -1363,6 +1363,34 @@
         }
     }
 
+    /**
+     * Issue #20: el desenlace en sí (Sospechoso.desenlace) sigue siendo
+     * fijo en el backend, pero aquí se le añade una coda que varía según
+     * cuánto se investigó antes de acusar — la misma proporción de
+     * pistas/total que ya decide si una acusación fue precipitada.
+     */
+    function variarDesenlaceSegunProgreso() {
+        var coda = document.getElementById("siga-veredicto-coda");
+        if (!coda || !real || !real.casos) {
+            return;
+        }
+        var caso = buscarCasoActualEnReal();
+        if (!caso || !caso.totalPistas) {
+            return;
+        }
+        var ratio = caso.pistasDescubiertas / caso.totalPistas;
+        var texto;
+        if (ratio < 0.4) {
+            texto = "El expediente se cierra con la mayor parte de la documentación sin revisar. Nadie pregunta por qué.";
+        } else if (ratio < 0.75) {
+            texto = "El expediente se cierra con parte de la documentación revisada. El resto queda archivado sin más trámite.";
+        } else {
+            texto = "El expediente se cierra tras revisar casi toda la documentación disponible. No es que vaya a cambiar el resultado.";
+        }
+        coda.textContent = texto;
+        coda.hidden = false;
+    }
+
     function mostrarJefeSiHaceFalta() {
         if (!jefeModal || state.jefeVisto) {
             return;
@@ -2035,6 +2063,7 @@
     document.body.classList.toggle("prometeo-pistas-activas", state.pistasActivas);
     sincronizarConEstadoReal();
     comprobarAcusacionReciente();
+    variarDesenlaceSegunProgreso();
 
     if (!state.assistantShown && !state.finalShown) {
         setInterval(comprobarEstadoDeJuego, 15000);

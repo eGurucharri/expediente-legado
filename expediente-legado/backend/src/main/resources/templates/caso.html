@@ -96,6 +96,7 @@
                 <div class="siga-retrato" th:attr="data-siga-retrato=${veredicto.sospechoso.nombre}" aria-hidden="true"></div>
                 <p class="mb-2">Acusó a: <strong th:text="${veredicto.sospechoso.nombre}"></strong></p>
                 <div class="siga-nota-marginal siga-revelado" th:text="${veredicto.sospechoso.desenlace}"></div>
+                <p id="siga-veredicto-coda" class="text-muted small mt-2" hidden></p>
             </div>
 
             <div th:if="${veredicto == null and combate != null}" data-siga-combate="true">
