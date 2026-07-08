@@ -1227,6 +1227,31 @@
     }
 
     /**
+     * Issue #30: vida es un presupuesto de errores por partida (ligado a la
+     * comprobación de "acusación precipitada" dentro de una sola vuelta a
+     * los 8 casos), no meta-progresión — a diferencia de logros/tarot/
+     * dificultad, no debería sobrevivir a "Nueva partida". Como
+     * MenuController.nuevaPartida() no toca el localStorage (solo borra
+     * filas en servidor y cierra sesión), la corrección se hace aquí: si
+     * el servidor confirma cero progreso de investigación — cierto tanto
+     * para una cuenta nueva como para una recién reiniciada — y la vida
+     * guardada está por debajo del máximo, se corrige sin más flags ni
+     * tocar el flujo de login.
+     */
+    function reiniciarVidaSiPartidaNueva() {
+        if (!real) {
+            return;
+        }
+        var sinProgreso = real.pistasDescubiertas === 0 && real.casosResueltos === 0
+            && real.veredictosEmitidos === 0;
+        var max = DIFICULTADES[state.dificultad].vidasMax;
+        if (sinProgreso && state.vida < max) {
+            state.vida = max;
+            guardarEstado();
+        }
+    }
+
+    /**
      * Resalta las pistas sin descubrir del expediente abierto (issue #22):
      * ayuda opcional, no cambia ninguna mecánica. Solo afecta a hotspots de
      * pista real (con form=form-pista-N), nunca a las cartas ocultas.
@@ -2201,6 +2226,7 @@
     document.addEventListener("pointerdown", primerGestoReal, { once: true });
     document.addEventListener("keydown", primerGestoReal, { once: true });
 
+    reiniciarVidaSiPartidaNueva();
     renderLogros();
     renderTarot();
     renderVida();
