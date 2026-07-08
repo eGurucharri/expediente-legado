@@ -122,6 +122,23 @@
     gap: 0.5rem;
 }
 
+/* Subcabeceras de grupo (issue #27): 7 botones en una lista plana no
+   escaneaban bien — "Su expediente de personal" / "Preferencias" /
+   "Cuenta" separan lo que es un registro de lo que es un ajuste de lo
+   que es una acción de cuenta. */
+.prometeo-menu-grupo-titulo {
+    margin: 0.7rem 0 0.1rem;
+    font-size: 0.72rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #4a4a4a;
+}
+
+.prometeo-menu-grupo-titulo:first-child {
+    margin-top: 0;
+}
+
 .prometeo-menu-item-form {
     margin: 0;
 }
@@ -826,9 +843,13 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin: 0.9rem 0 0.2rem;
+    margin: 0.3rem 0 0.1rem;
     font-size: 0.86rem;
     cursor: pointer;
+}
+
+.prometeo-hint-pistas {
+    margin-top: 0;
 }
 
 .prometeo-toggle-pistas input {

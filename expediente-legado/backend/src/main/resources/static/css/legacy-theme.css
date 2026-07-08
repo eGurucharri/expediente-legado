@@ -539,3 +539,62 @@ body.prometeo-pistas-activas .siga-hotspot[form] {
     image-rendering: pixelated;
     filter: contrast(1.1) brightness(0.97);
 }
+
+/*
+ * Manual del usuario (issue #27): vive en Mi carpeta (SIGA-98), no en
+ * RR. HH. — tabla de contenidos a un lado, secciones como .siga-record
+ * al otro, mismo lenguaje visual que el resto del corcho.
+ */
+.siga-manual {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.siga-manual-toc {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    min-width: 180px;
+}
+
+.siga-manual-contenido {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    flex: 1;
+    min-width: 240px;
+}
+
+.siga-manual-contenido .siga-record-body p {
+    margin: 0 0 0.5rem;
+}
+
+.siga-manual-contenido .siga-record-body p:last-child {
+    margin-bottom: 0;
+}
+
+/*
+ * Concepto "epilogo" (issue #28): la acreditación de enlace13 ya existía
+ * como contenido del juego, pero se perdía sin distinción entre el resto
+ * de tarjetas del corcho. Mismo lenguaje "desbloqueado" en dorado que ya
+ * usan los logros (.prometeo-achievement-item.is-unlocked), para que se
+ * lea como un hallazgo real, no una tarjeta más.
+ */
+.siga-record-epilogo {
+    background: #fff9b0;
+    border-color: #b8960a;
+    border-width: 2px;
+    animation: siga-epilogo-resalte 2.4s ease-out 1;
+}
+
+@keyframes siga-epilogo-resalte {
+    0% { box-shadow: 0 0 0 4px rgba(184, 150, 10, 0.5); }
+    100% { box-shadow: 0 0 0 4px rgba(184, 150, 10, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .siga-record-epilogo {
+        animation: none;
+    }
+}
