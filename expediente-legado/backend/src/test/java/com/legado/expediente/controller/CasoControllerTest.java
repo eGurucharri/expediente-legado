@@ -70,6 +70,10 @@ class CasoControllerTest {
                     combatesPorCaso.put(CASO_ID, c);
                     combatesGuardados.add(c);
                     return c;
+                },
+                "delete", args -> {
+                    combatesPorCaso.remove(CASO_ID);
+                    return null;
                 }
         ));
         SospechosoRepository sospechosoRepository = fake(SospechosoRepository.class, Map.of(
@@ -102,8 +106,23 @@ class CasoControllerTest {
 
         assertFalse(veredictosPorCaso.containsKey(CASO_ID));
         assertEquals(1, combatesGuardados.size());
-        assertEquals(1, combatesGuardados.get(0).getRonda());
         assertEquals("acusacion", redirectAttributes.getFlashAttributes().get("accionReciente"));
+    }
+
+    @Test
+    void finalizarCombateRegistraVeredictoYBorraElCombateGaneOPierdaElJugador() {
+        Sospechoso sospechoso = sospechoso(6L, Arrays.asList("Primer ataque", "Segundo ataque"));
+        CombateEnCurso combate = new CombateEnCurso();
+        combate.setUsuario(usuario);
+        combate.setSospechoso(sospechoso);
+        combatesPorCaso.put(CASO_ID, combate);
+
+        String vista = controller.finalizarCombate(CASO_ID, authentication);
+
+        assertEquals("redirect:/casos/" + CASO_ID, vista);
+        assertTrue(veredictosPorCaso.containsKey(CASO_ID));
+        assertEquals(sospechoso, veredictosPorCaso.get(CASO_ID).getSospechoso());
+        assertFalse(combatesPorCaso.containsKey(CASO_ID));
     }
 
     @Test
