@@ -2,9 +2,12 @@ package com.legado.expediente.controller;
 
 import com.legado.expediente.model.Caso;
 import com.legado.expediente.model.CombateEnCurso;
+import com.legado.expediente.model.Rol;
 import com.legado.expediente.model.Sospechoso;
 import com.legado.expediente.model.Usuario;
+import com.legado.expediente.repository.CasoRepository;
 import com.legado.expediente.repository.CombateEnCursoRepository;
+import com.legado.expediente.repository.PistaRepository;
 import com.legado.expediente.repository.SospechosoRepository;
 import com.legado.expediente.repository.UsuarioRepository;
 import com.legado.expediente.repository.VeredictoRepository;
@@ -45,15 +48,22 @@ class CasoControllerTest {
 
     private final Usuario usuario = new Usuario();
     private final Authentication authentication = new UsernamePasswordAuthenticationToken("auditor01", "n/a");
+    private final Caso caso = new Caso();
 
     private CasoController controller;
 
     @BeforeEach
     void configurar() {
         usuario.setId(USUARIO_ID);
+        usuario.setRol(Rol.AUDITOR);
+        caso.setId(CASO_ID);
+        caso.setConfidencial(false);
 
         UsuarioRepository usuarioRepository = fake(UsuarioRepository.class, Map.of(
                 "findByUsername", args -> Optional.of(usuario)
+        ));
+        CasoRepository casoRepository = fake(CasoRepository.class, Map.of(
+                "findById", args -> Optional.of(caso)
         ));
         VeredictoRepository veredictoRepository = fake(VeredictoRepository.class, Map.of(
                 "findByUsuarioIdAndCasoId", args -> Optional.ofNullable(veredictosPorCaso.get((Long) args[1])),
@@ -79,9 +89,11 @@ class CasoControllerTest {
         SospechosoRepository sospechosoRepository = fake(SospechosoRepository.class, Map.of(
                 "findById", args -> Optional.ofNullable(sospechosos.get((Long) args[0]))
         ));
+        PistaRepository pistaRepository = fake(PistaRepository.class, Map.of());
 
-        controller = new CasoController(null, null, null, null, sospechosoRepository, veredictoRepository,
-                combateEnCursoRepository, null, null, new UsuarioContexto(usuarioRepository), null, null);
+        controller = new CasoController(casoRepository, null, pistaRepository, null, sospechosoRepository,
+                veredictoRepository, combateEnCursoRepository, null, null, new UsuarioContexto(usuarioRepository),
+                null, null);
     }
 
     @Test
@@ -114,15 +126,64 @@ class CasoControllerTest {
         Sospechoso sospechoso = sospechoso(6L, Arrays.asList("Primer ataque", "Segundo ataque"));
         CombateEnCurso combate = new CombateEnCurso();
         combate.setUsuario(usuario);
+        combate.setCaso(caso);
         combate.setSospechoso(sospechoso);
         combatesPorCaso.put(CASO_ID, combate);
+        RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
 
-        String vista = controller.finalizarCombate(CASO_ID, authentication);
+        String vista = controller.finalizarCombate(CASO_ID, authentication, redirectAttributes);
 
         assertEquals("redirect:/casos/" + CASO_ID, vista);
         assertTrue(veredictosPorCaso.containsKey(CASO_ID));
         assertEquals(sospechoso, veredictosPorCaso.get(CASO_ID).getSospechoso());
         assertFalse(combatesPorCaso.containsKey(CASO_ID));
+    }
+
+    @Test
+    void acusarEnCasoConfidencialSinSerAdminEsDenegado() {
+        caso.setConfidencial(true);
+        sospechosos.put(5L, sospechoso(5L, Arrays.asList()));
+        RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
+
+        String vista = controller.acusar(CASO_ID, 5L, authentication, redirectAttributes);
+
+        assertEquals("redirect:/", vista);
+        assertFalse(veredictosPorCaso.containsKey(CASO_ID));
+        assertTrue(combatesGuardados.isEmpty());
+        assertEquals("Solicitud denegada. Nivel de acreditación insuficiente para este expediente.",
+                redirectAttributes.getFlashAttributes().get("mensaje"));
+    }
+
+    @Test
+    void combinarEnCasoConfidencialSinSerAdminEsDenegado() {
+        caso.setConfidencial(true);
+        RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
+
+        String vista = controller.combinar(CASO_ID, Arrays.asList(1L, 2L), authentication, redirectAttributes);
+
+        assertEquals("redirect:/", vista);
+        assertEquals("Solicitud denegada. Nivel de acreditación insuficiente para este expediente.",
+                redirectAttributes.getFlashAttributes().get("mensaje"));
+    }
+
+    @Test
+    void finalizarCombateEnCasoConfidencialSinSerAdminEsDenegado() {
+        caso.setConfidencial(true);
+        Sospechoso sospechoso = sospechoso(6L, Arrays.asList("Primer ataque", "Segundo ataque"));
+        CombateEnCurso combate = new CombateEnCurso();
+        combate.setUsuario(usuario);
+        combate.setCaso(caso);
+        combate.setSospechoso(sospechoso);
+        combatesPorCaso.put(CASO_ID, combate);
+        RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
+
+        String vista = controller.finalizarCombate(CASO_ID, authentication, redirectAttributes);
+
+        assertEquals("redirect:/", vista);
+        assertFalse(veredictosPorCaso.containsKey(CASO_ID));
+        assertTrue(combatesPorCaso.containsKey(CASO_ID));
+        assertEquals("Solicitud denegada. Nivel de acreditación insuficiente para este expediente.",
+                redirectAttributes.getFlashAttributes().get("mensaje"));
     }
 
     @Test

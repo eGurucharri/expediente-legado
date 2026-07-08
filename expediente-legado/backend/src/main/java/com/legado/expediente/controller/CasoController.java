@@ -40,6 +40,9 @@ public class CasoController {
 
     private static final String ATRIBUTO_MENSAJE = "mensaje";
     private static final String RUTA_CASOS = "redirect:/casos/";
+    private static final String RUTA_INICIO = "redirect:/";
+    private static final String MENSAJE_ACCESO_DENEGADO =
+            "Solicitud denegada. Nivel de acreditación insuficiente para este expediente.";
 
     private final CasoRepository casoRepository;
     private final RegistroLegadoRepository registroLegadoRepository;
@@ -95,10 +98,9 @@ public class CasoController {
         Usuario usuario = usuarioContexto.actual(authentication);
         Caso caso = casoRepository.findById(id).orElseThrow();
 
-        if (caso.isConfidencial() && usuario.getRol() != Rol.ADMIN) {
-            redirectAttributes.addFlashAttribute(ATRIBUTO_MENSAJE,
-                    "Solicitud denegada. Nivel de acreditación insuficiente para este expediente.");
-            return "redirect:/";
+        if (sinAcceso(caso, usuario)) {
+            redirectAttributes.addFlashAttribute(ATRIBUTO_MENSAJE, MENSAJE_ACCESO_DENEGADO);
+            return RUTA_INICIO;
         }
 
         Set<Long> descubiertas = progresoService.pistasDescubiertas(usuario);
@@ -161,10 +163,9 @@ public class CasoController {
         Usuario usuario = usuarioContexto.actual(authentication);
         Pista pista = pistaRepository.findById(pistaId).orElseThrow();
 
-        if (pista.getCaso().isConfidencial() && usuario.getRol() != Rol.ADMIN) {
-            redirectAttributes.addFlashAttribute(ATRIBUTO_MENSAJE,
-                    "Solicitud denegada. Nivel de acreditación insuficiente para este expediente.");
-            return "redirect:/";
+        if (sinAcceso(pista.getCaso(), usuario)) {
+            redirectAttributes.addFlashAttribute(ATRIBUTO_MENSAJE, MENSAJE_ACCESO_DENEGADO);
+            return RUTA_INICIO;
         }
 
         if (!descubrimientoRepository.existsByUsuarioIdAndPistaId(usuario.getId(), pistaId)) {
@@ -184,6 +185,12 @@ public class CasoController {
                             @RequestParam(required = false) List<Long> registroIds,
                             Authentication authentication, RedirectAttributes redirectAttributes) {
         Usuario usuario = usuarioContexto.actual(authentication);
+        Caso caso = casoRepository.findById(casoId).orElseThrow();
+
+        if (sinAcceso(caso, usuario)) {
+            redirectAttributes.addFlashAttribute(ATRIBUTO_MENSAJE, MENSAJE_ACCESO_DENEGADO);
+            return RUTA_INICIO;
+        }
 
         if (registroIds == null || registroIds.size() != 2) {
             redirectAttributes.addFlashAttribute(ATRIBUTO_MENSAJE, "Selecciona exactamente dos documentos para combinarlos.");
@@ -213,6 +220,12 @@ public class CasoController {
     public String acusar(@PathVariable Long casoId, @RequestParam Long sospechosoId, Authentication authentication,
                           RedirectAttributes redirectAttributes) {
         Usuario usuario = usuarioContexto.actual(authentication);
+        Caso caso = casoRepository.findById(casoId).orElseThrow();
+
+        if (sinAcceso(caso, usuario)) {
+            redirectAttributes.addFlashAttribute(ATRIBUTO_MENSAJE, MENSAJE_ACCESO_DENEGADO);
+            return RUTA_INICIO;
+        }
 
         boolean yaHayVeredicto = veredictoRepository.findByUsuarioIdAndCasoId(usuario.getId(), casoId).isPresent();
         boolean yaHayCombate = combateEnCursoRepository.findByUsuarioIdAndCasoId(usuario.getId(), casoId).isPresent();
@@ -242,14 +255,24 @@ public class CasoController {
      * CLAUDE.md), así que la acusación se resuelve igual en ambos casos.
      */
     @PostMapping("/casos/{casoId}/combate/finalizar")
-    public String finalizarCombate(@PathVariable Long casoId, Authentication authentication) {
+    public String finalizarCombate(@PathVariable Long casoId, Authentication authentication,
+                                    RedirectAttributes redirectAttributes) {
         Usuario usuario = usuarioContexto.actual(authentication);
         CombateEnCurso combate = combateEnCursoRepository.findByUsuarioIdAndCasoId(usuario.getId(), casoId)
                 .orElseThrow();
 
+        if (sinAcceso(combate.getCaso(), usuario)) {
+            redirectAttributes.addFlashAttribute(ATRIBUTO_MENSAJE, MENSAJE_ACCESO_DENEGADO);
+            return RUTA_INICIO;
+        }
+
         registrarVeredicto(usuario, combate.getSospechoso());
         combateEnCursoRepository.delete(combate);
         return RUTA_CASOS + casoId;
+    }
+
+    private boolean sinAcceso(Caso caso, Usuario usuario) {
+        return caso.isConfidencial() && usuario.getRol() != Rol.ADMIN;
     }
 
     private void registrarVeredicto(Usuario usuario, Sospechoso sospechoso) {
