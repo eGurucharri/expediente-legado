@@ -1234,9 +1234,15 @@
      * MenuController.nuevaPartida() no toca el localStorage (solo borra
      * filas en servidor y cierra sesión), la corrección se hace aquí: si
      * el servidor confirma cero progreso de investigación — cierto tanto
-     * para una cuenta nueva como para una recién reiniciada — y la vida
-     * guardada está por debajo del máximo, se corrige sin más flags ni
-     * tocar el flujo de login.
+     * para una cuenta nueva como para una recién reiniciada — se corrige
+     * sin más flags ni tocar el flujo de login.
+     *
+     * despidoShown va de la mano de vida por el mismo motivo por el que
+     * canjearVidaConCarta() ya lo reinicia al revivir desde 0 (línea
+     * ~1211): es el aviso de "se ha quedado sin vidas" de ESTA vuelta, no
+     * un logro de una vez en la vida. Si no se reinicia aquí, quien fue
+     * despedido en la partida anterior no vuelve a ver ese aviso nunca,
+     * aunque llegue a 0 vidas otra vez en la nueva partida.
      */
     function reiniciarVidaSiPartidaNueva() {
         if (!real) {
@@ -1244,9 +1250,13 @@
         }
         var sinProgreso = real.pistasDescubiertas === 0 && real.casosResueltos === 0
             && real.veredictosEmitidos === 0;
+        if (!sinProgreso) {
+            return;
+        }
         var max = DIFICULTADES[state.dificultad].vidasMax;
-        if (sinProgreso && state.vida < max) {
+        if (state.vida < max || state.despidoShown) {
             state.vida = max;
+            state.despidoShown = false;
             guardarEstado();
         }
     }
