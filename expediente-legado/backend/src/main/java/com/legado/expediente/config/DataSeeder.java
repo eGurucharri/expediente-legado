@@ -74,9 +74,9 @@ public class DataSeeder implements CommandLineRunner {
             Caso4Pistas caso4Pistas = seedCaso4();
             Caso5Pistas caso5Pistas = seedCaso5();
             Caso6Pistas caso6Pistas = seedCaso6();
-            seedCorchoPrincipal(caso3Pistas, caso4Pistas, caso5Pistas, caso6Pistas);
-            seedCaso7();
-            seedCaso8();
+            Caso7Pistas caso7Pistas = seedCaso7();
+            Caso8Pistas caso8Pistas = seedCaso8();
+            seedCorchoPrincipal(caso3Pistas, caso4Pistas, caso5Pistas, caso6Pistas, caso7Pistas, caso8Pistas);
         }
     }
 
@@ -155,6 +155,30 @@ public class DataSeeder implements CommandLineRunner {
 
         private Pista pista13() {
             return pista13;
+        }
+    }
+
+    private static final class Caso7Pistas {
+        private final Pista pista15;
+
+        private Caso7Pistas(Pista pista15) {
+            this.pista15 = pista15;
+        }
+
+        private Pista pista15() {
+            return pista15;
+        }
+    }
+
+    private static final class Caso8Pistas {
+        private final Pista pista19;
+
+        private Caso8Pistas(Pista pista19) {
+            this.pista19 = pista19;
+        }
+
+        private Pista pista19() {
+            return pista19;
         }
     }
 
@@ -915,16 +939,19 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void seedCorchoPrincipal(Caso3Pistas caso3Pistas, Caso4Pistas caso4Pistas,
-                                      Caso5Pistas caso5Pistas, Caso6Pistas caso6Pistas) {
+                                      Caso5Pistas caso5Pistas, Caso6Pistas caso6Pistas,
+                                      Caso7Pistas caso7Pistas, Caso8Pistas caso8Pistas) {
         Concepto conceptoComite = new Concepto();
         conceptoComite.setNombre("Comité Ad Honorem");
         conceptoComite.setTipo(ConceptoTipo.COMITE);
         conceptoComite.setResumen("Órgano que autoriza decisiones desde al menos 1958 sin figurar "
                 + "jamás en un organigrama oficial. Ordenó el traslado de [[E. Montalvo]] a un piso "
                 + "que no existe, y redactó una versión no circulada del acta constitutiva de la "
-                + "empresa. Su sello es idéntico al de [[Carcosa Servicios Escénicos]].");
+                + "empresa. Su sello es idéntico al de [[Carcosa Servicios Escénicos]]. El mismo patrón "
+                + "de cierres sin preguntas reaparece en el expediente de [[P. Smerdiakov]], años antes "
+                + "de que el Comité existiera oficialmente en ningún papel.");
         conceptoComite.setPistas(Arrays.asList(caso3Pistas.pista6(), caso6Pistas.pista11(),
-                caso6Pistas.pista12(), caso6Pistas.pista13()));
+                caso6Pistas.pista12(), caso6Pistas.pista13(), caso7Pistas.pista15()));
         conceptoRepository.save(conceptoComite);
 
         Concepto conceptoCarcosa = new Concepto();
@@ -984,8 +1011,9 @@ public class DataSeeder implements CommandLineRunner {
         conceptoArchivoMuerto.setResumen("Depósito de expedientes que, según un acta de 2007, deben "
                 + "'revisarse' cada quince años sin que exista razón administrativa registrada para "
                 + "ello. Ahí apareció también la versión no circulada del acta fundacional del "
-                + "[[Comité Ad Honorem]], de 1958.");
-        conceptoArchivoMuerto.setPistas(Arrays.asList(caso5Pistas.pista9()));
+                + "[[Comité Ad Honorem]], de 1958. Ahí, tarde o temprano, terminan también los "
+                + "expedientes sin remitente ni destino claro, como el de [[Empleado #427]].");
+        conceptoArchivoMuerto.setPistas(Arrays.asList(caso5Pistas.pista9(), caso8Pistas.pista19()));
         conceptoRepository.save(conceptoArchivoMuerto);
 
         Concepto conceptoAuditor = new Concepto();
@@ -1010,7 +1038,7 @@ public class DataSeeder implements CommandLineRunner {
         conceptoRepository.save(conceptoEpilogo);
     }
 
-    private void seedCaso7() {
+    private Caso7Pistas seedCaso7() {
         Caso caso7 = new Caso();
         caso7.setTitulo("El expediente de la herencia Karamázov");
         caso7.setDescripcion("Tras la muerte repentina de F. P. Karamázov, fundador y accionista "
@@ -1117,7 +1145,9 @@ public class DataSeeder implements CommandLineRunner {
         conceptoSmerdiakov.setResumen("Único empleado con llave de la caja fuerte. Falleció seis días "
                 + "después de la desaparición de los fondos; Recursos Humanos cerró su expediente sin "
                 + "preguntar por qué, poco después de que circulara el memorándum de [[I. "
-                + "Karamázov]].");
+                + "Karamázov]]. El mismo silencio administrativo, el mismo cierre sin explicación, "
+                + "reaparece décadas después en los expedientes que ya autoriza el [[Comité Ad "
+                + "Honorem]].");
         conceptoSmerdiakov.setPistas(Arrays.asList(pista15));
         conceptoRepository.save(conceptoSmerdiakov);
 
@@ -1177,9 +1207,11 @@ public class DataSeeder implements CommandLineRunner {
                 + "reapertura del caso'. Es la primera vez que solicitar una revisión se documenta "
                 + "como falta administrativa.");
         sospechosoRepository.save(sospechosoA);
+
+        return new Caso7Pistas(pista15);
     }
 
-    private void seedCaso8() {
+    private Caso8Pistas seedCaso8() {
         Caso caso8 = new Caso();
         caso8.setTitulo("El expediente del empleado #427");
         caso8.setDescripcion("El registro de nómina identifica a este empleado únicamente como '#427'. "
@@ -1278,7 +1310,8 @@ public class DataSeeder implements CommandLineRunner {
         conceptoTransmision.setTipo(ConceptoTipo.DOCUMENTO);
         conceptoTransmision.setResumen("Un fax sin origen registrado, llegado el mismo día de las tres "
                 + "actas de cierre de [[Empleado #427]]. No dice a quién va dirigido, y aun así parece "
-                + "saber exactamente quién lo está leyendo.");
+                + "saber exactamente quién lo está leyendo. Expedientes así, sin remitente ni destino "
+                + "claro, suelen terminar en el [[Archivo Muerto]].");
         conceptoTransmision.setPistas(Arrays.asList(pista19));
         conceptoRepository.save(conceptoTransmision);
 
@@ -1339,5 +1372,7 @@ public class DataSeeder implements CommandLineRunner {
                 + "expediente. No hay una casilla pensada para esta respuesta, así que el sistema la "
                 + "registra igual, en blanco, bajo el nombre '#427'.");
         sospechosoRepository.save(sospechosoUsted8);
+
+        return new Caso8Pistas(pista19);
     }
 }
