@@ -1,47 +1,69 @@
 /*
- * Capa "real" de la interfaz: el menú de Prometeo. A propósito usa otro
- * lenguaje visual que legacy-theme.css (SIGA-98): tipografía legible,
- * contraste alto, foco visible y soporte de tema claro/oscuro. Es el
- * contraste deliberado frente a la aplicación falsa.
+ * Capa "real" de Prometeo: un módulo más de SIGA-98 ("Recursos Humanos"),
+ * integrado a propósito en su mismo lenguaje visual — Win98, gris, sin
+ * bordes redondeados, sin modo oscuro — en vez de contrastar con él
+ * (ver issue #2). El contraste ya no es visual: es que este es el único
+ * rincón del sistema que funciona de verdad, disfrazado de trámite
+ * aburrido. Reutiliza los mismos tonos/bordes que legacy-theme.css
+ * (#d4d0c8, #808080, el bisel inset -1px -1px #404040 / 1px 1px #fff)
+ * en vez de definir una paleta propia.
  */
 
 .prometeo-menu-trigger {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    background: #fff;
-    color: #14110f;
-    border: 1px solid #fff;
-    border-radius: 6px;
-    padding: 0.35rem 0.75rem;
-    font-family: "Segoe UI", system-ui, sans-serif;
-    font-size: 0.9rem;
-    font-weight: 600;
+    background: #d4d0c8;
+    color: #000;
+    border: 2px solid #808080;
+    box-shadow: inset -1px -1px #404040, inset 1px 1px #ffffff;
+    border-radius: 0;
+    padding: 0.3rem 0.7rem;
+    font-family: "Tahoma", "Segoe UI", sans-serif;
+    font-size: 0.82rem;
+    font-weight: normal;
     cursor: pointer;
 }
 
 .prometeo-menu-trigger:hover {
-    background: #f0e6da;
+    background: #c8c4bc;
+}
+
+.prometeo-menu-trigger:active {
+    box-shadow: inset 1px 1px #404040, inset -1px -1px #ffffff;
 }
 
 .prometeo-logo {
-    width: 1.1em;
-    height: 1.1em;
+    width: 1em;
+    height: 1em;
     flex-shrink: 0;
-    color: #d9660b;
+    color: #8a6a1e;
 }
 
+/* HUD de vida en la barra superior (issue #16): visible en todo momento,
+   no solo dentro del menú. Vive sobre el navbar oscuro de SIGA-98, así
+   que usa su propio contraste en vez del de .prometeo-vida-resumen. */
+.prometeo-vida-hud {
+    display: inline-flex;
+    gap: 0.15rem;
+    font-size: 0.95rem;
+    line-height: 1;
+}
+
+.prometeo-vida-hud .prometeo-vida-pip.is-llena { color: #ff6b52; }
+.prometeo-vida-hud .prometeo-vida-pip.is-vacia { color: rgba(255, 255, 255, 0.3); }
+
 .prometeo-dialog {
-    border: none;
-    border-radius: 12px;
+    border: 2px solid #808080;
+    box-shadow: inset -1px -1px #404040, inset 1px 1px #ffffff, 4px 4px 14px rgba(0, 0, 0, 0.4);
+    border-radius: 0;
     padding: 0;
     width: min(92vw, 420px);
     max-height: min(85vh, 640px);
     overflow-y: auto;
-    color: #14110f;
-    background: #fffdf9;
-    font-family: "Segoe UI", system-ui, sans-serif;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    color: #000;
+    background: #d4d0c8;
+    font-family: "Tahoma", "Segoe UI", sans-serif;
 }
 
 .prometeo-dialog::backdrop {
@@ -50,40 +72,48 @@
 
 .prometeo-panel {
     position: relative;
-    padding: 1.5rem;
+    padding: 0 1.1rem 1.25rem;
 }
 
+/* El h2 hace de barra de título Win98, sangrando hasta los bordes del
+   diálogo con márgenes negativos iguales al padding de .prometeo-panel. */
 .prometeo-panel h2 {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 1.15rem;
-    margin: 0 0 0.35rem;
+    font-size: 0.92rem;
+    font-weight: bold;
+    margin: 0 -1.1rem 0.9rem;
+    padding: 0.45rem 2.3rem 0.45rem 0.8rem;
+    background: linear-gradient(90deg, #000080, #1084d0);
+    color: #fff;
 }
 
 .prometeo-subtitle {
-    color: #5b544c;
-    font-size: 0.85rem;
-    margin: 0 0 1.25rem;
+    color: #3a3a3a;
+    font-size: 0.78rem;
+    margin: 0 0 1.1rem;
 }
 
 .prometeo-close {
     position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
-    width: 2.25rem;
-    height: 2.25rem;
-    border: none;
-    background: transparent;
-    font-size: 1.4rem;
+    top: 0.5rem;
+    right: 0.65rem;
+    width: 1.35rem;
+    height: 1.15rem;
+    border: 2px solid #808080;
+    box-shadow: inset -1px -1px #404040, inset 1px 1px #ffffff;
+    background: #d4d0c8;
+    font-size: 0.85rem;
+    font-weight: bold;
     line-height: 1;
-    border-radius: 6px;
+    border-radius: 0;
     cursor: pointer;
-    color: #14110f;
+    color: #000;
 }
 
 .prometeo-close:hover {
-    background: #f0e6da;
+    background: #c8c4bc;
 }
 
 .prometeo-menu-lista {
@@ -100,36 +130,40 @@
     display: block;
     width: 100%;
     text-align: left;
-    background: #f4ede3;
-    color: #14110f;
-    border: 1px solid #e3d7c6;
-    border-radius: 8px;
-    padding: 0.7rem 0.9rem;
-    font-size: 0.95rem;
+    background: #d4d0c8;
+    color: #000;
+    border: 2px solid #808080;
+    box-shadow: inset -1px -1px #404040, inset 1px 1px #ffffff;
+    border-radius: 0;
+    padding: 0.55rem 0.8rem;
+    font-size: 0.86rem;
+    font-family: "Tahoma", "Segoe UI", sans-serif;
     text-decoration: none;
     cursor: pointer;
-    min-height: 44px;
+    min-height: 40px;
 }
 
 .prometeo-menu-item:hover {
-    background: #ebdfcd;
+    background: #c8c4bc;
+}
+
+.prometeo-menu-item:active {
+    box-shadow: inset 1px 1px #404040, inset -1px -1px #ffffff;
 }
 
 .prometeo-menu-item-salir {
-    background: transparent;
-    border-color: transparent;
-    color: #7a3b2e;
+    color: #7a2416;
 }
 
 .prometeo-hint {
-    color: #5b544c;
-    font-size: 0.8rem;
+    color: #3a3a3a;
+    font-size: 0.75rem;
     margin: 1rem 0 0;
 }
 
 .prometeo-lista-estado {
     display: grid;
-    gap: 0.7rem;
+    gap: 0.6rem;
     margin: 0.9rem 0 1rem;
 }
 
@@ -137,15 +171,15 @@
     display: flex;
     flex-direction: column;
     gap: 0.2rem;
-    padding: 0.75rem 0.9rem;
-    border-radius: 10px;
-    background: #f5ece0;
-    border: 1px solid #e3d7c6;
+    padding: 0.6rem 0.75rem;
+    border-radius: 0;
+    background: #fffef0;
+    border: 1px solid #808080;
 }
 
 .prometeo-achievement-item.is-unlocked {
-    background: #fff4d9;
-    border-color: #d5a24d;
+    background: #fff9b0;
+    border-color: #b8960a;
 }
 
 .prometeo-achievement-item strong {
@@ -153,7 +187,7 @@
 }
 
 .prometeo-achievement-item span {
-    color: #5b544c;
+    color: #3a3a3a;
     font-size: 0.82rem;
 }
 
@@ -161,12 +195,14 @@
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    padding: 0.35rem 0.65rem;
-    border-radius: 999px;
-    background: #f0e6da;
-    color: #5b544c;
-    font-size: 0.78rem;
-    font-weight: 600;
+    padding: 0.25rem 0.55rem;
+    border-radius: 0;
+    background: #fffef0;
+    border: 1px solid #808080;
+    color: #3a3a3a;
+    font-size: 0.75rem;
+    font-weight: normal;
+    font-family: "Courier New", monospace;
 }
 
 .prometeo-tarot-resumen {
@@ -189,15 +225,15 @@
     justify-content: space-between;
     gap: 0.75rem;
     align-items: center;
-    padding: 0.8rem 0.95rem;
-    border-radius: 10px;
-    border: 1px solid #e3d7c6;
-    background: #f8f1e7;
+    padding: 0.7rem 0.85rem;
+    border-radius: 0;
+    border: 1px solid #808080;
+    background: #fffef0;
 }
 
 .prometeo-tarot-card.is-collected {
-    background: #fff5db;
-    border-color: #d5a24d;
+    background: #fff9b0;
+    border-color: #b8960a;
 }
 
 .prometeo-tarot-card.is-sealed {
@@ -210,14 +246,14 @@
 }
 
 .prometeo-tarot-card small {
-    color: #5b544c;
+    color: #3a3a3a;
 }
 
 .prometeo-tarot-card .prometeo-tarot-requisito {
     display: block;
     margin-top: 0.3rem;
     font-size: 0.72rem;
-    color: #8a7f6c;
+    color: #6b6258;
     text-align: right;
 }
 
@@ -233,22 +269,24 @@
 
 .prometeo-captcha-card {
     width: min(92vw, 360px);
-    padding: 1.1rem;
-    border-radius: 12px;
-    background: #fffdf9;
-    border: 1px solid #d9cbb4;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    padding: 1rem;
+    border-radius: 0;
+    background: #d4d0c8;
+    border: 2px solid #808080;
+    box-shadow: inset -1px -1px #404040, inset 1px 1px #ffffff, 4px 4px 14px rgba(0, 0, 0, 0.4);
+    font-family: "Tahoma", "Segoe UI", sans-serif;
 }
 
 .prometeo-captcha-card h3 {
     margin: 0 0 0.4rem;
-    font-size: 1rem;
+    font-size: 0.92rem;
+    color: #000;
 }
 
 .prometeo-captcha-card p {
     margin: 0 0 0.75rem;
-    color: #5b544c;
-    font-size: 0.9rem;
+    color: #3a3a3a;
+    font-size: 0.85rem;
 }
 
 .prometeo-captcha-opciones {
@@ -261,8 +299,8 @@
     display: flex;
     align-items: center;
     gap: 0.45rem;
-    font-size: 0.9rem;
-    color: #14110f;
+    font-size: 0.85rem;
+    color: #000;
 }
 
 .prometeo-panel-acciones {
@@ -351,6 +389,21 @@
     font-size: 0.88rem;
     line-height: 1.4;
     color: #14110f;
+}
+
+/* Réplicas al lince (issue #17): solo aparecen para las bolsas de
+   mensajes que las traen; el resto sigue siendo de solo lectura. */
+.prometeo-assistente-respuestas {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin: 0 0 0.6rem;
+}
+
+.prometeo-assistente-respuesta {
+    text-align: left;
+    font-size: 0.82rem;
+    padding: 0.4rem 0.6rem;
 }
 
 @keyframes prometeo-float-in {
@@ -680,10 +733,10 @@
     display: flex;
     align-items: flex-start;
     gap: 0.55rem;
-    padding: 0.65rem 0.8rem;
-    border-radius: 8px;
-    background: #f4ede3;
-    border: 1px solid #e3d7c6;
+    padding: 0.55rem 0.7rem;
+    border-radius: 0;
+    background: #fffef0;
+    border: 1px solid #808080;
     cursor: pointer;
 }
 
@@ -693,12 +746,12 @@
 
 .prometeo-dificultad-opcion strong {
     display: block;
-    font-size: 0.92rem;
+    font-size: 0.88rem;
 }
 
 .prometeo-dificultad-opcion small {
-    color: #5b544c;
-    font-size: 0.78rem;
+    color: #3a3a3a;
+    font-size: 0.76rem;
 }
 
 /* Arte pixelado de las cartas de tarot: crispEdges evita el suavizado y
@@ -733,22 +786,28 @@
 
 .prometeo-btn-secundario,
 .prometeo-btn-peligro {
-    border-radius: 8px;
-    padding: 0.6rem 1rem;
-    font-size: 0.9rem;
+    border-radius: 0;
+    padding: 0.55rem 0.9rem;
+    font-size: 0.85rem;
+    font-family: "Tahoma", "Segoe UI", sans-serif;
     cursor: pointer;
-    min-height: 44px;
+    min-height: 40px;
+    border: 2px solid #808080;
+    box-shadow: inset -1px -1px #404040, inset 1px 1px #ffffff;
 }
 
 .prometeo-btn-secundario {
-    background: #eee6d9;
-    border: 1px solid #d9cbb4;
-    color: #14110f;
+    background: #d4d0c8;
+    color: #000;
+}
+
+.prometeo-btn-secundario:hover {
+    background: #c8c4bc;
 }
 
 .prometeo-btn-peligro {
     background: #a6321f;
-    border: 1px solid #7a2416;
+    border-color: #7a2416;
     color: #fff;
 }
 
@@ -761,6 +820,23 @@
     margin: 0.75rem 0;
 }
 
+/* Casilla "Activar pistas" (issue #22): ayuda opcional para encontrar
+   pistas sin descubrir en el expediente abierto. */
+.prometeo-toggle-pistas {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.9rem 0 0.2rem;
+    font-size: 0.86rem;
+    cursor: pointer;
+}
+
+.prometeo-toggle-pistas input {
+    width: 1.05rem;
+    height: 1.05rem;
+    cursor: pointer;
+}
+
 /* Foco visible en toda la capa Prometeo: nunca lo suprimimos. */
 .prometeo-menu-trigger:focus-visible,
 .prometeo-close:focus-visible,
@@ -768,81 +844,19 @@
 .prometeo-btn-secundario:focus-visible,
 .prometeo-btn-peligro:focus-visible,
 .prometeo-dificultad-opcion input:focus-visible,
+.prometeo-toggle-pistas input:focus-visible,
 #prometeo-volumen-rango:focus-visible {
     outline: 3px solid #1a6fd1;
     outline-offset: 2px;
 }
 
+/*
+ * El menú, los paneles y sus tarjetas ya no responden a
+ * prefers-color-scheme: son parte de SIGA-98 ahora (issue #2), con su
+ * paleta gris fija — un programa Win98 nunca tuvo modo oscuro. Solo el
+ * lince (un elemento aparte, no reskineado) conserva el suyo.
+ */
 @media (prefers-color-scheme: dark) {
-    .prometeo-dialog {
-        background: #211d19;
-        color: #f3ece2;
-    }
-
-    .prometeo-subtitle,
-    .prometeo-hint {
-        color: #bdb2a2;
-    }
-
-    .prometeo-close {
-        color: #f3ece2;
-    }
-
-    .prometeo-close:hover {
-        background: #332c26;
-    }
-
-    .prometeo-menu-item {
-        background: #332c26;
-        border-color: #453b32;
-        color: #f3ece2;
-    }
-
-    .prometeo-menu-item:hover {
-        background: #443a30;
-    }
-
-    .prometeo-menu-item-salir {
-        color: #e79484;
-    }
-
-    .prometeo-btn-secundario {
-        background: #332c26;
-        border-color: #453b32;
-        color: #f3ece2;
-    }
-
-    .prometeo-achievement-item {
-        background: #332c26;
-        border-color: #453b32;
-    }
-
-    .prometeo-achievement-item span,
-    .prometeo-tarot-card small,
-    .prometeo-captcha-card p {
-        color: #bdb2a2;
-    }
-
-    .prometeo-tarot-card .prometeo-tarot-requisito {
-        color: #8f8574;
-    }
-
-    .prometeo-tarot-card {
-        background: #2c241e;
-        border-color: #453b32;
-    }
-
-    .prometeo-tarot-card.is-collected {
-        background: #3f3022;
-        border-color: #c08f3c;
-    }
-
-    .prometeo-captcha-card {
-        background: #211d19;
-        border-color: #453b32;
-        color: #f3ece2;
-    }
-
     .prometeo-assistente-burbuja {
         background: rgba(33, 29, 25, 0.95);
         border-color: #453b32;

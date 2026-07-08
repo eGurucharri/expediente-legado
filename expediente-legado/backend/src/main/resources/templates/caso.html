@@ -41,6 +41,7 @@
             <p class="text-muted small">Algunos documentos esconden un detalle. Léalos con calma.</p>
             <div class="siga-record mb-3" th:each="rv : ${registros}">
                 <div class="d-flex align-items-start gap-2">
+                    <span class="siga-doc-icono" th:attr="data-siga-doc-tipo=${rv.registro.tipo}" aria-hidden="true"></span>
                     <input class="form-check-input mt-1" type="checkbox" name="registroIds"
                            th:value="${rv.registro.id}" form="form-combinar"
                            aria-label="Seleccionar este documento para combinarlo con otro">
@@ -92,35 +93,37 @@
         <div class="siga-titlebar">Presentar acusación</div>
         <div class="p-3">
             <div th:if="${veredicto != null}" data-siga-veredicto="true">
+                <div class="siga-retrato" th:attr="data-siga-retrato=${veredicto.sospechoso.nombre}" aria-hidden="true"></div>
                 <p class="mb-2">Acusó a: <strong th:text="${veredicto.sospechoso.nombre}"></strong></p>
                 <div class="siga-nota-marginal siga-revelado" th:text="${veredicto.sospechoso.desenlace}"></div>
+                <p id="siga-veredicto-coda" class="text-muted small mt-2" hidden></p>
             </div>
 
             <div th:if="${veredicto == null and combate != null}" data-siga-combate="true">
                 <p class="mb-1">Enfrentamiento en curso contra: <strong th:text="${combate.nombreSospechoso}"></strong></p>
-                <progress class="siga-resistencia mb-2" th:value="${combate.resistenciaPorcentaje}" max="100"
-                          th:attr="aria-label='Resistencia: ' + ${combate.resistenciaPorcentaje} + '%'"></progress>
-                <p class="text-muted small">Resistencia: <span th:text="${combate.resistenciaPorcentaje}"></span>%</p>
-                <div class="siga-nota-marginal siga-revelado mb-3" th:text="${combate.ataqueActual}"></div>
-                <form th:action="@{/casos/{casoId}/combate/avanzar(casoId=${caso.id})}" method="post">
-                    <button type="submit" class="btn siga-btn"
-                            th:text="${combate.etiquetaAccion}"
-                            th:attr="title=${combate.etiquetaAccion}; aria-label=${combate.etiquetaAccion}">
-                        Avanzar
-                    </button>
-                </form>
+                <div id="prometeo-combate-raiz"></div>
+                <form id="form-combate-finalizar" th:action="@{/casos/{casoId}/combate/finalizar(casoId=${caso.id})}" method="post"></form>
+                <script th:inline="javascript">
+                    /*<![CDATA[*/
+                    window.PROMETEO_COMBATE = {
+                        sospechoso: /*[[${combate.nombreSospechoso}]]*/ '',
+                        ataques: /*[[${combate.ataques}]]*/ []
+                    };
+                    /*]]>*/
+                </script>
             </div>
 
             <form th:if="${veredicto == null and combate == null}"
                   th:action="@{/casos/{casoId}/acusar(casoId=${caso.id})}" method="post">
                 <p class="text-muted small">No hay una respuesta correcta: cada acusación cierra el expediente de una forma distinta.</p>
-                <div class="form-check mb-2" th:each="s : ${sospechosos}">
-                    <input class="form-check-input" type="radio" name="sospechosoId" th:value="${s.id}"
+                <div class="siga-sospechoso-fila mb-2" th:each="s : ${sospechosos}">
+                    <input class="siga-sospechoso-radio" type="radio" name="sospechosoId" th:value="${s.id}"
                            th:id="'sospechoso-' + ${s.id}"
                            required>
-                    <label class="form-check-label" th:id="'label-sospechoso-' + ${s.id}"
+                    <label class="siga-sospechoso-label" th:id="'label-sospechoso-' + ${s.id}"
                            th:for="'sospechoso-' + ${s.id}">
-                        <strong th:text="${s.nombre}"></strong> — <span th:text="${s.descripcion}"></span>
+                        <span class="siga-retrato" th:attr="data-siga-retrato=${s.nombre}" aria-hidden="true"></span>
+                        <span><strong th:text="${s.nombre}"></strong> — <span th:text="${s.descripcion}"></span></span>
                     </label>
                 </div>
                 <button type="submit" class="btn siga-btn">Presentar acusación</button>
@@ -158,6 +161,9 @@
 <div th:replace="~{fragments/chrome :: datosJuego}"></div>
 <div th:replace="~{fragments/chrome :: extras}"></div>
 <script th:src="@{/js/legacy-glitch.js}"></script>
+<script th:src="@{/js/legacy-retratos.js}"></script>
+<script th:src="@{/js/legacy-documentos.js}"></script>
+<script th:src="@{/js/prometeo-logic.js}"></script>
 <script th:src="@{/js/prometeo-ui.js}"></script>
 <script th:src="@{/js/documento-viewer.js}"></script>
 </body>

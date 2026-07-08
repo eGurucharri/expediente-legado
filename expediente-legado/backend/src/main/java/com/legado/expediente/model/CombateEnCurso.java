@@ -14,8 +14,11 @@ import lombok.Setter;
 
 /**
  * El enfrentamiento contra un sospechoso con {@code ataques}, mientras
- * está en curso: en qué ronda va. Al terminar la última ronda se borra y
- * se convierte en un {@link Veredicto} permanente.
+ * está en curso. El combate de cartas en sí (issue #21) lo juega el
+ * cliente de principio a fin con los {@code ataques} del sospechoso como
+ * dato de partida — esta fila solo marca que hay uno pendiente de
+ * resolver; al terminar (gane o pierda el jugador) se borra y se
+ * convierte en un {@link Veredicto} permanente, igual que antes.
  */
 @Entity
 @Table(name = "combates_en_curso", uniqueConstraints = @UniqueConstraint(columnNames = {"usuario_id", "caso_id"}))
@@ -38,7 +41,4 @@ public class CombateEnCurso {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sospechoso_id", nullable = false)
     private Sospechoso sospechoso;
-
-    /** Ronda actual, 1-indexada: corresponde a ataques.get(ronda - 1). */
-    private int ronda = 1;
 }

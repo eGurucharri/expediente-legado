@@ -17,12 +17,13 @@
         <a class="navbar-brand" th:href="@{/}">SIGA-98</a>
         <div class="d-flex align-items-center gap-2">
             <span class="siga-clock d-none d-sm-inline-flex" aria-hidden="true">11<span class="siga-clock-colon">:</span>34</span>
+            <div id="prometeo-vida-hud" class="prometeo-vida-hud" aria-live="polite"></div>
             <button type="button" id="prometeo-menu-btn" class="prometeo-menu-trigger" aria-haspopup="dialog" aria-controls="prometeo-menu">
                 <svg class="prometeo-logo" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                     <path fill="currentColor" d="M12 2c.3 2.8-1.1 4-2.4 5.6C8.1 9.4 7 11 7 13a5 5 0 0 0 10 0c0-1.6-.7-2.7-1.5-3.7.2 1-.1 1.8-.9 2.2.6-2.4-.7-4-2-5.2C13.6 5.4 12.9 3.8 12 2z"/>
                     <path fill="currentColor" opacity=".85" d="M6 22a6 6 0 0 1 12 0z"/>
                 </svg>
-                <span>Menú</span>
+                <span>RR. HH.</span>
             </button>
         </div>
     </div>
@@ -52,9 +53,9 @@
                     <path fill="currentColor" d="M12 2c.3 2.8-1.1 4-2.4 5.6C8.1 9.4 7 11 7 13a5 5 0 0 0 10 0c0-1.6-.7-2.7-1.5-3.7.2 1-.1 1.8-.9 2.2.6-2.4-.7-4-2-5.2C13.6 5.4 12.9 3.8 12 2z"/>
                     <path fill="currentColor" opacity=".85" d="M6 22a6 6 0 0 1 12 0z"/>
                 </svg>
-                Prometeo
+                Recursos Humanos
             </h2>
-            <p class="prometeo-subtitle">El menú de verdad. Todo lo demás es SIGA-98.</p>
+            <p class="prometeo-subtitle">Autoservicio del empleado. Sesión de personal autenticada.</p>
 
             <nav class="prometeo-menu-lista" aria-label="Acciones de la partida">
                 <a th:href="@{/carpeta}" class="prometeo-menu-item">Mi carpeta</a>
@@ -76,6 +77,12 @@
                 </form>
             </nav>
 
+            <label class="prometeo-toggle-pistas">
+                <input type="checkbox" id="prometeo-activar-pistas">
+                <span>Activar pistas</span>
+            </label>
+            <p class="prometeo-hint">Resalta, en el expediente abierto, lo que todavía no ha encontrado.</p>
+
             <div id="prometeo-vida-resumen" class="prometeo-vida-resumen" aria-live="polite"></div>
 
             <p class="prometeo-hint" th:if="${ultimoGuardado}"
@@ -84,7 +91,7 @@
         </div>
 
         <div class="prometeo-panel" data-panel="logros" hidden>
-            <h2 id="prometeo-menu-title-logros">Logros</h2>
+            <h2 id="prometeo-menu-title-logros">Historial de desempeño</h2>
             <p class="prometeo-subtitle">La máquina recuerda lo que no debería.</p>
             <div id="prometeo-logros-lista" class="prometeo-lista-estado" aria-live="polite"></div>
             <button type="button" class="prometeo-btn-secundario" data-volver-panel>Volver</button>
@@ -102,7 +109,7 @@
         </div>
 
         <div class="prometeo-panel" data-panel="dificultad" hidden>
-            <h2 id="prometeo-menu-title-dificultad">Dificultad</h2>
+            <h2 id="prometeo-menu-title-dificultad">Rigor de auditoría</h2>
             <p class="prometeo-subtitle">Cuánto le cuesta a un expediente precipitado.</p>
             <div class="prometeo-dificultad-opciones" role="radiogroup" aria-labelledby="prometeo-menu-title-dificultad">
                 <label class="prometeo-dificultad-opcion">
@@ -123,7 +130,7 @@
         </div>
 
         <div class="prometeo-panel" data-panel="nueva-partida" hidden>
-            <h2 id="prometeo-menu-title-nueva-partida">¿Empezar de nuevo?</h2>
+            <h2 id="prometeo-menu-title-nueva-partida">Solicitud de baja y reingreso</h2>
             <p>Vas a borrar tu progreso: las pistas que ya encontraste dejarán de estarlo. No se puede deshacer.
                Se cerrará la sesión.</p>
             <div class="prometeo-panel-acciones">
@@ -175,6 +182,7 @@
  (_|   |_)~</pre>
         <div class="prometeo-assistente-burbuja">
             <p id="prometeo-assistente-texto">Hay un caso que todavía late.</p>
+            <div id="prometeo-assistente-respuestas" class="prometeo-assistente-respuestas" hidden></div>
             <button type="button" class="prometeo-btn-secundario" data-cerrar-asistente>Cerrar</button>
         </div>
     </div>
@@ -202,6 +210,7 @@
             <p class="prometeo-final-ribbon">Reasignación de personal</p>
             <h3 id="prometeo-despido-titulo">Su plaza ha sido reasignada</h3>
             <p id="prometeo-despido-texto">Demasiadas acusaciones sin fundamento. La Dirección lo agradece, pero ya no requiere sus servicios en este puesto.</p>
+            <p class="prometeo-hint">Se ha quedado sin vidas — es un aviso, no un cierre: el expediente sigue abierto y puede seguir investigando y acusando. Si le está costando encontrar pistas, "Activar pistas" en RR. HH. las resalta por usted.</p>
             <button type="button" class="prometeo-btn-secundario" data-cerrar-despido>Firmar el cese</button>
         </dialog>
     </div>

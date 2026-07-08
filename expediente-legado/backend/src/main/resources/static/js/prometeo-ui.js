@@ -15,11 +15,16 @@
     var preguntaCaptcha = document.getElementById("prometeo-captcha-pregunta");
     var asistente = document.getElementById("prometeo-assistente");
     var textoAsistente = document.getElementById("prometeo-assistente-texto");
+    var respuestasAsistente = document.getElementById("prometeo-assistente-respuestas");
     var avatarAsistente = document.querySelector(".prometeo-assistente-avatar");
     var finalAlternativo = document.getElementById("prometeo-final");
     var textoFinal = document.getElementById("prometeo-final-texto");
     var rango = document.getElementById("prometeo-volumen-rango");
     var vidaResumen = document.getElementById("prometeo-vida-resumen");
+    var vidaHud = document.getElementById("prometeo-vida-hud");
+    var activarPistasCheckbox = document.getElementById("prometeo-activar-pistas");
+    var combateRaiz = document.getElementById("prometeo-combate-raiz");
+    var formCombateFinalizar = document.getElementById("form-combate-finalizar");
     var jefeModal = document.getElementById("prometeo-jefe");
     var despidoModal = document.getElementById("prometeo-despido");
     var finalVerdaderoModal = document.getElementById("prometeo-final-verdadero");
@@ -39,6 +44,7 @@
     var LLAVE_VOLUMEN = "prometeo-volumen";
     var LLAVE_ESTADO = "prometeo-estado";
     var real = window.PROMETEO_ESTADO_REAL || null;
+    var PrometeoLogic = window.PrometeoLogic;
 
     /**
      * Vidas y umbral de "acusación precipitada" por dificultad. Normal es
@@ -663,13 +669,13 @@
                 { eje: "comunismo", etiqueta: "Comunismo de lujo automatizado",
                     texto: "Abolir la caja. Que las 47 pesetas se repartan entre todos los empleados a "
                         + "partes iguales, incluidos los que ya no trabajan aquí." },
-                { eje: "centrista", etiqueta: "Vía centrista",
+                { eje: "centrista", etiqueta: "Centrismo radical del término medio",
                     texto: "Formar una mesa de diálogo entre las 47 pesetas que faltan y las que sobran, "
                         + "sin comprometerse a ningún resultado antes de la próxima legislatura contable." },
-                { eje: "socialdemocrata", etiqueta: "Vía socialdemócrata",
+                { eje: "socialdemocrata", etiqueta: "Socialdemocracia nórdica de catálogo IKEA",
                     texto: "Crear una comisión de seguimiento del desajuste, con informe anual y "
                         + "compromiso de revisión en cuatro años." },
-                { eje: "neoliberal", etiqueta: "Vía neoliberal",
+                { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Privatizar la discrepancia. Sacarla a concurso. El mejor postor se queda con "
                         + "las 47 pesetas y con la culpa." }
             ]
@@ -683,13 +689,13 @@
                 { eje: "comunismo", etiqueta: "Comunismo de lujo automatizado",
                     texto: "Eliminar el trámite. La silla 4-B pasa a pertenecer a quien la necesite, sin "
                         + "formulario, sin firma, sin 4-B." },
-                { eje: "centrista", etiqueta: "Vía centrista",
+                { eje: "centrista", etiqueta: "Centrismo radical del término medio",
                     texto: "Rebautizar el trámite como 'silla 4-B (en revisión)' y dejarlo así "
                         + "indefinidamente, para no sentar precedente en ningún sentido." },
-                { eje: "socialdemocrata", etiqueta: "Vía socialdemócrata",
+                { eje: "socialdemocrata", etiqueta: "Socialdemocracia nórdica de catálogo IKEA",
                     texto: "Aprobar la silla con carácter provisional, sujeta a una evaluación de impacto "
                         + "silla-trabajador cada dos años." },
-                { eje: "neoliberal", etiqueta: "Vía neoliberal",
+                { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Externalizar la silla 4-B a una empresa de mobiliario que cobre por uso. "
                         + "Quien necesite sentarse, que puje." }
             ]
@@ -703,13 +709,13 @@
                 { eje: "comunismo", etiqueta: "Comunismo de lujo automatizado",
                     texto: "Abolir los departamentos. Montalvo trabaja donde quiera, cuando quiera, o no "
                         + "trabaja, y el departamento se adapta a Montalvo." },
-                { eje: "centrista", etiqueta: "Vía centrista",
+                { eje: "centrista", etiqueta: "Centrismo radical del término medio",
                     texto: "Trasladarlo a un departamento intermedio, a medio camino entre el anterior y "
                         + "el siguiente, hasta nuevo aviso." },
-                { eje: "socialdemocrata", etiqueta: "Vía socialdemócrata",
+                { eje: "socialdemocrata", etiqueta: "Socialdemocracia nórdica de catálogo IKEA",
                     texto: "Garantizar estabilidad mediante un contrato de traspasos regulados, con "
                         + "derecho a apelar cada reasignación." },
-                { eje: "neoliberal", etiqueta: "Vía neoliberal",
+                { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Que Montalvo compita por su propio puesto cada trimestre. La motivación, "
                         + "dicen, mejora con la incertidumbre." }
             ]
@@ -723,13 +729,13 @@
                 { eje: "comunismo", etiqueta: "Comunismo de lujo automatizado",
                     texto: "Cancelar el contrato y declarar la función patrimonio común: que la "
                         + "represente quien quiera, gratis, para siempre." },
-                { eje: "centrista", etiqueta: "Vía centrista",
+                { eje: "centrista", etiqueta: "Centrismo radical del término medio",
                     texto: "Renovar el contrato 'con reservas', sin especificar cuáles, para poder "
                         + "invocarlas después si hace falta." },
-                { eje: "socialdemocrata", etiqueta: "Vía socialdemócrata",
+                { eje: "socialdemocrata", etiqueta: "Socialdemocracia nórdica de catálogo IKEA",
                     texto: "Renovar con una cláusula de revisión social que garantice condiciones dignas "
                         + "al elenco, sea quien sea el elenco." },
-                { eje: "neoliberal", etiqueta: "Vía neoliberal",
+                { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Renovar y ampliar. Si el público no sabe que es público, es un mercado sin "
                         + "competencia. Hay que explotarlo." }
             ]
@@ -743,13 +749,13 @@
                 { eje: "comunismo", etiqueta: "Comunismo de lujo automatizado",
                     texto: "Aprobarlo de una vez por todas y liberar el recurso que llevaba pidiendo "
                         + "desde 1978, sin más trámite." },
-                { eje: "centrista", etiqueta: "Vía centrista",
+                { eje: "centrista", etiqueta: "Centrismo radical del término medio",
                     texto: "Reenviarlo a estudio, otra vez, sin fecha límite, para que el ciclo se "
                         + "resuelva solo con el tiempo." },
-                { eje: "socialdemocrata", etiqueta: "Vía socialdemócrata",
+                { eje: "socialdemocrata", etiqueta: "Socialdemocracia nórdica de catálogo IKEA",
                     texto: "Aprobarlo parcialmente, con revisión programada para dentro de otros catorce "
                         + "años, por si acaso." },
-                { eje: "neoliberal", etiqueta: "Vía neoliberal",
+                { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Subastar el memorando al mejor postor. Quien lo compre, que decida qué hacer "
                         + "con él." }
             ]
@@ -763,13 +769,13 @@
                 { eje: "comunismo", etiqueta: "Comunismo de lujo automatizado",
                     texto: "Publicarla entera, sin editar, y disolver la empresa en una asamblea abierta "
                         + "a cualquiera que quisiera entrar." },
-                { eje: "centrista", etiqueta: "Vía centrista",
+                { eje: "centrista", etiqueta: "Centrismo radical del término medio",
                     texto: "Publicar un resumen, sin las partes 'susceptibles de generar controversia', "
                         + "que resultan ser casi todas." },
-                { eje: "socialdemocrata", etiqueta: "Vía socialdemócrata",
+                { eje: "socialdemocrata", etiqueta: "Socialdemocracia nórdica de catálogo IKEA",
                     texto: "Publicarla con un informe de acompañamiento que explique el contexto y "
                         + "proponga reformas graduales." },
-                { eje: "neoliberal", etiqueta: "Vía neoliberal",
+                { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Vender los derechos a quien mejor la sepa monetizar. La verdad, bien "
                         + "gestionada, es un activo." }
             ]
@@ -783,13 +789,13 @@
                 { eje: "comunismo", etiqueta: "Comunismo de lujo automatizado",
                     texto: "Repartirla a partes iguales entre todos los que alguna vez trabajaron en el "
                         + "expediente, herederos o no." },
-                { eje: "centrista", etiqueta: "Vía centrista",
+                { eje: "centrista", etiqueta: "Centrismo radical del término medio",
                     texto: "Congelarla indefinidamente hasta que los herederos 'lleguen a un consenso', "
                         + "sin fijar ningún mecanismo para lograrlo." },
-                { eje: "socialdemocrata", etiqueta: "Vía socialdemócrata",
+                { eje: "socialdemocrata", etiqueta: "Socialdemocracia nórdica de catálogo IKEA",
                     texto: "Repartirla según necesidad certificada, con una comisión de herederos que "
                         + "revise cada solicitud." },
-                { eje: "neoliberal", etiqueta: "Vía neoliberal",
+                { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Sacarla a subasta entre los propios herederos. Gana quien más pueda pagar "
                         + "por lo que ya era suyo." }
             ]
@@ -802,13 +808,13 @@
                 { eje: "comunismo", etiqueta: "Comunismo de lujo automatizado",
                     texto: "Devolverle el nombre, borrar el número de todos los archivos y hacerlo "
                         + "público como acto reparador." },
-                { eje: "centrista", etiqueta: "Vía centrista",
+                { eje: "centrista", etiqueta: "Centrismo radical del término medio",
                     texto: "Dejar el expediente como está, ni número ni nombre, 'por respeto a todas las "
                         + "partes', sin especificar cuáles." },
-                { eje: "socialdemocrata", etiqueta: "Vía socialdemócrata",
+                { eje: "socialdemocrata", etiqueta: "Socialdemocracia nórdica de catálogo IKEA",
                     texto: "Abrir una investigación oficial, con plazo, presupuesto y un informe final "
                         + "que probablemente nadie lea." },
-                { eje: "neoliberal", etiqueta: "Vía neoliberal",
+                { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Vender el expediente a un interesado externo. La identidad, como todo, tiene "
                         + "un precio de mercado." }
             ]
@@ -827,7 +833,7 @@
                 + "abundancia, así que, por costumbre, alguien redacta un acta."
         },
         centrista: {
-            ribbon: "Final: vía centrista",
+            ribbon: "Final: centrismo radical del término medio",
             titulo: "Todo queda, oficialmente, en revisión",
             texto: "Ningún expediente se cierra ni se abre del todo. Se crea una mesa de diálogo "
                 + "entre el pasado y el presente del archivo, sin fecha de conclusión ni "
@@ -836,7 +842,7 @@
                 + "escritorio, y el mismo expediente, indefinidamente 'en revisión'."
         },
         socialdemocrata: {
-            ribbon: "Final: vía socialdemócrata",
+            ribbon: "Final: socialdemocracia nórdica de catálogo IKEA",
             titulo: "Se aprueba una reforma gradual del archivo",
             texto: "Los ocho expedientes se cierran con una comisión de seguimiento para cada uno, "
                 + "informe anual y cláusula de revisión a cuatro años. El Comité Ad Honorem acepta "
@@ -845,7 +851,7 @@
                 + "la señal de que el acuerdo fue justo'."
         },
         neoliberal: {
-            ribbon: "Final: vía neoliberal",
+            ribbon: "Final: neoliberalismo disruptivo de startup unicornio",
             titulo: "El archivo sale a bolsa",
             texto: "SIGA-98 se privatiza. Los ocho expedientes se venden por separado al mejor "
                 + "postor, incluido el suyo. El Comité Ad Honorem se convierte en accionista "
@@ -872,31 +878,6 @@
             }
         }
         return "<svg viewBox='0 0 " + ancho + " " + alto + "' class='prometeo-tarot-pixelart' shape-rendering='crispEdges' aria-hidden='true'>" + rects + "</svg>";
-    }
-
-    /**
-     * Combina el estado guardado en este navegador con la lista actual de
-     * logros/cartas: conserva el flag desbloqueado/collected de lo ya
-     * guardado (buscando también por alias, para ids renombrados) y adopta
-     * los metadatos y las entradas nuevas de la versión vigente.
-     */
-    function fusionarConGuardado(guardados, actuales, camposEstado, alias) {
-        alias = alias || {};
-        return actuales.map(function (item) {
-            var idsBuscados = [item.id].concat(alias[item.id] ? [alias[item.id]] : []);
-            var previo = guardados.find(function (g) {
-                return idsBuscados.indexOf(g.id) !== -1;
-            });
-            var copia = Object.assign({}, item);
-            if (previo) {
-                camposEstado.forEach(function (campo) {
-                    if (Object.prototype.hasOwnProperty.call(previo, campo)) {
-                        copia[campo] = previo[campo];
-                    }
-                });
-            }
-            return copia;
-        });
     }
 
     function cargarEstado() {
@@ -930,7 +911,7 @@
             { id: "el-ermitanio", nombre: "El Ermitaño", descripcion: "Se quedó solo con el expediente después de que lo señalaran.", collected: false, gastada: false, requisito: "Pierda una vida por acusar sin fundamento." },
             { id: "la-rueda", nombre: "La Rueda de la Fortuna", descripcion: "El trámite gira y siempre cae del lado que no esperaba.", collected: false, gastada: false, requisito: "Hay algo oculto en «El trámite de la silla 4-B»." },
             { id: "la-justicia", nombre: "La Justicia", descripcion: "Pesa las pruebas después de haber decidido ya la sentencia.", collected: false, gastada: false, requisito: "Hay algo oculto en «El cierre de caja de 1999»." },
-            { id: "el-colgado", nombre: "El Colgado", descripcion: "Cuelga de una decisión que todavía no ha terminado de tomar.", collected: false, gastada: false, requisito: "Llegue a un enfrentamiento." },
+            { id: "el-colgado", nombre: "El Colgado", descripcion: "Cuelga de una decisión que todavía no ha terminado de tomar.", collected: false, gastada: false, requisito: "Gane un enfrentamiento." },
             { id: "la-muerte", nombre: "La Muerte", descripcion: "No es el final. Aquí nunca lo es.", collected: false, gastada: false, requisito: "Sea reasignado por acumular demasiados fallos." },
             { id: "la-templanza", nombre: "La Templanza", descripcion: "Cambia una certeza por otra cosa que todavía no sabe si necesita.", collected: false, gastada: false, requisito: "Canjee una carta por una vida." },
             { id: "el-diablo", nombre: "El Diablo", descripcion: "Le hizo marcar una casilla que no significaba nada. Y usted la marcó.", collected: false, gastada: false, requisito: "Tropiece con una verificación falsa." },
@@ -942,8 +923,8 @@
             { id: "el-mundo", nombre: "El Mundo", descripcion: "Las veintiuna cartas anteriores, cerrando el círculo.", collected: false, gastada: false, requisito: "Reúna el resto de cartas sin gastar ninguna." }
         ];
 
-        var logros = fusionarConGuardado(datos.logros || [], logrosActuales, ["desbloqueado"], {});
-        var tarot = fusionarConGuardado(datos.tarot || [], tarotActual, ["collected", "gastada"],
+        var logros = PrometeoLogic.fusionarConGuardado(datos.logros || [], logrosActuales, ["desbloqueado"], {});
+        var tarot = PrometeoLogic.fusionarConGuardado(datos.tarot || [], tarotActual, ["collected", "gastada"],
             { "la-sacerdotisa": "el-ojo", "el-hierofante": "la-sombra", "el-emperador": "el-hombre-amarillo" });
         var dificultad = (datos.dificultad && DIFICULTADES[datos.dificultad]) ? datos.dificultad : "normal";
 
@@ -960,12 +941,13 @@
             finalVerdaderoShown: Boolean(datos.finalVerdaderoShown),
             despidoShown: Boolean(datos.despidoShown),
             perdioVidaAlgunaVez: Boolean(datos.perdioVidaAlgunaVez),
-            vioCombateAlgunaVez: Boolean(datos.vioCombateAlgunaVez),
+            ganoCombateAlgunaVez: Boolean(datos.ganoCombateAlgunaVez),
             pasoPorDespidoAlgunaVez: Boolean(datos.pasoPorDespidoAlgunaVez),
             vioFinalAlternativoAlgunaVez: Boolean(datos.vioFinalAlternativoAlgunaVez),
             historiasCartas: datos.historiasCartas || {},
             finalPoliticoShown: Boolean(datos.finalPoliticoShown),
-            saludoVisto: Boolean(datos.saludoVisto)
+            saludoVisto: Boolean(datos.saludoVisto),
+            pistasActivas: Boolean(datos.pistasActivas)
         };
     }
 
@@ -1060,14 +1042,7 @@
      * falten. Devuelve true si algo cambió, para poder avisar al jugador.
      */
     function desbloquearCarta(id) {
-        var carta = state.tarot.find(function (c) {
-            return c.id === id;
-        });
-        if (carta && !carta.collected) {
-            carta.collected = true;
-            return true;
-        }
-        return false;
+        return PrometeoLogic.desbloquearCartaEnLista(state.tarot, id);
     }
 
     function sincronizarConEstadoReal() {
@@ -1094,7 +1069,7 @@
         if (state.perdioVidaAlgunaVez && desbloquearCarta("el-ermitanio")) {
             huboNovedad = true;
         }
-        if (state.vioCombateAlgunaVez && desbloquearCarta("el-colgado")) {
+        if (state.ganoCombateAlgunaVez && desbloquearCarta("el-colgado")) {
             huboNovedad = true;
         }
         if (state.pasoPorDespidoAlgunaVez && desbloquearCarta("la-muerte")) {
@@ -1153,7 +1128,7 @@
      * verdadero, que exige las cuatro intactas.
      */
     function renderVida() {
-        if (!vidaResumen) {
+        if (!vidaResumen && !vidaHud) {
             return;
         }
         var max = DIFICULTADES[state.dificultad].vidasMax;
@@ -1161,7 +1136,13 @@
         for (var i = 0; i < max; i++) {
             pips += "<span class='prometeo-vida-pip " + (i < state.vida ? "is-llena" : "is-vacia") + "'>&#9679;</span>";
         }
-        vidaResumen.innerHTML = "<strong>Vida</strong>" + pips;
+        if (vidaResumen) {
+            vidaResumen.innerHTML = "<strong>Vida</strong>" + pips;
+        }
+        if (vidaHud) {
+            vidaHud.setAttribute("aria-label", "Vida: " + state.vida + " de " + max);
+            vidaHud.innerHTML = pips;
+        }
     }
 
     function mostrarDespido() {
@@ -1245,6 +1226,17 @@
         renderVida();
     }
 
+    /**
+     * Resalta las pistas sin descubrir del expediente abierto (issue #22):
+     * ayuda opcional, no cambia ninguna mecánica. Solo afecta a hotspots de
+     * pista real (con form=form-pista-N), nunca a las cartas ocultas.
+     */
+    function aplicarPistasActivas(activo) {
+        state.pistasActivas = activo;
+        guardarEstado();
+        document.body.classList.toggle("prometeo-pistas-activas", activo);
+    }
+
     function comprobarFinalVerdadero() {
         if (!finalVerdaderoModal || state.finalVerdaderoShown) {
             return;
@@ -1307,6 +1299,9 @@
     function resolverHistoriaCarta(cartaId, eje) {
         state.historiasCartas[cartaId] = eje;
         guardarEstado();
+        document.querySelectorAll("[data-carta-oculta='" + cartaId + "']").forEach(function (hotspot) {
+            hotspot.classList.add("siga-hotspot-visto");
+        });
         var huboNovedad = desbloquearCarta(cartaId);
         if (huboNovedad) {
             marcarProgreso();
@@ -1330,22 +1325,8 @@
             return;
         }
 
-        var conteo = { comunismo: 0, centrista: 0, socialdemocrata: 0, neoliberal: 0 };
-        idsHistorias.forEach(function (id) {
-            var eje = state.historiasCartas[id];
-            if (Object.prototype.hasOwnProperty.call(conteo, eje)) {
-                conteo[eje]++;
-            }
-        });
-
-        var ganador = "centrista";
-        var maxVotos = -1;
-        ["comunismo", "centrista", "socialdemocrata", "neoliberal"].forEach(function (eje) {
-            if (conteo[eje] > maxVotos) {
-                maxVotos = conteo[eje];
-                ganador = eje;
-            }
-        });
+        var ganador = PrometeoLogic.calcularEjeGanador(
+            state.historiasCartas, idsHistorias, ["comunismo", "centrista", "socialdemocrata", "neoliberal"]);
 
         mostrarFinalPolitico(ganador);
     }
@@ -1376,10 +1357,192 @@
         if (!caso || !caso.totalPistas) {
             return;
         }
-        var ratio = caso.pistasDescubiertas / caso.totalPistas;
-        if (ratio < DIFICULTADES[state.dificultad].umbralEvidencia) {
+        var precipitada = PrometeoLogic.esAcusacionPrecipitada(
+            caso.pistasDescubiertas, caso.totalPistas, DIFICULTADES[state.dificultad].umbralEvidencia);
+        if (precipitada) {
             perderVida(1);
             mostrarAsistente("No se preocupe por haber acusado tan rápido en «" + caso.titulo + "». Seguro que a la Dirección no le importa.", "alerta");
+        }
+    }
+
+    /**
+     * Issue #20: el desenlace en sí (Sospechoso.desenlace) sigue siendo
+     * fijo en el backend, pero aquí se le añade una coda que varía según
+     * cuánto se investigó antes de acusar — la misma proporción de
+     * pistas/total que ya decide si una acusación fue precipitada.
+     */
+    function variarDesenlaceSegunProgreso() {
+        var coda = document.getElementById("siga-veredicto-coda");
+        if (!coda || !real || !real.casos) {
+            return;
+        }
+        var caso = buscarCasoActualEnReal();
+        if (!caso || !caso.totalPistas) {
+            return;
+        }
+        var ratio = caso.pistasDescubiertas / caso.totalPistas;
+        var texto;
+        if (ratio < 0.4) {
+            texto = "El expediente se cierra con la mayor parte de la documentación sin revisar. Nadie pregunta por qué.";
+        } else if (ratio < 0.75) {
+            texto = "El expediente se cierra con parte de la documentación revisada. El resto queda archivado sin más trámite.";
+        } else {
+            texto = "El expediente se cierra tras revisar casi toda la documentación disponible. No es que vaya a cambiar el resultado.";
+        }
+        coda.textContent = texto;
+        coda.hidden = false;
+    }
+
+    /**
+     * Combate de cartas (issue #21), sustituye al viejo "Objetar/Insistir"
+     * de un solo botón: piedra-papel-tijera burocrático, con las réplicas
+     * del sospechoso (Sospechoso.ataques) como flavor de cada ronda en vez
+     * de datos de juego reales. Todo se resuelve en el cliente; el
+     * servidor solo se entera al final (POST a combate/finalizar), gane o
+     * pierda el jugador — no hay "sospechoso correcto", así que la
+     * acusación se resuelve igual en ambos casos.
+     */
+    var TIPOS_COMBATE = {
+        objecion: { etiqueta: "Objeción", vence: "silencio" },
+        silencio: { etiqueta: "Silencio", vence: "insistencia" },
+        insistencia: { etiqueta: "Insistencia", vence: "objecion" }
+    };
+    var ORDEN_TIPOS_COMBATE = ["objecion", "silencio", "insistencia"];
+    var VIDA_INICIAL_COMBATE = 3;
+    var combateActual = null;
+
+    function iniciarCombate() {
+        if (!window.PROMETEO_COMBATE || !combateRaiz) {
+            return;
+        }
+        combateActual = {
+            sospechoso: window.PROMETEO_COMBATE.sospechoso,
+            ataques: window.PROMETEO_COMBATE.ataques,
+            ronda: 0,
+            vidaJugador: VIDA_INICIAL_COMBATE,
+            vidaRival: VIDA_INICIAL_COMBATE,
+            ultimoTipoJugador: null,
+            terminado: null
+        };
+        renderCombate();
+    }
+
+    function jugarCartaCombate(tipo) {
+        if (!combateActual || combateActual.terminado) {
+            return;
+        }
+        var tipoRival = ORDEN_TIPOS_COMBATE[combateActual.ronda % ORDEN_TIPOS_COMBATE.length];
+        var combo = tipo === combateActual.ultimoTipoJugador;
+        var dano = combo ? 2 : 1;
+
+        if (tipo === tipoRival) {
+            // Mismo tipo que la réplica de esta ronda: empate, nadie pierde vida.
+        } else if (TIPOS_COMBATE[tipo].vence === tipoRival) {
+            combateActual.vidaRival = Math.max(0, combateActual.vidaRival - dano);
+        } else {
+            combateActual.vidaJugador = Math.max(0, combateActual.vidaJugador - dano);
+        }
+
+        combateActual.ultimoTipoJugador = tipo;
+        combateActual.ronda++;
+
+        if (combateActual.vidaRival === 0) {
+            combateActual.terminado = "gano";
+        } else if (combateActual.vidaJugador === 0) {
+            combateActual.terminado = "perdio";
+        }
+
+        tic(combo ? 700 : 480);
+        renderCombate();
+
+        if (combateActual.terminado) {
+            resolverFinCombate();
+        }
+    }
+
+    function resolverFinCombate() {
+        if (combateActual.terminado === "gano") {
+            state.ganoCombateAlgunaVez = true;
+            guardarEstado();
+            if (desbloquearCarta("el-colgado")) {
+                marcarProgreso();
+                renderTarot();
+                renderLogros();
+            }
+            mostrarAsistente("No hacía falta ganarle a " + combateActual.sospechoso
+                + ". Ahora tiene su carta, para lo que le sirva.", "guino");
+        } else {
+            perderVida(1);
+            mostrarAsistente("No se preocupe por haber perdido contra " + combateActual.sospechoso
+                + ". Seguro que a la Dirección no le importa.", "triste");
+        }
+    }
+
+    function renderCombate() {
+        if (!combateRaiz || !combateActual) {
+            return;
+        }
+        combateRaiz.innerHTML = "";
+
+        function pips(etiquetaTexto, vida) {
+            var cont = document.createElement("div");
+            cont.className = "prometeo-combate-barra";
+            var etiqueta = document.createElement("strong");
+            etiqueta.textContent = etiquetaTexto;
+            cont.appendChild(etiqueta);
+            for (var i = 0; i < VIDA_INICIAL_COMBATE; i++) {
+                var pip = document.createElement("span");
+                pip.className = "prometeo-vida-pip " + (i < vida ? "is-llena" : "is-vacia");
+                pip.innerHTML = "&#9679;";
+                cont.appendChild(pip);
+            }
+            return cont;
+        }
+
+        var barras = document.createElement("div");
+        barras.className = "prometeo-combate-barras";
+        barras.appendChild(pips("Usted", combateActual.vidaJugador));
+        barras.appendChild(pips(combateActual.sospechoso, combateActual.vidaRival));
+        combateRaiz.appendChild(barras);
+
+        if (!combateActual.terminado) {
+            var textoAtaque = combateActual.ataques[combateActual.ronda % combateActual.ataques.length];
+            var nota = document.createElement("div");
+            nota.className = "siga-nota-marginal mb-3";
+            nota.textContent = textoAtaque;
+            combateRaiz.appendChild(nota);
+
+            var opciones = document.createElement("div");
+            opciones.className = "prometeo-combate-opciones";
+            ORDEN_TIPOS_COMBATE.forEach(function (tipo) {
+                var boton = document.createElement("button");
+                boton.type = "button";
+                boton.className = "btn siga-btn";
+                boton.textContent = TIPOS_COMBATE[tipo].etiqueta;
+                boton.addEventListener("click", function () {
+                    jugarCartaCombate(tipo);
+                });
+                opciones.appendChild(boton);
+            });
+            combateRaiz.appendChild(opciones);
+        } else {
+            var nota2 = document.createElement("div");
+            nota2.className = "siga-nota-marginal siga-revelado mb-3";
+            nota2.textContent = combateActual.terminado === "gano"
+                ? "Ha ganado el enfrentamiento. Se ha hecho con su carta."
+                : "Ha perdido el enfrentamiento. Pierde una vida.";
+            combateRaiz.appendChild(nota2);
+
+            var cerrar = document.createElement("button");
+            cerrar.type = "button";
+            cerrar.className = "btn siga-btn";
+            cerrar.textContent = "Presentar cierre";
+            cerrar.addEventListener("click", function () {
+                if (formCombateFinalizar) {
+                    formCombateFinalizar.submit();
+                }
+            });
+            combateRaiz.appendChild(cerrar);
         }
     }
 
@@ -1437,12 +1600,48 @@
         ];
     }
 
+    /**
+     * A diferencia del resto de bolsas (solo texto), estas admiten
+     * "respuestas": 2-3 réplicas que el jugador puede elegir, cada una con
+     * su propio remate del lince — issue #17. mostrarAsistente() sabe leer
+     * ambos formatos (ver normalizarMensaje).
+     */
     var POOL_DESCUBRIMIENTO = [
-        "Vaya, encontró algo. Ojalá no lo hubiera hecho.",
-        "Eso que acaba de leer... olvídelo enseguida, será lo mejor.",
-        "No le dé demasiada importancia a lo que acaba de descubrir. Seguro que no cambia nada.",
-        "Qué pena que se haya fijado en eso. Ya no hay forma de no haberlo visto.",
-        "No lo anote en ningún sitio. Mejor que se le olvide antes de cerrar el expediente."
+        {
+            texto: "Vaya, encontró algo. Ojalá no lo hubiera hecho.",
+            respuestas: [
+                { etiqueta: "Pues yo creo que sí importa", reaccion: "Eso dicen todos. Luego se les pasa." },
+                { etiqueta: "¿Y si es justo lo que faltaba?", reaccion: "Ojalá. Pero no se haga ilusiones tan pronto." }
+            ]
+        },
+        {
+            texto: "Eso que acaba de leer... olvídelo enseguida, será lo mejor.",
+            respuestas: [
+                { etiqueta: "No pienso olvidarlo", reaccion: "Muy suyo. Ya me avisará cuando cambie de idea." },
+                { etiqueta: "¿Por qué debería olvidarlo?", reaccion: "Por nada en concreto. Pura recomendación general." }
+            ]
+        },
+        {
+            texto: "No le dé demasiada importancia a lo que acaba de descubrir. Seguro que no cambia nada.",
+            respuestas: [
+                { etiqueta: "Y si cambia todo, ¿qué?", reaccion: "Entonces habré estado equivocado. No sería la primera vez." },
+                { etiqueta: "Le voy a dar toda la importancia", reaccion: "Perfecto. Luego no diga que no se lo avisé." }
+            ]
+        },
+        {
+            texto: "Qué pena que se haya fijado en eso. Ya no hay forma de no haberlo visto.",
+            respuestas: [
+                { etiqueta: "No es ninguna pena, es un avance", reaccion: "Avance, retroceso... a mí todo el archivo me parece igual de plano." },
+                { etiqueta: "¿Preferiría que no mirase nada?", reaccion: "Preferiría muchas cosas. Casi ninguna sucede." }
+            ]
+        },
+        {
+            texto: "No lo anote en ningún sitio. Mejor que se le olvide antes de cerrar el expediente.",
+            respuestas: [
+                { etiqueta: "Ya lo he anotado", reaccion: "Cómo no. Bueno, ya es tarde para el consejo, entonces." },
+                { etiqueta: "¿Y si lo necesito luego?", reaccion: "Para eso están los expedientes, supongo. Yo solo comento." }
+            ]
+        }
     ];
     var POOL_COMBINACION_FALLIDA = [
         "No insista combinando esos papeles. Seguro que no encajan.",
@@ -1774,25 +1973,61 @@
         tic(780);
     }
 
+    /**
+     * Las bolsas normales son solo texto; unas pocas (issue #17) traen
+     * "respuestas" para que el jugador pueda replicarle al lince. Este
+     * normalizador deja pasar ambos formatos como { texto, respuestas? }.
+     */
+    function normalizarMensaje(entrada) {
+        return typeof entrada === "string" ? { texto: entrada } : entrada;
+    }
+
+    function renderRespuestasAsistente(respuestas) {
+        if (!respuestasAsistente) {
+            return;
+        }
+        respuestasAsistente.innerHTML = "";
+        if (!respuestas || !respuestas.length) {
+            respuestasAsistente.hidden = true;
+            return;
+        }
+        respuestasAsistente.hidden = false;
+        respuestas.forEach(function (opcion) {
+            var boton = document.createElement("button");
+            boton.type = "button";
+            boton.className = "prometeo-btn-secundario prometeo-assistente-respuesta";
+            boton.textContent = opcion.etiqueta;
+            boton.addEventListener("click", function () {
+                textoAsistente.textContent = opcion.reaccion;
+                respuestasAsistente.hidden = true;
+                respuestasAsistente.innerHTML = "";
+                tic(480);
+            });
+            respuestasAsistente.appendChild(boton);
+        });
+    }
+
     function mostrarAsistente(mensaje, mood) {
         if (!asistente || !textoAsistente || state.finalShown) {
             return;
         }
 
         var seleccion = mensaje ? { pool: [mensaje], mood: mood || "guino" } : elegirMensajeContextual();
-        var candidatos = seleccion.pool.length > 1
-            ? seleccion.pool.filter(function (texto) {
-                return texto !== state.ultimoMensajeAsistente;
+        var normalizados = seleccion.pool.map(normalizarMensaje);
+        var candidatos = normalizados.length > 1
+            ? normalizados.filter(function (item) {
+                return item.texto !== state.ultimoMensajeAsistente;
             })
-            : seleccion.pool;
+            : normalizados;
         var elegido = candidatos[Math.floor(Math.random() * candidatos.length)];
 
-        textoAsistente.textContent = elegido;
+        textoAsistente.textContent = elegido.texto;
+        renderRespuestasAsistente(elegido.respuestas);
         animarLince(seleccion.mood);
         asistente.hidden = false;
         asistente.classList.add("is-visible");
         state.assistantShown = true;
-        state.ultimoMensajeAsistente = elegido;
+        state.ultimoMensajeAsistente = elegido.texto;
         guardarEstado();
         tic(620);
     }
@@ -1801,6 +2036,10 @@
         if (asistente) {
             asistente.hidden = true;
             asistente.classList.remove("is-visible");
+        }
+        if (respuestasAsistente) {
+            respuestasAsistente.hidden = true;
+            respuestasAsistente.innerHTML = "";
         }
         detenerAnimacionLince();
     }
@@ -1915,7 +2154,7 @@
             return;
         }
 
-        var esPesado = document.querySelector(".siga-resistencia") !== null;
+        var esPesado = document.querySelector("[data-siga-combate]") !== null;
         var nivelBase = esPesado ? 0.05 : 0.028;
 
         var gain = ctx.createGain();
@@ -1962,19 +2201,20 @@
     document.addEventListener("pointerdown", primerGestoReal, { once: true });
     document.addEventListener("keydown", primerGestoReal, { once: true });
 
-    if (document.querySelector(".siga-resistencia") && !state.vioCombateAlgunaVez) {
-        state.vioCombateAlgunaVez = true;
-        guardarEstado();
-    }
-
     renderLogros();
     renderTarot();
     renderVida();
     radiosDificultad.forEach(function (radio) {
         radio.checked = radio.value === state.dificultad;
     });
+    if (activarPistasCheckbox) {
+        activarPistasCheckbox.checked = state.pistasActivas;
+    }
+    document.body.classList.toggle("prometeo-pistas-activas", state.pistasActivas);
     sincronizarConEstadoReal();
     comprobarAcusacionReciente();
+    variarDesenlaceSegunProgreso();
+    iniciarCombate();
 
     if (!state.assistantShown && !state.finalShown) {
         setInterval(comprobarEstadoDeJuego, 15000);
@@ -2120,6 +2360,9 @@
     }
 
     document.querySelectorAll("[data-carta-oculta]").forEach(function (hotspot) {
+        if (state.historiasCartas[hotspot.getAttribute("data-carta-oculta")]) {
+            hotspot.classList.add("siga-hotspot-visto");
+        }
         hotspot.addEventListener("click", function () {
             mostrarHistoriaCarta(hotspot.getAttribute("data-carta-oculta"));
         });
@@ -2133,6 +2376,13 @@
             }
         });
     });
+
+    if (activarPistasCheckbox) {
+        activarPistasCheckbox.addEventListener("change", function () {
+            aplicarPistasActivas(activarPistasCheckbox.checked);
+            tic(500);
+        });
+    }
 
     if (botonTarot) {
         botonTarot.addEventListener("click", function () {
