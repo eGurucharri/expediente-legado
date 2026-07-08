@@ -89,6 +89,31 @@ body.siga-body {
     padding: 0 2px;
 }
 
+/*
+ * Con "Activar pistas" (issue #22) el jugador pidió ayuda explícitamente,
+ * así que aquí sí rompemos la regla de "nada de botones gritando pista
+ * aquí" — pero solo para hotspots de pista real (con form=form-pista-N),
+ * nunca para las cartas ocultas del tarot, que son un extra opcional, no
+ * parte de la investigación.
+ */
+body.prometeo-pistas-activas .siga-hotspot[form] {
+    background: rgba(255, 249, 176, 0.55);
+    outline: 2px dashed #1084d0;
+    outline-offset: 1px;
+    animation: siga-pista-pulso 1.6s ease-in-out infinite;
+}
+
+@keyframes siga-pista-pulso {
+    0%, 100% { outline-color: #1084d0; }
+    50% { outline-color: transparent; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.prometeo-pistas-activas .siga-hotspot[form] {
+        animation: none;
+    }
+}
+
 /* Pista ya cotejada: se ve como una nota adhesiva prendida al documento,
    no como un aviso de sistema. */
 .siga-nota-marginal {
