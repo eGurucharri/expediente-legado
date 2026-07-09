@@ -68,15 +68,46 @@ public class DataSeeder implements CommandLineRunner {
         }
 
         if (casoRepository.count() == 0) {
-            seedCaso1();
-            seedCaso2();
+            Caso1Pistas caso1Pistas = seedCaso1();
+            Caso2Pistas caso2Pistas = seedCaso2();
             Caso3Pistas caso3Pistas = seedCaso3();
             Caso4Pistas caso4Pistas = seedCaso4();
             Caso5Pistas caso5Pistas = seedCaso5();
             Caso6Pistas caso6Pistas = seedCaso6();
             Caso7Pistas caso7Pistas = seedCaso7();
             Caso8Pistas caso8Pistas = seedCaso8();
-            seedCorchoPrincipal(caso3Pistas, caso4Pistas, caso5Pistas, caso6Pistas, caso7Pistas, caso8Pistas);
+            seedCorchoPrincipal(caso1Pistas, caso2Pistas, caso3Pistas, caso4Pistas, caso5Pistas,
+                    caso6Pistas, caso7Pistas, caso8Pistas);
+        }
+    }
+
+    private static final class Caso1Pistas {
+        private final Pista pista20;
+
+        private Caso1Pistas(Pista pista20) {
+            this.pista20 = pista20;
+        }
+
+        private Pista pista20() {
+            return pista20;
+        }
+    }
+
+    private static final class Caso2Pistas {
+        private final Pista pista3;
+        private final Pista pista22;
+
+        private Caso2Pistas(Pista pista3, Pista pista22) {
+            this.pista3 = pista3;
+            this.pista22 = pista22;
+        }
+
+        private Pista pista3() {
+            return pista3;
+        }
+
+        private Pista pista22() {
+            return pista22;
         }
     }
 
@@ -200,7 +231,7 @@ public class DataSeeder implements CommandLineRunner {
         usuarioRepository.save(enlace);
     }
 
-    private void seedCaso1() {
+    private Caso1Pistas seedCaso1() {
         Caso caso = new Caso();
         caso.setTitulo("El cierre de caja de 1999");
         caso.setDescripcion("Un descuadre nunca explicado en el cierre contable de fin de año quedó "
@@ -307,9 +338,11 @@ public class DataSeeder implements CommandLineRunner {
         sospechosoContraloria.setDesenlace("Se turna el caso a Contraloría para que audite el proceder "
                 + "de Contraloría. El resultado de dicha autoevaluación nunca se hizo público.");
         sospechosoRepository.save(sospechosoContraloria);
+
+        return new Caso1Pistas(pista20);
     }
 
-    private void seedCaso2() {
+    private Caso2Pistas seedCaso2() {
         Caso caso2 = new Caso();
         caso2.setTitulo("El trámite de la silla 4-B");
         caso2.setDescripcion("En 1990, un empleado de Almacén solicitó una silla ergonómica tras una "
@@ -423,6 +456,8 @@ public class DataSeeder implements CommandLineRunner {
                 + "mayor insistencia. No se especifica ante quién, ya que el puesto correspondiente "
                 + "fue eliminado en 1987.");
         sospechosoRepository.save(sospechosoSalcido);
+
+        return new Caso2Pistas(pista3, pista22);
     }
 
     private Caso3Pistas seedCaso3() {
@@ -938,7 +973,8 @@ public class DataSeeder implements CommandLineRunner {
         return new Caso6Pistas(pista11, pista12, pista13);
     }
 
-    private void seedCorchoPrincipal(Caso3Pistas caso3Pistas, Caso4Pistas caso4Pistas,
+    private void seedCorchoPrincipal(Caso1Pistas caso1Pistas, Caso2Pistas caso2Pistas,
+                                      Caso3Pistas caso3Pistas, Caso4Pistas caso4Pistas,
                                       Caso5Pistas caso5Pistas, Caso6Pistas caso6Pistas,
                                       Caso7Pistas caso7Pistas, Caso8Pistas caso8Pistas) {
         Concepto conceptoComite = new Concepto();
@@ -949,10 +985,25 @@ public class DataSeeder implements CommandLineRunner {
                 + "que no existe, y redactó una versión no circulada del acta constitutiva de la "
                 + "empresa. Su sello es idéntico al de [[Carcosa Servicios Escénicos]]. El mismo patrón "
                 + "de cierres sin preguntas reaparece en el expediente de [[P. Smerdiakov]], años antes "
-                + "de que el Comité existiera oficialmente en ningún papel.");
-        conceptoComite.setPistas(Arrays.asList(caso3Pistas.pista6(), caso6Pistas.pista11(),
-                caso6Pistas.pista12(), caso6Pistas.pista13(), caso7Pistas.pista15()));
+                + "de que el Comité existiera oficialmente en ningún papel. La fórmula de su acta "
+                + "fundacional reaparece, palabra por palabra, en la creación del "
+                + "[[Comité de Bienestar Laboral]] de 1988.");
+        conceptoComite.setPistas(Arrays.asList(caso2Pistas.pista3(), caso3Pistas.pista6(),
+                caso6Pistas.pista11(), caso6Pistas.pista12(), caso6Pistas.pista13(),
+                caso7Pistas.pista15()));
         conceptoRepository.save(conceptoComite);
+
+        Concepto conceptoBienestar = new Concepto();
+        conceptoBienestar.setNombre("Comité de Bienestar Laboral");
+        conceptoBienestar.setTipo(ConceptoTipo.COMITE);
+        conceptoBienestar.setResumen("Creado en 1988 para dictaminar solicitudes de mobiliario "
+                + "especial. No ha alcanzado quórum ni una sola vez desde su fundación, lo que dejó "
+                + "seis años en trámite la silla de R. Salcido. Su acta de creación reproduce, "
+                + "palabra por palabra, la fórmula del acta fundacional del [[Comité Ad Honorem]] de "
+                + "1958 — incluida la cláusula que define el quórum de un modo que ningún número de "
+                + "asistentes puede satisfacer.");
+        conceptoBienestar.setPistas(Arrays.asList(caso2Pistas.pista3(), caso2Pistas.pista22()));
+        conceptoRepository.save(conceptoBienestar);
 
         Concepto conceptoCarcosa = new Concepto();
         conceptoCarcosa.setNombre("Carcosa Servicios Escénicos");
@@ -961,9 +1012,22 @@ public class DataSeeder implements CommandLineRunner {
                 + "un recargo específico por NO representar el segundo acto de su montaje, "
                 + "[[El Rey de Amarillo (Acto II)]]. Selló su factura con un sello amarillo que no "
                 + "corresponde a ningún notario ni al sello oficial de la empresa: el mismo que usa el "
-                + "[[Comité Ad Honorem]].");
-        conceptoCarcosa.setPistas(Arrays.asList(caso4Pistas.pista7(), caso4Pistas.pista8(), caso6Pistas.pista11()));
+                + "[[Comité Ad Honorem]]. La dirección fiscal de su contrato reaparece en 1999, "
+                + "declarada por [[El proveedor sin RFC]] del cierre de caja.");
+        conceptoCarcosa.setPistas(Arrays.asList(caso1Pistas.pista20(), caso4Pistas.pista7(),
+                caso4Pistas.pista8(), caso6Pistas.pista11()));
         conceptoRepository.save(conceptoCarcosa);
+
+        Concepto conceptoProveedor = new Concepto();
+        conceptoProveedor.setNombre("El proveedor sin RFC");
+        conceptoProveedor.setTipo(ConceptoTipo.EMPRESA);
+        conceptoProveedor.setResumen("Cobró $482,000 por 'servicios de consultoría' el 30/12/1999, "
+                + "autorizado sin revisión previa y aprobado por Contraloría en cinco minutos. El "
+                + "registro mercantil no lo conoce. La dirección fiscal declarada en su factura "
+                + "coincide con la que usó [[Carcosa Servicios Escénicos]] en su contrato de 1996 — "
+                + "un local que, según el padrón municipal, lleva vacío desde 1994.");
+        conceptoProveedor.setPistas(Arrays.asList(caso1Pistas.pista20()));
+        conceptoRepository.save(conceptoProveedor);
 
         Concepto conceptoActoII = new Concepto();
         conceptoActoII.setNombre("El Rey de Amarillo (Acto II)");
