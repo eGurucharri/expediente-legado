@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import PrometeoLogic from "../../main/resources/static/js/prometeo-logic.js";
 
-const { fusionarConGuardado, desbloquearCartaEnLista, esAcusacionPrecipitada, calcularEjeGanador } = PrometeoLogic;
+const { fusionarConGuardado, desbloquearCartaEnLista, esAcusacionPrecipitada, calcularEjeGanador, indiceJugadaRival, actualizarRacha } = PrometeoLogic;
 
 describe("fusionarConGuardado", () => {
     it("conserva los campos de estado del guardado y adopta los metadatos actuales", () => {
@@ -97,5 +97,51 @@ describe("calcularEjeGanador", () => {
     it("ignora ejes que no están en ordenEjes", () => {
         const historias = { "carta-1": "eje-desconocido", "carta-2": "socialdemocrata" };
         expect(calcularEjeGanador(historias, Object.keys(historias), ORDEN)).toBe("socialdemocrata");
+    });
+});
+
+describe("indiceJugadaRival", () => {
+    it("en modo ciclo reproduce el ritmo autorado del caso 6 (ronda % total)", () => {
+        expect(indiceJugadaRival("ciclo", 0, 3)).toBe(0);
+        expect(indiceJugadaRival("ciclo", 4, 3)).toBe(1);
+        expect(indiceJugadaRival("ciclo", 5, 3)).toBe(2);
+    });
+
+    it("en modo reactiva, con tirada baja, contraataca la última jugada del jugador", () => {
+        // La cadena de tipos es circular (cada índice vence al siguiente):
+        // lo que vence a X es el índice anterior a X.
+        const azarBajo = () => 0.1; // < 0.7: reacciona
+        expect(indiceJugadaRival("reactiva", 3, 3, azarBajo, 0)).toBe(2);
+        expect(indiceJugadaRival("reactiva", 3, 3, azarBajo, 1)).toBe(0);
+        expect(indiceJugadaRival("reactiva", 3, 3, azarBajo, 2)).toBe(1);
+    });
+
+    it("en modo reactiva, con tirada alta, juega aleatorio en vez de reaccionar", () => {
+        let llamadas = 0;
+        const azar = () => {
+            llamadas++;
+            return llamadas === 1 ? 0.9 : 0.5; // 1ª tirada decide no reaccionar, 2ª elige jugada
+        };
+        expect(indiceJugadaRival("reactiva", 3, 3, azar, 0)).toBe(1);
+    });
+
+    it("en modo reactiva sin última jugada del jugador (primera ronda) juega aleatorio", () => {
+        const azar = () => 0.99;
+        expect(indiceJugadaRival("reactiva", 0, 3, azar, null)).toBe(2);
+        expect(indiceJugadaRival("reactiva", 0, 3, azar, -1)).toBe(2);
+    });
+});
+
+describe("actualizarRacha", () => {
+    it("ganar suma una a la racha y puede batir la mejor marca", () => {
+        expect(actualizarRacha(2, 2, true)).toEqual({ racha: 3, mejor: 3 });
+    });
+
+    it("ganar sin batir la marca conserva la mejor anterior", () => {
+        expect(actualizarRacha(0, 5, true)).toEqual({ racha: 1, mejor: 5 });
+    });
+
+    it("perder devuelve la racha a cero sin tocar la mejor marca", () => {
+        expect(actualizarRacha(4, 4, false)).toEqual({ racha: 0, mejor: 4 });
     });
 });

@@ -967,3 +967,21 @@
         border-radius: 0;
     }
 }
+
+/* Ventanilla de Reclamaciones (issue #43): combate repetible dentro del
+   panel Prometeo. La nota es la réplica del funcionario de turno. */
+.prometeo-ventanilla-combate {
+    margin: 0.9rem 0 0.3rem;
+}
+.prometeo-ventanilla-combate:empty {
+    display: none;
+}
+.prometeo-ventanilla-nota {
+    margin: 0.6rem 0;
+    padding: 0.55rem 0.75rem;
+    border-left: 3px solid #a6321f;
+    background: rgba(166, 50, 31, 0.06);
+    font-style: italic;
+    font-size: 0.85rem;
+    color: #3a3a3a;
+}

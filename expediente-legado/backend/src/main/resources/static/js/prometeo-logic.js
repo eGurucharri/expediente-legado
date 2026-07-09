@@ -97,10 +97,46 @@
         return ganador;
     }
 
+    /**
+     * Índice de la jugada del rival para esta ronda de combate. El modo
+     * "ciclo" reproduce el ritmo autorado del duelo del caso 6 (issue #21:
+     * determinista, aprendible — es una escena, no un desafío repetible).
+     * El modo "reactiva" es la Ventanilla de Reclamaciones (issue #43): el
+     * rival tiende (70%) a jugar lo que vence la última jugada del jugador,
+     * así que se le puede cebar — hay una decisión por ronda, no una tabla
+     * que memorizar ni una moneda al aire. Asume la cadena circular de
+     * tipos del juego (cada índice vence al siguiente, módulo el total),
+     * por lo que "lo que vence a X" es el índice anterior a X.
+     */
+    function indiceJugadaRival(modo, ronda, totalTipos, random, indiceUltimoJugador) {
+        var azar = random || Math.random;
+        if (modo === "reactiva") {
+            var sinUltima = indiceUltimoJugador === null || indiceUltimoJugador === undefined
+                || indiceUltimoJugador < 0;
+            if (sinUltima || azar() >= 0.7) {
+                return Math.floor(azar() * totalTipos);
+            }
+            return (indiceUltimoJugador + totalTipos - 1) % totalTipos;
+        }
+        return ronda % totalTipos;
+    }
+
+    /**
+     * Racha de la Ventanilla de Reclamaciones: ganar suma una, perder la
+     * devuelve a cero; la mejor marca solo puede crecer. La racha en curso
+     * es efímera (variable de sesión), la mejor marca es meta-progresión.
+     */
+    function actualizarRacha(racha, mejor, gano) {
+        var nueva = gano ? racha + 1 : 0;
+        return { racha: nueva, mejor: Math.max(mejor, nueva) };
+    }
+
     return {
         fusionarConGuardado: fusionarConGuardado,
         desbloquearCartaEnLista: desbloquearCartaEnLista,
         esAcusacionPrecipitada: esAcusacionPrecipitada,
-        calcularEjeGanador: calcularEjeGanador
+        calcularEjeGanador: calcularEjeGanador,
+        indiceJugadaRival: indiceJugadaRival,
+        actualizarRacha: actualizarRacha
     };
 });
