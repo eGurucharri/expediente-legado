@@ -9,6 +9,7 @@ import com.legado.expediente.service.ProgresoService;
 import com.legado.expediente.service.ResumenJuegoService;
 import com.legado.expediente.service.UsuarioContexto;
 import com.legado.expediente.service.WikiLinkService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,19 +33,22 @@ public class CarpetaController {
     private final ResumenJuegoService resumenJuegoService;
     private final WikiLinkService wikiLinkService;
     private final UsuarioContexto usuarioContexto;
+    private final String feedbackUrl;
 
     public CarpetaController(CasoRepository casoRepository,
                               ConceptoRepository conceptoRepository,
                               ProgresoService progresoService,
                               ResumenJuegoService resumenJuegoService,
                               WikiLinkService wikiLinkService,
-                              UsuarioContexto usuarioContexto) {
+                              UsuarioContexto usuarioContexto,
+                              @Value("${siga98.feedback-url:}") String feedbackUrl) {
         this.casoRepository = casoRepository;
         this.conceptoRepository = conceptoRepository;
         this.progresoService = progresoService;
         this.resumenJuegoService = resumenJuegoService;
         this.wikiLinkService = wikiLinkService;
         this.usuarioContexto = usuarioContexto;
+        this.feedbackUrl = feedbackUrl;
     }
 
     public record ConceptoVista(Concepto concepto, String resumenHtml) {
@@ -117,6 +121,7 @@ public class CarpetaController {
         model.addAttribute("progreso", progresoService.progreso(casosBase, descubiertas));
         model.addAttribute("todosResueltos", todosResueltos);
         model.addAttribute("rutaActual", "/carpeta");
+        model.addAttribute("feedbackUrl", feedbackUrl.isBlank() ? null : feedbackUrl);
         model.addAttribute("ultimoGuardado", usuario.getUltimoGuardado());
         model.addAttribute("estadoJuego", resumenJuegoService.calcular(usuario));
         return "carpeta";

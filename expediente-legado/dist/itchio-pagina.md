@@ -64,7 +64,38 @@ uno (Windows / Linux) para que itch muestre el icono correcto.
 6. Enviar a los amigos: el enlace secreto + una línea de contexto ("descarga
    el zip de tu sistema y lee el LEEME de dentro").
 
-## 3. Actualizar el build en rondas futuras
+## 3. Canal de feedback (decidir ANTES de empaquetar la ronda)
+
+La combinación que mejor funciona con un grupo pequeño de amigos:
+
+1. **Grupo de mensajería dedicado** (WhatsApp/Telegram/Discord — grupo NUEVO,
+   solo para el playtest): el canal por defecto. Cero fricción, capturas
+   fáciles, y las conversaciones de "aquí me perdí" valen más que cualquier
+   bug. Tú conviertes lo relevante en issues de GitHub.
+2. **Google Form para bugs** (recomendado si hay más de 3-4 testers): campos
+   fijos = triaje fácil, las respuestas caen en una hoja de cálculo. Campos
+   sugeridos: build (texto corto), sistema operativo (choice), qué hiciste
+   (párrafo), qué esperabas / qué pasó (párrafo), captura (texto con enlace —
+   la subida de archivos de Forms obliga a iniciar sesión en Google, mejor
+   que peguen la captura en el grupo y el enlace/descripción en el form).
+3. **El propio juego ya apunta al form**: el manual de Mi carpeta tiene la
+   sección "Parte de incidencias" con la receta del buen reporte. Si
+   empaquetas con la URL del form, muestra además el botón que lo abre:
+
+   ```bash
+   SIGA98_FEEDBACK_URL="https://forms.gle/tu-form" bash dist/empaquetar-alpha.sh
+   ```
+
+   Sin la variable, la sección remite "al canal acordado" (el grupo).
+
+Los comentarios de la propia página de itch.io exigen cuenta de itch — no
+cuentes con ellos como canal.
+
+Cada reporte que llegue → un issue con el número de build en el cuerpo (sale
+en el pie del login y en el LEEME); lo cualitativo ("me aburrí en el caso 3")
+→ issues de contenido o notas para la siguiente ronda.
+
+## 4. Actualizar el build en rondas futuras
 
 Manual: editar la página → borrar los zips viejos → subir los nuevos de
 `dist/salida/`. Suficiente para rondas espaciadas.
@@ -82,7 +113,7 @@ unzip butler.zip && chmod +x butler && ./butler login
 ./butler push dist/salida/siga98-<version>-linux.zip   <usuario>/siga98-expediente-legado:linux   --userversion <version>
 ```
 
-## 4. Smoke test de Windows (antes de repartir NADA)
+## 5. Smoke test de Windows (antes de repartir NADA)
 
 En una máquina Windows real, con el zip `siga98-<version>-windows.zip`
 descargado de la Release de GitHub (o de la propia página de itch en draft):
