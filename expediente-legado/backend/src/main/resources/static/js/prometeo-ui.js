@@ -1585,6 +1585,12 @@
         if (!jefeModal || state.jefeVisto) {
             return;
         }
+        // Issue #24: si esta página tiene un combate en curso, el aviso lo
+        // taparía en pleno duelo. Se pospone sin marcar jefeVisto: saldrá
+        // en la siguiente página sin combate.
+        if (window.PROMETEO_COMBATE && combateRaiz) {
+            return;
+        }
         jefeModal.hidden = false;
         atraparFoco(jefeModal);
         state.jefeVisto = true;
