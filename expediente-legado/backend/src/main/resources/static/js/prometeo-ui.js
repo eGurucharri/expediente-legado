@@ -2269,7 +2269,7 @@
         }
         state.saludoVisto = true;
         guardarEstado();
-        mostrarAsistente("Hola. Yo soy el lince de la oficina, y hoy parece que alguien ha dejado la puerta entreabierta. No mire lo que no debería estar donde está.", "guino");
+        mostrarAsistente("Hola. Yo soy el lince de la oficina, y hoy parece que alguien ha dejado la puerta entreabierta. No mire lo que no debería estar donde está. Ah, y sobre todo no abra Mi carpeta: alguien dejó ahí un manual del usuario que se lo explicaría todo, y eso no le conviene.", "guino");
     }, 700);
 
     trigger.addEventListener("click", function () {
@@ -2431,12 +2431,19 @@
         });
     }
 
-    // Cerrar al hacer click fuera del panel (sobre el ::backdrop).
+    // Cerrar al hacer click fuera del panel (sobre el ::backdrop). Solo
+    // cuenta si el click cayó sobre el propio <dialog> (un click en un
+    // elemento interno nunca cierra, aunque el panel cambie de tamaño en
+    // ese mismo click — issue #23: Créditos encogía el diálogo y la
+    // comprobación puramente geométrica leía el click como "fuera").
     dialog.addEventListener("click", function (evento) {
+        if (evento.target !== dialog) {
+            return;
+        }
         var rect = dialog.getBoundingClientRect();
-        var dentro = evento.clientX >= rect.left && evento.clientX <= rect.right
-            && evento.clientY >= rect.top && evento.clientY <= rect.bottom;
-        if (!dentro) {
+        var fuera = evento.clientX < rect.left || evento.clientX > rect.right
+            || evento.clientY < rect.top || evento.clientY > rect.bottom;
+        if (fuera) {
             dialog.close();
         }
     });
