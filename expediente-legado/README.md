@@ -1,17 +1,21 @@
 # SIGA-98 · Expediente Legado
 
-Entorno base para un videojuego de investigación: el jugador es un auditor que
+Videojuego de investigación y horror burocrático: el jugador es un auditor que
 accede a un backup restaurado de **SIGA**, un sistema de administración de
-finales de los 90, para resolver casos escondidos en facturas, memorandos y
-expedientes de empleados.
+finales de los 90, para resolver ocho casos escondidos en facturas, memorandos
+y expedientes de empleados. Detrás del sistema "roto" hay una segunda capa
+(**Prometeo**) con logros, un tarot coleccionable, dificultad, un sistema de
+vidas y varios finales.
 
 ## Stack
 
 - **Backend:** Spring Boot 3 (Java 25) + Spring Data JPA + Spring Security + Thymeleaf
-- **Base de datos:** MySQL 8
-- **Frontend:** Bootstrap 5 (vía webjars) con una hoja de estilos que imita la
-  estética de un programa de escritorio de los años 90
+- **Base de datos:** MySQL 8 (desarrollo) / H2 embebido (build standalone alpha)
+- **Frontend:** Bootstrap 5 (vía webjars) con hojas de estilo propias: una que
+  imita un programa de escritorio de los 90 (SIGA-98) y otra moderna (Prometeo)
 - **Docker:** `docker-compose.yml` con MySQL, backend y Adminer (gestor web de BD)
+- **Calidad:** JUnit 5 (fakes por `Proxy`, sin Mockito), Vitest para la lógica
+  JS pura, Playwright para E2E de navegador real, Checkstyle + PMD + SpotBugs
 
 ## Estructura
 
@@ -19,32 +23,54 @@ expedientes de empleados.
 expediente-legado/
 ├── docker-compose.yml
 ├── .env                        # credenciales de desarrollo (no usar en producción)
+├── dist/                       # empaquetado del build alpha standalone
+│   └── empaquetar-alpha.sh
 └── backend/
     ├── Dockerfile
     ├── pom.xml
     └── src/main/java/com/legado/expediente/
-        ├── config/             # seguridad + datos semilla
-        ├── model/               # Usuario, Caso, RegistroLegado, Pista
-        ├── repository/           # Spring Data JPA
-        └── controller/           # login, dashboard, detalle de caso
+        ├── config/             # seguridad + datos semilla + build standalone
+        ├── model/              # Usuario, Caso, RegistroLegado, Pista, Concepto...
+        ├── repository/         # Spring Data JPA
+        ├── service/            # progreso, hotspots, cartas ocultas, resumen
+        └── controller/         # login, dashboard, casos, carpeta, menú
 ```
 
-## Cómo levantarlo
+## Cómo levantarlo (desarrollo)
 
 ```bash
+cp .env.example .env   # solo la primera vez
 docker compose up --build
 ```
 
-- App: http://localhost:8090 (usuario demo `auditor01` / `auditor123`)
+- App: http://localhost:8090 (usuario demo `auditor01` / `auditor-local-123`)
 - Adminer: http://localhost:8081 (sistema: MySQL, servidor: `mysql`, usuario/clave según `.env`)
 
-Al arrancar por primera vez, `DataSeeder` crea el usuario demo y un caso de
-ejemplo ("El cierre de caja de 1999") con registros y pistas para investigar.
+Al arrancar por primera vez, `DataSeeder` siembra los usuarios demo y los ocho
+casos completos (registros, pistas, sospechosos y el corcho de conceptos).
 
-## Siguientes pasos sugeridos
+## Build alpha standalone (para betatesters)
 
-- Añadir más casos, tipos de registro y mecánicas de pistas (combinarlas,
-  acusar a un sospechoso, finales según las pistas encontradas).
-- Sustituir `ddl-auto: update` por migraciones versionadas (Flyway/Liquibase)
-  cuando el esquema se estabilice.
-- Añadir tests de integración para los controladores y repositorios.
+Genera dos zips autocontenidos (Windows x64 y Linux x64) con el jar, un JRE
+Temurin 25 y un lanzador — sin Docker, sin MySQL, sin instalar nada:
+
+```bash
+bash dist/empaquetar-alpha.sh
+```
+
+Los zips salen en `dist/salida/`. Usan el perfil Spring `standalone` (H2 en
+fichero, en `./data/` junto al lanzador) y abren el navegador solos al
+arrancar. Las instrucciones para el tester van dentro (`LEEME.txt`).
+
+## Tests y calidad
+
+Desde `backend/` (o vía la imagen `maven:3.9-eclipse-temurin-25` si el Maven
+local no es Java 25):
+
+```bash
+mvn test                                              # unitarios
+mvn checkstyle:check pmd:check spotbugs:check         # gates de calidad
+npm test                                              # Vitest (lógica JS pura)
+mvn test -Dtest=AutenticacionE2E,ModalesFocoE2E,MapaConexionesE2E \
+    -De2e.baseUrl=http://localhost:8090               # E2E (app ya levantada)
+```
