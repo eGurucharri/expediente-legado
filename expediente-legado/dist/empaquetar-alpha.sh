@@ -5,6 +5,10 @@
 # descargan ya compilados de Adoptium (y se cachean en dist/.cache).
 #
 # Uso:  bash dist/empaquetar-alpha.sh
+#       SIGA98_FEEDBACK_URL="https://forms.gle/..." bash dist/empaquetar-alpha.sh
+#         (opcional: hornea la URL del formulario de incidencias en el zip,
+#          vía config externa de Spring Boot — sin recompilar; el manual del
+#          juego muestra entonces el botón "Abrir el formulario", issue #41)
 # Salida: dist/salida/siga98-<version>-windows.zip y ...-linux.zip
 set -euo pipefail
 
@@ -66,6 +70,11 @@ empaquetar() {
 
     cp "$JAR" "$trabajo/app.jar"
     sed "s/@VERSION@/$VERSION/g" "$PLANTILLAS_DIR/LEEME.txt" > "$trabajo/LEEME.txt"
+
+    if [ -n "${SIGA98_FEEDBACK_URL:-}" ]; then
+        mkdir -p "$trabajo/config"
+        printf 'siga98:\n  feedback-url: "%s"\n' "$SIGA98_FEEDBACK_URL" > "$trabajo/config/application.yml"
+    fi
 
     echo "==> Extrayendo JRE ($so)"
     if [ "$so" = "windows" ]; then
