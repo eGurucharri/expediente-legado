@@ -1,0 +1,23 @@
+# Perfil "standalone" (issue #36): el build alpha que se reparte a los
+# betatesters como zip autocontenido. Sustituye MySQL por H2 embebido en
+# fichero (./data/, junto al lanzador) para que el juego corra sin Docker,
+# sin MySQL y sin instalar nada. El resto de la configuración (JPA,
+# Thymeleaf) se hereda de application.yml.
+#
+# MODE=MySQL por higiene (el esquema lo genera Hibernate igualmente vía
+# ddl-auto: update; no hay ni native queries ni columnDefinition en el
+# código, verificado en el issue).
+server:
+  port: 8090
+
+spring:
+  datasource:
+    url: jdbc:h2:file:./data/siga98;MODE=MySQL
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+  main:
+    # Spring pone java.awt.headless=true por defecto; sin esto,
+    # Desktop.isDesktopSupported() daría siempre false y NavegadorStandalone
+    # nunca podría abrir el navegador del tester.
+    headless: false

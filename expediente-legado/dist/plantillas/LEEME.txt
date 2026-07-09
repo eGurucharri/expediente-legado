@@ -1,0 +1,69 @@
+=====================================================================
+  SIGA-98 · Expediente Legado — build alpha @VERSION@
+=====================================================================
+
+Es 1998, o eso dice el sistema. Eres el nuevo auditor y te han dado
+acceso al backup restaurado de SIGA, el viejo programa de gestión de
+la oficina. Entre facturas, memorandos y expedientes de personal hay
+ocho casos esperando a que alguien tire del hilo. El sistema está
+roto de formas que quizá no sean casuales.
+
+Esto es una ALPHA: habrá cosas raras, y justo por eso estás aquí.
+
+
+CÓMO ARRANCAR
+-------------
+  Windows:  doble clic en INICIAR.bat
+  Linux:    ejecuta ./iniciar.sh en una terminal
+
+Se abrirá una ventana de consola (déjala abierta: cerrarla apaga el
+juego) y, en unos segundos, tu navegador con la pantalla de acceso.
+Si el navegador no se abre solo, entra a mano en:
+
+    http://localhost:8090
+
+Usuario de acceso:
+
+    usuario:     auditor01
+    contraseña:  auditor-local-123
+
+No hace falta instalar nada (ni Java): todo va dentro de este zip.
+Requisito único: que el puerto 8090 no esté ocupado por otra cosa.
+
+
+TU PARTIDA Y TUS DATOS
+----------------------
+- El progreso de investigación se guarda solo, al instante, en la
+  carpeta "data" que aparecerá junto a este archivo. Borrar esa
+  carpeta = empezar de cero.
+- Los logros, el tarot y demás se guardan EN TU NAVEGADOR: usa
+  siempre el mismo navegador, y no borres los datos de sitio de
+  localhost si no quieres perderlos.
+- Dentro del juego, en "Mi carpeta", hay un manual del usuario.
+  O eso dicen. Nadie te ha dicho que lo leas.
+
+
+COSAS QUE YA SABEMOS (no hace falta reportarlas)
+------------------------------------------------
+- En una situación muy concreta, un aviso de la Dirección puede
+  taparle los botones a otro diálogo. Si te pasa, cierra el aviso
+  primero.
+- El juego no está probado en móvil/tablet: úsalo en un ordenador.
+
+
+CÓMO REPORTAR UN BUG (o lo que sea)
+-----------------------------------
+Mándame un mensaje con:
+  1. Qué hiciste (los pasos, aunque sean aproximados).
+  2. Qué esperabas que pasara y qué pasó en realidad.
+  3. Una captura de pantalla si puedes (de la consola también, si
+     hubo un error feo).
+  4. La palabra "build @VERSION@" (sale en el pie de la pantalla de
+     acceso, así sé qué versión probaste).
+
+También me sirve, y mucho: dónde te aburriste, dónde te perdiste,
+qué no entendiste y en qué momento pensaste en dejarlo. Eso vale
+más que cualquier bug.
+
+Gracias por jugar. No mires lo que no debería estar donde está.
+=====================================================================
