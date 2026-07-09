@@ -947,7 +947,8 @@
             historiasCartas: datos.historiasCartas || {},
             finalPoliticoShown: Boolean(datos.finalPoliticoShown),
             saludoVisto: Boolean(datos.saludoVisto),
-            pistasActivas: Boolean(datos.pistasActivas)
+            pistasActivas: Boolean(datos.pistasActivas),
+            epilogoAvisado: Boolean(datos.epilogoAvisado)
         };
     }
 
@@ -1243,6 +1244,10 @@
      * un logro de una vez en la vida. Si no se reinicia aquí, quien fue
      * despedido en la partida anterior no vuelve a ver ese aviso nunca,
      * aunque llegue a 0 vidas otra vez en la nueva partida.
+     *
+     * epilogoAvisado (issue #33) es igual de per-run: el lince anuncia la
+     * acreditación del corcho una vez por partida, no una vez en la vida —
+     * en una partida nueva el hito vuelve a conquistarse y a anunciarse.
      */
     function reiniciarVidaSiPartidaNueva() {
         if (!real) {
@@ -1254,9 +1259,10 @@
             return;
         }
         var max = DIFICULTADES[state.dificultad].vidasMax;
-        if (state.vida < max || state.despidoShown) {
+        if (state.vida < max || state.despidoShown || state.epilogoAvisado) {
             state.vida = max;
             state.despidoShown = false;
+            state.epilogoAvisado = false;
             guardarEstado();
         }
     }
@@ -2048,6 +2054,17 @@
         });
     }
 
+    function avisarEpilogoSiHaceFalta() {
+        var hito = real && real.totalCasosPrincipales > 0
+            && real.casosResueltos >= real.totalCasosPrincipales;
+        if (!hito || state.epilogoAvisado || !asistente || !textoAsistente || state.finalShown) {
+            return false;
+        }
+        state.epilogoAvisado = true;
+        mostrarAsistente("Ni se le ocurra pasarse por el corcho de su carpeta. Ha aparecido un memorándum de acreditación que no le incumbe en absoluto, y menos aún la clave que trae escrita.", "alerta");
+        return true;
+    }
+
     function mostrarAsistente(mensaje, mood) {
         if (!asistente || !textoAsistente || state.finalShown) {
             return;
@@ -2267,15 +2284,22 @@
     }, 400);
 
     window.setTimeout(function () {
-        if (state.saludoVisto) {
-            // Ya se presentó antes: a partir de aquí siempre habla según el
-            // contexto real, nunca repitiendo el saludo fijo (issue #1).
-            mostrarAsistente();
+        if (!state.saludoVisto) {
+            state.saludoVisto = true;
+            guardarEstado();
+            mostrarAsistente("Hola. Yo soy el lince de la oficina, y hoy parece que alguien ha dejado la puerta entreabierta. No mire lo que no debería estar donde está. Ah, y sobre todo no abra Mi carpeta: alguien dejó ahí un manual del usuario que se lo explicaría todo, y eso no le conviene.", "guino");
             return;
         }
-        state.saludoVisto = true;
-        guardarEstado();
-        mostrarAsistente("Hola. Yo soy el lince de la oficina, y hoy parece que alguien ha dejado la puerta entreabierta. No mire lo que no debería estar donde está. Ah, y sobre todo no abra Mi carpeta: alguien dejó ahí un manual del usuario que se lo explicaría todo, y eso no le conviene.", "guino");
+        // Issue #33: el hito más importante de la partida (cerrar los cinco
+        // expedientes hace aparecer la acreditación en el corcho) era mudo —
+        // el badge de /carpeta es perezoso y el lince solo reaccionaba a
+        // mensajes flash. Una sola línea, una sola vez por partida.
+        if (avisarEpilogoSiHaceFalta()) {
+            return;
+        }
+        // Ya se presentó antes: a partir de aquí siempre habla según el
+        // contexto real, nunca repitiendo el saludo fijo (issue #1).
+        mostrarAsistente();
     }, 700);
 
     trigger.addEventListener("click", function () {
