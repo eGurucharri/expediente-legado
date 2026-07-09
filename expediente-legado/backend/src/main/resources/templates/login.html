@@ -34,12 +34,15 @@
             <button type="submit" class="btn siga-btn w-100">Ingresar</button>
         </form>
         <p class="text-muted small mt-3 mb-0">Cuenta demo: auditor01 / auditor-local-123</p>
-        <p class="text-muted small mt-3 mb-0 d-flex align-items-center gap-1">
-            <svg class="prometeo-logo" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <path fill="currentColor" d="M12 2c.3 2.8-1.1 4-2.4 5.6C8.1 9.4 7 11 7 13a5 5 0 0 0 10 0c0-1.6-.7-2.7-1.5-3.7.2 1-.1 1.8-.9 2.2.6-2.4-.7-4-2-5.2C13.6 5.4 12.9 3.8 12 2z"/>
-                <path fill="currentColor" opacity=".85" d="M6 22a6 6 0 0 1 12 0z"/>
-            </svg>
-            Prometeo
+        <p class="text-muted small mt-3 mb-0 d-flex align-items-center justify-content-between flex-wrap gap-1">
+            <span class="d-flex align-items-center gap-1">
+                <svg class="prometeo-logo" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path fill="currentColor" d="M12 2c.3 2.8-1.1 4-2.4 5.6C8.1 9.4 7 11 7 13a5 5 0 0 0 10 0c0-1.6-.7-2.7-1.5-3.7.2 1-.1 1.8-.9 2.2.6-2.4-.7-4-2-5.2C13.6 5.4 12.9 3.8 12 2z"/>
+                    <path fill="currentColor" opacity=".85" d="M6 22a6 6 0 0 1 12 0z"/>
+                </svg>
+                Prometeo
+            </span>
+            <span th:text="'build ' + ${versionBuild}">build dev</span>
         </p>
     </div>
 </div>

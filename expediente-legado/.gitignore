@@ -3,3 +3,7 @@ backend/target/
 .idea/
 *.iml
 .DS_Store
+
+# Empaquetado alpha (issue #36): JREs descargados y zips generados
+dist/.cache/
+dist/salida/

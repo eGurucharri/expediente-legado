@@ -1,6 +1,13 @@
 server:
   port: 8080
 
+# Versión del build, visible en el pie del login para poder triar los
+# reportes de los betatesters ("¿en qué build te pasó?"). El @...@ lo
+# sustituye el filtrado de recursos de Maven (spring-boot-starter-parent
+# lo activa por defecto sobre application*.yml).
+siga98:
+  version: "@project.version@"
+
 spring:
   application:
     name: expediente-legado

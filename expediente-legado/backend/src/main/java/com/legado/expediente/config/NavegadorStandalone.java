@@ -1,0 +1,58 @@
+package com.legado.expediente.config;
+
+import java.awt.Desktop;
+import java.io.IOException;
+import java.net.URI;
+import java.util.Locale;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.annotation.Profile;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
+
+/**
+ * Solo en el build standalone (alpha para betatesters, issue #36): abre el
+ * navegador del jugador cuando la aplicación termina de arrancar, para que
+ * el lanzador del zip sea una sola línea sin scripting frágil de "esperar
+ * al puerto". Si no puede (entorno sin escritorio, Linux sin integración
+ * AWT), lo dice por consola con la URL para abrirla a mano.
+ */
+@Component
+@Profile("standalone")
+public class NavegadorStandalone {
+
+    private static final Logger LOG = LoggerFactory.getLogger(NavegadorStandalone.class);
+
+    private final Environment environment;
+
+    public NavegadorStandalone(Environment environment) {
+        this.environment = environment;
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void abrirNavegador() {
+        String puerto = environment.getProperty("local.server.port",
+                environment.getProperty("server.port", "8090"));
+        String url = "http://localhost:" + puerto;
+        LOG.info("SIGA-98 listo. Si el navegador no se abre solo, entre en {}", url);
+        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+            try {
+                Desktop.getDesktop().browse(URI.create(url));
+                return;
+            } catch (IOException e) {
+                LOG.warn("No se pudo abrir el navegador via Desktop: {}", e.getMessage());
+            }
+        }
+        // Plan B para Linux sin integración AWT de escritorio: xdg-open.
+        String so = System.getProperty("os.name", "").toLowerCase(Locale.ROOT);
+        if (so.contains("linux")) {
+            try {
+                new ProcessBuilder("xdg-open", url).start();
+            } catch (IOException e) {
+                LOG.info("Abra el juego a mano en {}", url);
+            }
+        }
+    }
+}
