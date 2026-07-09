@@ -1020,7 +1020,10 @@
             var card = document.createElement("article");
             card.className = "prometeo-tarot-card" + (carta.collected ? " is-collected" : " is-sealed");
             var arte = carta.collected ? pixelArtSvg(carta.id) : "";
-            var canjear = (carta.collected && !carta.gastada)
+            // Issue #44: el canje es un último recurso, no una recarga —
+            // solo se ofrece con la vida a cero (protege la colección del
+            // final verdadero de canjes rutinarios).
+            var canjear = (carta.collected && !carta.gastada && state.vida === 0)
                 ? "<button type='button' class='prometeo-btn-secundario prometeo-tarot-canjear' data-canjear-carta='" + carta.id + "'>Canjear por una vida</button>"
                 : "";
             var estadoPie = carta.gastada
@@ -1174,6 +1177,9 @@
         guardarEstado();
         renderVida();
         if (anterior > 0 && state.vida === 0) {
+            // Al llegar a cero aparecen los botones de canje (issue #44):
+            // si el panel de tarot está abierto, tienen que salir ya.
+            renderTarot();
             mostrarDespido();
         }
     }
@@ -1190,7 +1196,7 @@
         var carta = state.tarot.find(function (c) {
             return c.id === idCarta;
         });
-        if (!carta || !carta.collected || carta.gastada) {
+        if (!carta || !carta.collected || carta.gastada || state.vida > 0) {
             return;
         }
 
@@ -2534,6 +2540,21 @@
                     liberarFoco();
                 }
                 tic(300);
+            });
+        });
+        // Issue #44: con el canje oculto hasta vida 0, el despido es el
+        // momento exacto en que existe — el modal lleva directo al tarot.
+        despidoModal.querySelectorAll("[data-despido-tarot]").forEach(function (boton) {
+            boton.addEventListener("click", function () {
+                despidoModal.hidden = true;
+                if (contenedorConFocoAtrapado === despidoModal) {
+                    liberarFoco();
+                }
+                mostrarPanel("tarot");
+                if (!dialog.open) {
+                    dialog.showModal();
+                }
+                tic(400);
             });
         });
     }
