@@ -140,6 +140,19 @@ class CasoControllerTest {
     }
 
     @Test
+    void finalizarCombateSinCombatePendienteEsNoOpSinExcepcion() {
+        // Doble POST (doble clic tras respuesta lenta): el combate ya se
+        // resolvió y borró; el segundo envío no debe petar con 500 (#39)
+        // ni registrar un segundo veredicto.
+        RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
+
+        String vista = controller.finalizarCombate(CASO_ID, authentication, redirectAttributes);
+
+        assertEquals("redirect:/casos/" + CASO_ID, vista);
+        assertFalse(veredictosPorCaso.containsKey(CASO_ID));
+    }
+
+    @Test
     void acusarEnCasoConfidencialSinSerAdminEsDenegado() {
         caso.setConfidencial(true);
         sospechosos.put(5L, sospechoso(5L, Arrays.asList()));

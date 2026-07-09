@@ -32,6 +32,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -258,8 +259,15 @@ public class CasoController {
     public String finalizarCombate(@PathVariable Long casoId, Authentication authentication,
                                     RedirectAttributes redirectAttributes) {
         Usuario usuario = usuarioContexto.actual(authentication);
-        CombateEnCurso combate = combateEnCursoRepository.findByUsuarioIdAndCasoId(usuario.getId(), casoId)
-                .orElseThrow();
+        // Un segundo POST (doble clic tras una respuesta lenta) llega cuando
+        // el combate ya no existe: no-op, como guarda /acusar con
+        // yaHayVeredicto/yaHayCombate — el veredicto ya quedó registrado.
+        Optional<CombateEnCurso> pendiente =
+                combateEnCursoRepository.findByUsuarioIdAndCasoId(usuario.getId(), casoId);
+        if (pendiente.isEmpty()) {
+            return RUTA_CASOS + casoId;
+        }
+        CombateEnCurso combate = pendiente.get();
 
         if (sinAcceso(combate.getCaso(), usuario)) {
             redirectAttributes.addFlashAttribute(ATRIBUTO_MENSAJE, MENSAJE_ACCESO_DENEGADO);
