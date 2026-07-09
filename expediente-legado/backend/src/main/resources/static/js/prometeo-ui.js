@@ -25,6 +25,9 @@
     var activarPistasCheckbox = document.getElementById("prometeo-activar-pistas");
     var combateRaiz = document.getElementById("prometeo-combate-raiz");
     var formCombateFinalizar = document.getElementById("form-combate-finalizar");
+    var ventanillaRaiz = document.getElementById("prometeo-ventanilla-combate");
+    var ventanillaRacha = document.getElementById("prometeo-ventanilla-racha");
+    var ventanillaEmpezar = document.getElementById("prometeo-ventanilla-empezar");
     var jefeModal = document.getElementById("prometeo-jefe");
     var despidoModal = document.getElementById("prometeo-despido");
     var finalVerdaderoModal = document.getElementById("prometeo-final-verdadero");
@@ -895,7 +898,8 @@
             { id: "archivo-completo", titulo: "El archivo completo", descripcion: "Resolviste todos los expedientes a tu cargo.", desbloqueado: false },
             { id: "acceso-privilegiado", titulo: "Acceso privilegiado", descripcion: "Alguien le franqueó el paso a un nivel que no debería existir.", desbloqueado: false },
             { id: "reasignado", titulo: "Reasignado", descripcion: "El sistema decidió que ya no le necesitaba.", desbloqueado: false },
-            { id: "final-verdadero", titulo: "Las cuatro cartas", descripcion: "Cerró el archivo sin canjear ni una sola carta.", desbloqueado: false }
+            { id: "final-verdadero", titulo: "Las cuatro cartas", descripcion: "Cerró el archivo sin canjear ni una sola carta.", desbloqueado: false },
+            { id: "ventanilla-tres", titulo: "Constancia registrada", descripcion: "Atendió tres reclamaciones seguidas sin perder la compostura.", desbloqueado: false }
         ];
 
         var tarotActual = [
@@ -948,7 +952,8 @@
             finalPoliticoShown: Boolean(datos.finalPoliticoShown),
             saludoVisto: Boolean(datos.saludoVisto),
             pistasActivas: Boolean(datos.pistasActivas),
-            epilogoAvisado: Boolean(datos.epilogoAvisado)
+            epilogoAvisado: Boolean(datos.epilogoAvisado),
+            coliseoRachaMejor: typeof datos.coliseoRachaMejor === "number" ? datos.coliseoRachaMejor : 0
         };
     }
 
@@ -1452,6 +1457,13 @@
     var VIDA_INICIAL_COMBATE = 3;
     var combateActual = null;
 
+    /**
+     * El motor de combate es único; lo que varía entre el duelo de un caso
+     * (issue #21) y la Ventanilla de Reclamaciones (issue #43) viaja en la
+     * config del propio combateActual: dónde se monta (raiz), cómo juega el
+     * rival (modoRival: el ciclo autorado del caso 6 vs. aleatorio), qué
+     * pasa al terminar (alTerminar), el texto final y el botón de cierre.
+     */
     function iniciarCombate() {
         if (!window.PROMETEO_COMBATE || !combateRaiz) {
             return;
@@ -1463,7 +1475,25 @@
             vidaJugador: VIDA_INICIAL_COMBATE,
             vidaRival: VIDA_INICIAL_COMBATE,
             ultimoTipoJugador: null,
-            terminado: null
+            terminado: null,
+            raiz: combateRaiz,
+            modoRival: "ciclo",
+            claseBoton: "btn siga-btn",
+            claseNota: "siga-nota-marginal mb-3",
+            alTerminar: resolverFinCombate,
+            textoFin: function (resultado) {
+                return resultado === "gano"
+                    ? "Ha ganado el enfrentamiento. Se ha hecho con su carta."
+                    : "Ha perdido el enfrentamiento. Pierde una vida.";
+            },
+            cierre: {
+                texto: "Presentar cierre",
+                alPulsar: function () {
+                    if (formCombateFinalizar) {
+                        formCombateFinalizar.submit();
+                    }
+                }
+            }
         };
         renderCombate();
     }
@@ -1472,7 +1502,12 @@
         if (!combateActual || combateActual.terminado) {
             return;
         }
-        var tipoRival = ORDEN_TIPOS_COMBATE[combateActual.ronda % ORDEN_TIPOS_COMBATE.length];
+        var indiceUltimo = combateActual.ultimoTipoJugador === null
+            ? null
+            : ORDEN_TIPOS_COMBATE.indexOf(combateActual.ultimoTipoJugador);
+        var indiceRival = PrometeoLogic.indiceJugadaRival(combateActual.modoRival,
+            combateActual.ronda, ORDEN_TIPOS_COMBATE.length, null, indiceUltimo);
+        var tipoRival = ORDEN_TIPOS_COMBATE[indiceRival];
         var combo = tipo === combateActual.ultimoTipoJugador;
         var dano = combo ? 2 : 1;
 
@@ -1497,7 +1532,7 @@
         renderCombate();
 
         if (combateActual.terminado) {
-            resolverFinCombate();
+            combateActual.alTerminar();
         }
     }
 
@@ -1520,10 +1555,11 @@
     }
 
     function renderCombate() {
-        if (!combateRaiz || !combateActual) {
+        if (!combateActual || !combateActual.raiz) {
             return;
         }
-        combateRaiz.innerHTML = "";
+        var raiz = combateActual.raiz;
+        raiz.innerHTML = "";
 
         function pips(etiquetaTexto, vida) {
             var cont = document.createElement("div");
@@ -1544,47 +1580,160 @@
         barras.className = "prometeo-combate-barras";
         barras.appendChild(pips("Usted", combateActual.vidaJugador));
         barras.appendChild(pips(combateActual.sospechoso, combateActual.vidaRival));
-        combateRaiz.appendChild(barras);
+        raiz.appendChild(barras);
 
         if (!combateActual.terminado) {
             var textoAtaque = combateActual.ataques[combateActual.ronda % combateActual.ataques.length];
             var nota = document.createElement("div");
-            nota.className = "siga-nota-marginal mb-3";
+            nota.className = combateActual.claseNota;
             nota.textContent = textoAtaque;
-            combateRaiz.appendChild(nota);
+            raiz.appendChild(nota);
 
             var opciones = document.createElement("div");
             opciones.className = "prometeo-combate-opciones";
             ORDEN_TIPOS_COMBATE.forEach(function (tipo) {
                 var boton = document.createElement("button");
                 boton.type = "button";
-                boton.className = "btn siga-btn";
+                boton.className = combateActual.claseBoton;
                 boton.textContent = TIPOS_COMBATE[tipo].etiqueta;
                 boton.addEventListener("click", function () {
                     jugarCartaCombate(tipo);
                 });
                 opciones.appendChild(boton);
             });
-            combateRaiz.appendChild(opciones);
+            raiz.appendChild(opciones);
         } else {
             var nota2 = document.createElement("div");
-            nota2.className = "siga-nota-marginal siga-revelado mb-3";
-            nota2.textContent = combateActual.terminado === "gano"
-                ? "Ha ganado el enfrentamiento. Se ha hecho con su carta."
-                : "Ha perdido el enfrentamiento. Pierde una vida.";
-            combateRaiz.appendChild(nota2);
+            nota2.className = combateActual.claseNota + " siga-revelado";
+            nota2.textContent = combateActual.textoFin(combateActual.terminado);
+            raiz.appendChild(nota2);
 
             var cerrar = document.createElement("button");
             cerrar.type = "button";
-            cerrar.className = "btn siga-btn";
-            cerrar.textContent = "Presentar cierre";
-            cerrar.addEventListener("click", function () {
-                if (formCombateFinalizar) {
-                    formCombateFinalizar.submit();
-                }
-            });
-            combateRaiz.appendChild(cerrar);
+            cerrar.className = combateActual.claseBoton;
+            cerrar.textContent = combateActual.cierre.texto;
+            cerrar.addEventListener("click", combateActual.cierre.alPulsar);
+            raiz.appendChild(cerrar);
         }
+    }
+
+    /**
+     * Ventanilla de Reclamaciones (issue #43): combates repetibles contra
+     * funcionarios aleatorios, reutilizando el motor del duelo del caso 6
+     * pero como actividad meta de Prometeo — cero estado en servidor (no
+     * hay caso ni veredicto que persistir; patrón CartaOcultaService), sin
+     * tocar la economía de vida ni la colección de tarot. Recompensa: la
+     * racha en curso (efímera, de esta sesión) y la mejor marca
+     * (coliseoRachaMejor, meta-progresión), más un logro por llegar a 3.
+     */
+    var RIVALES_VENTANILLA = [
+        {
+            nombre: "R. Peñuelas, Ventanilla 3",
+            ataques: [
+                "Eso no es de esta ventanilla.",
+                "Le falta el formulario B-11, que se solicita presentando el formulario B-11.",
+                "Vuelva usted mañana. Hoy ya ha venido."
+            ]
+        },
+        {
+            nombre: "La Encargada de Sellos",
+            ataques: [
+                "Este sello no es válido: lo válido es el sello que valida este sello.",
+                "Sin sello de entrada no hay sello de salida.",
+                "El tampón se está secando. Espere sentado."
+            ]
+        },
+        {
+            nombre: "El Interventor Suplente del Suplente",
+            ataques: [
+                "Yo solo sustituyo a quien podría decirle que no.",
+                "Su expediente lo está estudiando alguien que ya no trabaja aquí.",
+                "No me consta. Y lo que no consta, no existe."
+            ]
+        },
+        {
+            nombre: "Auditoría Interna, Sección Espejos",
+            ataques: [
+                "¿Y a usted quién le audita, exactamente?",
+                "Su firma no coincide con la firma que usted firmará.",
+                "Esto ya lo reclamó usted. En 1987."
+            ]
+        },
+        {
+            nombre: "El Archivero del Turno de Noche",
+            ataques: [
+                "Eso se archivó. Archivado significa olvidado.",
+                "El pasillo del fondo no tiene luz por motivos presupuestarios.",
+                "Si lo busca, lo encontrará. Precisamente por eso no debe buscarlo."
+            ]
+        },
+        {
+            nombre: "Presidencia del Comité de Quejas sobre Quejas",
+            ataques: [
+                "Su queja sobre la queja ha quedado registrada como queja.",
+                "El plazo terminó ayer y empieza mañana.",
+                "Estimamos su reclamación. Estimar no es aceptar."
+            ]
+        }
+    ];
+    var rachaVentanilla = 0;
+
+    function iniciarCombateVentanilla() {
+        if (!ventanillaRaiz) {
+            return;
+        }
+        var rival = RIVALES_VENTANILLA[Math.floor(Math.random() * RIVALES_VENTANILLA.length)];
+        combateActual = {
+            sospechoso: rival.nombre,
+            ataques: rival.ataques,
+            ronda: 0,
+            vidaJugador: VIDA_INICIAL_COMBATE,
+            vidaRival: VIDA_INICIAL_COMBATE,
+            ultimoTipoJugador: null,
+            terminado: null,
+            raiz: ventanillaRaiz,
+            modoRival: "reactiva",
+            claseBoton: "prometeo-btn-secundario",
+            claseNota: "prometeo-ventanilla-nota",
+            alTerminar: resolverFinVentanilla,
+            textoFin: function (resultado) {
+                return resultado === "gano"
+                    ? "Reclamación atendida. Pase el siguiente."
+                    : "El reclamante se ha salido con la suya. Su racha vuelve a cero.";
+            },
+            cierre: {
+                texto: "Llamar al siguiente",
+                alPulsar: iniciarCombateVentanilla
+            }
+        };
+        renderCombate();
+        renderVentanillaEstado();
+        tic(540);
+    }
+
+    function resolverFinVentanilla() {
+        // Deliberadamente sin perderVida() ni desbloquearCarta(): la
+        // Ventanilla no toca el presupuesto de errores de la partida ni la
+        // colección de 22 (el-colgado sigue siendo exclusivo del caso 6).
+        var resultado = PrometeoLogic.actualizarRacha(rachaVentanilla,
+            state.coliseoRachaMejor, combateActual.terminado === "gano");
+        rachaVentanilla = resultado.racha;
+        if (resultado.mejor !== state.coliseoRachaMejor) {
+            state.coliseoRachaMejor = resultado.mejor;
+        }
+        guardarEstado();
+        if (rachaVentanilla >= 3) {
+            desbloquearLogro("ventanilla-tres");
+        }
+        renderVentanillaEstado();
+    }
+
+    function renderVentanillaEstado() {
+        if (!ventanillaRacha) {
+            return;
+        }
+        ventanillaRacha.textContent = "Racha: " + rachaVentanilla
+            + " · Mejor registro: " + state.coliseoRachaMejor;
     }
 
     function mostrarJefeSiHaceFalta() {
@@ -2448,6 +2597,13 @@
             aplicarPistasActivas(activarPistasCheckbox.checked);
             tic(500);
         });
+    }
+
+    if (ventanillaEmpezar) {
+        ventanillaEmpezar.addEventListener("click", function () {
+            iniciarCombateVentanilla();
+        });
+        renderVentanillaEstado();
     }
 
     if (botonTarot) {
