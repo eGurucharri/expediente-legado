@@ -1020,3 +1020,12 @@
     font-style: italic;
     color: #2e4a6b;
 }
+
+/* Issue #46: carta "archivada" — memoria fantasma de partidas anteriores.
+   Se ha visto alguna vez (arte visible) pero no se posee en esta run. */
+.prometeo-tarot-card.is-ghost {
+    opacity: 0.75;
+}
+.prometeo-tarot-card.is-ghost svg {
+    filter: grayscale(1) contrast(0.85);
+}

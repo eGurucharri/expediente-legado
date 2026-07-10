@@ -907,15 +907,30 @@
             datos = {};
         }
 
+        // Issue #46: porRun=true = "expediente de desempeño" (se re-gana
+        // cada partida, lo re-arma reiniciarEstadoPerRun); porRun=false =
+        // vitrina permanente (una vez en la vida).
         var logrosActuales = [
-            { id: "primer-mirada", titulo: "Primer mirada", descripcion: "Abriste el menú de verdad.", desbloqueado: false },
-            { id: "sospecha", titulo: "Sospecha", descripcion: "Te topaste con una verificación falsa.", desbloqueado: false },
-            { id: "primer-expediente", titulo: "Primer expediente", descripcion: "Cerraste un caso con una acusación.", desbloqueado: false },
-            { id: "archivo-completo", titulo: "El archivo completo", descripcion: "Resolviste todos los expedientes a tu cargo.", desbloqueado: false },
-            { id: "acceso-privilegiado", titulo: "Acceso privilegiado", descripcion: "Alguien le franqueó el paso a un nivel que no debería existir.", desbloqueado: false },
-            { id: "reasignado", titulo: "Reasignado", descripcion: "El sistema decidió que ya no le necesitaba.", desbloqueado: false },
-            { id: "final-verdadero", titulo: "Las cuatro cartas", descripcion: "Cerró el archivo sin canjear ni una sola carta.", desbloqueado: false },
-            { id: "ventanilla-tres", titulo: "Constancia registrada", descripcion: "Atendió tres reclamaciones seguidas sin perder la compostura.", desbloqueado: false }
+            { id: "primer-mirada", titulo: "Primer mirada", descripcion: "Abriste el menú de verdad.", desbloqueado: false, porRun: false },
+            { id: "sospecha", titulo: "Sospecha", descripcion: "Te topaste con una verificación falsa.", desbloqueado: false, porRun: false },
+            { id: "primer-expediente", titulo: "Primer expediente", descripcion: "Cerraste un caso con una acusación.", desbloqueado: false, porRun: true },
+            { id: "archivo-completo", titulo: "El archivo completo", descripcion: "Resolviste todos los expedientes a tu cargo.", desbloqueado: false, porRun: true },
+            { id: "acceso-privilegiado", titulo: "Acceso privilegiado", descripcion: "Alguien le franqueó el paso a un nivel que no debería existir.", desbloqueado: false, porRun: false },
+            { id: "reasignado", titulo: "Reasignado", descripcion: "El sistema decidió que ya no le necesitaba.", desbloqueado: false, porRun: true },
+            { id: "final-verdadero", titulo: "Las cuatro cartas", descripcion: "Cerró el archivo sin canjear ni una sola carta.", desbloqueado: false, porRun: false },
+            { id: "ventanilla-tres", titulo: "Constancia registrada", descripcion: "Atendió tres reclamaciones seguidas sin perder la compostura.", desbloqueado: false, porRun: false },
+            { id: "referencias-cruzadas", titulo: "Referencias cruzadas", descripcion: "Encontró todas las conclusiones que exigen combinar documentos.", desbloqueado: false, porRun: true },
+            { id: "lectura-integra", titulo: "Leído de cabo a rabo", descripcion: "Descubrió hasta la última pista del archivo.", desbloqueado: false, porRun: true },
+            { id: "hoja-sin-tacha", titulo: "Hoja de servicio sin tacha", descripcion: "Cerró todos los expedientes a su cargo sin perder una sola vida.", desbloqueado: false, porRun: true },
+            { id: "disciplina-de-partido", titulo: "Disciplina de partido", descripcion: "Respondió las ocho historias con la misma ideología, pasara lo que pasara.", desbloqueado: false, porRun: true },
+            { id: "instinto-de-archivo", titulo: "Instinto de archivo", descripcion: "Las ocho decisiones fueron la útil para el expediente. Ninguna por convicción.", desbloqueado: false, porRun: true },
+            { id: "metodo-del-descarte", titulo: "El método del descarte", descripcion: "Las ocho decisiones sembraron confusión. El archivo tomó nota.", desbloqueado: false, porRun: true },
+            { id: "papeleta-depositada", titulo: "Papeleta depositada", descripcion: "Llegó a un final político, fuera el que fuera.", desbloqueado: false, porRun: true },
+            { id: "ultimo-recurso", titulo: "Último recurso ejercido", descripcion: "Canjeó una carta por una vida. Consta en acta.", desbloqueado: false, porRun: true },
+            { id: "funcionario-del-mes", titulo: "Funcionario del mes", descripcion: "Cinco reclamaciones seguidas atendidas en la Ventanilla.", desbloqueado: false, porRun: false },
+            { id: "ventanilla-inagotable", titulo: "Ventanilla inagotable", descripcion: "Diez reclamaciones seguidas. El mostrador ya tiene su forma.", desbloqueado: false, porRun: false },
+            { id: "careo-a-puerta-cerrada", titulo: "Careo a puerta cerrada", descripcion: "Ganó un enfrentamiento que oficialmente nunca tuvo lugar.", desbloqueado: false, porRun: false },
+            { id: "la-garganta-abierta", titulo: "La garganta abierta", descripcion: "Se quedó mirando el sistema hasta que el sistema le devolvió la mirada.", desbloqueado: false, porRun: false }
         ];
 
         var tarotActual = [
@@ -948,6 +963,18 @@
             { "la-sacerdotisa": "el-ojo", "el-hierofante": "la-sombra", "el-emperador": "el-hombre-amarillo" });
         var dificultad = (datos.dificultad && DIFICULTADES[datos.dificultad]) ? datos.dificultad : "normal";
 
+        // Issue #46: memoria fantasma del tarot — qué cartas se han VISTO
+        // alguna vez (meta, sobrevive a todo). La posesión (collected/
+        // gastada) es per-run. Migración auto-curativa: lo que esté
+        // coleccionado al cargar queda registrado como conocido, así los
+        // jugadores anteriores a este cambio no pierden su galería.
+        var cartasConocidas = datos.cartasConocidas || {};
+        tarot.forEach(function (carta) {
+            if (carta.collected) {
+                cartasConocidas[carta.id] = true;
+            }
+        });
+
         return {
             logros: logros,
             tarot: tarot,
@@ -969,7 +996,9 @@
             saludoVisto: Boolean(datos.saludoVisto),
             pistasActivas: Boolean(datos.pistasActivas),
             epilogoAvisado: Boolean(datos.epilogoAvisado),
-            coliseoRachaMejor: typeof datos.coliseoRachaMejor === "number" ? datos.coliseoRachaMejor : 0
+            coliseoRachaMejor: typeof datos.coliseoRachaMejor === "number" ? datos.coliseoRachaMejor : 0,
+            cartasConocidas: cartasConocidas,
+            perdioVidaEnEstaVuelta: Boolean(datos.perdioVidaEnEstaVuelta)
         };
     }
 
@@ -1013,11 +1042,25 @@
         }
 
         logrosLista.innerHTML = "";
-        state.logros.forEach(function (logro) {
-            var item = document.createElement("article");
-            item.className = "prometeo-achievement-item" + (logro.desbloqueado ? " is-unlocked" : "");
-            item.innerHTML = "<strong>" + logro.titulo + "</strong><span>" + logro.descripcion + "</span>";
-            logrosLista.appendChild(item);
+        // Issue #46: dos grupos — el desempeño de la partida se re-gana en
+        // cada vuelta (lo re-arma reiniciarEstadoPerRun); la vitrina es de
+        // por vida. Con la cabecera, re-bloquearse no parece un bug.
+        [
+            { titulo: "Desempeño de esta partida", porRun: true },
+            { titulo: "Vitrina permanente", porRun: false }
+        ].forEach(function (grupo) {
+            var cabecera = document.createElement("p");
+            cabecera.className = "prometeo-menu-grupo-titulo";
+            cabecera.textContent = grupo.titulo;
+            logrosLista.appendChild(cabecera);
+            state.logros.filter(function (logro) {
+                return Boolean(logro.porRun) === grupo.porRun;
+            }).forEach(function (logro) {
+                var item = document.createElement("article");
+                item.className = "prometeo-achievement-item" + (logro.desbloqueado ? " is-unlocked" : "");
+                item.innerHTML = "<strong>" + logro.titulo + "</strong><span>" + logro.descripcion + "</span>";
+                logrosLista.appendChild(item);
+            });
         });
     }
 
@@ -1029,25 +1072,38 @@
         var coleccionadas = state.tarot.filter(function (carta) {
             return carta.collected;
         }).length;
-        contadorTarot.textContent = coleccionadas + " / " + state.tarot.length + " cartas reveladas";
+        var archivadas = state.tarot.filter(function (carta) {
+            return !carta.collected && state.cartasConocidas[carta.id];
+        }).length;
+        contadorTarot.textContent = coleccionadas + " / " + state.tarot.length + " cartas reveladas"
+            + (archivadas > 0 ? " · " + archivadas + " en el archivo" : "");
         tarotLista.innerHTML = "";
 
         state.tarot.forEach(function (carta) {
+            // Issue #46: tres estados — revelada (posesión de ESTA partida),
+            // archivada (fantasma: vista en alguna partida anterior, arte en
+            // gris) y sellada (nunca vista, solo el requisito).
+            var fantasma = !carta.collected && state.cartasConocidas[carta.id];
             var card = document.createElement("article");
-            card.className = "prometeo-tarot-card" + (carta.collected ? " is-collected" : " is-sealed");
-            var arte = carta.collected ? pixelArtSvg(carta.id) : "";
+            card.className = "prometeo-tarot-card"
+                + (carta.collected ? " is-collected" : (fantasma ? " is-ghost" : " is-sealed"));
+            var arte = (carta.collected || fantasma) ? pixelArtSvg(carta.id) : "";
             // Issue #44: el canje es un último recurso, no una recarga —
             // solo se ofrece con la vida a cero (protege la colección del
             // final verdadero de canjes rutinarios).
             var canjear = (carta.collected && !carta.gastada && state.vida === 0)
                 ? "<button type='button' class='prometeo-btn-secundario prometeo-tarot-canjear' data-canjear-carta='" + carta.id + "'>Canjear por una vida</button>"
                 : "";
+            var requisito = carta.requisito
+                ? "<small class='prometeo-tarot-requisito'>" + carta.requisito + "</small>"
+                : "";
             var estadoPie = carta.gastada
                 ? "<span class='prometeo-pill'>Gastada</span>"
                 : (carta.collected
                     ? "<span class='prometeo-pill'>Revelada</span>"
-                    : "<span class='prometeo-pill'>Sellada</span>" +
-                        (carta.requisito ? "<small class='prometeo-tarot-requisito'>" + carta.requisito + "</small>" : ""));
+                    : (fantasma
+                        ? "<span class='prometeo-pill'>Archivada</span>" + requisito
+                        : "<span class='prometeo-pill'>Sellada</span>" + requisito));
             card.innerHTML = "<div class='prometeo-tarot-card-cuerpo'>" + arte +
                 "<div><strong>" + carta.nombre + "</strong><small>" + carta.descripcion + "</small>" + canjear + "</div></div>" +
                 estadoPie;
@@ -1067,7 +1123,13 @@
      * falten. Devuelve true si algo cambió, para poder avisar al jugador.
      */
     function desbloquearCarta(id) {
-        return PrometeoLogic.desbloquearCartaEnLista(state.tarot, id);
+        var novedad = PrometeoLogic.desbloquearCartaEnLista(state.tarot, id);
+        if (novedad) {
+            // Memoria fantasma (issue #46): verla una vez es para siempre,
+            // aunque la posesión sea de esta partida.
+            state.cartasConocidas[id] = true;
+        }
+        return novedad;
     }
 
     function sincronizarConEstadoReal() {
@@ -1091,33 +1153,27 @@
         if (state.dificultad === "dificil" && desbloquearCarta("la-fuerza")) {
             huboNovedad = true;
         }
-        if (state.perdioVidaAlgunaVez && desbloquearCarta("el-ermitanio")) {
-            huboNovedad = true;
-        }
-        if (state.ganoCombateAlgunaVez && desbloquearCarta("el-colgado")) {
-            huboNovedad = true;
-        }
-        if (state.pasoPorDespidoAlgunaVez && desbloquearCarta("la-muerte")) {
-            huboNovedad = true;
-        }
+        // Issue #46: el-ermitanio, el-colgado, la-muerte, la-torre y
+        // el-diablo ya no se sincronizan aquí desde flags "algunaVez"
+        // (de por vida): con la posesión del tarot per-run se re-ganan en
+        // el momento del evento de ESTA partida (perderVida, fin de
+        // combate, despido, final alternativo, captcha). Los flags
+        // "algunaVez" siguen escribiéndose como memoria de por vida.
         if (state.tarot.some(function (c) { return c.gastada; }) && desbloquearCarta("la-templanza")) {
-            huboNovedad = true;
-        }
-        var logroSospecha = state.logros.find(function (l) {
-            return l.id === "sospecha";
-        });
-        if (logroSospecha && logroSospecha.desbloqueado && desbloquearCarta("el-diablo")) {
-            huboNovedad = true;
-        }
-        if (state.vioFinalAlternativoAlgunaVez && desbloquearCarta("la-torre")) {
             huboNovedad = true;
         }
         if (real.pistasDescubiertas >= 20 && desbloquearCarta("la-estrella")) {
             huboNovedad = true;
         }
 
+        // Issue #46 (hallazgo del asesor): la-templanza queda FUERA del set
+        // de el-mundo — coleccionarla exige una carta gastada, y el-mundo
+        // exige cero gastadas, así que con ella dentro el final verdadero
+        // era inalcanzable por construcción. Ahora la-templanza es
+        // exactamente lo que dice su ficción: la carta que solo se tiene
+        // en la partida en la que se renunció al final verdadero.
         var otrasCompletas = state.tarot.filter(function (c) {
-            return c.id !== "el-mundo";
+            return c.id !== "el-mundo" && c.id !== "la-templanza";
         }).every(function (c) {
             return c.collected && !c.gastada;
         });
@@ -1129,11 +1185,40 @@
         if (real.veredictosEmitidos >= 1 && desbloquearLogro("primer-expediente")) {
             huboNovedad = true;
         }
-        if (real.totalCasosPrincipales > 0 && real.casosResueltos >= real.totalCasosPrincipales
-                && desbloquearLogro("archivo-completo")) {
+        var archivoCompleto = real.totalCasosPrincipales > 0
+            && real.casosResueltos >= real.totalCasosPrincipales;
+        if (archivoCompleto && desbloquearLogro("archivo-completo")) {
             huboNovedad = true;
         }
         if (real.esAdmin && desbloquearLogro("acceso-privilegiado")) {
+            huboNovedad = true;
+        }
+        // Issue #46: logros de desempeño derivados del progreso real.
+        if (real.totalPistas > 0 && real.pistasDescubiertas === real.totalPistas
+                && desbloquearLogro("lectura-integra")) {
+            huboNovedad = true;
+        }
+        if (real.casos && real.casos.length > 0 && real.casos.every(function (c) {
+            return !c.tieneConclusionesPendientes;
+        }) && desbloquearLogro("referencias-cruzadas")) {
+            huboNovedad = true;
+        }
+        if (archivoCompleto && !state.perdioVidaEnEstaVuelta
+                && desbloquearLogro("hoja-sin-tacha")) {
+            huboNovedad = true;
+        }
+        // Issue #46: vitrina respaldada por memoria de por vida (cubre
+        // también a jugadores que ya lo lograron antes de existir el logro).
+        if (state.coliseoRachaMejor >= 5 && desbloquearLogro("funcionario-del-mes")) {
+            huboNovedad = true;
+        }
+        if (state.coliseoRachaMejor >= 10 && desbloquearLogro("ventanilla-inagotable")) {
+            huboNovedad = true;
+        }
+        if (state.ganoCombateAlgunaVez && desbloquearLogro("careo-a-puerta-cerrada")) {
+            huboNovedad = true;
+        }
+        if (state.vioFinalAlternativoAlgunaVez && desbloquearLogro("la-garganta-abierta")) {
             huboNovedad = true;
         }
 
@@ -1181,6 +1266,9 @@
         state.despidoShown = true;
         guardarEstado();
         desbloquearLogro("reasignado");
+        if (desbloquearCarta("la-muerte")) {
+            renderTarot();
+        }
         tic(220);
     }
 
@@ -1189,6 +1277,13 @@
         state.vida = Math.max(0, state.vida - cantidad);
         if (state.vida < anterior) {
             state.perdioVidaAlgunaVez = true;
+            state.perdioVidaEnEstaVuelta = true;
+            // Issue #46: la carta se re-gana perdiendo una vida en ESTA
+            // partida (el flag "algunaVez" es solo memoria de por vida).
+            if (desbloquearCarta("el-ermitanio")) {
+                marcarProgreso();
+                renderTarot();
+            }
         }
         guardarEstado();
         renderVida();
@@ -1239,6 +1334,7 @@
             state.despidoShown = false;
         }
         guardarEstado();
+        desbloquearLogro("ultimo-recurso");
         renderVida();
         renderTarot();
         tic(900);
@@ -1278,12 +1374,16 @@
      *
      * historiasCartas y finalPoliticoShown (issue #45) también son per-run:
      * las DECISIONES políticas se re-responden cada partida (y con ellas el
-     * final político y las cargas de habilidad), mientras que las CARTAS
-     * coleccionadas viven en tarot[] y no se tocan — la colección multi-run
-     * de el-mundo queda intacta, y el hotspot vuelve a ser respondible
-     * porque CartaOcultaService no guarda estado en servidor.
+     * final político y las cargas de habilidad).
+     *
+     * Desde el issue #46 el tarot entero es posesión per-run (cada partida
+     * se re-gana desde El Loco, y el final verdadero — el-mundo sin gastar
+     * ninguna — es la partida perfecta, re-conquistable como el político),
+     * con memoria fantasma meta en cartasConocidas. Los logros marcados
+     * porRun ("expediente de desempeño") se re-ganan también; el resto es
+     * vitrina permanente.
      */
-    function reiniciarVidaSiPartidaNueva() {
+    function reiniciarEstadoPerRun() {
         if (!real) {
             return;
         }
@@ -1294,13 +1394,17 @@
         }
         var max = DIFICULTADES[state.dificultad].vidasMax;
         var hayDecisiones = Object.keys(state.historiasCartas).length > 0;
+        var hayTarotDeRun = state.tarot.some(function (c) {
+            return (c.collected && c.id !== "el-loco") || c.gastada;
+        });
+        var hayLogrosDeRun = state.logros.some(function (l) {
+            return l.porRun && l.desbloqueado;
+        });
         if (state.vida < max || state.despidoShown || state.epilogoAvisado
-                || hayDecisiones || state.finalPoliticoShown) {
-            state.vida = max;
-            state.despidoShown = false;
-            state.epilogoAvisado = false;
-            state.historiasCartas = {};
-            state.finalPoliticoShown = false;
+                || hayDecisiones || state.finalPoliticoShown
+                || hayTarotDeRun || hayLogrosDeRun || state.finalVerdaderoShown
+                || state.perdioVidaEnEstaVuelta) {
+            PrometeoLogic.reiniciarEstadoPerRunEnEstado(state, max);
             guardarEstado();
         }
     }
@@ -1391,6 +1495,38 @@
         tic(660);
     }
 
+    /**
+     * Issue #46: logros de la run política, evaluados al responder la
+     * octava historia. Por la invariante 4/4 de UTILIDAD_CARTAS,
+     * disciplina-de-partido e instinto-de-archivo son mutuamente
+     * excluyentes (una run mono-eje da exactamente 4 útiles): dos metas
+     * de run genuinamente distintas.
+     */
+    function comprobarLogrosPoliticos() {
+        var ids = Object.keys(HISTORIAS_CARTAS);
+        var todas = ids.every(function (id) {
+            return Boolean(state.historiasCartas[id]);
+        });
+        if (!todas) {
+            return;
+        }
+        var ejes = ids.map(function (id) {
+            return state.historiasCartas[id];
+        });
+        if (ejes.every(function (e) { return e === ejes[0]; })) {
+            desbloquearLogro("disciplina-de-partido");
+        }
+        var clasificaciones = ids.map(function (id) {
+            return PrometeoLogic.clasificarEleccion(id, state.historiasCartas[id]);
+        });
+        if (clasificaciones.every(function (c) { return c === "pista"; })) {
+            desbloquearLogro("instinto-de-archivo");
+        }
+        if (clasificaciones.every(function (c) { return c === "confusion"; })) {
+            desbloquearLogro("metodo-del-descarte");
+        }
+    }
+
     function resolverHistoriaCarta(cartaId, eje) {
         state.historiasCartas[cartaId] = eje;
         guardarEstado();
@@ -1404,6 +1540,7 @@
             renderLogros();
         }
         mostrarHistoriaCarta(cartaId);
+        comprobarLogrosPoliticos();
         comprobarFinalPolitico();
         tic(900);
     }
@@ -1440,6 +1577,7 @@
         atraparFoco(finalPoliticoModal);
         state.finalPoliticoShown = true;
         guardarEstado();
+        desbloquearLogro("papeleta-depositada");
         tic(1046);
     }
 
@@ -1638,6 +1776,7 @@
         if (combateActual.terminado === "gano") {
             state.ganoCombateAlgunaVez = true;
             guardarEstado();
+            desbloquearLogro("careo-a-puerta-cerrada");
             if (desbloquearCarta("el-colgado")) {
                 marcarProgreso();
                 renderTarot();
@@ -1891,6 +2030,12 @@
         guardarEstado();
         if (rachaVentanilla >= 3) {
             desbloquearLogro("ventanilla-tres");
+        }
+        if (state.coliseoRachaMejor >= 5) {
+            desbloquearLogro("funcionario-del-mes");
+        }
+        if (state.coliseoRachaMejor >= 10) {
+            desbloquearLogro("ventanilla-inagotable");
         }
         renderVentanillaEstado();
     }
@@ -2333,6 +2478,12 @@
             boton.focus();
         }
         desbloquearLogro("sospecha");
+        // Issue #46: el-diablo se re-gana topándose con la verificación
+        // falsa en ESTA partida (antes se sincronizaba desde el logro
+        // "sospecha", que ahora es de vitrina permanente).
+        if (desbloquearCarta("el-diablo")) {
+            renderTarot();
+        }
         tic(780);
     }
 
@@ -2433,6 +2584,10 @@
         atraparFoco(finalAlternativo);
         state.finalShown = true;
         state.vioFinalAlternativoAlgunaVez = true;
+        if (desbloquearCarta("la-torre")) {
+            renderTarot();
+        }
+        desbloquearLogro("la-garganta-abierta");
         guardarEstado();
         tic(300);
     }
@@ -2575,7 +2730,7 @@
     document.addEventListener("pointerdown", primerGestoReal, { once: true });
     document.addEventListener("keydown", primerGestoReal, { once: true });
 
-    reiniciarVidaSiPartidaNueva();
+    reiniciarEstadoPerRun();
     renderLogros();
     renderTarot();
     renderVida();

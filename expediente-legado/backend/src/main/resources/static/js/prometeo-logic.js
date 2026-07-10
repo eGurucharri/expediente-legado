@@ -176,6 +176,35 @@
         return { racha: nueva, mejor: Math.max(mejor, nueva) };
     }
 
+    /**
+     * Issue #46: el borrado per-run — la frontera más delicada del estado.
+     * Muta y devuelve el estado dejando SOLO lo per-run a cero: vida al
+     * máximo, avisos de la vuelta re-armados, decisiones políticas vacías,
+     * finales re-conquistables, tarot en posesión inicial (El Loco) y
+     * logros de desempeño re-bloqueados. NO toca: cartasConocidas (memoria
+     * fantasma), coliseoRachaMejor, dificultad, logros de vitrina
+     * (porRun=false) ni los flags "algunaVez" de por vida.
+     */
+    function reiniciarEstadoPerRunEnEstado(estado, vidaMax) {
+        estado.vida = vidaMax;
+        estado.despidoShown = false;
+        estado.epilogoAvisado = false;
+        estado.historiasCartas = {};
+        estado.finalPoliticoShown = false;
+        estado.finalVerdaderoShown = false;
+        estado.perdioVidaEnEstaVuelta = false;
+        estado.tarot.forEach(function (carta) {
+            carta.collected = carta.id === "el-loco";
+            carta.gastada = false;
+        });
+        estado.logros.forEach(function (logro) {
+            if (logro.porRun) {
+                logro.desbloqueado = false;
+            }
+        });
+        return estado;
+    }
+
     return {
         fusionarConGuardado: fusionarConGuardado,
         desbloquearCartaEnLista: desbloquearCartaEnLista,
@@ -185,6 +214,7 @@
         actualizarRacha: actualizarRacha,
         UTILIDAD_CARTAS: UTILIDAD_CARTAS,
         clasificarEleccion: clasificarEleccion,
-        contarPuntosPorEje: contarPuntosPorEje
+        contarPuntosPorEje: contarPuntosPorEje,
+        reiniciarEstadoPerRunEnEstado: reiniciarEstadoPerRunEnEstado
     };
 });
