@@ -98,6 +98,51 @@
     }
 
     /**
+     * Issue #45: en cada historia política hay 2 opciones "útiles" (su
+     * secuela apunta a una pista real todavía por descubrir de ese caso) y
+     * 2 "de confusión" (pista falsa). La corrección es POR SITUACIÓN, no
+     * por ideología: cada eje es útil exactamente en 4 de las 8 cartas
+     * (invariante testeada), así que no se puede leer "el juego dice que X
+     * es la ideología buena". El tally del final político (calcularEjeGanador)
+     * es ortogonal a esto y sigue siendo 100% ideológico.
+     */
+    var UTILIDAD_CARTAS = {
+        "la-justicia": ["comunismo", "socialdemocrata"],
+        "la-rueda": ["centrista", "neoliberal"],
+        "el-juicio": ["comunismo", "socialdemocrata"],
+        "la-luna": ["centrista", "neoliberal"],
+        "el-carro": ["comunismo", "centrista"],
+        "el-sol": ["socialdemocrata", "neoliberal"],
+        "la-emperatriz": ["socialdemocrata", "neoliberal"],
+        "la-sacerdotisa": ["comunismo", "centrista"]
+    };
+
+    function clasificarEleccion(cartaId, eje) {
+        var utiles = UTILIDAD_CARTAS[cartaId] || [];
+        return utiles.indexOf(eje) !== -1 ? "pista" : "confusion";
+    }
+
+    /**
+     * Cuenta las elecciones de esta partida por eje político. Es el mismo
+     * conteo que decide el final político, expuesto como recuento: sirve de
+     * "puntos de ideología" para las cargas de habilidad en combate
+     * (issue #45) — la run política ES el equipamiento, sin asignación.
+     */
+    function contarPuntosPorEje(historiasCartas, idsHistorias, ordenEjes) {
+        var conteo = {};
+        ordenEjes.forEach(function (eje) {
+            conteo[eje] = 0;
+        });
+        idsHistorias.forEach(function (id) {
+            var eje = historiasCartas[id];
+            if (Object.prototype.hasOwnProperty.call(conteo, eje)) {
+                conteo[eje]++;
+            }
+        });
+        return conteo;
+    }
+
+    /**
      * Índice de la jugada del rival para esta ronda de combate. El modo
      * "ciclo" reproduce el ritmo autorado del duelo del caso 6 (issue #21:
      * determinista, aprendible — es una escena, no un desafío repetible).
@@ -137,6 +182,9 @@
         esAcusacionPrecipitada: esAcusacionPrecipitada,
         calcularEjeGanador: calcularEjeGanador,
         indiceJugadaRival: indiceJugadaRival,
-        actualizarRacha: actualizarRacha
+        actualizarRacha: actualizarRacha,
+        UTILIDAD_CARTAS: UTILIDAD_CARTAS,
+        clasificarEleccion: clasificarEleccion,
+        contarPuntosPorEje: contarPuntosPorEje
     };
 });
