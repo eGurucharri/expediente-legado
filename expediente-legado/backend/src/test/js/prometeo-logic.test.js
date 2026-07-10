@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import PrometeoLogic from "../../main/resources/static/js/prometeo-logic.js";
 
-const { fusionarConGuardado, desbloquearCartaEnLista, esAcusacionPrecipitada, calcularEjeGanador, indiceJugadaRival, actualizarRacha, UTILIDAD_CARTAS, clasificarEleccion, contarPuntosPorEje } = PrometeoLogic;
+const { fusionarConGuardado, desbloquearCartaEnLista, esAcusacionPrecipitada, calcularEjeGanador, indiceJugadaRival, actualizarRacha, UTILIDAD_CARTAS, clasificarEleccion, contarPuntosPorEje, reiniciarEstadoPerRunEnEstado } = PrometeoLogic;
 
 describe("fusionarConGuardado", () => {
     it("conserva los campos de estado del guardado y adopta los metadatos actuales", () => {
@@ -190,5 +190,57 @@ describe("contarPuntosPorEje", () => {
         const historias = { a: "eje-fantasma" };
         expect(contarPuntosPorEje(historias, ["a", "b"], EJES))
             .toEqual({ comunismo: 0, centrista: 0, socialdemocrata: 0, neoliberal: 0 });
+    });
+});
+
+describe("reiniciarEstadoPerRunEnEstado", () => {
+    const estadoDeEjemplo = () => ({
+        vida: 0,
+        despidoShown: true,
+        epilogoAvisado: true,
+        historiasCartas: { "la-justicia": "comunismo" },
+        finalPoliticoShown: true,
+        finalVerdaderoShown: true,
+        perdioVidaEnEstaVuelta: true,
+        dificultad: "dificil",
+        coliseoRachaMejor: 7,
+        cartasConocidas: { "el-mago": true, "la-muerte": true },
+        pasoPorDespidoAlgunaVez: true,
+        tarot: [
+            { id: "el-loco", collected: true, gastada: false },
+            { id: "el-mago", collected: true, gastada: false },
+            { id: "la-muerte", collected: true, gastada: true }
+        ],
+        logros: [
+            { id: "archivo-completo", desbloqueado: true, porRun: true },
+            { id: "final-verdadero", desbloqueado: true, porRun: false }
+        ]
+    });
+
+    it("borra SOLO lo per-run: vida, avisos, decisiones, finales, tarot y logros de desempeño", () => {
+        const e = reiniciarEstadoPerRunEnEstado(estadoDeEjemplo(), 3);
+
+        expect(e.vida).toBe(3);
+        expect(e.despidoShown).toBe(false);
+        expect(e.epilogoAvisado).toBe(false);
+        expect(e.historiasCartas).toEqual({});
+        expect(e.finalPoliticoShown).toBe(false);
+        expect(e.finalVerdaderoShown).toBe(false);
+        expect(e.perdioVidaEnEstaVuelta).toBe(false);
+        expect(e.tarot.find(c => c.id === "el-loco").collected).toBe(true);
+        expect(e.tarot.find(c => c.id === "el-mago").collected).toBe(false);
+        expect(e.tarot.find(c => c.id === "la-muerte").collected).toBe(false);
+        expect(e.tarot.find(c => c.id === "la-muerte").gastada).toBe(false);
+        expect(e.logros.find(l => l.id === "archivo-completo").desbloqueado).toBe(false);
+    });
+
+    it("NO toca la memoria de por vida: fantasmas, mejor racha, dificultad, vitrina y flags algunaVez", () => {
+        const e = reiniciarEstadoPerRunEnEstado(estadoDeEjemplo(), 3);
+
+        expect(e.cartasConocidas).toEqual({ "el-mago": true, "la-muerte": true });
+        expect(e.coliseoRachaMejor).toBe(7);
+        expect(e.dificultad).toBe("dificil");
+        expect(e.logros.find(l => l.id === "final-verdadero").desbloqueado).toBe(true);
+        expect(e.pasoPorDespidoAlgunaVez).toBe(true);
     });
 });
