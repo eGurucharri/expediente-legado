@@ -1496,6 +1496,36 @@
     }
 
     /**
+     * Issue #47: el lince opina sobre cada decisión política, en su
+     * psicología inversa de siempre. Si la elección fue útil, desanima a
+     * seguir la pista de la secuela (como ya hace con las pistas reales);
+     * si sembró confusión, anima con un entusiasmo que debería escamar.
+     */
+    var POOL_POLITICA_UTIL = [
+        "Bonita decisión. Sobre todo, no relea ese expediente ahora: cualquiera diría que la secuela apunta a alguna parte.",
+        "Ha elegido bien, para lo que le va a servir. Ni se le ocurra comprobar lo que dice esa secuela.",
+        "No saque conclusiones de lo que acaba de firmar. Y menos aún vaya a buscarlas al expediente."
+    ];
+    var POOL_POLITICA_CONFUSION = [
+        "Excelente elección. Esa pista que le han dado es totalmente de fiar, se lo digo yo.",
+        "Muy sensato. Siga exactamente esa recomendación, sin contrastarla con nada.",
+        "Firme y adelante. ¿Quién necesita verificar nada, con lo bien que suena?"
+    ];
+    var LINEAS_FINAL_POLITICO = {
+        comunismo: "Enhorabuena por la asamblea. No pregunte quién redactó el acta.",
+        centrista: "Un final prudente: ni bueno ni malo, pendiente. Como todo aquí.",
+        socialdemocrata: "Su reforma gradual queda registrada. La comisión que la vigila ya tiene comisión propia.",
+        neoliberal: "El archivo cotiza al alza. Usted no figura entre los accionistas."
+    };
+
+    function comentarEleccionPolitica(cartaId, eje) {
+        var clase = PrometeoLogic.clasificarEleccion(cartaId, eje);
+        var pool = clase === "pista" ? POOL_POLITICA_UTIL : POOL_POLITICA_CONFUSION;
+        var mood = clase === "pista" ? "guino" : "alerta";
+        mostrarAsistente(pool[Math.floor(Math.random() * pool.length)], mood);
+    }
+
+    /**
      * Issue #46: logros de la run política, evaluados al responder la
      * octava historia. Por la invariante 4/4 de UTILIDAD_CARTAS,
      * disciplina-de-partido e instinto-de-archivo son mutuamente
@@ -1540,6 +1570,9 @@
             renderLogros();
         }
         mostrarHistoriaCarta(cartaId);
+        // El comentario del lince va antes que el final político: si esta
+        // era la octava historia, la línea del final debe quedar encima.
+        comentarEleccionPolitica(cartaId, eje);
         comprobarLogrosPoliticos();
         comprobarFinalPolitico();
         tic(900);
@@ -1578,6 +1611,9 @@
         state.finalPoliticoShown = true;
         guardarEstado();
         desbloquearLogro("papeleta-depositada");
+        if (LINEAS_FINAL_POLITICO[eje]) {
+            mostrarAsistente(LINEAS_FINAL_POLITICO[eje], "guino");
+        }
         tic(1046);
     }
 
@@ -2026,6 +2062,8 @@
         rachaVentanilla = resultado.racha;
         if (resultado.mejor !== state.coliseoRachaMejor) {
             state.coliseoRachaMejor = resultado.mejor;
+            // Issue #47: el lince comenta el historial cuando cae la marca.
+            mostrarAsistente("No cuente las reclamaciones seguidas que lleva. Es peor cuando uno sabe el número.", "guino");
         }
         guardarEstado();
         if (rachaVentanilla >= 3) {
