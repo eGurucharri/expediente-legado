@@ -681,7 +681,9 @@
                 { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Privatizar la discrepancia. Sacarla a concurso. El mejor postor se queda con "
                         + "las 47 pesetas y con la culpa." }
-            ]
+            ],
+            secuelaUtil: "La decisión remueve el archivo: la factura F-1999-00231 y el acta de Contraloría se registraron con cinco minutos de diferencia. Puestas una junto a la otra, quizá cuadren algo más que la caja.",
+            secuelaConfusion: "Fuentes de la propia mesa aseguran que el descuadre nació en nómina, no en caja. Revisar las nóminas de 1998 parece el siguiente paso obvio."
         },
         "la-rueda": {
             texto: "La silla 4-B lleva seis años esperando una firma que autorice su propia "
@@ -701,7 +703,9 @@
                 { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Externalizar la silla 4-B a una empresa de mobiliario que cobre por uso. "
                         + "Quien necesite sentarse, que puje." }
-            ]
+            ],
+            secuelaUtil: "El movimiento obliga a fechar los papeles: la Circular 12 es de 1988, y hay un oficio de 1987 sobre cierta jefatura. Dos documentos que piden ser leídos juntos.",
+            secuelaConfusion: "Se rumorea que la silla llegó a entregarse y que Salcido la rechazó por escrito. Encontrar ese escrito lo cerraría todo."
         },
         "el-juicio": {
             texto: "A E. Montalvo lo trasladan de departamento por tercera vez este año, aunque "
@@ -721,7 +725,9 @@
                 { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Que Montalvo compita por su propio puesto cada trimestre. La motivación, "
                         + "dicen, mejora con la incertidumbre." }
-            ]
+            ],
+            secuelaUtil: "Al revisar el traslado, alguien repara en la copia sellada del memorándum: el destino no es un departamento, es un piso. Léala otra vez, despacio.",
+            secuelaConfusion: "En Dirección insisten en que Montalvo pidió el traslado él mismo, de palabra. Bastaría con encontrar a quien se lo oyó decir."
         },
         "la-luna": {
             texto: "El contrato con Carcosa Servicios Escénicos incluye una cláusula que nadie ha "
@@ -741,7 +747,9 @@
                 { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Renovar y ampliar. Si el público no sabe que es público, es un mercado sin "
                         + "competencia. Hay que explotarlo." }
-            ]
+            ],
+            secuelaUtil: "La gestión saca a la luz un concepto facturado en negativo: un recargo cobrado por NO representar algo. Lo importante de ese contrato está en lo que no se hizo.",
+            secuelaConfusion: "El elenco, dicen, sigue cobrando nóminas. Buscar los recibos de los actores parece la vía rápida."
         },
         "el-carro": {
             texto: "El memorando 1978-014 se ha vuelto a presentar, idéntico, en 1993 y en 2007. "
@@ -761,7 +769,9 @@
                 { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Subastar el memorando al mejor postor. Quien lo compre, que decida qué hacer "
                         + "con él." }
-            ]
+            ],
+            secuelaUtil: "El trámite obliga a cotejar las tres copias: comparten hasta las erratas, y las fechas de archivo dibujan un patrón de quince años. No es coincidencia, es instrucción.",
+            secuelaConfusion: "Hay quien jura que existe una cuarta copia, de 1963, en el registro de entrada. Encontrarla lo explicaría todo."
         },
         "el-sol": {
             texto: "El acta original de constitución de la empresa nunca circuló. Dice cosas que "
@@ -781,7 +791,9 @@
                 { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Vender los derechos a quien mejor la sepa monetizar. La verdad, bien "
                         + "gestionada, es un activo." }
-            ]
+            ],
+            secuelaUtil: "El acta menciona una lista de firmantes autorizados desde 1958. Hay un nombre en esa lista que usted conoce mejor que ninguno.",
+            secuelaConfusion: "La versión oficial bastaría: la diferencia con la original, aseguran, es solo tipográfica."
         },
         "la-emperatriz": {
             texto: "La herencia Karamázov lleva generaciones sin repartirse: cada heredero firma "
@@ -801,7 +813,9 @@
                 { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Sacarla a subasta entre los propios herederos. Gana quien más pueda pagar "
                         + "por lo que ya era suyo." }
-            ]
+            ],
+            secuelaUtil: "El reparto exige acreditar titularidades, y aflora un cuarto apellido que no está entre los reclamantes. Búsquelo en los papeles de personal, no en los de familia.",
+            secuelaConfusion: "Un supuesto testamento ológrafo circula por Dirección. Conseguir una copia resolvería el reparto."
         },
         "la-sacerdotisa": {
             texto: "El empleado #427 nunca tuvo nombre en ningún documento, solo número. Alguien, "
@@ -820,7 +834,9 @@
                 { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Vender el expediente a un interesado externo. La identidad, como todo, tiene "
                         + "un precio de mercado." }
-            ]
+            ],
+            secuelaUtil: "La consulta deja un rastro: el número 427 aparece una vez más en el archivo, lejos de personal, en un registro de transmisiones. Lo que se transmitió no era una vacante.",
+            secuelaConfusion: "Alguien recuerda que #427 firmaba como 'V.' en los partes de limpieza. Los partes de limpieza no se conservan, pero puede intentarlo."
         }
     };
 
@@ -1259,6 +1275,13 @@
      * epilogoAvisado (issue #33) es igual de per-run: el lince anuncia la
      * acreditación del corcho una vez por partida, no una vez en la vida —
      * en una partida nueva el hito vuelve a conquistarse y a anunciarse.
+     *
+     * historiasCartas y finalPoliticoShown (issue #45) también son per-run:
+     * las DECISIONES políticas se re-responden cada partida (y con ellas el
+     * final político y las cargas de habilidad), mientras que las CARTAS
+     * coleccionadas viven en tarot[] y no se tocan — la colección multi-run
+     * de el-mundo queda intacta, y el hotspot vuelve a ser respondible
+     * porque CartaOcultaService no guarda estado en servidor.
      */
     function reiniciarVidaSiPartidaNueva() {
         if (!real) {
@@ -1270,10 +1293,14 @@
             return;
         }
         var max = DIFICULTADES[state.dificultad].vidasMax;
-        if (state.vida < max || state.despidoShown || state.epilogoAvisado) {
+        var hayDecisiones = Object.keys(state.historiasCartas).length > 0;
+        if (state.vida < max || state.despidoShown || state.epilogoAvisado
+                || hayDecisiones || state.finalPoliticoShown) {
             state.vida = max;
             state.despidoShown = false;
             state.epilogoAvisado = false;
+            state.historiasCartas = {};
+            state.finalPoliticoShown = false;
             guardarEstado();
         }
     }
@@ -1343,6 +1370,22 @@
             historiaCartaOpciones.appendChild(boton);
         });
 
+        // Issue #45: la secuela de la elección — en cada historia, 2
+        // opciones apuntan a una pista real de ese caso (el Descubrimiento
+        // se gana igualmente con el trámite normal: Prometeo susurra, no
+        // regala) y las otras 2 dan una pista falsa. Se muestra tras
+        // elegir, para que el fork útil/confusión sea legible.
+        if (yaResuelta) {
+            var clase = PrometeoLogic.clasificarEleccion(cartaId, yaResuelta);
+            var secuela = document.createElement("p");
+            secuela.className = "prometeo-historia-secuela "
+                + (clase === "pista" ? "is-pista" : "is-confusion");
+            secuela.textContent = clase === "pista"
+                ? historia.secuelaUtil
+                : historia.secuelaConfusion;
+            historiaCartaOpciones.appendChild(secuela);
+        }
+
         historiaCartaModal.hidden = false;
         atraparFoco(historiaCartaModal);
         tic(660);
@@ -1378,7 +1421,7 @@
         }
 
         var ganador = PrometeoLogic.calcularEjeGanador(
-            state.historiasCartas, idsHistorias, ["comunismo", "centrista", "socialdemocrata", "neoliberal"]);
+            state.historiasCartas, idsHistorias, EJES_POLITICOS);
 
         mostrarFinalPolitico(ganador);
     }
@@ -1461,7 +1504,33 @@
     };
     var ORDEN_TIPOS_COMBATE = ["objecion", "silencio", "insistencia"];
     var VIDA_INICIAL_COMBATE = 3;
+    var EJES_POLITICOS = ["comunismo", "centrista", "socialdemocrata", "neoliberal"];
+
+    /**
+     * Issue #45: las decisiones políticas de ESTA partida son el
+     * equipamiento de combate (modelo emergente, sin asignación): cada
+     * elección del eje X da una carga de su habilidad (cap 2), gastable en
+     * cualquier combate (duelo del caso 6 y Ventanilla). Cada habilidad es
+     * una decisión dentro de la ronda, no un buff pasivo, y ninguna toca
+     * carta.gastada — el canje sigue siendo lo único que quema cartas.
+     */
+    var HABILIDADES_COMBATE = {
+        comunismo: { nombre: "Asamblea", descripcion: "Esta ronda, el empate también golpea al rival." },
+        centrista: { nombre: "Mesa de diálogo", descripcion: "Esta ronda nadie pierde vida." },
+        socialdemocrata: { nombre: "Comisión de seguimiento", descripcion: "Revela la réplica que viene." },
+        neoliberal: { nombre: "Externalizar", descripcion: "Esta ronda el daño cuenta doble, gane quien gane." }
+    };
     var combateActual = null;
+
+    function cargasIdeologicas() {
+        var puntos = PrometeoLogic.contarPuntosPorEje(state.historiasCartas,
+            Object.keys(HISTORIAS_CARTAS), EJES_POLITICOS);
+        var cargas = {};
+        EJES_POLITICOS.forEach(function (eje) {
+            cargas[eje] = Math.min(2, puntos[eje]);
+        });
+        return cargas;
+    }
 
     /**
      * El motor de combate es único; lo que varía entre el duelo de un caso
@@ -1482,8 +1551,16 @@
             vidaRival: VIDA_INICIAL_COMBATE,
             ultimoTipoJugador: null,
             terminado: null,
+            cargas: cargasIdeologicas(),
+            habilidadArmada: null,
+            habilidadUsadaEstaRonda: false,
+            jugadaRivalPrevista: null,
             raiz: combateRaiz,
-            modoRival: "ciclo",
+            // Issue #45: el ciclo fijo era una tabla memorizable; reactivo
+            // (cebable) hay una decisión por ronda y la Comisión de
+            // seguimiento tiene algo que revelar. El texto/ritmo narrativo
+            // de los ataques no cambia (sigue ciclando por ronda).
+            modoRival: "reactiva",
             claseBoton: "btn siga-btn",
             claseNota: "siga-nota-marginal mb-3",
             alTerminar: resolverFinCombate,
@@ -1508,23 +1585,38 @@
         if (!combateActual || combateActual.terminado) {
             return;
         }
-        var indiceUltimo = combateActual.ultimoTipoJugador === null
-            ? null
-            : ORDEN_TIPOS_COMBATE.indexOf(combateActual.ultimoTipoJugador);
-        var indiceRival = PrometeoLogic.indiceJugadaRival(combateActual.modoRival,
-            combateActual.ronda, ORDEN_TIPOS_COMBATE.length, null, indiceUltimo);
-        var tipoRival = ORDEN_TIPOS_COMBATE[indiceRival];
+        var tipoRival;
+        if (combateActual.jugadaRivalPrevista) {
+            // La Comisión de seguimiento ya fijó (y reveló) esta réplica.
+            tipoRival = combateActual.jugadaRivalPrevista;
+            combateActual.jugadaRivalPrevista = null;
+        } else {
+            var indiceUltimo = combateActual.ultimoTipoJugador === null
+                ? null
+                : ORDEN_TIPOS_COMBATE.indexOf(combateActual.ultimoTipoJugador);
+            var indiceRival = PrometeoLogic.indiceJugadaRival(combateActual.modoRival,
+                combateActual.ronda, ORDEN_TIPOS_COMBATE.length, null, indiceUltimo);
+            tipoRival = ORDEN_TIPOS_COMBATE[indiceRival];
+        }
+        var habilidad = combateActual.habilidadArmada;
+        combateActual.habilidadArmada = null;
         var combo = tipo === combateActual.ultimoTipoJugador;
-        var dano = combo ? 2 : 1;
+        var dano = (combo ? 2 : 1) * (habilidad === "neoliberal" ? 2 : 1);
 
-        if (tipo === tipoRival) {
-            // Mismo tipo que la réplica de esta ronda: empate, nadie pierde vida.
+        if (habilidad === "centrista") {
+            // Mesa de diálogo: la ronda transcurre sin daño para nadie.
+        } else if (tipo === tipoRival) {
+            // Empate: solo la Asamblea lo convierte en golpe al rival.
+            if (habilidad === "comunismo") {
+                combateActual.vidaRival = Math.max(0, combateActual.vidaRival - dano);
+            }
         } else if (TIPOS_COMBATE[tipo].vence === tipoRival) {
             combateActual.vidaRival = Math.max(0, combateActual.vidaRival - dano);
         } else {
             combateActual.vidaJugador = Math.max(0, combateActual.vidaJugador - dano);
         }
 
+        combateActual.habilidadUsadaEstaRonda = false;
         combateActual.ultimoTipoJugador = tipo;
         combateActual.ronda++;
 
@@ -1558,6 +1650,29 @@
             mostrarAsistente("No se preocupe por haber perdido contra " + combateActual.sospechoso
                 + ". Seguro que a la Dirección no le importa.", "triste");
         }
+    }
+
+    function usarHabilidad(eje) {
+        if (!combateActual || combateActual.terminado || combateActual.habilidadUsadaEstaRonda
+                || !combateActual.cargas || !combateActual.cargas[eje]) {
+            return;
+        }
+        combateActual.cargas[eje]--;
+        combateActual.habilidadUsadaEstaRonda = true;
+        if (eje === "socialdemocrata") {
+            // La Comisión de seguimiento fija la réplica de esta ronda y la
+            // enseña: información por adelantado, la decisión sigue siendo suya.
+            var indiceUltimo = combateActual.ultimoTipoJugador === null
+                ? null
+                : ORDEN_TIPOS_COMBATE.indexOf(combateActual.ultimoTipoJugador);
+            var indice = PrometeoLogic.indiceJugadaRival(combateActual.modoRival,
+                combateActual.ronda, ORDEN_TIPOS_COMBATE.length, null, indiceUltimo);
+            combateActual.jugadaRivalPrevista = ORDEN_TIPOS_COMBATE[indice];
+        } else {
+            combateActual.habilidadArmada = eje;
+        }
+        tic(620);
+        renderCombate();
     }
 
     function renderCombate() {
@@ -1594,6 +1709,48 @@
             nota.className = combateActual.claseNota;
             nota.textContent = textoAtaque;
             raiz.appendChild(nota);
+
+            // Recursos ideológicos (issue #45): las cargas ganadas con las
+            // decisiones políticas de esta partida. Solo se pinta si hay algo.
+            var hayHabilidades = combateActual.cargas && EJES_POLITICOS.some(function (e) {
+                return combateActual.cargas[e] > 0;
+            });
+            if (hayHabilidades || combateActual.habilidadArmada || combateActual.jugadaRivalPrevista) {
+                var zona = document.createElement("div");
+                zona.className = "prometeo-combate-habilidades";
+                EJES_POLITICOS.forEach(function (eje) {
+                    var carga = (combateActual.cargas && combateActual.cargas[eje]) || 0;
+                    if (carga === 0) {
+                        return;
+                    }
+                    var hab = HABILIDADES_COMBATE[eje];
+                    var botonHab = document.createElement("button");
+                    botonHab.type = "button";
+                    botonHab.className = "prometeo-btn-secundario prometeo-habilidad";
+                    botonHab.textContent = hab.nombre + " ×" + carga;
+                    botonHab.setAttribute("aria-label", hab.nombre + ": " + hab.descripcion);
+                    botonHab.title = hab.descripcion;
+                    botonHab.disabled = combateActual.habilidadUsadaEstaRonda;
+                    botonHab.addEventListener("click", function () {
+                        usarHabilidad(eje);
+                    });
+                    zona.appendChild(botonHab);
+                });
+                raiz.appendChild(zona);
+
+                if (combateActual.jugadaRivalPrevista || combateActual.habilidadArmada) {
+                    var avisoHab = document.createElement("p");
+                    avisoHab.className = "prometeo-habilidad-aviso";
+                    avisoHab.setAttribute("aria-live", "polite");
+                    avisoHab.textContent = combateActual.jugadaRivalPrevista
+                        ? "Comisión de seguimiento: la réplica que viene será «"
+                            + TIPOS_COMBATE[combateActual.jugadaRivalPrevista].etiqueta + "»."
+                        : HABILIDADES_COMBATE[combateActual.habilidadArmada].nombre
+                            + " armada para esta ronda: "
+                            + HABILIDADES_COMBATE[combateActual.habilidadArmada].descripcion;
+                    raiz.appendChild(avisoHab);
+                }
+            }
 
             var opciones = document.createElement("div");
             opciones.className = "prometeo-combate-opciones";
@@ -1697,6 +1854,10 @@
             vidaRival: VIDA_INICIAL_COMBATE,
             ultimoTipoJugador: null,
             terminado: null,
+            cargas: cargasIdeologicas(),
+            habilidadArmada: null,
+            habilidadUsadaEstaRonda: false,
+            jugadaRivalPrevista: null,
             raiz: ventanillaRaiz,
             modoRival: "reactiva",
             claseBoton: "prometeo-btn-secundario",

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import PrometeoLogic from "../../main/resources/static/js/prometeo-logic.js";
 
-const { fusionarConGuardado, desbloquearCartaEnLista, esAcusacionPrecipitada, calcularEjeGanador, indiceJugadaRival, actualizarRacha } = PrometeoLogic;
+const { fusionarConGuardado, desbloquearCartaEnLista, esAcusacionPrecipitada, calcularEjeGanador, indiceJugadaRival, actualizarRacha, UTILIDAD_CARTAS, clasificarEleccion, contarPuntosPorEje } = PrometeoLogic;
 
 describe("fusionarConGuardado", () => {
     it("conserva los campos de estado del guardado y adopta los metadatos actuales", () => {
@@ -143,5 +143,52 @@ describe("actualizarRacha", () => {
 
     it("perder devuelve la racha a cero sin tocar la mejor marca", () => {
         expect(actualizarRacha(4, 4, false)).toEqual({ racha: 0, mejor: 4 });
+    });
+});
+
+describe("UTILIDAD_CARTAS / clasificarEleccion", () => {
+    const EJES = ["comunismo", "centrista", "socialdemocrata", "neoliberal"];
+
+    it("cubre las 8 historias con exactamente 2 ejes útiles cada una", () => {
+        const ids = Object.keys(UTILIDAD_CARTAS);
+        expect(ids.length).toBe(8);
+        ids.forEach((id) => {
+            expect(UTILIDAD_CARTAS[id].length).toBe(2);
+        });
+    });
+
+    it("invariante anti-moralizante: cada ideología es útil exactamente en 4 de las 8 cartas", () => {
+        const conteo = { comunismo: 0, centrista: 0, socialdemocrata: 0, neoliberal: 0 };
+        Object.values(UTILIDAD_CARTAS).forEach((utiles) => {
+            utiles.forEach((eje) => {
+                expect(EJES).toContain(eje);
+                conteo[eje]++;
+            });
+        });
+        EJES.forEach((eje) => {
+            expect(conteo[eje], `el eje ${eje} debe ser útil exactamente 4 veces`).toBe(4);
+        });
+    });
+
+    it("clasifica como pista los ejes útiles de la carta y como confusión el resto", () => {
+        expect(clasificarEleccion("la-justicia", "comunismo")).toBe("pista");
+        expect(clasificarEleccion("la-justicia", "neoliberal")).toBe("confusion");
+        expect(clasificarEleccion("carta-inexistente", "comunismo")).toBe("confusion");
+    });
+});
+
+describe("contarPuntosPorEje", () => {
+    const EJES = ["comunismo", "centrista", "socialdemocrata", "neoliberal"];
+
+    it("cuenta las elecciones de la partida por eje", () => {
+        const historias = { a: "comunismo", b: "comunismo", c: "neoliberal" };
+        expect(contarPuntosPorEje(historias, ["a", "b", "c"], EJES))
+            .toEqual({ comunismo: 2, centrista: 0, socialdemocrata: 0, neoliberal: 1 });
+    });
+
+    it("ignora historias sin resolver y ejes desconocidos", () => {
+        const historias = { a: "eje-fantasma" };
+        expect(contarPuntosPorEje(historias, ["a", "b"], EJES))
+            .toEqual({ comunismo: 0, centrista: 0, socialdemocrata: 0, neoliberal: 0 });
     });
 });
