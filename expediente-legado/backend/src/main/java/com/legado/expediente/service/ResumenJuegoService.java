@@ -5,6 +5,7 @@ import com.legado.expediente.model.Pista;
 import com.legado.expediente.model.Rol;
 import com.legado.expediente.model.Usuario;
 import com.legado.expediente.repository.CasoRepository;
+import com.legado.expediente.repository.ConceptoRepository;
 import com.legado.expediente.repository.PistaRepository;
 import com.legado.expediente.repository.VeredictoRepository;
 import org.springframework.stereotype.Service;
@@ -27,15 +28,18 @@ public class ResumenJuegoService {
     private final CasoRepository casoRepository;
     private final PistaRepository pistaRepository;
     private final VeredictoRepository veredictoRepository;
+    private final ConceptoRepository conceptoRepository;
     private final ProgresoService progresoService;
 
     public ResumenJuegoService(CasoRepository casoRepository,
                                 PistaRepository pistaRepository,
                                 VeredictoRepository veredictoRepository,
+                                ConceptoRepository conceptoRepository,
                                 ProgresoService progresoService) {
         this.casoRepository = casoRepository;
         this.pistaRepository = pistaRepository;
         this.veredictoRepository = veredictoRepository;
+        this.conceptoRepository = conceptoRepository;
         this.progresoService = progresoService;
     }
 
@@ -43,9 +47,18 @@ public class ResumenJuegoService {
                                boolean tieneConclusionesPendientes, int pistasDescubiertas, int totalPistas) {
     }
 
+    /**
+     * Concepto del corcho ya desbloqueado, reducido a lo que la capa
+     * Prometeo necesita fuera de /carpeta (issue #48: la Ventanilla toma
+     * nombres de rivales de aquí). Solo nombre y tipo — nunca el resumen,
+     * que puede contener spoilers (la acreditación del epílogo).
+     */
+    public record ConceptoResumen(String nombre, String tipo) {
+    }
+
     public record ResumenJuego(int casosResueltos, int totalCasosPrincipales, int pistasDescubiertas,
                                 int totalPistas, int veredictosEmitidos, boolean esAdmin,
-                                List<CasoResumen> casos) {
+                                List<CasoResumen> casos, List<ConceptoResumen> conceptos) {
     }
 
     public ResumenJuego calcular(Usuario usuario) {
@@ -86,7 +99,13 @@ public class ResumenJuegoService {
 
         int totalCasosPrincipales = (int) casosVisibles.stream().filter(Caso::isPrincipal).count();
 
+        List<ConceptoResumen> conceptos = descubiertas.isEmpty()
+                ? List.of()
+                : conceptoRepository.findByPistaIdIn(new ArrayList<>(descubiertas)).stream()
+                        .map(c -> new ConceptoResumen(c.getNombre(), c.getTipo().name()))
+                        .toList();
+
         return new ResumenJuego(casosResueltos, totalCasosPrincipales, pistasDescubiertasTotal, totalPistas,
-                casosConVeredicto.size(), esAdmin, casosResumen);
+                casosConVeredicto.size(), esAdmin, casosResumen, conceptos);
     }
 }

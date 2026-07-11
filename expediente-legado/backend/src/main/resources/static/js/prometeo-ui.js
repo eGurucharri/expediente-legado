@@ -2016,13 +2016,39 @@
     ];
     var rachaVentanilla = 0;
 
+    /**
+     * Issue #48: los reclamantes salen del corcho — si el jugador ya
+     * desbloqueó conceptos PERSONA/COMITE, el rival toma uno de esos
+     * nombres ("la gente de tus expedientes vuelve a darte largas") con
+     * uno de los juegos de réplicas escritos a mano; sin conceptos, caen
+     * los nombres genéricos de siempre. Exclusiones duras: el Comité Ad
+     * Honorem (rival del duelo del caso 6, no un matón de arena) y el
+     * propio auditor.
+     */
+    var RIVALES_VENTANILLA_EXCLUIDOS = ["Comité Ad Honorem", "auditor01 (usted)"];
+
+    function nombreReclamanteDelCorcho() {
+        if (!real || !real.conceptos) {
+            return null;
+        }
+        var elegibles = real.conceptos.filter(function (c) {
+            return (c.tipo === "PERSONA" || c.tipo === "COMITE")
+                && RIVALES_VENTANILLA_EXCLUIDOS.indexOf(c.nombre) === -1;
+        });
+        if (!elegibles.length) {
+            return null;
+        }
+        return elegibles[Math.floor(Math.random() * elegibles.length)].nombre;
+    }
+
     function iniciarCombateVentanilla() {
         if (!ventanillaRaiz) {
             return;
         }
         var rival = RIVALES_VENTANILLA[Math.floor(Math.random() * RIVALES_VENTANILLA.length)];
+        var nombreDelCorcho = nombreReclamanteDelCorcho();
         combateActual = {
-            sospechoso: rival.nombre,
+            sospechoso: nombreDelCorcho || rival.nombre,
             ataques: rival.ataques,
             ronda: 0,
             vidaJugador: VIDA_INICIAL_COMBATE,
