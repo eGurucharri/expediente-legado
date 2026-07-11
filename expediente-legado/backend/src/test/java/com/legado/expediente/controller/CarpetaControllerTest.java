@@ -73,7 +73,7 @@ class CarpetaControllerTest {
                 "findByUsuarioId", args -> Collections.emptyList()
         ));
         resumenJuegoService = new ResumenJuegoService(casoRepository, pistaRepository,
-                veredictoRepository, progresoService);
+                veredictoRepository, conceptoRepository, progresoService);
 
         controller = new CarpetaController(casoRepository, conceptoRepository, progresoService,
                 resumenJuegoService, new WikiLinkService(), new UsuarioContexto(usuarioRepository), "");

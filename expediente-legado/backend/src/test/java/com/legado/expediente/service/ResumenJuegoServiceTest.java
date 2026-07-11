@@ -8,6 +8,7 @@ import com.legado.expediente.model.Rol;
 import com.legado.expediente.model.Usuario;
 import com.legado.expediente.model.Veredicto;
 import com.legado.expediente.repository.CasoRepository;
+import com.legado.expediente.repository.ConceptoRepository;
 import com.legado.expediente.repository.DescubrimientoRepository;
 import com.legado.expediente.repository.PistaRepository;
 import com.legado.expediente.repository.VeredictoRepository;
@@ -49,10 +50,14 @@ class ResumenJuegoServiceTest {
     private final VeredictoRepository veredictoRepository = fake(VeredictoRepository.class, Map.of(
             "findByUsuarioId", args -> veredictos
     ));
+    private final ConceptoRepository conceptoRepository = fake(ConceptoRepository.class, Map.of(
+            "findByPistaIdIn", args -> Collections.emptyList()
+    ));
 
     private final ProgresoService progresoService = new ProgresoService(descubrimientoRepository, pistaRepository);
     private final ResumenJuegoService resumenJuegoService =
-            new ResumenJuegoService(casoRepository, pistaRepository, veredictoRepository, progresoService);
+            new ResumenJuegoService(casoRepository, pistaRepository, veredictoRepository, conceptoRepository,
+                    progresoService);
 
     @Test
     void calcularCuentaCasosResueltosPistasYVeredictosDeUnAuditorSinAccesoConfidencial() {
