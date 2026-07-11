@@ -8,8 +8,8 @@ services:
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-    ports:
-      - "3306:3306"
+    # Sin puertos publicados: MySQL solo es accesible desde la red interna
+    # de docker (adminer y backend); para consultas manuales, docker exec.
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -32,7 +32,7 @@ services:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "8090:8080"
+      - "1998:8080"
 
   adminer:
     image: adminer:latest
@@ -41,7 +41,7 @@ services:
     depends_on:
       - mysql
     ports:
-      - "8081:8080"
+      - "1999:8080"
 
 volumes:
   mysql_data:

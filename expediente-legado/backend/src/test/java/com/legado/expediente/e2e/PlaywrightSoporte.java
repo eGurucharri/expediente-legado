@@ -17,7 +17,7 @@ import com.microsoft.playwright.Playwright;
  */
 public class PlaywrightSoporte implements AutoCloseable {
 
-    public static final String BASE_URL = System.getProperty("e2e.baseUrl", "http://localhost:8090");
+    public static final String BASE_URL = System.getProperty("e2e.baseUrl", "http://localhost:1998");
 
     private final Playwright playwright;
     private final Browser browser;

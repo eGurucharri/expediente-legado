@@ -54,7 +54,17 @@ class MapaConexionesE2E {
     private void descubrirDosPistas(Page pagina) {
         pagina.navigate(PlaywrightSoporte.BASE_URL + "/casos/" + CASO_CON_CONCEPTOS);
         for (int i = 0; i < 2; i++) {
-            pagina.locator(".siga-hotspot").first().click();
+            // Solo hotspots de PISTA (llevan form=...): el selector genérico
+            // .siga-hotspot puede resolver primero al botón de la carta
+            // oculta (data-carta-oculta), que abre el modal político sin
+            // navegar y deja la página bloqueada para el siguiente clic.
+            // Y si quedan menos de dos por descubrir (runs anteriores ya
+            // las encontraron), no hay nada que hacer: los conceptos del
+            // corcho ya están desbloqueados igualmente.
+            if (pagina.locator(".siga-hotspot[form]").count() == 0) {
+                return;
+            }
+            pagina.locator(".siga-hotspot[form]").first().click();
             pagina.waitForURL("**/casos/" + CASO_CON_CONCEPTOS);
         }
     }
