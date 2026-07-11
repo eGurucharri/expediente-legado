@@ -34,7 +34,7 @@ public class NavegadorStandalone {
     @EventListener(ApplicationReadyEvent.class)
     public void abrirNavegador() {
         String puerto = environment.getProperty("local.server.port",
-                environment.getProperty("server.port", "8090"));
+                environment.getProperty("server.port", "1998"));
         String url = "http://localhost:" + puerto;
         LOG.info("SIGA-98 listo. Si el navegador no se abre solo, entre en {}", url);
         if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {

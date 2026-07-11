@@ -43,8 +43,8 @@ cp .env.example .env   # solo la primera vez
 docker compose up --build
 ```
 
-- App: http://localhost:8090 (usuario demo `auditor01` / `auditor-local-123`)
-- Adminer: http://localhost:8081 (sistema: MySQL, servidor: `mysql`, usuario/clave según `.env`)
+- App: http://localhost:1998 (usuario demo `auditor01` / `auditor-local-123`)
+- Adminer: http://localhost:1999 (sistema: MySQL, servidor: `mysql`, usuario/clave según `.env`)
 
 Al arrancar por primera vez, `DataSeeder` siembra los usuarios demo y los ocho
 casos completos (registros, pistas, sospechosos y el corcho de conceptos).
@@ -72,5 +72,5 @@ mvn test                                              # unitarios
 mvn checkstyle:check pmd:check spotbugs:check         # gates de calidad
 npm test                                              # Vitest (lógica JS pura)
 mvn test -Dtest=AutenticacionE2E,ModalesFocoE2E,MapaConexionesE2E \
-    -De2e.baseUrl=http://localhost:8090               # E2E (app ya levantada)
+    -De2e.baseUrl=http://localhost:1998               # E2E (app ya levantada)
 ```
