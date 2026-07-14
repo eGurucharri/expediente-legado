@@ -1269,7 +1269,7 @@
         if (desbloquearCarta("la-muerte")) {
             renderTarot();
         }
-        tic(220);
+        golpe(160);
     }
 
     function perderVida(cantidad) {
@@ -1492,7 +1492,7 @@
 
         historiaCartaModal.hidden = false;
         atraparFoco(historiaCartaModal);
-        tic(660);
+        golpe(440);
     }
 
     /**
@@ -1575,7 +1575,7 @@
         comentarEleccionPolitica(cartaId, eje);
         comprobarLogrosPoliticos();
         comprobarFinalPolitico();
-        tic(900);
+        golpe(520);
     }
 
     function comprobarFinalPolitico() {
@@ -1800,7 +1800,7 @@
             combateActual.terminado = "perdio";
         }
 
-        tic(combo ? 700 : 480);
+        golpe(combo ? 700 : 480);
         renderCombate();
 
         if (combateActual.terminado) {
@@ -2076,7 +2076,7 @@
         };
         renderCombate();
         renderVentanillaEstado();
-        tic(540);
+        golpe(240);
     }
 
     function resolverFinVentanilla() {
@@ -2126,7 +2126,7 @@
         atraparFoco(jefeModal);
         state.jefeVisto = true;
         guardarEstado();
-        tic(220);
+        golpe(180);
     }
 
     /**
@@ -2548,7 +2548,7 @@
         if (desbloquearCarta("el-diablo")) {
             renderTarot();
         }
-        tic(780);
+        golpe(600);
     }
 
     /**
@@ -2653,7 +2653,7 @@
         }
         desbloquearLogro("la-garganta-abierta");
         guardarEstado();
-        tic(300);
+        golpe(140);
     }
 
     function comprobarEstadoDeJuego() {
@@ -2731,6 +2731,49 @@
         osc.start();
         osc.stop(ctx.currentTime + 0.13);
     }
+
+    /**
+     * Issue #49: la voz sucia de SIGA-98 — onda cuadrada breve más una
+     * ráfaga de ruido (el golpe de sello sobre el formulario), para los
+     * eventos del sistema viejo: jefe, despido, historias ocultas, choques
+     * de combate, el captcha falso, el final de AM. El menú Prometeo
+     * conserva el tic() senoidal limpio: el audio también cuenta el split.
+     */
+    function golpe(frecuencia) {
+        if (volumenActual() <= 0) {
+            return;
+        }
+        var ctx = obtenerAudio();
+        if (!ctx) {
+            return;
+        }
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = "square";
+        osc.frequency.value = frecuencia;
+        gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.4, ctx.currentTime + 0.006);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.09);
+        osc.connect(gain);
+        gain.connect(master);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.1);
+
+        var duracion = 0.055;
+        var buffer = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * duracion), ctx.sampleRate);
+        var datos = buffer.getChannelData(0);
+        for (var i = 0; i < datos.length; i++) {
+            datos[i] = (Math.random() * 2 - 1) * (1 - i / datos.length) * 0.5;
+        }
+        var ruido = ctx.createBufferSource();
+        ruido.buffer = buffer;
+        var gainRuido = ctx.createGain();
+        gainRuido.gain.value = 0.35;
+        ruido.connect(gainRuido);
+        gainRuido.connect(master);
+        ruido.start();
+    }
+
 
     /**
      * Zumbido de fondo persistente: dos osciladores casi al unísono
