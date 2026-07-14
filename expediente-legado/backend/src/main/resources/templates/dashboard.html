@@ -4,15 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Expedientes · SIGA-98</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23d4d0c8'/%3E%3Crect width='16' height='5' fill='%23000080'/%3E%3Crect x='13' y='1' width='2' height='2' fill='%23d4d0c8'/%3E%3Crect x='2' y='7' width='12' height='7' fill='%23ffffff'/%3E%3Crect x='4' y='9' width='8' height='1' fill='%23808080'/%3E%3Crect x='4' y='11' width='5' height='1' fill='%23808080'/%3E%3C/svg%3E">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/css/legacy-theme.css}">
     <link rel="stylesheet" th:href="@{/css/prometeo-ui.css}">
 </head>
 <body class="siga-body">
+<a class="visually-hidden-focusable" href="#contenido">Saltar al contenido</a>
 <div class="siga-flicker-overlay" aria-hidden="true"></div>
 <nav th:replace="~{fragments/chrome :: barra}"></nav>
 
-<div class="container py-4">
+<div class="container py-4" id="contenido" role="main">
     <div th:if="${mensaje}" class="alert alert-warning" th:text="${mensaje}"></div>
 
     <div class="siga-window">
