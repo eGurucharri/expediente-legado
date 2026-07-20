@@ -42,7 +42,16 @@ class ResumenJuegoServiceTest {
             "findAll", args -> casos
     ));
     private final PistaRepository pistaRepository = fake(PistaRepository.class, Map.of(
-            "findByCasoId", args -> pistasPorCaso.getOrDefault((Long) args[0], Collections.emptyList())
+            "findByCasoId", args -> pistasPorCaso.getOrDefault((Long) args[0], Collections.emptyList()),
+            "findByCasoIdIn", args -> {
+                @SuppressWarnings("unchecked")
+                java.util.Collection<Long> ids = (java.util.Collection<Long>) args[0];
+                List<Pista> todas = new ArrayList<>();
+                for (Long id : ids) {
+                    todas.addAll(pistasPorCaso.getOrDefault(id, Collections.emptyList()));
+                }
+                return todas;
+            }
     ));
     private final DescubrimientoRepository descubrimientoRepository = fake(DescubrimientoRepository.class, Map.of(
             "findByUsuarioId", args -> descubrimientos
@@ -56,7 +65,7 @@ class ResumenJuegoServiceTest {
 
     private final ProgresoService progresoService = new ProgresoService(descubrimientoRepository, pistaRepository);
     private final ResumenJuegoService resumenJuegoService =
-            new ResumenJuegoService(casoRepository, pistaRepository, veredictoRepository, conceptoRepository,
+            new ResumenJuegoService(casoRepository, veredictoRepository, conceptoRepository,
                     progresoService);
 
     @Test

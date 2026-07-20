@@ -49,7 +49,13 @@ public class NavegadorStandalone {
         String so = System.getProperty("os.name", "").toLowerCase(Locale.ROOT);
         if (so.contains("linux")) {
             try {
-                new ProcessBuilder("xdg-open", url).start();
+                // Descartar salida/errores: si xdg-open escribiese lo bastante
+                // para llenar el buffer de una tubería sin drenar, se quedaría
+                // bloqueado. No esperamos al proceso (abre y termina solo).
+                new ProcessBuilder("xdg-open", url)
+                        .redirectOutput(ProcessBuilder.Redirect.DISCARD)
+                        .redirectError(ProcessBuilder.Redirect.DISCARD)
+                        .start();
             } catch (IOException e) {
                 LOG.info("Abra el juego a mano en {}", url);
             }

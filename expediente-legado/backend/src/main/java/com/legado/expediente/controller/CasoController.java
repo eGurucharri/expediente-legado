@@ -228,11 +228,20 @@ public class CasoController {
             return RUTA_INICIO;
         }
 
+        Sospechoso sospechoso = sospechosoRepository.findById(sospechosoId).orElseThrow();
+        // El control de acceso se hizo sobre el caso de la ruta; hay que exigir
+        // que el sospechoso pertenezca a ese mismo caso. Si no, un auditor
+        // podría acusar (y abrir combate/veredicto contra) un sospechoso de un
+        // caso confidencial pasando el casoId de un caso público en la ruta.
+        if (!sospechoso.getCaso().getId().equals(casoId)) {
+            redirectAttributes.addFlashAttribute(ATRIBUTO_MENSAJE, MENSAJE_ACCESO_DENEGADO);
+            return RUTA_INICIO;
+        }
+
         boolean yaHayVeredicto = veredictoRepository.findByUsuarioIdAndCasoId(usuario.getId(), casoId).isPresent();
         boolean yaHayCombate = combateEnCursoRepository.findByUsuarioIdAndCasoId(usuario.getId(), casoId).isPresent();
 
         if (!yaHayVeredicto && !yaHayCombate) {
-            Sospechoso sospechoso = sospechosoRepository.findById(sospechosoId).orElseThrow();
             if (sospechoso.getAtaques().isEmpty()) {
                 registrarVeredicto(usuario, sospechoso);
             } else {
@@ -276,6 +285,10 @@ public class CasoController {
 
         registrarVeredicto(usuario, combate.getSospechoso());
         combateEnCursoRepository.delete(combate);
+        // Misma marca que /acusar: la acusación se cierra aquí cuando el
+        // sospechoso tenía cartas, así que la penalización por acusación
+        // precipitada debe evaluarse igual que en el caso sin combate.
+        redirectAttributes.addFlashAttribute("accionReciente", "acusacion");
         return RUTA_CASOS + casoId;
     }
 

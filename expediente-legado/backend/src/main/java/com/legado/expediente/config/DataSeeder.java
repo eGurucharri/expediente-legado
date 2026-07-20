@@ -707,6 +707,7 @@ public class DataSeeder implements CommandLineRunner {
                 + "separado en 1978, 1993 y 2007. La copia de 2007 incluye además una nota manuscrita "
                 + "que se dirige, literalmente, 'al auditor que lo esté leyendo ahora'. Determinar "
                 + "cuál copia es la original, si alguna lo es.");
+        caso5.setAnioSuceso(1978);
         caso5.setEstado(EstadoCaso.ABIERTO);
         casoRepository.save(caso5);
 
