@@ -72,7 +72,7 @@ class CarpetaControllerTest {
         VeredictoRepository veredictoRepository = fake(VeredictoRepository.class, Map.of(
                 "findByUsuarioId", args -> Collections.emptyList()
         ));
-        resumenJuegoService = new ResumenJuegoService(casoRepository, pistaRepository,
+        resumenJuegoService = new ResumenJuegoService(casoRepository,
                 veredictoRepository, conceptoRepository, progresoService);
 
         controller = new CarpetaController(casoRepository, conceptoRepository, progresoService,
