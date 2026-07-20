@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import PrometeoLogic from "../../main/resources/static/js/prometeo-logic.js";
 
-const { fusionarConGuardado, desbloquearCartaEnLista, esAcusacionPrecipitada, calcularEjeGanador } = PrometeoLogic;
+const { fusionarConGuardado, desbloquearCartaEnLista, esAcusacionPrecipitada, calcularEjeGanador, indiceJugadaRival, actualizarRacha, UTILIDAD_CARTAS, clasificarEleccion, contarPuntosPorEje, reiniciarEstadoPerRunEnEstado } = PrometeoLogic;
 
 describe("fusionarConGuardado", () => {
     it("conserva los campos de estado del guardado y adopta los metadatos actuales", () => {
@@ -97,5 +97,150 @@ describe("calcularEjeGanador", () => {
     it("ignora ejes que no están en ordenEjes", () => {
         const historias = { "carta-1": "eje-desconocido", "carta-2": "socialdemocrata" };
         expect(calcularEjeGanador(historias, Object.keys(historias), ORDEN)).toBe("socialdemocrata");
+    });
+});
+
+describe("indiceJugadaRival", () => {
+    it("en modo ciclo reproduce el ritmo autorado del caso 6 (ronda % total)", () => {
+        expect(indiceJugadaRival("ciclo", 0, 3)).toBe(0);
+        expect(indiceJugadaRival("ciclo", 4, 3)).toBe(1);
+        expect(indiceJugadaRival("ciclo", 5, 3)).toBe(2);
+    });
+
+    it("en modo reactiva, con tirada baja, contraataca la última jugada del jugador", () => {
+        // La cadena de tipos es circular (cada índice vence al siguiente):
+        // lo que vence a X es el índice anterior a X.
+        const azarBajo = () => 0.1; // < 0.7: reacciona
+        expect(indiceJugadaRival("reactiva", 3, 3, azarBajo, 0)).toBe(2);
+        expect(indiceJugadaRival("reactiva", 3, 3, azarBajo, 1)).toBe(0);
+        expect(indiceJugadaRival("reactiva", 3, 3, azarBajo, 2)).toBe(1);
+    });
+
+    it("en modo reactiva, con tirada alta, juega aleatorio en vez de reaccionar", () => {
+        let llamadas = 0;
+        const azar = () => {
+            llamadas++;
+            return llamadas === 1 ? 0.9 : 0.5; // 1ª tirada decide no reaccionar, 2ª elige jugada
+        };
+        expect(indiceJugadaRival("reactiva", 3, 3, azar, 0)).toBe(1);
+    });
+
+    it("en modo reactiva sin última jugada del jugador (primera ronda) juega aleatorio", () => {
+        const azar = () => 0.99;
+        expect(indiceJugadaRival("reactiva", 0, 3, azar, null)).toBe(2);
+        expect(indiceJugadaRival("reactiva", 0, 3, azar, -1)).toBe(2);
+    });
+});
+
+describe("actualizarRacha", () => {
+    it("ganar suma una a la racha y puede batir la mejor marca", () => {
+        expect(actualizarRacha(2, 2, true)).toEqual({ racha: 3, mejor: 3 });
+    });
+
+    it("ganar sin batir la marca conserva la mejor anterior", () => {
+        expect(actualizarRacha(0, 5, true)).toEqual({ racha: 1, mejor: 5 });
+    });
+
+    it("perder devuelve la racha a cero sin tocar la mejor marca", () => {
+        expect(actualizarRacha(4, 4, false)).toEqual({ racha: 0, mejor: 4 });
+    });
+});
+
+describe("UTILIDAD_CARTAS / clasificarEleccion", () => {
+    const EJES = ["comunismo", "centrista", "socialdemocrata", "neoliberal"];
+
+    it("cubre las 8 historias con exactamente 2 ejes útiles cada una", () => {
+        const ids = Object.keys(UTILIDAD_CARTAS);
+        expect(ids.length).toBe(8);
+        ids.forEach((id) => {
+            expect(UTILIDAD_CARTAS[id].length).toBe(2);
+        });
+    });
+
+    it("invariante anti-moralizante: cada ideología es útil exactamente en 4 de las 8 cartas", () => {
+        const conteo = { comunismo: 0, centrista: 0, socialdemocrata: 0, neoliberal: 0 };
+        Object.values(UTILIDAD_CARTAS).forEach((utiles) => {
+            utiles.forEach((eje) => {
+                expect(EJES).toContain(eje);
+                conteo[eje]++;
+            });
+        });
+        EJES.forEach((eje) => {
+            expect(conteo[eje], `el eje ${eje} debe ser útil exactamente 4 veces`).toBe(4);
+        });
+    });
+
+    it("clasifica como pista los ejes útiles de la carta y como confusión el resto", () => {
+        expect(clasificarEleccion("la-justicia", "comunismo")).toBe("pista");
+        expect(clasificarEleccion("la-justicia", "neoliberal")).toBe("confusion");
+        expect(clasificarEleccion("carta-inexistente", "comunismo")).toBe("confusion");
+    });
+});
+
+describe("contarPuntosPorEje", () => {
+    const EJES = ["comunismo", "centrista", "socialdemocrata", "neoliberal"];
+
+    it("cuenta las elecciones de la partida por eje", () => {
+        const historias = { a: "comunismo", b: "comunismo", c: "neoliberal" };
+        expect(contarPuntosPorEje(historias, ["a", "b", "c"], EJES))
+            .toEqual({ comunismo: 2, centrista: 0, socialdemocrata: 0, neoliberal: 1 });
+    });
+
+    it("ignora historias sin resolver y ejes desconocidos", () => {
+        const historias = { a: "eje-fantasma" };
+        expect(contarPuntosPorEje(historias, ["a", "b"], EJES))
+            .toEqual({ comunismo: 0, centrista: 0, socialdemocrata: 0, neoliberal: 0 });
+    });
+});
+
+describe("reiniciarEstadoPerRunEnEstado", () => {
+    const estadoDeEjemplo = () => ({
+        vida: 0,
+        despidoShown: true,
+        epilogoAvisado: true,
+        historiasCartas: { "la-justicia": "comunismo" },
+        finalPoliticoShown: true,
+        finalVerdaderoShown: true,
+        perdioVidaEnEstaVuelta: true,
+        dificultad: "dificil",
+        coliseoRachaMejor: 7,
+        cartasConocidas: { "el-mago": true, "la-muerte": true },
+        pasoPorDespidoAlgunaVez: true,
+        tarot: [
+            { id: "el-loco", collected: true, gastada: false },
+            { id: "el-mago", collected: true, gastada: false },
+            { id: "la-muerte", collected: true, gastada: true }
+        ],
+        logros: [
+            { id: "archivo-completo", desbloqueado: true, porRun: true },
+            { id: "final-verdadero", desbloqueado: true, porRun: false }
+        ]
+    });
+
+    it("borra SOLO lo per-run: vida, avisos, decisiones, finales, tarot y logros de desempeño", () => {
+        const e = reiniciarEstadoPerRunEnEstado(estadoDeEjemplo(), 3);
+
+        expect(e.vida).toBe(3);
+        expect(e.despidoShown).toBe(false);
+        expect(e.epilogoAvisado).toBe(false);
+        expect(e.historiasCartas).toEqual({});
+        expect(e.finalPoliticoShown).toBe(false);
+        expect(e.finalVerdaderoShown).toBe(false);
+        expect(e.perdioVidaEnEstaVuelta).toBe(false);
+        expect(e.tarot.find(c => c.id === "el-loco").collected).toBe(true);
+        expect(e.tarot.find(c => c.id === "el-mago").collected).toBe(false);
+        expect(e.tarot.find(c => c.id === "la-muerte").collected).toBe(false);
+        expect(e.tarot.find(c => c.id === "la-muerte").gastada).toBe(false);
+        expect(e.logros.find(l => l.id === "archivo-completo").desbloqueado).toBe(false);
+    });
+
+    it("NO toca la memoria de por vida: fantasmas, mejor racha, dificultad, vitrina y flags algunaVez", () => {
+        const e = reiniciarEstadoPerRunEnEstado(estadoDeEjemplo(), 3);
+
+        expect(e.cartasConocidas).toEqual({ "el-mago": true, "la-muerte": true });
+        expect(e.coliseoRachaMejor).toBe(7);
+        expect(e.dificultad).toBe("dificil");
+        expect(e.logros.find(l => l.id === "final-verdadero").desbloqueado).toBe(true);
+        expect(e.pasoPorDespidoAlgunaVez).toBe(true);
     });
 });

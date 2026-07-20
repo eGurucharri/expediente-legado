@@ -97,10 +97,124 @@
         return ganador;
     }
 
+    /**
+     * Issue #45: en cada historia política hay 2 opciones "útiles" (su
+     * secuela apunta a una pista real todavía por descubrir de ese caso) y
+     * 2 "de confusión" (pista falsa). La corrección es POR SITUACIÓN, no
+     * por ideología: cada eje es útil exactamente en 4 de las 8 cartas
+     * (invariante testeada), así que no se puede leer "el juego dice que X
+     * es la ideología buena". El tally del final político (calcularEjeGanador)
+     * es ortogonal a esto y sigue siendo 100% ideológico.
+     */
+    var UTILIDAD_CARTAS = {
+        "la-justicia": ["comunismo", "socialdemocrata"],
+        "la-rueda": ["centrista", "neoliberal"],
+        "el-juicio": ["comunismo", "socialdemocrata"],
+        "la-luna": ["centrista", "neoliberal"],
+        "el-carro": ["comunismo", "centrista"],
+        "el-sol": ["socialdemocrata", "neoliberal"],
+        "la-emperatriz": ["socialdemocrata", "neoliberal"],
+        "la-sacerdotisa": ["comunismo", "centrista"]
+    };
+
+    function clasificarEleccion(cartaId, eje) {
+        var utiles = UTILIDAD_CARTAS[cartaId] || [];
+        return utiles.indexOf(eje) !== -1 ? "pista" : "confusion";
+    }
+
+    /**
+     * Cuenta las elecciones de esta partida por eje político. Es el mismo
+     * conteo que decide el final político, expuesto como recuento: sirve de
+     * "puntos de ideología" para las cargas de habilidad en combate
+     * (issue #45) — la run política ES el equipamiento, sin asignación.
+     */
+    function contarPuntosPorEje(historiasCartas, idsHistorias, ordenEjes) {
+        var conteo = {};
+        ordenEjes.forEach(function (eje) {
+            conteo[eje] = 0;
+        });
+        idsHistorias.forEach(function (id) {
+            var eje = historiasCartas[id];
+            if (Object.prototype.hasOwnProperty.call(conteo, eje)) {
+                conteo[eje]++;
+            }
+        });
+        return conteo;
+    }
+
+    /**
+     * Índice de la jugada del rival para esta ronda de combate. El modo
+     * "ciclo" reproduce el ritmo autorado del duelo del caso 6 (issue #21:
+     * determinista, aprendible — es una escena, no un desafío repetible).
+     * El modo "reactiva" es la Ventanilla de Reclamaciones (issue #43): el
+     * rival tiende (70%) a jugar lo que vence la última jugada del jugador,
+     * así que se le puede cebar — hay una decisión por ronda, no una tabla
+     * que memorizar ni una moneda al aire. Asume la cadena circular de
+     * tipos del juego (cada índice vence al siguiente, módulo el total),
+     * por lo que "lo que vence a X" es el índice anterior a X.
+     */
+    function indiceJugadaRival(modo, ronda, totalTipos, random, indiceUltimoJugador) {
+        var azar = random || Math.random;
+        if (modo === "reactiva") {
+            var sinUltima = indiceUltimoJugador === null || indiceUltimoJugador === undefined
+                || indiceUltimoJugador < 0;
+            if (sinUltima || azar() >= 0.7) {
+                return Math.floor(azar() * totalTipos);
+            }
+            return (indiceUltimoJugador + totalTipos - 1) % totalTipos;
+        }
+        return ronda % totalTipos;
+    }
+
+    /**
+     * Racha de la Ventanilla de Reclamaciones: ganar suma una, perder la
+     * devuelve a cero; la mejor marca solo puede crecer. La racha en curso
+     * es efímera (variable de sesión), la mejor marca es meta-progresión.
+     */
+    function actualizarRacha(racha, mejor, gano) {
+        var nueva = gano ? racha + 1 : 0;
+        return { racha: nueva, mejor: Math.max(mejor, nueva) };
+    }
+
+    /**
+     * Issue #46: el borrado per-run — la frontera más delicada del estado.
+     * Muta y devuelve el estado dejando SOLO lo per-run a cero: vida al
+     * máximo, avisos de la vuelta re-armados, decisiones políticas vacías,
+     * finales re-conquistables, tarot en posesión inicial (El Loco) y
+     * logros de desempeño re-bloqueados. NO toca: cartasConocidas (memoria
+     * fantasma), coliseoRachaMejor, dificultad, logros de vitrina
+     * (porRun=false) ni los flags "algunaVez" de por vida.
+     */
+    function reiniciarEstadoPerRunEnEstado(estado, vidaMax) {
+        estado.vida = vidaMax;
+        estado.despidoShown = false;
+        estado.epilogoAvisado = false;
+        estado.historiasCartas = {};
+        estado.finalPoliticoShown = false;
+        estado.finalVerdaderoShown = false;
+        estado.perdioVidaEnEstaVuelta = false;
+        estado.tarot.forEach(function (carta) {
+            carta.collected = carta.id === "el-loco";
+            carta.gastada = false;
+        });
+        estado.logros.forEach(function (logro) {
+            if (logro.porRun) {
+                logro.desbloqueado = false;
+            }
+        });
+        return estado;
+    }
+
     return {
         fusionarConGuardado: fusionarConGuardado,
         desbloquearCartaEnLista: desbloquearCartaEnLista,
         esAcusacionPrecipitada: esAcusacionPrecipitada,
-        calcularEjeGanador: calcularEjeGanador
+        calcularEjeGanador: calcularEjeGanador,
+        indiceJugadaRival: indiceJugadaRival,
+        actualizarRacha: actualizarRacha,
+        UTILIDAD_CARTAS: UTILIDAD_CARTAS,
+        clasificarEleccion: clasificarEleccion,
+        contarPuntosPorEje: contarPuntosPorEje,
+        reiniciarEstadoPerRunEnEstado: reiniciarEstadoPerRunEnEstado
     };
 });

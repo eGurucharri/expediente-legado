@@ -5,7 +5,7 @@ import com.legado.expediente.model.Pista;
 import com.legado.expediente.model.Rol;
 import com.legado.expediente.model.Usuario;
 import com.legado.expediente.repository.CasoRepository;
-import com.legado.expediente.repository.PistaRepository;
+import com.legado.expediente.repository.ConceptoRepository;
 import com.legado.expediente.repository.VeredictoRepository;
 import org.springframework.stereotype.Service;
 
@@ -25,17 +25,17 @@ import java.util.stream.Collectors;
 public class ResumenJuegoService {
 
     private final CasoRepository casoRepository;
-    private final PistaRepository pistaRepository;
     private final VeredictoRepository veredictoRepository;
+    private final ConceptoRepository conceptoRepository;
     private final ProgresoService progresoService;
 
     public ResumenJuegoService(CasoRepository casoRepository,
-                                PistaRepository pistaRepository,
                                 VeredictoRepository veredictoRepository,
+                                ConceptoRepository conceptoRepository,
                                 ProgresoService progresoService) {
         this.casoRepository = casoRepository;
-        this.pistaRepository = pistaRepository;
         this.veredictoRepository = veredictoRepository;
+        this.conceptoRepository = conceptoRepository;
         this.progresoService = progresoService;
     }
 
@@ -43,9 +43,18 @@ public class ResumenJuegoService {
                                boolean tieneConclusionesPendientes, int pistasDescubiertas, int totalPistas) {
     }
 
+    /**
+     * Concepto del corcho ya desbloqueado, reducido a lo que la capa
+     * Prometeo necesita fuera de /carpeta (issue #48: la Ventanilla toma
+     * nombres de rivales de aquí). Solo nombre y tipo — nunca el resumen,
+     * que puede contener spoilers (la acreditación del epílogo).
+     */
+    public record ConceptoResumen(String nombre, String tipo) {
+    }
+
     public record ResumenJuego(int casosResueltos, int totalCasosPrincipales, int pistasDescubiertas,
                                 int totalPistas, int veredictosEmitidos, boolean esAdmin,
-                                List<CasoResumen> casos) {
+                                List<CasoResumen> casos, List<ConceptoResumen> conceptos) {
     }
 
     public ResumenJuego calcular(Usuario usuario) {
@@ -56,7 +65,11 @@ public class ResumenJuegoService {
                 .filter(c -> !c.isConfidencial() || esAdmin)
                 .toList();
 
-        List<ProgresoService.CasoProgreso> progreso = progresoService.progreso(casosVisibles, descubiertas);
+        // Pistas de todos los casos visibles en una sola consulta, reutilizada
+        // tanto para el progreso como para las combinaciones pendientes de abajo.
+        java.util.Map<Long, List<Pista>> pistasPorCaso = progresoService.pistasPorCaso(casosVisibles);
+        List<ProgresoService.CasoProgreso> progreso =
+                progresoService.progreso(casosVisibles, descubiertas, pistasPorCaso);
 
         Set<Long> casosConVeredicto = veredictoRepository.findByUsuarioId(usuario.getId()).stream()
                 .map(v -> Objects.requireNonNull(v.getCaso(), "un veredicto siempre tiene caso").getId())
@@ -74,7 +87,7 @@ public class ResumenJuegoService {
             totalPistas += cp.totalPistas();
             pistasDescubiertasTotal += cp.pistasDescubiertas();
 
-            List<Pista> combinaciones = pistaRepository.findByCasoId(cp.caso().getId()).stream()
+            List<Pista> combinaciones = pistasPorCaso.getOrDefault(cp.caso().getId(), List.of()).stream()
                     .filter(p -> p.getRegistroOrigen2() != null)
                     .toList();
             boolean pendientes = combinaciones.stream().anyMatch(p -> !descubiertas.contains(p.getId()));
@@ -84,9 +97,22 @@ public class ResumenJuegoService {
                     cp.pistasDescubiertas(), cp.totalPistas()));
         }
 
-        int totalCasosPrincipales = (int) casosVisibles.stream().filter(Caso::isPrincipal).count();
+        // El umbral de "archivo completo" no debe depender del rol: se cuenta
+        // sobre los casos principales NO confidenciales (los que todo auditor
+        // puede cerrar), no sobre los visibles. Si se contara sobre visibles,
+        // un admin —que ve el caso confidencial principal— tendría un objetivo
+        // distinto (6) al del auditor (5) y el logro se movería con el rol.
+        int totalCasosPrincipales = (int) casoRepository.findAll().stream()
+                .filter(c -> c.isPrincipal() && !c.isConfidencial())
+                .count();
+
+        List<ConceptoResumen> conceptos = descubiertas.isEmpty()
+                ? List.of()
+                : conceptoRepository.findByPistaIdIn(new ArrayList<>(descubiertas)).stream()
+                        .map(c -> new ConceptoResumen(c.getNombre(), c.getTipo().name()))
+                        .toList();
 
         return new ResumenJuego(casosResueltos, totalCasosPrincipales, pistasDescubiertasTotal, totalPistas,
-                casosConVeredicto.size(), esAdmin, casosResumen);
+                casosConVeredicto.size(), esAdmin, casosResumen, conceptos);
     }
 }

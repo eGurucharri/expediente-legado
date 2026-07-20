@@ -67,6 +67,7 @@
                 <p class="prometeo-menu-grupo-titulo">Su expediente de personal</p>
                 <button type="button" class="prometeo-menu-item" data-abrir-panel="logros">Logros</button>
                 <button type="button" class="prometeo-menu-item" data-abrir-panel="tarot">Tarot</button>
+                <button type="button" class="prometeo-menu-item" data-abrir-panel="ventanilla">Ventanilla de Reclamaciones</button>
 
                 <p class="prometeo-menu-grupo-titulo">Ajustes de servicio</p>
                 <button type="button" class="prometeo-menu-item" data-abrir-panel="dificultad">Dificultad</button>
@@ -103,6 +104,18 @@
                 <button type="button" id="prometeo-tarot-revelar" class="prometeo-btn-secundario">Comprobar avance</button>
             </div>
             <div id="prometeo-tarot-lista" class="prometeo-tarot-lista"></div>
+            <button type="button" class="prometeo-btn-secundario" data-volver-panel>Volver</button>
+        </div>
+
+        <div class="prometeo-panel" data-panel="ventanilla" hidden>
+            <h2 id="prometeo-menu-title-ventanilla">Ventanilla de Reclamaciones</h2>
+            <p class="prometeo-subtitle">Siempre hay alguien esperando a que le digan que no.</p>
+            <div class="prometeo-tarot-resumen">
+                <span id="prometeo-ventanilla-racha" class="prometeo-pill"></span>
+                <button type="button" id="prometeo-ventanilla-empezar" class="prometeo-btn-secundario">Atender una reclamación</button>
+            </div>
+            <div id="prometeo-ventanilla-combate" class="prometeo-ventanilla-combate"></div>
+            <p class="prometeo-hint">Ganar no repone vidas ni concede cartas: aquí solo queda registrada la constancia.</p>
             <button type="button" class="prometeo-btn-secundario" data-volver-panel>Volver</button>
         </div>
 
@@ -209,7 +222,11 @@
             <h3 id="prometeo-despido-titulo">Su plaza ha sido reasignada</h3>
             <p id="prometeo-despido-texto">Demasiadas acusaciones sin fundamento. La Dirección lo agradece, pero ya no requiere sus servicios en este puesto.</p>
             <p class="prometeo-hint">Se ha quedado sin vidas — es un aviso, no un cierre: el expediente sigue abierto y puede seguir investigando y acusando. Si le está costando encontrar pistas, "Activar pistas" en RR. HH. las resalta por usted.</p>
-            <button type="button" class="prometeo-btn-secundario" data-cerrar-despido>Firmar el cese</button>
+            <p class="prometeo-hint">Hay una salida más: canjear una carta del tarot por una vida. Es irreversible, y renunciará con ella al expediente completo.</p>
+            <div class="prometeo-panel-acciones">
+                <button type="button" class="prometeo-btn-secundario" data-despido-tarot>Ver mi tarot</button>
+                <button type="button" class="prometeo-btn-secundario" data-cerrar-despido>Firmar el cese</button>
+            </div>
         </dialog>
     </div>
 

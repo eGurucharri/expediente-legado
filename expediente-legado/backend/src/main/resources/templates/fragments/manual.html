@@ -23,6 +23,7 @@
         <a class="siga-btn" href="#tema-pistas">Cómo encontrar pistas</a>
         <a class="siga-btn" href="#tema-corcho">El corcho de investigación</a>
         <a class="siga-btn" href="#tema-acusar">Presentar una acusación</a>
+        <a class="siga-btn" href="#tema-incidencias">Parte de incidencias</a>
     </nav>
     <div class="siga-manual-contenido">
         <section id="tema-guardar" class="siga-record">
@@ -75,6 +76,26 @@
                     vida — cuanta más evidencia reúna antes de acusar, menos riesgo corre.</p>
                 <p>Algunos sospechosos no se rinden sin más: presentan objeciones y hay que responderlas,
                     una a una, hasta que alguno de los dos se queda sin argumentos.</p>
+            </div>
+        </section>
+
+        <section id="tema-incidencias" class="siga-record">
+            <div class="siga-record-header">Parte de incidencias</div>
+            <div class="siga-record-body">
+                <p>Si el sistema hace algo que no debería — o no hace algo que debería —, rellene un
+                    parte. Un parte útil incluye: el número de build (está en el pie de la pantalla de
+                    acceso), su sistema operativo, qué estaba haciendo (los pasos, aunque sean
+                    aproximados), qué esperaba que pasara y qué pasó, y una captura de pantalla si
+                    puede — de la ventana de consola también, si hubo un error feo.</p>
+                <p>También son incidencias, y de las importantes: dónde se aburrió, dónde se perdió,
+                    qué no entendió y en qué momento pensó en dejarlo. La Dirección lo agradece.</p>
+                <p th:if="${feedbackUrl}">
+                    <a class="siga-btn" th:href="${feedbackUrl}" target="_blank" rel="noopener noreferrer">
+                        Abrir el formulario de incidencias
+                    </a>
+                </p>
+                <p th:unless="${feedbackUrl}">Haga llegar el parte por el canal acordado con el
+                    auditor jefe.</p>
             </div>
         </section>
     </div>

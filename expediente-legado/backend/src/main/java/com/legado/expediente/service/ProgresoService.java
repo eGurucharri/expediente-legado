@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -44,13 +45,36 @@ public class ProgresoService {
     }
 
     public boolean casoResuelto(Long casoId, Set<Long> pistasDescubiertas) {
-        List<Pista> pistas = pistaRepository.findByCasoId(casoId);
-        return !pistas.isEmpty() && pistas.stream().allMatch(p -> pistasDescubiertas.contains(p.getId()));
+        return resuelto(pistaRepository.findByCasoId(casoId), pistasDescubiertas);
     }
 
     public boolean todosResueltos(List<Caso> casosBase, Set<Long> pistasDescubiertas) {
-        return !casosBase.isEmpty() && casosBase.stream()
-                .allMatch(c -> casoResuelto(c.getId(), pistasDescubiertas));
+        if (casosBase.isEmpty()) {
+            return false;
+        }
+        // Una sola consulta para todas las pistas de los casos, en vez de una
+        // por caso (findByCasoId dentro de un bucle): mismo resultado, N+1 menos.
+        Map<Long, List<Pista>> pistasPorCaso = pistasPorCaso(casosBase);
+        return casosBase.stream()
+                .allMatch(c -> resuelto(pistasPorCaso.getOrDefault(c.getId(), List.of()), pistasDescubiertas));
+    }
+
+    private static boolean resuelto(List<Pista> pistas, Set<Long> pistasDescubiertas) {
+        return !pistas.isEmpty() && pistas.stream().allMatch(p -> pistasDescubiertas.contains(p.getId()));
+    }
+
+    /**
+     * Agrupa por caso, en una sola consulta, las pistas de los casos dados.
+     * Pensado para que quien recorre varios casos en una petición
+     * (dashboard, carpeta, resumen) no dispare una consulta por caso.
+     */
+    public Map<Long, List<Pista>> pistasPorCaso(List<Caso> casos) {
+        if (casos.isEmpty()) {
+            return Map.of();
+        }
+        List<Long> ids = casos.stream().map(Caso::getId).toList();
+        return pistaRepository.findByCasoIdIn(ids).stream()
+                .collect(Collectors.groupingBy(p -> p.getCaso().getId()));
     }
 
     public static class CasoProgreso {
@@ -84,9 +108,20 @@ public class ProgresoService {
     }
 
     public List<CasoProgreso> progreso(List<Caso> casos, Set<Long> pistasDescubiertas) {
+        return progreso(casos, pistasDescubiertas, pistasPorCaso(casos));
+    }
+
+    /**
+     * Variante que reutiliza un mapa de pistas ya cargado (ver
+     * {@link #pistasPorCaso}), para no repetir la consulta cuando quien llama
+     * necesita las mismas pistas para otra cosa (p.ej. las combinaciones del
+     * resumen).
+     */
+    public List<CasoProgreso> progreso(List<Caso> casos, Set<Long> pistasDescubiertas,
+                                        Map<Long, List<Pista>> pistasPorCaso) {
         return casos.stream()
                 .map(c -> {
-                    List<Pista> pistas = pistaRepository.findByCasoId(c.getId());
+                    List<Pista> pistas = pistasPorCaso.getOrDefault(c.getId(), List.of());
                     long encontradas = pistas.stream().filter(p -> pistasDescubiertas.contains(p.getId())).count();
                     boolean resuelto = !pistas.isEmpty() && encontradas == pistas.size();
                     return new CasoProgreso(c, pistas.size(), (int) encontradas, resuelto);

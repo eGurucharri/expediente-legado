@@ -8,7 +8,7 @@
 # ddl-auto: update; no hay ni native queries ni columnDefinition en el
 # código, verificado en el issue).
 server:
-  port: 8090
+  port: 1998
 
 spring:
   datasource:
@@ -16,6 +16,11 @@ spring:
     username: sa
     password: ""
     driver-class-name: org.h2.Driver
+  thymeleaf:
+    # En dev (application.yml) la cache va desactivada para recargar plantillas
+    # al vuelo; el build repartido no edita plantillas en caliente, así que aquí
+    # se reactiva para no recompilar cada vista en cada request.
+    cache: true
   main:
     # Spring pone java.awt.headless=true por defecto; sin esto,
     # Desktop.isDesktopSupported() daría siempre false y NavegadorStandalone

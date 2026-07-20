@@ -63,8 +63,8 @@ class ProgresoServiceTest {
         Caso caso2 = new Caso();
         caso2.setId(2L);
 
-        pistasPorCaso.put(1L, Collections.singletonList(pista(1L)));
-        pistasPorCaso.put(2L, Collections.singletonList(pista(2L)));
+        pistasPorCaso.put(1L, Collections.singletonList(pista(1L, 1L)));
+        pistasPorCaso.put(2L, Collections.singletonList(pista(2L, 2L)));
 
         assertTrue(progresoService.todosResueltos(Arrays.asList(caso1, caso2), new HashSet<>(Arrays.asList(1L, 2L))));
         assertFalse(progresoService.todosResueltos(Collections.emptyList(), new HashSet<>(Arrays.asList(1L, 2L))));
@@ -76,7 +76,7 @@ class ProgresoServiceTest {
         Caso caso = new Caso();
         caso.setId(5L);
 
-        pistasPorCaso.put(5L, Arrays.asList(pista(1L), pista(2L)));
+        pistasPorCaso.put(5L, Arrays.asList(pista(1L, 5L), pista(2L, 5L)));
 
         List<ProgresoService.CasoProgreso> result = progresoService.progreso(Collections.singletonList(caso), new HashSet<>(Collections.singletonList(1L)));
 
@@ -89,6 +89,14 @@ class ProgresoServiceTest {
     private Pista pista(Long id) {
         Pista pista = new Pista();
         pista.setId(id);
+        return pista;
+    }
+
+    private Pista pista(Long id, Long casoId) {
+        Pista pista = pista(id);
+        Caso caso = new Caso();
+        caso.setId(casoId);
+        pista.setCaso(caso);
         return pista;
     }
 
@@ -115,6 +123,15 @@ class ProgresoServiceTest {
                 (proxy, method, args) -> {
                     if ("findByCasoId".equals(method.getName())) {
                         return data.getOrDefault((Long) args[0], Collections.emptyList());
+                    }
+                    if ("findByCasoIdIn".equals(method.getName())) {
+                        @SuppressWarnings("unchecked")
+                        java.util.Collection<Long> ids = (java.util.Collection<Long>) args[0];
+                        List<Pista> todas = new java.util.ArrayList<>();
+                        for (Long id : ids) {
+                            todas.addAll(data.getOrDefault(id, Collections.emptyList()));
+                        }
+                        return todas;
                     }
                     if ("toString".equals(method.getName())) {
                         return "FakePistaRepository";

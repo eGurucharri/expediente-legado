@@ -43,18 +43,23 @@ class CarpetaControllerTest {
     private final Authentication authentication = new UsernamePasswordAuthenticationToken("auditor01", "n/a");
     private List<Concepto> conceptosDesbloqueados;
     private CarpetaController controller;
+    private CasoRepository casoRepository;
+    private ConceptoRepository conceptoRepository;
+    private ProgresoService progresoService;
+    private ResumenJuegoService resumenJuegoService;
+    private UsuarioRepository usuarioRepository;
 
     @BeforeEach
     void configurar() {
         usuario.setId(1L);
 
-        UsuarioRepository usuarioRepository = fake(UsuarioRepository.class, Map.of(
+        usuarioRepository = fake(UsuarioRepository.class, Map.of(
                 "findByUsername", args -> Optional.of(usuario)
         ));
-        CasoRepository casoRepository = fake(CasoRepository.class, Map.of(
+        casoRepository = fake(CasoRepository.class, Map.of(
                 "findAll", args -> Collections.emptyList()
         ));
-        ConceptoRepository conceptoRepository = fake(ConceptoRepository.class, Map.of(
+        conceptoRepository = fake(ConceptoRepository.class, Map.of(
                 "findByPistaIdIn", args -> conceptosDesbloqueados,
                 "findByEpilogoTrue", args -> Collections.emptyList()
         ));
@@ -63,15 +68,36 @@ class CarpetaControllerTest {
         ));
         PistaRepository pistaRepository = fake(PistaRepository.class, Map.of());
 
-        ProgresoService progresoService = new ProgresoService(descubrimientoRepository, pistaRepository);
+        progresoService = new ProgresoService(descubrimientoRepository, pistaRepository);
         VeredictoRepository veredictoRepository = fake(VeredictoRepository.class, Map.of(
                 "findByUsuarioId", args -> Collections.emptyList()
         ));
-        ResumenJuegoService resumenJuegoService = new ResumenJuegoService(casoRepository, pistaRepository,
-                veredictoRepository, progresoService);
+        resumenJuegoService = new ResumenJuegoService(casoRepository,
+                veredictoRepository, conceptoRepository, progresoService);
 
         controller = new CarpetaController(casoRepository, conceptoRepository, progresoService,
-                resumenJuegoService, new WikiLinkService(), new UsuarioContexto(usuarioRepository));
+                resumenJuegoService, new WikiLinkService(), new UsuarioContexto(usuarioRepository), "");
+    }
+
+    @Test
+    void sinFeedbackUrlConfiguradaElModeloLlevaNullYElManualMuestraElCanalAcordado() {
+        conceptosDesbloqueados = List.of();
+
+        Model model = ejecutarCarpeta();
+
+        assertEquals(null, model.getAttribute("feedbackUrl"));
+    }
+
+    @Test
+    void conFeedbackUrlConfiguradaElModeloLaExponeParaElBotonDelManual() {
+        conceptosDesbloqueados = List.of();
+        controller = new CarpetaController(casoRepository, conceptoRepository, progresoService,
+                resumenJuegoService, new WikiLinkService(), new UsuarioContexto(usuarioRepository),
+                "https://forms.gle/parte-incidencias");
+
+        Model model = ejecutarCarpeta();
+
+        assertEquals("https://forms.gle/parte-incidencias", model.getAttribute("feedbackUrl"));
     }
 
     @Test

@@ -5,12 +5,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 public interface PistaRepository extends JpaRepository<Pista, Long> {
 
     List<Pista> findByCasoId(Long casoId);
+
+    List<Pista> findByCasoIdIn(Collection<Long> casoIds);
 
     @Query("select p from Pista p where p.caso.id = :casoId and p.registroOrigen2 is not null "
             + "and ((p.registroOrigen.id = :id1 and p.registroOrigen2.id = :id2) "

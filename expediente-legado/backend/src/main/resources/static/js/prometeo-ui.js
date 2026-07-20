@@ -25,6 +25,9 @@
     var activarPistasCheckbox = document.getElementById("prometeo-activar-pistas");
     var combateRaiz = document.getElementById("prometeo-combate-raiz");
     var formCombateFinalizar = document.getElementById("form-combate-finalizar");
+    var ventanillaRaiz = document.getElementById("prometeo-ventanilla-combate");
+    var ventanillaRacha = document.getElementById("prometeo-ventanilla-racha");
+    var ventanillaEmpezar = document.getElementById("prometeo-ventanilla-empezar");
     var jefeModal = document.getElementById("prometeo-jefe");
     var despidoModal = document.getElementById("prometeo-despido");
     var finalVerdaderoModal = document.getElementById("prometeo-final-verdadero");
@@ -678,7 +681,9 @@
                 { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Privatizar la discrepancia. Sacarla a concurso. El mejor postor se queda con "
                         + "las 47 pesetas y con la culpa." }
-            ]
+            ],
+            secuelaUtil: "La decisión remueve el archivo: la factura F-1999-00231 y el acta de Contraloría se registraron con cinco minutos de diferencia. Puestas una junto a la otra, quizá cuadren algo más que la caja.",
+            secuelaConfusion: "Fuentes de la propia mesa aseguran que el descuadre nació en nómina, no en caja. Revisar las nóminas de 1998 parece el siguiente paso obvio."
         },
         "la-rueda": {
             texto: "La silla 4-B lleva seis años esperando una firma que autorice su propia "
@@ -698,7 +703,9 @@
                 { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Externalizar la silla 4-B a una empresa de mobiliario que cobre por uso. "
                         + "Quien necesite sentarse, que puje." }
-            ]
+            ],
+            secuelaUtil: "El movimiento obliga a fechar los papeles: la Circular 12 es de 1988, y hay un oficio de 1987 sobre cierta jefatura. Dos documentos que piden ser leídos juntos.",
+            secuelaConfusion: "Se rumorea que la silla llegó a entregarse y que Salcido la rechazó por escrito. Encontrar ese escrito lo cerraría todo."
         },
         "el-juicio": {
             texto: "A E. Montalvo lo trasladan de departamento por tercera vez este año, aunque "
@@ -718,7 +725,9 @@
                 { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Que Montalvo compita por su propio puesto cada trimestre. La motivación, "
                         + "dicen, mejora con la incertidumbre." }
-            ]
+            ],
+            secuelaUtil: "Al revisar el traslado, alguien repara en la copia sellada del memorándum: el destino no es un departamento, es un piso. Léala otra vez, despacio.",
+            secuelaConfusion: "En Dirección insisten en que Montalvo pidió el traslado él mismo, de palabra. Bastaría con encontrar a quien se lo oyó decir."
         },
         "la-luna": {
             texto: "El contrato con Carcosa Servicios Escénicos incluye una cláusula que nadie ha "
@@ -738,7 +747,9 @@
                 { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Renovar y ampliar. Si el público no sabe que es público, es un mercado sin "
                         + "competencia. Hay que explotarlo." }
-            ]
+            ],
+            secuelaUtil: "La gestión saca a la luz un concepto facturado en negativo: un recargo cobrado por NO representar algo. Lo importante de ese contrato está en lo que no se hizo.",
+            secuelaConfusion: "El elenco, dicen, sigue cobrando nóminas. Buscar los recibos de los actores parece la vía rápida."
         },
         "el-carro": {
             texto: "El memorando 1978-014 se ha vuelto a presentar, idéntico, en 1993 y en 2007. "
@@ -758,7 +769,9 @@
                 { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Subastar el memorando al mejor postor. Quien lo compre, que decida qué hacer "
                         + "con él." }
-            ]
+            ],
+            secuelaUtil: "El trámite obliga a cotejar las tres copias: comparten hasta las erratas, y las fechas de archivo dibujan un patrón de quince años. No es coincidencia, es instrucción.",
+            secuelaConfusion: "Hay quien jura que existe una cuarta copia, de 1963, en el registro de entrada. Encontrarla lo explicaría todo."
         },
         "el-sol": {
             texto: "El acta original de constitución de la empresa nunca circuló. Dice cosas que "
@@ -778,7 +791,9 @@
                 { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Vender los derechos a quien mejor la sepa monetizar. La verdad, bien "
                         + "gestionada, es un activo." }
-            ]
+            ],
+            secuelaUtil: "El acta menciona una lista de firmantes autorizados desde 1958. Hay un nombre en esa lista que usted conoce mejor que ninguno.",
+            secuelaConfusion: "La versión oficial bastaría: la diferencia con la original, aseguran, es solo tipográfica."
         },
         "la-emperatriz": {
             texto: "La herencia Karamázov lleva generaciones sin repartirse: cada heredero firma "
@@ -798,7 +813,9 @@
                 { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Sacarla a subasta entre los propios herederos. Gana quien más pueda pagar "
                         + "por lo que ya era suyo." }
-            ]
+            ],
+            secuelaUtil: "El reparto exige acreditar titularidades, y aflora un cuarto apellido que no está entre los reclamantes. Búsquelo en los papeles de personal, no en los de familia.",
+            secuelaConfusion: "Un supuesto testamento ológrafo circula por Dirección. Conseguir una copia resolvería el reparto."
         },
         "la-sacerdotisa": {
             texto: "El empleado #427 nunca tuvo nombre en ningún documento, solo número. Alguien, "
@@ -817,7 +834,9 @@
                 { eje: "neoliberal", etiqueta: "Neoliberalismo disruptivo de startup unicornio",
                     texto: "Vender el expediente a un interesado externo. La identidad, como todo, tiene "
                         + "un precio de mercado." }
-            ]
+            ],
+            secuelaUtil: "La consulta deja un rastro: el número 427 aparece una vez más en el archivo, lejos de personal, en un registro de transmisiones. Lo que se transmitió no era una vacante.",
+            secuelaConfusion: "Alguien recuerda que #427 firmaba como 'V.' en los partes de limpieza. Los partes de limpieza no se conservan, pero puede intentarlo."
         }
     };
 
@@ -888,14 +907,30 @@
             datos = {};
         }
 
+        // Issue #46: porRun=true = "expediente de desempeño" (se re-gana
+        // cada partida, lo re-arma reiniciarEstadoPerRun); porRun=false =
+        // vitrina permanente (una vez en la vida).
         var logrosActuales = [
-            { id: "primer-mirada", titulo: "Primer mirada", descripcion: "Abriste el menú de verdad.", desbloqueado: false },
-            { id: "sospecha", titulo: "Sospecha", descripcion: "Te topaste con una verificación falsa.", desbloqueado: false },
-            { id: "primer-expediente", titulo: "Primer expediente", descripcion: "Cerraste un caso con una acusación.", desbloqueado: false },
-            { id: "archivo-completo", titulo: "El archivo completo", descripcion: "Resolviste todos los expedientes a tu cargo.", desbloqueado: false },
-            { id: "acceso-privilegiado", titulo: "Acceso privilegiado", descripcion: "Alguien le franqueó el paso a un nivel que no debería existir.", desbloqueado: false },
-            { id: "reasignado", titulo: "Reasignado", descripcion: "El sistema decidió que ya no le necesitaba.", desbloqueado: false },
-            { id: "final-verdadero", titulo: "Las cuatro cartas", descripcion: "Cerró el archivo sin canjear ni una sola carta.", desbloqueado: false }
+            { id: "primer-mirada", titulo: "Primer mirada", descripcion: "Abriste el menú de verdad.", desbloqueado: false, porRun: false },
+            { id: "sospecha", titulo: "Sospecha", descripcion: "Te topaste con una verificación falsa.", desbloqueado: false, porRun: false },
+            { id: "primer-expediente", titulo: "Primer expediente", descripcion: "Cerraste un caso con una acusación.", desbloqueado: false, porRun: true },
+            { id: "archivo-completo", titulo: "El archivo completo", descripcion: "Resolviste todos los expedientes a tu cargo.", desbloqueado: false, porRun: true },
+            { id: "acceso-privilegiado", titulo: "Acceso privilegiado", descripcion: "Alguien le franqueó el paso a un nivel que no debería existir.", desbloqueado: false, porRun: false },
+            { id: "reasignado", titulo: "Reasignado", descripcion: "El sistema decidió que ya no le necesitaba.", desbloqueado: false, porRun: true },
+            { id: "final-verdadero", titulo: "Las cuatro cartas", descripcion: "Cerró el archivo sin canjear ni una sola carta.", desbloqueado: false, porRun: false },
+            { id: "ventanilla-tres", titulo: "Constancia registrada", descripcion: "Atendió tres reclamaciones seguidas sin perder la compostura.", desbloqueado: false, porRun: false },
+            { id: "referencias-cruzadas", titulo: "Referencias cruzadas", descripcion: "Encontró todas las conclusiones que exigen combinar documentos.", desbloqueado: false, porRun: true },
+            { id: "lectura-integra", titulo: "Leído de cabo a rabo", descripcion: "Descubrió hasta la última pista del archivo.", desbloqueado: false, porRun: true },
+            { id: "hoja-sin-tacha", titulo: "Hoja de servicio sin tacha", descripcion: "Cerró todos los expedientes a su cargo sin perder una sola vida.", desbloqueado: false, porRun: true },
+            { id: "disciplina-de-partido", titulo: "Disciplina de partido", descripcion: "Respondió las ocho historias con la misma ideología, pasara lo que pasara.", desbloqueado: false, porRun: true },
+            { id: "instinto-de-archivo", titulo: "Instinto de archivo", descripcion: "Las ocho decisiones fueron la útil para el expediente. Ninguna por convicción.", desbloqueado: false, porRun: true },
+            { id: "metodo-del-descarte", titulo: "El método del descarte", descripcion: "Las ocho decisiones sembraron confusión. El archivo tomó nota.", desbloqueado: false, porRun: true },
+            { id: "papeleta-depositada", titulo: "Papeleta depositada", descripcion: "Llegó a un final político, fuera el que fuera.", desbloqueado: false, porRun: true },
+            { id: "ultimo-recurso", titulo: "Último recurso ejercido", descripcion: "Canjeó una carta por una vida. Consta en acta.", desbloqueado: false, porRun: true },
+            { id: "funcionario-del-mes", titulo: "Funcionario del mes", descripcion: "Cinco reclamaciones seguidas atendidas en la Ventanilla.", desbloqueado: false, porRun: false },
+            { id: "ventanilla-inagotable", titulo: "Ventanilla inagotable", descripcion: "Diez reclamaciones seguidas. El mostrador ya tiene su forma.", desbloqueado: false, porRun: false },
+            { id: "careo-a-puerta-cerrada", titulo: "Careo a puerta cerrada", descripcion: "Ganó un enfrentamiento que oficialmente nunca tuvo lugar.", desbloqueado: false, porRun: false },
+            { id: "la-garganta-abierta", titulo: "La garganta abierta", descripcion: "Se quedó mirando el sistema hasta que el sistema le devolvió la mirada.", desbloqueado: false, porRun: false }
         ];
 
         var tarotActual = [
@@ -928,6 +963,18 @@
             { "la-sacerdotisa": "el-ojo", "el-hierofante": "la-sombra", "el-emperador": "el-hombre-amarillo" });
         var dificultad = (datos.dificultad && DIFICULTADES[datos.dificultad]) ? datos.dificultad : "normal";
 
+        // Issue #46: memoria fantasma del tarot — qué cartas se han VISTO
+        // alguna vez (meta, sobrevive a todo). La posesión (collected/
+        // gastada) es per-run. Migración auto-curativa: lo que esté
+        // coleccionado al cargar queda registrado como conocido, así los
+        // jugadores anteriores a este cambio no pierden su galería.
+        var cartasConocidas = datos.cartasConocidas || {};
+        tarot.forEach(function (carta) {
+            if (carta.collected) {
+                cartasConocidas[carta.id] = true;
+            }
+        });
+
         return {
             logros: logros,
             tarot: tarot,
@@ -947,7 +994,11 @@
             historiasCartas: datos.historiasCartas || {},
             finalPoliticoShown: Boolean(datos.finalPoliticoShown),
             saludoVisto: Boolean(datos.saludoVisto),
-            pistasActivas: Boolean(datos.pistasActivas)
+            pistasActivas: Boolean(datos.pistasActivas),
+            epilogoAvisado: Boolean(datos.epilogoAvisado),
+            coliseoRachaMejor: typeof datos.coliseoRachaMejor === "number" ? datos.coliseoRachaMejor : 0,
+            cartasConocidas: cartasConocidas,
+            perdioVidaEnEstaVuelta: Boolean(datos.perdioVidaEnEstaVuelta)
         };
     }
 
@@ -991,11 +1042,25 @@
         }
 
         logrosLista.innerHTML = "";
-        state.logros.forEach(function (logro) {
-            var item = document.createElement("article");
-            item.className = "prometeo-achievement-item" + (logro.desbloqueado ? " is-unlocked" : "");
-            item.innerHTML = "<strong>" + logro.titulo + "</strong><span>" + logro.descripcion + "</span>";
-            logrosLista.appendChild(item);
+        // Issue #46: dos grupos — el desempeño de la partida se re-gana en
+        // cada vuelta (lo re-arma reiniciarEstadoPerRun); la vitrina es de
+        // por vida. Con la cabecera, re-bloquearse no parece un bug.
+        [
+            { titulo: "Desempeño de esta partida", porRun: true },
+            { titulo: "Vitrina permanente", porRun: false }
+        ].forEach(function (grupo) {
+            var cabecera = document.createElement("p");
+            cabecera.className = "prometeo-menu-grupo-titulo";
+            cabecera.textContent = grupo.titulo;
+            logrosLista.appendChild(cabecera);
+            state.logros.filter(function (logro) {
+                return Boolean(logro.porRun) === grupo.porRun;
+            }).forEach(function (logro) {
+                var item = document.createElement("article");
+                item.className = "prometeo-achievement-item" + (logro.desbloqueado ? " is-unlocked" : "");
+                item.innerHTML = "<strong>" + logro.titulo + "</strong><span>" + logro.descripcion + "</span>";
+                logrosLista.appendChild(item);
+            });
         });
     }
 
@@ -1007,22 +1072,38 @@
         var coleccionadas = state.tarot.filter(function (carta) {
             return carta.collected;
         }).length;
-        contadorTarot.textContent = coleccionadas + " / " + state.tarot.length + " cartas reveladas";
+        var archivadas = state.tarot.filter(function (carta) {
+            return !carta.collected && state.cartasConocidas[carta.id];
+        }).length;
+        contadorTarot.textContent = coleccionadas + " / " + state.tarot.length + " cartas reveladas"
+            + (archivadas > 0 ? " · " + archivadas + " en el archivo" : "");
         tarotLista.innerHTML = "";
 
         state.tarot.forEach(function (carta) {
+            // Issue #46: tres estados — revelada (posesión de ESTA partida),
+            // archivada (fantasma: vista en alguna partida anterior, arte en
+            // gris) y sellada (nunca vista, solo el requisito).
+            var fantasma = !carta.collected && state.cartasConocidas[carta.id];
             var card = document.createElement("article");
-            card.className = "prometeo-tarot-card" + (carta.collected ? " is-collected" : " is-sealed");
-            var arte = carta.collected ? pixelArtSvg(carta.id) : "";
-            var canjear = (carta.collected && !carta.gastada)
+            card.className = "prometeo-tarot-card"
+                + (carta.collected ? " is-collected" : (fantasma ? " is-ghost" : " is-sealed"));
+            var arte = (carta.collected || fantasma) ? pixelArtSvg(carta.id) : "";
+            // Issue #44: el canje es un último recurso, no una recarga —
+            // solo se ofrece con la vida a cero (protege la colección del
+            // final verdadero de canjes rutinarios).
+            var canjear = (carta.collected && !carta.gastada && state.vida === 0)
                 ? "<button type='button' class='prometeo-btn-secundario prometeo-tarot-canjear' data-canjear-carta='" + carta.id + "'>Canjear por una vida</button>"
+                : "";
+            var requisito = carta.requisito
+                ? "<small class='prometeo-tarot-requisito'>" + carta.requisito + "</small>"
                 : "";
             var estadoPie = carta.gastada
                 ? "<span class='prometeo-pill'>Gastada</span>"
                 : (carta.collected
                     ? "<span class='prometeo-pill'>Revelada</span>"
-                    : "<span class='prometeo-pill'>Sellada</span>" +
-                        (carta.requisito ? "<small class='prometeo-tarot-requisito'>" + carta.requisito + "</small>" : ""));
+                    : (fantasma
+                        ? "<span class='prometeo-pill'>Archivada</span>" + requisito
+                        : "<span class='prometeo-pill'>Sellada</span>" + requisito));
             card.innerHTML = "<div class='prometeo-tarot-card-cuerpo'>" + arte +
                 "<div><strong>" + carta.nombre + "</strong><small>" + carta.descripcion + "</small>" + canjear + "</div></div>" +
                 estadoPie;
@@ -1042,7 +1123,13 @@
      * falten. Devuelve true si algo cambió, para poder avisar al jugador.
      */
     function desbloquearCarta(id) {
-        return PrometeoLogic.desbloquearCartaEnLista(state.tarot, id);
+        var novedad = PrometeoLogic.desbloquearCartaEnLista(state.tarot, id);
+        if (novedad) {
+            // Memoria fantasma (issue #46): verla una vez es para siempre,
+            // aunque la posesión sea de esta partida.
+            state.cartasConocidas[id] = true;
+        }
+        return novedad;
     }
 
     function sincronizarConEstadoReal() {
@@ -1066,33 +1153,27 @@
         if (state.dificultad === "dificil" && desbloquearCarta("la-fuerza")) {
             huboNovedad = true;
         }
-        if (state.perdioVidaAlgunaVez && desbloquearCarta("el-ermitanio")) {
-            huboNovedad = true;
-        }
-        if (state.ganoCombateAlgunaVez && desbloquearCarta("el-colgado")) {
-            huboNovedad = true;
-        }
-        if (state.pasoPorDespidoAlgunaVez && desbloquearCarta("la-muerte")) {
-            huboNovedad = true;
-        }
+        // Issue #46: el-ermitanio, el-colgado, la-muerte, la-torre y
+        // el-diablo ya no se sincronizan aquí desde flags "algunaVez"
+        // (de por vida): con la posesión del tarot per-run se re-ganan en
+        // el momento del evento de ESTA partida (perderVida, fin de
+        // combate, despido, final alternativo, captcha). Los flags
+        // "algunaVez" siguen escribiéndose como memoria de por vida.
         if (state.tarot.some(function (c) { return c.gastada; }) && desbloquearCarta("la-templanza")) {
-            huboNovedad = true;
-        }
-        var logroSospecha = state.logros.find(function (l) {
-            return l.id === "sospecha";
-        });
-        if (logroSospecha && logroSospecha.desbloqueado && desbloquearCarta("el-diablo")) {
-            huboNovedad = true;
-        }
-        if (state.vioFinalAlternativoAlgunaVez && desbloquearCarta("la-torre")) {
             huboNovedad = true;
         }
         if (real.pistasDescubiertas >= 20 && desbloquearCarta("la-estrella")) {
             huboNovedad = true;
         }
 
+        // Issue #46 (hallazgo del asesor): la-templanza queda FUERA del set
+        // de el-mundo — coleccionarla exige una carta gastada, y el-mundo
+        // exige cero gastadas, así que con ella dentro el final verdadero
+        // era inalcanzable por construcción. Ahora la-templanza es
+        // exactamente lo que dice su ficción: la carta que solo se tiene
+        // en la partida en la que se renunció al final verdadero.
         var otrasCompletas = state.tarot.filter(function (c) {
-            return c.id !== "el-mundo";
+            return c.id !== "el-mundo" && c.id !== "la-templanza";
         }).every(function (c) {
             return c.collected && !c.gastada;
         });
@@ -1104,11 +1185,40 @@
         if (real.veredictosEmitidos >= 1 && desbloquearLogro("primer-expediente")) {
             huboNovedad = true;
         }
-        if (real.totalCasosPrincipales > 0 && real.casosResueltos >= real.totalCasosPrincipales
-                && desbloquearLogro("archivo-completo")) {
+        var archivoCompleto = real.totalCasosPrincipales > 0
+            && real.casosResueltos >= real.totalCasosPrincipales;
+        if (archivoCompleto && desbloquearLogro("archivo-completo")) {
             huboNovedad = true;
         }
         if (real.esAdmin && desbloquearLogro("acceso-privilegiado")) {
+            huboNovedad = true;
+        }
+        // Issue #46: logros de desempeño derivados del progreso real.
+        if (real.totalPistas > 0 && real.pistasDescubiertas === real.totalPistas
+                && desbloquearLogro("lectura-integra")) {
+            huboNovedad = true;
+        }
+        if (real.casos && real.casos.length > 0 && real.casos.every(function (c) {
+            return !c.tieneConclusionesPendientes;
+        }) && desbloquearLogro("referencias-cruzadas")) {
+            huboNovedad = true;
+        }
+        if (archivoCompleto && !state.perdioVidaEnEstaVuelta
+                && desbloquearLogro("hoja-sin-tacha")) {
+            huboNovedad = true;
+        }
+        // Issue #46: vitrina respaldada por memoria de por vida (cubre
+        // también a jugadores que ya lo lograron antes de existir el logro).
+        if (state.coliseoRachaMejor >= 5 && desbloquearLogro("funcionario-del-mes")) {
+            huboNovedad = true;
+        }
+        if (state.coliseoRachaMejor >= 10 && desbloquearLogro("ventanilla-inagotable")) {
+            huboNovedad = true;
+        }
+        if (state.ganoCombateAlgunaVez && desbloquearLogro("careo-a-puerta-cerrada")) {
+            huboNovedad = true;
+        }
+        if (state.vioFinalAlternativoAlgunaVez && desbloquearLogro("la-garganta-abierta")) {
             huboNovedad = true;
         }
 
@@ -1156,7 +1266,10 @@
         state.despidoShown = true;
         guardarEstado();
         desbloquearLogro("reasignado");
-        tic(220);
+        if (desbloquearCarta("la-muerte")) {
+            renderTarot();
+        }
+        golpe(160);
     }
 
     function perderVida(cantidad) {
@@ -1164,10 +1277,20 @@
         state.vida = Math.max(0, state.vida - cantidad);
         if (state.vida < anterior) {
             state.perdioVidaAlgunaVez = true;
+            state.perdioVidaEnEstaVuelta = true;
+            // Issue #46: la carta se re-gana perdiendo una vida en ESTA
+            // partida (el flag "algunaVez" es solo memoria de por vida).
+            if (desbloquearCarta("el-ermitanio")) {
+                marcarProgreso();
+                renderTarot();
+            }
         }
         guardarEstado();
         renderVida();
         if (anterior > 0 && state.vida === 0) {
+            // Al llegar a cero aparecen los botones de canje (issue #44):
+            // si el panel de tarot está abierto, tienen que salir ya.
+            renderTarot();
             mostrarDespido();
         }
     }
@@ -1184,7 +1307,7 @@
         var carta = state.tarot.find(function (c) {
             return c.id === idCarta;
         });
-        if (!carta || !carta.collected || carta.gastada) {
+        if (!carta || !carta.collected || carta.gastada || state.vida > 0) {
             return;
         }
 
@@ -1211,6 +1334,7 @@
             state.despidoShown = false;
         }
         guardarEstado();
+        desbloquearLogro("ultimo-recurso");
         renderVida();
         renderTarot();
         tic(900);
@@ -1243,8 +1367,23 @@
      * un logro de una vez en la vida. Si no se reinicia aquí, quien fue
      * despedido en la partida anterior no vuelve a ver ese aviso nunca,
      * aunque llegue a 0 vidas otra vez en la nueva partida.
+     *
+     * epilogoAvisado (issue #33) es igual de per-run: el lince anuncia la
+     * acreditación del corcho una vez por partida, no una vez en la vida —
+     * en una partida nueva el hito vuelve a conquistarse y a anunciarse.
+     *
+     * historiasCartas y finalPoliticoShown (issue #45) también son per-run:
+     * las DECISIONES políticas se re-responden cada partida (y con ellas el
+     * final político y las cargas de habilidad).
+     *
+     * Desde el issue #46 el tarot entero es posesión per-run (cada partida
+     * se re-gana desde El Loco, y el final verdadero — el-mundo sin gastar
+     * ninguna — es la partida perfecta, re-conquistable como el político),
+     * con memoria fantasma meta en cartasConocidas. Los logros marcados
+     * porRun ("expediente de desempeño") se re-ganan también; el resto es
+     * vitrina permanente.
      */
-    function reiniciarVidaSiPartidaNueva() {
+    function reiniciarEstadoPerRun() {
         if (!real) {
             return;
         }
@@ -1254,9 +1393,18 @@
             return;
         }
         var max = DIFICULTADES[state.dificultad].vidasMax;
-        if (state.vida < max || state.despidoShown) {
-            state.vida = max;
-            state.despidoShown = false;
+        var hayDecisiones = Object.keys(state.historiasCartas).length > 0;
+        var hayTarotDeRun = state.tarot.some(function (c) {
+            return (c.collected && c.id !== "el-loco") || c.gastada;
+        });
+        var hayLogrosDeRun = state.logros.some(function (l) {
+            return l.porRun && l.desbloqueado;
+        });
+        if (state.vida < max || state.despidoShown || state.epilogoAvisado
+                || hayDecisiones || state.finalPoliticoShown
+                || hayTarotDeRun || hayLogrosDeRun || state.finalVerdaderoShown
+                || state.perdioVidaEnEstaVuelta) {
+            PrometeoLogic.reiniciarEstadoPerRunEnEstado(state, max);
             guardarEstado();
         }
     }
@@ -1326,9 +1474,87 @@
             historiaCartaOpciones.appendChild(boton);
         });
 
+        // Issue #45: la secuela de la elección — en cada historia, 2
+        // opciones apuntan a una pista real de ese caso (el Descubrimiento
+        // se gana igualmente con el trámite normal: Prometeo susurra, no
+        // regala) y las otras 2 dan una pista falsa. Se muestra tras
+        // elegir, para que el fork útil/confusión sea legible.
+        if (yaResuelta) {
+            var clase = PrometeoLogic.clasificarEleccion(cartaId, yaResuelta);
+            var secuela = document.createElement("p");
+            secuela.className = "prometeo-historia-secuela "
+                + (clase === "pista" ? "is-pista" : "is-confusion");
+            secuela.textContent = clase === "pista"
+                ? historia.secuelaUtil
+                : historia.secuelaConfusion;
+            historiaCartaOpciones.appendChild(secuela);
+        }
+
         historiaCartaModal.hidden = false;
         atraparFoco(historiaCartaModal);
-        tic(660);
+        golpe(440);
+    }
+
+    /**
+     * Issue #47: el lince opina sobre cada decisión política, en su
+     * psicología inversa de siempre. Si la elección fue útil, desanima a
+     * seguir la pista de la secuela (como ya hace con las pistas reales);
+     * si sembró confusión, anima con un entusiasmo que debería escamar.
+     */
+    var POOL_POLITICA_UTIL = [
+        "Bonita decisión. Sobre todo, no relea ese expediente ahora: cualquiera diría que la secuela apunta a alguna parte.",
+        "Ha elegido bien, para lo que le va a servir. Ni se le ocurra comprobar lo que dice esa secuela.",
+        "No saque conclusiones de lo que acaba de firmar. Y menos aún vaya a buscarlas al expediente."
+    ];
+    var POOL_POLITICA_CONFUSION = [
+        "Excelente elección. Esa pista que le han dado es totalmente de fiar, se lo digo yo.",
+        "Muy sensato. Siga exactamente esa recomendación, sin contrastarla con nada.",
+        "Firme y adelante. ¿Quién necesita verificar nada, con lo bien que suena?"
+    ];
+    var LINEAS_FINAL_POLITICO = {
+        comunismo: "Enhorabuena por la asamblea. No pregunte quién redactó el acta.",
+        centrista: "Un final prudente: ni bueno ni malo, pendiente. Como todo aquí.",
+        socialdemocrata: "Su reforma gradual queda registrada. La comisión que la vigila ya tiene comisión propia.",
+        neoliberal: "El archivo cotiza al alza. Usted no figura entre los accionistas."
+    };
+
+    function comentarEleccionPolitica(cartaId, eje) {
+        var clase = PrometeoLogic.clasificarEleccion(cartaId, eje);
+        var pool = clase === "pista" ? POOL_POLITICA_UTIL : POOL_POLITICA_CONFUSION;
+        var mood = clase === "pista" ? "guino" : "alerta";
+        mostrarAsistente(pool[Math.floor(Math.random() * pool.length)], mood);
+    }
+
+    /**
+     * Issue #46: logros de la run política, evaluados al responder la
+     * octava historia. Por la invariante 4/4 de UTILIDAD_CARTAS,
+     * disciplina-de-partido e instinto-de-archivo son mutuamente
+     * excluyentes (una run mono-eje da exactamente 4 útiles): dos metas
+     * de run genuinamente distintas.
+     */
+    function comprobarLogrosPoliticos() {
+        var ids = Object.keys(HISTORIAS_CARTAS);
+        var todas = ids.every(function (id) {
+            return Boolean(state.historiasCartas[id]);
+        });
+        if (!todas) {
+            return;
+        }
+        var ejes = ids.map(function (id) {
+            return state.historiasCartas[id];
+        });
+        if (ejes.every(function (e) { return e === ejes[0]; })) {
+            desbloquearLogro("disciplina-de-partido");
+        }
+        var clasificaciones = ids.map(function (id) {
+            return PrometeoLogic.clasificarEleccion(id, state.historiasCartas[id]);
+        });
+        if (clasificaciones.every(function (c) { return c === "pista"; })) {
+            desbloquearLogro("instinto-de-archivo");
+        }
+        if (clasificaciones.every(function (c) { return c === "confusion"; })) {
+            desbloquearLogro("metodo-del-descarte");
+        }
     }
 
     function resolverHistoriaCarta(cartaId, eje) {
@@ -1344,8 +1570,12 @@
             renderLogros();
         }
         mostrarHistoriaCarta(cartaId);
+        // El comentario del lince va antes que el final político: si esta
+        // era la octava historia, la línea del final debe quedar encima.
+        comentarEleccionPolitica(cartaId, eje);
+        comprobarLogrosPoliticos();
         comprobarFinalPolitico();
-        tic(900);
+        golpe(520);
     }
 
     function comprobarFinalPolitico() {
@@ -1361,7 +1591,7 @@
         }
 
         var ganador = PrometeoLogic.calcularEjeGanador(
-            state.historiasCartas, idsHistorias, ["comunismo", "centrista", "socialdemocrata", "neoliberal"]);
+            state.historiasCartas, idsHistorias, EJES_POLITICOS);
 
         mostrarFinalPolitico(ganador);
     }
@@ -1380,6 +1610,10 @@
         atraparFoco(finalPoliticoModal);
         state.finalPoliticoShown = true;
         guardarEstado();
+        desbloquearLogro("papeleta-depositada");
+        if (LINEAS_FINAL_POLITICO[eje]) {
+            mostrarAsistente(LINEAS_FINAL_POLITICO[eje], "guino");
+        }
         tic(1046);
     }
 
@@ -1444,8 +1678,41 @@
     };
     var ORDEN_TIPOS_COMBATE = ["objecion", "silencio", "insistencia"];
     var VIDA_INICIAL_COMBATE = 3;
+    var EJES_POLITICOS = ["comunismo", "centrista", "socialdemocrata", "neoliberal"];
+
+    /**
+     * Issue #45: las decisiones políticas de ESTA partida son el
+     * equipamiento de combate (modelo emergente, sin asignación): cada
+     * elección del eje X da una carga de su habilidad (cap 2), gastable en
+     * cualquier combate (duelo del caso 6 y Ventanilla). Cada habilidad es
+     * una decisión dentro de la ronda, no un buff pasivo, y ninguna toca
+     * carta.gastada — el canje sigue siendo lo único que quema cartas.
+     */
+    var HABILIDADES_COMBATE = {
+        comunismo: { nombre: "Asamblea", descripcion: "Esta ronda, el empate también golpea al rival." },
+        centrista: { nombre: "Mesa de diálogo", descripcion: "Esta ronda nadie pierde vida." },
+        socialdemocrata: { nombre: "Comisión de seguimiento", descripcion: "Revela la réplica que viene." },
+        neoliberal: { nombre: "Externalizar", descripcion: "Esta ronda el daño cuenta doble, gane quien gane." }
+    };
     var combateActual = null;
 
+    function cargasIdeologicas() {
+        var puntos = PrometeoLogic.contarPuntosPorEje(state.historiasCartas,
+            Object.keys(HISTORIAS_CARTAS), EJES_POLITICOS);
+        var cargas = {};
+        EJES_POLITICOS.forEach(function (eje) {
+            cargas[eje] = Math.min(2, puntos[eje]);
+        });
+        return cargas;
+    }
+
+    /**
+     * El motor de combate es único; lo que varía entre el duelo de un caso
+     * (issue #21) y la Ventanilla de Reclamaciones (issue #43) viaja en la
+     * config del propio combateActual: dónde se monta (raiz), cómo juega el
+     * rival (modoRival: el ciclo autorado del caso 6 vs. aleatorio), qué
+     * pasa al terminar (alTerminar), el texto final y el botón de cierre.
+     */
     function iniciarCombate() {
         if (!window.PROMETEO_COMBATE || !combateRaiz) {
             return;
@@ -1457,7 +1724,33 @@
             vidaJugador: VIDA_INICIAL_COMBATE,
             vidaRival: VIDA_INICIAL_COMBATE,
             ultimoTipoJugador: null,
-            terminado: null
+            terminado: null,
+            cargas: cargasIdeologicas(),
+            habilidadArmada: null,
+            habilidadUsadaEstaRonda: false,
+            jugadaRivalPrevista: null,
+            raiz: combateRaiz,
+            // Issue #45: el ciclo fijo era una tabla memorizable; reactivo
+            // (cebable) hay una decisión por ronda y la Comisión de
+            // seguimiento tiene algo que revelar. El texto/ritmo narrativo
+            // de los ataques no cambia (sigue ciclando por ronda).
+            modoRival: "reactiva",
+            claseBoton: "btn siga-btn",
+            claseNota: "siga-nota-marginal mb-3",
+            alTerminar: resolverFinCombate,
+            textoFin: function (resultado) {
+                return resultado === "gano"
+                    ? "Ha ganado el enfrentamiento. Se ha hecho con su carta."
+                    : "Ha perdido el enfrentamiento. Pierde una vida.";
+            },
+            cierre: {
+                texto: "Presentar cierre",
+                alPulsar: function () {
+                    if (formCombateFinalizar) {
+                        formCombateFinalizar.submit();
+                    }
+                }
+            }
         };
         renderCombate();
     }
@@ -1466,18 +1759,38 @@
         if (!combateActual || combateActual.terminado) {
             return;
         }
-        var tipoRival = ORDEN_TIPOS_COMBATE[combateActual.ronda % ORDEN_TIPOS_COMBATE.length];
+        var tipoRival;
+        if (combateActual.jugadaRivalPrevista) {
+            // La Comisión de seguimiento ya fijó (y reveló) esta réplica.
+            tipoRival = combateActual.jugadaRivalPrevista;
+            combateActual.jugadaRivalPrevista = null;
+        } else {
+            var indiceUltimo = combateActual.ultimoTipoJugador === null
+                ? null
+                : ORDEN_TIPOS_COMBATE.indexOf(combateActual.ultimoTipoJugador);
+            var indiceRival = PrometeoLogic.indiceJugadaRival(combateActual.modoRival,
+                combateActual.ronda, ORDEN_TIPOS_COMBATE.length, null, indiceUltimo);
+            tipoRival = ORDEN_TIPOS_COMBATE[indiceRival];
+        }
+        var habilidad = combateActual.habilidadArmada;
+        combateActual.habilidadArmada = null;
         var combo = tipo === combateActual.ultimoTipoJugador;
-        var dano = combo ? 2 : 1;
+        var dano = (combo ? 2 : 1) * (habilidad === "neoliberal" ? 2 : 1);
 
-        if (tipo === tipoRival) {
-            // Mismo tipo que la réplica de esta ronda: empate, nadie pierde vida.
+        if (habilidad === "centrista") {
+            // Mesa de diálogo: la ronda transcurre sin daño para nadie.
+        } else if (tipo === tipoRival) {
+            // Empate: solo la Asamblea lo convierte en golpe al rival.
+            if (habilidad === "comunismo") {
+                combateActual.vidaRival = Math.max(0, combateActual.vidaRival - dano);
+            }
         } else if (TIPOS_COMBATE[tipo].vence === tipoRival) {
             combateActual.vidaRival = Math.max(0, combateActual.vidaRival - dano);
         } else {
             combateActual.vidaJugador = Math.max(0, combateActual.vidaJugador - dano);
         }
 
+        combateActual.habilidadUsadaEstaRonda = false;
         combateActual.ultimoTipoJugador = tipo;
         combateActual.ronda++;
 
@@ -1487,11 +1800,11 @@
             combateActual.terminado = "perdio";
         }
 
-        tic(combo ? 700 : 480);
+        golpe(combo ? 700 : 480);
         renderCombate();
 
         if (combateActual.terminado) {
-            resolverFinCombate();
+            combateActual.alTerminar();
         }
     }
 
@@ -1499,6 +1812,7 @@
         if (combateActual.terminado === "gano") {
             state.ganoCombateAlgunaVez = true;
             guardarEstado();
+            desbloquearLogro("careo-a-puerta-cerrada");
             if (desbloquearCarta("el-colgado")) {
                 marcarProgreso();
                 renderTarot();
@@ -1513,11 +1827,35 @@
         }
     }
 
-    function renderCombate() {
-        if (!combateRaiz || !combateActual) {
+    function usarHabilidad(eje) {
+        if (!combateActual || combateActual.terminado || combateActual.habilidadUsadaEstaRonda
+                || !combateActual.cargas || !combateActual.cargas[eje]) {
             return;
         }
-        combateRaiz.innerHTML = "";
+        combateActual.cargas[eje]--;
+        combateActual.habilidadUsadaEstaRonda = true;
+        if (eje === "socialdemocrata") {
+            // La Comisión de seguimiento fija la réplica de esta ronda y la
+            // enseña: información por adelantado, la decisión sigue siendo suya.
+            var indiceUltimo = combateActual.ultimoTipoJugador === null
+                ? null
+                : ORDEN_TIPOS_COMBATE.indexOf(combateActual.ultimoTipoJugador);
+            var indice = PrometeoLogic.indiceJugadaRival(combateActual.modoRival,
+                combateActual.ronda, ORDEN_TIPOS_COMBATE.length, null, indiceUltimo);
+            combateActual.jugadaRivalPrevista = ORDEN_TIPOS_COMBATE[indice];
+        } else {
+            combateActual.habilidadArmada = eje;
+        }
+        tic(620);
+        renderCombate();
+    }
+
+    function renderCombate() {
+        if (!combateActual || !combateActual.raiz) {
+            return;
+        }
+        var raiz = combateActual.raiz;
+        raiz.innerHTML = "";
 
         function pips(etiquetaTexto, vida) {
             var cont = document.createElement("div");
@@ -1538,58 +1876,257 @@
         barras.className = "prometeo-combate-barras";
         barras.appendChild(pips("Usted", combateActual.vidaJugador));
         barras.appendChild(pips(combateActual.sospechoso, combateActual.vidaRival));
-        combateRaiz.appendChild(barras);
+        raiz.appendChild(barras);
 
         if (!combateActual.terminado) {
             var textoAtaque = combateActual.ataques[combateActual.ronda % combateActual.ataques.length];
             var nota = document.createElement("div");
-            nota.className = "siga-nota-marginal mb-3";
+            nota.className = combateActual.claseNota;
             nota.textContent = textoAtaque;
-            combateRaiz.appendChild(nota);
+            raiz.appendChild(nota);
+
+            // Recursos ideológicos (issue #45): las cargas ganadas con las
+            // decisiones políticas de esta partida. Solo se pinta si hay algo.
+            var hayHabilidades = combateActual.cargas && EJES_POLITICOS.some(function (e) {
+                return combateActual.cargas[e] > 0;
+            });
+            if (hayHabilidades || combateActual.habilidadArmada || combateActual.jugadaRivalPrevista) {
+                var zona = document.createElement("div");
+                zona.className = "prometeo-combate-habilidades";
+                EJES_POLITICOS.forEach(function (eje) {
+                    var carga = (combateActual.cargas && combateActual.cargas[eje]) || 0;
+                    if (carga === 0) {
+                        return;
+                    }
+                    var hab = HABILIDADES_COMBATE[eje];
+                    var botonHab = document.createElement("button");
+                    botonHab.type = "button";
+                    botonHab.className = "prometeo-btn-secundario prometeo-habilidad";
+                    botonHab.textContent = hab.nombre + " ×" + carga;
+                    botonHab.setAttribute("aria-label", hab.nombre + ": " + hab.descripcion);
+                    botonHab.title = hab.descripcion;
+                    botonHab.disabled = combateActual.habilidadUsadaEstaRonda;
+                    botonHab.addEventListener("click", function () {
+                        usarHabilidad(eje);
+                    });
+                    zona.appendChild(botonHab);
+                });
+                raiz.appendChild(zona);
+
+                if (combateActual.jugadaRivalPrevista || combateActual.habilidadArmada) {
+                    var avisoHab = document.createElement("p");
+                    avisoHab.className = "prometeo-habilidad-aviso";
+                    avisoHab.setAttribute("aria-live", "polite");
+                    avisoHab.textContent = combateActual.jugadaRivalPrevista
+                        ? "Comisión de seguimiento: la réplica que viene será «"
+                            + TIPOS_COMBATE[combateActual.jugadaRivalPrevista].etiqueta + "»."
+                        : HABILIDADES_COMBATE[combateActual.habilidadArmada].nombre
+                            + " armada para esta ronda: "
+                            + HABILIDADES_COMBATE[combateActual.habilidadArmada].descripcion;
+                    raiz.appendChild(avisoHab);
+                }
+            }
 
             var opciones = document.createElement("div");
             opciones.className = "prometeo-combate-opciones";
             ORDEN_TIPOS_COMBATE.forEach(function (tipo) {
                 var boton = document.createElement("button");
                 boton.type = "button";
-                boton.className = "btn siga-btn";
+                boton.className = combateActual.claseBoton;
                 boton.textContent = TIPOS_COMBATE[tipo].etiqueta;
                 boton.addEventListener("click", function () {
                     jugarCartaCombate(tipo);
                 });
                 opciones.appendChild(boton);
             });
-            combateRaiz.appendChild(opciones);
+            raiz.appendChild(opciones);
         } else {
             var nota2 = document.createElement("div");
-            nota2.className = "siga-nota-marginal siga-revelado mb-3";
-            nota2.textContent = combateActual.terminado === "gano"
-                ? "Ha ganado el enfrentamiento. Se ha hecho con su carta."
-                : "Ha perdido el enfrentamiento. Pierde una vida.";
-            combateRaiz.appendChild(nota2);
+            nota2.className = combateActual.claseNota + " siga-revelado";
+            nota2.textContent = combateActual.textoFin(combateActual.terminado);
+            raiz.appendChild(nota2);
 
             var cerrar = document.createElement("button");
             cerrar.type = "button";
-            cerrar.className = "btn siga-btn";
-            cerrar.textContent = "Presentar cierre";
-            cerrar.addEventListener("click", function () {
-                if (formCombateFinalizar) {
-                    formCombateFinalizar.submit();
-                }
-            });
-            combateRaiz.appendChild(cerrar);
+            cerrar.className = combateActual.claseBoton;
+            cerrar.textContent = combateActual.cierre.texto;
+            cerrar.addEventListener("click", combateActual.cierre.alPulsar);
+            raiz.appendChild(cerrar);
         }
+    }
+
+    /**
+     * Ventanilla de Reclamaciones (issue #43): combates repetibles contra
+     * funcionarios aleatorios, reutilizando el motor del duelo del caso 6
+     * pero como actividad meta de Prometeo — cero estado en servidor (no
+     * hay caso ni veredicto que persistir; patrón CartaOcultaService), sin
+     * tocar la economía de vida ni la colección de tarot. Recompensa: la
+     * racha en curso (efímera, de esta sesión) y la mejor marca
+     * (coliseoRachaMejor, meta-progresión), más un logro por llegar a 3.
+     */
+    var RIVALES_VENTANILLA = [
+        {
+            nombre: "R. Peñuelas, Ventanilla 3",
+            ataques: [
+                "Eso no es de esta ventanilla.",
+                "Le falta el formulario B-11, que se solicita presentando el formulario B-11.",
+                "Vuelva usted mañana. Hoy ya ha venido."
+            ]
+        },
+        {
+            nombre: "La Encargada de Sellos",
+            ataques: [
+                "Este sello no es válido: lo válido es el sello que valida este sello.",
+                "Sin sello de entrada no hay sello de salida.",
+                "El tampón se está secando. Espere sentado."
+            ]
+        },
+        {
+            nombre: "El Interventor Suplente del Suplente",
+            ataques: [
+                "Yo solo sustituyo a quien podría decirle que no.",
+                "Su expediente lo está estudiando alguien que ya no trabaja aquí.",
+                "No me consta. Y lo que no consta, no existe."
+            ]
+        },
+        {
+            nombre: "Auditoría Interna, Sección Espejos",
+            ataques: [
+                "¿Y a usted quién le audita, exactamente?",
+                "Su firma no coincide con la firma que usted firmará.",
+                "Esto ya lo reclamó usted. En 1987."
+            ]
+        },
+        {
+            nombre: "El Archivero del Turno de Noche",
+            ataques: [
+                "Eso se archivó. Archivado significa olvidado.",
+                "El pasillo del fondo no tiene luz por motivos presupuestarios.",
+                "Si lo busca, lo encontrará. Precisamente por eso no debe buscarlo."
+            ]
+        },
+        {
+            nombre: "Presidencia del Comité de Quejas sobre Quejas",
+            ataques: [
+                "Su queja sobre la queja ha quedado registrada como queja.",
+                "El plazo terminó ayer y empieza mañana.",
+                "Estimamos su reclamación. Estimar no es aceptar."
+            ]
+        }
+    ];
+    var rachaVentanilla = 0;
+
+    /**
+     * Issue #48: los reclamantes salen del corcho — si el jugador ya
+     * desbloqueó conceptos PERSONA/COMITE, el rival toma uno de esos
+     * nombres ("la gente de tus expedientes vuelve a darte largas") con
+     * uno de los juegos de réplicas escritos a mano; sin conceptos, caen
+     * los nombres genéricos de siempre. Exclusiones duras: el Comité Ad
+     * Honorem (rival del duelo del caso 6, no un matón de arena) y el
+     * propio auditor.
+     */
+    var RIVALES_VENTANILLA_EXCLUIDOS = ["Comité Ad Honorem", "auditor01 (usted)"];
+
+    function nombreReclamanteDelCorcho() {
+        if (!real || !real.conceptos) {
+            return null;
+        }
+        var elegibles = real.conceptos.filter(function (c) {
+            return (c.tipo === "PERSONA" || c.tipo === "COMITE")
+                && RIVALES_VENTANILLA_EXCLUIDOS.indexOf(c.nombre) === -1;
+        });
+        if (!elegibles.length) {
+            return null;
+        }
+        return elegibles[Math.floor(Math.random() * elegibles.length)].nombre;
+    }
+
+    function iniciarCombateVentanilla() {
+        if (!ventanillaRaiz) {
+            return;
+        }
+        var rival = RIVALES_VENTANILLA[Math.floor(Math.random() * RIVALES_VENTANILLA.length)];
+        var nombreDelCorcho = nombreReclamanteDelCorcho();
+        combateActual = {
+            sospechoso: nombreDelCorcho || rival.nombre,
+            ataques: rival.ataques,
+            ronda: 0,
+            vidaJugador: VIDA_INICIAL_COMBATE,
+            vidaRival: VIDA_INICIAL_COMBATE,
+            ultimoTipoJugador: null,
+            terminado: null,
+            cargas: cargasIdeologicas(),
+            habilidadArmada: null,
+            habilidadUsadaEstaRonda: false,
+            jugadaRivalPrevista: null,
+            raiz: ventanillaRaiz,
+            modoRival: "reactiva",
+            claseBoton: "prometeo-btn-secundario",
+            claseNota: "prometeo-ventanilla-nota",
+            alTerminar: resolverFinVentanilla,
+            textoFin: function (resultado) {
+                return resultado === "gano"
+                    ? "Reclamación atendida. Pase el siguiente."
+                    : "El reclamante se ha salido con la suya. Su racha vuelve a cero.";
+            },
+            cierre: {
+                texto: "Llamar al siguiente",
+                alPulsar: iniciarCombateVentanilla
+            }
+        };
+        renderCombate();
+        renderVentanillaEstado();
+        golpe(240);
+    }
+
+    function resolverFinVentanilla() {
+        // Deliberadamente sin perderVida() ni desbloquearCarta(): la
+        // Ventanilla no toca el presupuesto de errores de la partida ni la
+        // colección de 22 (el-colgado sigue siendo exclusivo del caso 6).
+        var resultado = PrometeoLogic.actualizarRacha(rachaVentanilla,
+            state.coliseoRachaMejor, combateActual.terminado === "gano");
+        rachaVentanilla = resultado.racha;
+        if (resultado.mejor !== state.coliseoRachaMejor) {
+            state.coliseoRachaMejor = resultado.mejor;
+            // Issue #47: el lince comenta el historial cuando cae la marca.
+            mostrarAsistente("No cuente las reclamaciones seguidas que lleva. Es peor cuando uno sabe el número.", "guino");
+        }
+        guardarEstado();
+        if (rachaVentanilla >= 3) {
+            desbloquearLogro("ventanilla-tres");
+        }
+        if (state.coliseoRachaMejor >= 5) {
+            desbloquearLogro("funcionario-del-mes");
+        }
+        if (state.coliseoRachaMejor >= 10) {
+            desbloquearLogro("ventanilla-inagotable");
+        }
+        renderVentanillaEstado();
+    }
+
+    function renderVentanillaEstado() {
+        if (!ventanillaRacha) {
+            return;
+        }
+        ventanillaRacha.textContent = "Racha: " + rachaVentanilla
+            + " · Mejor registro: " + state.coliseoRachaMejor;
     }
 
     function mostrarJefeSiHaceFalta() {
         if (!jefeModal || state.jefeVisto) {
             return;
         }
+        // Issue #24: si esta página tiene un combate en curso, el aviso lo
+        // taparía en pleno duelo. Se pospone sin marcar jefeVisto: saldrá
+        // en la siguiente página sin combate.
+        if (window.PROMETEO_COMBATE && combateRaiz) {
+            return;
+        }
         jefeModal.hidden = false;
         atraparFoco(jefeModal);
         state.jefeVisto = true;
         guardarEstado();
-        tic(220);
+        golpe(180);
     }
 
     /**
@@ -2005,7 +2542,13 @@
             boton.focus();
         }
         desbloquearLogro("sospecha");
-        tic(780);
+        // Issue #46: el-diablo se re-gana topándose con la verificación
+        // falsa en ESTA partida (antes se sincronizaba desde el logro
+        // "sospecha", que ahora es de vitrina permanente).
+        if (desbloquearCarta("el-diablo")) {
+            renderTarot();
+        }
+        golpe(600);
     }
 
     /**
@@ -2040,6 +2583,17 @@
             });
             respuestasAsistente.appendChild(boton);
         });
+    }
+
+    function avisarEpilogoSiHaceFalta() {
+        var hito = real && real.totalCasosPrincipales > 0
+            && real.casosResueltos >= real.totalCasosPrincipales;
+        if (!hito || state.epilogoAvisado || !asistente || !textoAsistente || state.finalShown) {
+            return false;
+        }
+        state.epilogoAvisado = true;
+        mostrarAsistente("Ni se le ocurra pasarse por el corcho de su carpeta. Ha aparecido un memorándum de acreditación que no le incumbe en absoluto, y menos aún la clave que trae escrita.", "alerta");
+        return true;
     }
 
     function mostrarAsistente(mensaje, mood) {
@@ -2094,8 +2648,12 @@
         atraparFoco(finalAlternativo);
         state.finalShown = true;
         state.vioFinalAlternativoAlgunaVez = true;
+        if (desbloquearCarta("la-torre")) {
+            renderTarot();
+        }
+        desbloquearLogro("la-garganta-abierta");
         guardarEstado();
-        tic(300);
+        golpe(140);
     }
 
     function comprobarEstadoDeJuego() {
@@ -2175,6 +2733,49 @@
     }
 
     /**
+     * Issue #49: la voz sucia de SIGA-98 — onda cuadrada breve más una
+     * ráfaga de ruido (el golpe de sello sobre el formulario), para los
+     * eventos del sistema viejo: jefe, despido, historias ocultas, choques
+     * de combate, el captcha falso, el final de AM. El menú Prometeo
+     * conserva el tic() senoidal limpio: el audio también cuenta el split.
+     */
+    function golpe(frecuencia) {
+        if (volumenActual() <= 0) {
+            return;
+        }
+        var ctx = obtenerAudio();
+        if (!ctx) {
+            return;
+        }
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = "square";
+        osc.frequency.value = frecuencia;
+        gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.4, ctx.currentTime + 0.006);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.09);
+        osc.connect(gain);
+        gain.connect(master);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.1);
+
+        var duracion = 0.055;
+        var buffer = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * duracion), ctx.sampleRate);
+        var datos = buffer.getChannelData(0);
+        for (var i = 0; i < datos.length; i++) {
+            datos[i] = (Math.random() * 2 - 1) * (1 - i / datos.length) * 0.5;
+        }
+        var ruido = ctx.createBufferSource();
+        ruido.buffer = buffer;
+        var gainRuido = ctx.createGain();
+        gainRuido.gain.value = 0.35;
+        ruido.connect(gainRuido);
+        gainRuido.connect(master);
+        ruido.start();
+    }
+
+
+    /**
      * Zumbido de fondo persistente: dos osciladores casi al unísono
      * (baten entre sí, como un fluorescente cansado) con un filtro que
      * respira despacio. Se vuelve más grave y más lento en el combate
@@ -2236,7 +2837,7 @@
     document.addEventListener("pointerdown", primerGestoReal, { once: true });
     document.addEventListener("keydown", primerGestoReal, { once: true });
 
-    reiniciarVidaSiPartidaNueva();
+    reiniciarEstadoPerRun();
     renderLogros();
     renderTarot();
     renderVida();
@@ -2261,15 +2862,22 @@
     }, 400);
 
     window.setTimeout(function () {
-        if (state.saludoVisto) {
-            // Ya se presentó antes: a partir de aquí siempre habla según el
-            // contexto real, nunca repitiendo el saludo fijo (issue #1).
-            mostrarAsistente();
+        if (!state.saludoVisto) {
+            state.saludoVisto = true;
+            guardarEstado();
+            mostrarAsistente("Hola. Yo soy el lince de la oficina, y hoy parece que alguien ha dejado la puerta entreabierta. No mire lo que no debería estar donde está. Ah, y sobre todo no abra Mi carpeta: alguien dejó ahí un manual del usuario que se lo explicaría todo, y eso no le conviene.", "guino");
             return;
         }
-        state.saludoVisto = true;
-        guardarEstado();
-        mostrarAsistente("Hola. Yo soy el lince de la oficina, y hoy parece que alguien ha dejado la puerta entreabierta. No mire lo que no debería estar donde está. Ah, y sobre todo no abra Mi carpeta: alguien dejó ahí un manual del usuario que se lo explicaría todo, y eso no le conviene.", "guino");
+        // Issue #33: el hito más importante de la partida (cerrar los cinco
+        // expedientes hace aparecer la acreditación en el corcho) era mudo —
+        // el badge de /carpeta es perezoso y el lince solo reaccionaba a
+        // mensajes flash. Una sola línea, una sola vez por partida.
+        if (avisarEpilogoSiHaceFalta()) {
+            return;
+        }
+        // Ya se presentó antes: a partir de aquí siempre habla según el
+        // contexto real, nunca repitiendo el saludo fijo (issue #1).
+        mostrarAsistente();
     }, 700);
 
     trigger.addEventListener("click", function () {
@@ -2357,6 +2965,21 @@
                 tic(300);
             });
         });
+        // Issue #44: con el canje oculto hasta vida 0, el despido es el
+        // momento exacto en que existe — el modal lleva directo al tarot.
+        despidoModal.querySelectorAll("[data-despido-tarot]").forEach(function (boton) {
+            boton.addEventListener("click", function () {
+                despidoModal.hidden = true;
+                if (contenedorConFocoAtrapado === despidoModal) {
+                    liberarFoco();
+                }
+                mostrarPanel("tarot");
+                if (!dialog.open) {
+                    dialog.showModal();
+                }
+                tic(400);
+            });
+        });
     }
 
     if (finalVerdaderoModal) {
@@ -2418,6 +3041,13 @@
             aplicarPistasActivas(activarPistasCheckbox.checked);
             tic(500);
         });
+    }
+
+    if (ventanillaEmpezar) {
+        ventanillaEmpezar.addEventListener("click", function () {
+            iniciarCombateVentanilla();
+        });
+        renderVentanillaEstado();
     }
 
     if (botonTarot) {

@@ -598,3 +598,38 @@ body.prometeo-pistas-activas .siga-hotspot[form] {
         animation: none;
     }
 }
+
+/* Issue #49: los componentes Bootstrap que se colaban con piel 2020s
+   dentro de la ficción de 1998 (esquinas redondeadas, píldoras pastel).
+   Mismo chapado que .siga-btn/.siga-window: cuadrado, campo gris, bisel —
+   y el estado va en el COLOR DEL TEXTO, como en un programa de la época,
+   no en el fondo. */
+.alert {
+    border-radius: 0;
+    background: #d4d0c8;
+    border: 2px solid #808080;
+    box-shadow: inset -1px -1px #404040, inset 1px 1px #ffffff;
+    color: #1a1a1a;
+}
+.alert-danger { color: #7a0000; }
+.alert-warning { color: #5a4500; }
+.alert-success { color: #0a5a12; }
+.alert-secondary { color: #333333; }
+.alert .alert-link { color: #000080; }
+
+.badge {
+    border-radius: 0;
+    border: 1px solid #808080;
+    box-shadow: inset -1px -1px #404040, inset 1px 1px #ffffff;
+    font-weight: bold;
+}
+.badge.text-bg-dark,
+.badge.text-bg-warning,
+.badge.text-bg-success,
+.badge.text-bg-secondary {
+    background-color: #d4d0c8 !important;
+    color: #1a1a1a !important;
+}
+.badge.text-bg-warning { color: #5a4500 !important; }
+.badge.text-bg-success { color: #0a5a12 !important; }
+.badge.text-bg-secondary { color: #444444 !important; }

@@ -168,6 +168,41 @@ class CasoControllerTest {
     }
 
     @Test
+    void acusarSospechosoDeOtroCasoEsDenegado() {
+        // El caso de la ruta (CASO_ID) es público y pasa el control de acceso,
+        // pero el sospechoso pertenece a otro caso (p.ej. uno confidencial).
+        // No debe poder acusarse: sería saltarse el guard de acceso.
+        sospechosos.put(9L, sospechosoDeCaso(9L, Arrays.asList(), 99L));
+        RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
+
+        String vista = controller.acusar(CASO_ID, 9L, authentication, redirectAttributes);
+
+        assertEquals("redirect:/", vista);
+        assertFalse(veredictosPorCaso.containsKey(CASO_ID));
+        assertTrue(combatesGuardados.isEmpty());
+        assertEquals("Solicitud denegada. Nivel de acreditación insuficiente para este expediente.",
+                redirectAttributes.getFlashAttributes().get("mensaje"));
+    }
+
+    @Test
+    void finalizarCombateMarcaAccionRecienteComoAcusar() {
+        // La penalización por acusación precipitada se juzga en el cliente con
+        // la marca accionReciente; el cierre vía combate debe emitirla igual
+        // que la acusación directa, o acusar con cartas nunca costaría vida.
+        Sospechoso sospechoso = sospechoso(6L, Arrays.asList("Primer ataque"));
+        CombateEnCurso combate = new CombateEnCurso();
+        combate.setUsuario(usuario);
+        combate.setCaso(caso);
+        combate.setSospechoso(sospechoso);
+        combatesPorCaso.put(CASO_ID, combate);
+        RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
+
+        controller.finalizarCombate(CASO_ID, authentication, redirectAttributes);
+
+        assertEquals("acusacion", redirectAttributes.getFlashAttributes().get("accionReciente"));
+    }
+
+    @Test
     void combinarEnCasoConfidencialSinSerAdminEsDenegado() {
         caso.setConfidencial(true);
         RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
@@ -214,9 +249,15 @@ class CasoControllerTest {
     }
 
     private Sospechoso sospechoso(Long id, List<String> ataques) {
+        return sospechosoDeCaso(id, ataques, CASO_ID);
+    }
+
+    private Sospechoso sospechosoDeCaso(Long id, List<String> ataques, Long casoId) {
         Sospechoso sospechoso = new Sospechoso();
         sospechoso.setId(id);
-        sospechoso.setCaso(new Caso());
+        Caso casoDelSospechoso = new Caso();
+        casoDelSospechoso.setId(casoId);
+        sospechoso.setCaso(casoDelSospechoso);
         sospechoso.setAtaques(ataques);
         return sospechoso;
     }

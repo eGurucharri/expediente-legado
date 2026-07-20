@@ -20,7 +20,7 @@ Se abrirá una ventana de consola (déjala abierta: cerrarla apaga el
 juego) y, en unos segundos, tu navegador con la pantalla de acceso.
 Si el navegador no se abre solo, entra a mano en:
 
-    http://localhost:8090
+    http://localhost:1998
 
 Usuario de acceso:
 
@@ -28,7 +28,7 @@ Usuario de acceso:
     contraseña:  auditor-local-123
 
 No hace falta instalar nada (ni Java): todo va dentro de este zip.
-Requisito único: que el puerto 8090 no esté ocupado por otra cosa.
+Requisito único: que el puerto 1998 no esté ocupado por otra cosa.
 
 
 TU PARTIDA Y TUS DATOS
@@ -53,6 +53,10 @@ COSAS QUE YA SABEMOS (no hace falta reportarlas)
 
 CÓMO REPORTAR UN BUG (o lo que sea)
 -----------------------------------
+Dentro del juego, el manual de "Mi carpeta" tiene una sección
+"Parte de incidencias" con esto mismo (y, si está configurado, un
+botón que abre el formulario de reporte directamente).
+
 Mándame un mensaje con:
   1. Qué hiciste (los pasos, aunque sean aproximados).
   2. Qué esperabas que pasara y qué pasó en realidad.
