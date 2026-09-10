@@ -23,6 +23,31 @@ Sale `0` si todo pasa. Los casos están portados uno a uno de `WikiLinkServiceTe
 nombre del test Java en un comentario: si el port cambia una decisión del
 original, se ve cuál.
 
+## La partida guardada
+
+`guion/partida.gd`, en `user://partida.json`. No es un port de
+`cargarEstado`/`guardarEstado`: `localStorage` no se corrompe a medias y no se
+puede perder, y un fichero sí. De ahí tres precauciones que el original no
+tenía que tomar:
+
+1. **La escritura es atómica** — a un temporal y renombrado encima, así que un
+   cierre a destiempo deja la partida anterior entera y no media nueva.
+2. **Una partida ilegible no se pisa** — se aparta como `.roto` y se empieza de
+   cero al lado. El original hacía `catch {}` y seguía con el estado vacío, o
+   sea que el siguiente guardado borraba para siempre lo que hubiera.
+3. **El formato va versionado** — una partida de una versión posterior se
+   aparta en vez de interpretarse a medias.
+
+Y **solo se guardan ids y banderas**, nunca el texto de los catálogos: si el
+guardado se llevara una copia, reescribir la descripción de un logro dejaría
+las partidas viejas mostrando la antigua. Bajó de 9.188 a 3.268 bytes al
+arreglarlo.
+
+Los catálogos (20 logros, 22 cartas) salen de `datos/prometeo.json`, extraídos
+de `prometeo-ui.js` con `datos/extraer-prometeo.mjs` por el mismo motivo que
+los casos: es contenido, y teclearlo introduce erratas que nadie compara con el
+original.
+
 ## Qué cambia respecto al backend Java
 
 **El contenido deja de ser código.** `DataSeeder.java` eran 1.443 líneas de
@@ -90,9 +115,7 @@ las 44 veía ninguno de los dos.
   vuelta), con sus 33 comprobaciones traídas del Vitest — incluida la invariante
   anti-moralizante de #45, que exige que cada ideología sea útil en exactamente
   4 de las 8 cartas. Lo que falta son las 3.181 líneas de DOM de `prometeo-ui.js`.
-- **Dónde se guarda una partida.** En el original el estado vivía en
-  `localStorage`; `prometeo.gd` no guarda nada a propósito, son funciones sobre
-  un estado que se recibe. La decisión sigue abierta.
+- El corcho de conceptos, la acusación y el combate: sin pantalla todavía.
 - El relato de las cartas ocultas: el visor acusa el hallazgo y nada más.
 - La persistencia. Un `Descubrimiento` era una fila; aquí habrá que decidir
   dónde vive la partida guardada.

@@ -14,9 +14,15 @@ extends Control
 const MARGEN := 8
 
 var contenido := Contenido.new()
+var partida := Partida.new()
 var caso: Dictionary = {}
 var descubiertas: Array = []
 var registro_actual: Dictionary = {}
+
+## Lo que hay que contar al jugador sobre su partida guardada, si es que hay
+## algo que contar. Una partida apartada por ilegible no puede parecerse a no
+## haber jugado nunca.
+var _aviso_partida := ""
 
 var _lista: ItemList
 var _documento: RichTextLabel
@@ -28,6 +34,12 @@ func _ready() -> void:
 	theme = EstiloSiga.tema()
 	if not contenido.cargar():
 		return
+
+	var carga := partida.cargar()
+	descubiertas = partida.estado["pistas_descubiertas"]
+	if carga["resultado"] == "apartada":
+		_aviso_partida = "PARTIDA ANTERIOR ILEGIBLE (%s), APARTADA EN %s" % [
+			carga["motivo"], carga["copia"]]
 	caso = contenido.casos[0]
 	_construir()
 	_mostrar_registro(caso["registros"][0])
@@ -168,6 +180,10 @@ func _al_pulsar_marca(meta: Variant) -> void:
 		"pista":
 			if not descubiertas.has(partes[1]):
 				descubiertas.append(partes[1])
+				# Se guarda al descubrir y no al salir: este juego se cierra
+				# leyendo un documento, no desde un menú.
+				if not partida.guardar():
+					_aviso_partida = "NO SE PUDO GUARDAR LA PARTIDA"
 				_mostrar_registro(registro_actual)
 		"carta":
 			# El relato de la carta oculta vive en prometeo-ui.js y no está
@@ -178,6 +194,9 @@ func _al_pulsar_marca(meta: Variant) -> void:
 
 
 func _refrescar_estado() -> void:
+	if not _aviso_partida.is_empty():
+		_estado.text = _aviso_partida
+		return
 	var resumen: Dictionary = Progreso.de_casos([caso], descubiertas)[0]
 	_estado.text = "%s   ·   Pistas: %d de %d%s" % [
 		caso["titulo"], resumen["encontradas"], resumen["total"],

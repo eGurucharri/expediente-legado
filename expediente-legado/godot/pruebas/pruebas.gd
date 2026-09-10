@@ -19,6 +19,7 @@ func _init() -> void:
 	_progreso()
 	_contenido()
 	_prometeo()
+	_partida()
 
 	print("\n%d pasadas, %d fallos" % [pasadas, fallos])
 	quit(1 if fallos > 0 else 0)
@@ -402,3 +403,106 @@ func _tiradas(valores: Array) -> Callable:
 		var valor: float = valores[estado["i"]]
 		estado["i"] += 1
 		return valor
+
+
+# --- Persistencia -----------------------------------------------------------
+
+const RUTA_PRUEBA := "user://partida-de-prueba.json"
+
+func _partida() -> void:
+	_borrar_pruebas()
+
+	# Sin fichero se empieza de cero, y se DICE que se empieza de cero: que una
+	# partida no se haya podido leer no puede parecerse a no haber jugado nunca.
+	var partida := Partida.new()
+	comprobar("sin partida guardada se empieza una nueva",
+		partida.cargar(RUTA_PRUEBA)["resultado"], "nueva")
+	comprobar("los catálogos llegan enteros",
+		[partida.estado["logros"].size(), partida.estado["tarot"].size()], [20, 22])
+	comprobar("solo El Loco viene de serie",
+		partida.estado["tarot"].filter(func(c): return c["recogida"]).map(
+			func(c): return c["id"]), ["el-loco"])
+
+	# Ida y vuelta.
+	partida.estado["pistas_descubiertas"] = ["p1", "p2"]
+	partida.estado["coliseo_racha_mejor"] = 4
+	Prometeo.desbloquear_carta(partida.estado["tarot"], "la-luna")
+	comprobar("guardar dice que guardó", partida.guardar(RUTA_PRUEBA), true)
+
+	var releida := Partida.new()
+	comprobar("la partida se recupera", releida.cargar(RUTA_PRUEBA)["resultado"], "cargada")
+	comprobar("con sus pistas y su racha",
+		[releida.estado["pistas_descubiertas"], releida.estado["coliseo_racha_mejor"]],
+		[["p1", "p2"], 4])
+	comprobar("y con la carta conseguida",
+		releida.estado["tarot"].filter(func(c): return c["recogida"]).map(
+			func(c): return c["id"]), ["el-loco", "la-luna"])
+
+	# El guardado NO se lleva una copia del contenido: si lo hiciera, reescribir
+	# la descripción de un logro dejaría las partidas viejas mostrando la
+	# antigua. Solo ids y banderas.
+	var crudo := FileAccess.open(RUTA_PRUEBA, FileAccess.READ).get_as_text()
+	comprobar("la partida guardada no lleva texto de los catálogos",
+		crudo.contains("Abriste el menú"), false)
+	comprobar("pero sí los ids y su estado",
+		crudo.contains("primer-mirada") and crudo.contains("desbloqueado"), true)
+	comprobar("y al releerla los títulos vuelven del catálogo",
+		releida.estado["logros"][0]["titulo"], "Primer mirada")
+
+	# Un logro que la versión nueva añade aparece en una partida antigua sin
+	# borrar lo ya conseguido: es la fusión de #46, no una carga a secas.
+	var vieja := Partida.nueva()
+	vieja["logros"] = [{"id": "sospecha", "desbloqueado": true}]
+	vieja["tarot"] = []
+	_escribir(RUTA_PRUEBA, vieja)
+	var migrada := Partida.new()
+	migrada.cargar(RUTA_PRUEBA)
+	comprobar("una partida con menos logros recupera el catálogo entero",
+		migrada.estado["logros"].size(), 20)
+	comprobar("y conserva el que ya tenía desbloqueado",
+		migrada.estado["logros"].filter(
+			func(l): return l["id"] == "sospecha")[0]["desbloqueado"], true)
+	comprobar("los logros nuevos llegan bloqueados",
+		migrada.estado["logros"].filter(
+			func(l): return l["id"] == "primer-mirada")[0]["desbloqueado"], false)
+
+	# Una partida ilegible se aparta, NO se pisa. Es la diferencia entre perder
+	# una partida y poder recuperarla.
+	_escribir_texto(RUTA_PRUEBA, "{esto no es json")
+	var rota := Partida.new()
+	var resultado := rota.cargar(RUTA_PRUEBA)
+	comprobar("una partida corrupta se aparta", resultado["resultado"], "apartada")
+	comprobar("y queda una copia del fichero original",
+		FileAccess.file_exists(RUTA_PRUEBA + ".roto"), true)
+	comprobar("mientras tanto se juega con una nueva",
+		rota.estado["pistas_descubiertas"], [])
+
+	# Una partida de una versión POSTERIOR tampoco se interpreta a medias.
+	var futura := Partida.nueva()
+	futura["version"] = Partida.VERSION + 1
+	futura["pistas_descubiertas"] = ["no debería leerse"]
+	_escribir(RUTA_PRUEBA, futura)
+	var adelantada := Partida.new()
+	comprobar("una partida de una versión posterior se aparta",
+		adelantada.cargar(RUTA_PRUEBA)["resultado"], "apartada")
+	comprobar("y no se lee nada de ella",
+		adelantada.estado["pistas_descubiertas"], [])
+
+	_borrar_pruebas()
+
+
+func _escribir(ruta: String, datos: Dictionary) -> void:
+	_escribir_texto(ruta, JSON.stringify(datos))
+
+
+func _escribir_texto(ruta: String, texto: String) -> void:
+	var fichero := FileAccess.open(ruta, FileAccess.WRITE)
+	fichero.store_string(texto)
+	fichero.close()
+
+
+func _borrar_pruebas() -> void:
+	for sufijo in ["", ".roto", ".nuevo"]:
+		var ruta: String = RUTA_PRUEBA + sufijo
+		if FileAccess.file_exists(ruta):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(ruta))

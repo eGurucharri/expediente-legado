@@ -1,0 +1,322 @@
+{
+  "logros": [
+    {
+      "id": "primer-mirada",
+      "titulo": "Primer mirada",
+      "descripcion": "Abriste el menú de verdad.",
+      "desbloqueado": false,
+      "por_vuelta": false
+    },
+    {
+      "id": "sospecha",
+      "titulo": "Sospecha",
+      "descripcion": "Te topaste con una verificación falsa.",
+      "desbloqueado": false,
+      "por_vuelta": false
+    },
+    {
+      "id": "primer-expediente",
+      "titulo": "Primer expediente",
+      "descripcion": "Cerraste un caso con una acusación.",
+      "desbloqueado": false,
+      "por_vuelta": true
+    },
+    {
+      "id": "archivo-completo",
+      "titulo": "El archivo completo",
+      "descripcion": "Resolviste todos los expedientes a tu cargo.",
+      "desbloqueado": false,
+      "por_vuelta": true
+    },
+    {
+      "id": "acceso-privilegiado",
+      "titulo": "Acceso privilegiado",
+      "descripcion": "Alguien le franqueó el paso a un nivel que no debería existir.",
+      "desbloqueado": false,
+      "por_vuelta": false
+    },
+    {
+      "id": "reasignado",
+      "titulo": "Reasignado",
+      "descripcion": "El sistema decidió que ya no le necesitaba.",
+      "desbloqueado": false,
+      "por_vuelta": true
+    },
+    {
+      "id": "final-verdadero",
+      "titulo": "Las cuatro cartas",
+      "descripcion": "Cerró el archivo sin canjear ni una sola carta.",
+      "desbloqueado": false,
+      "por_vuelta": false
+    },
+    {
+      "id": "ventanilla-tres",
+      "titulo": "Constancia registrada",
+      "descripcion": "Atendió tres reclamaciones seguidas sin perder la compostura.",
+      "desbloqueado": false,
+      "por_vuelta": false
+    },
+    {
+      "id": "referencias-cruzadas",
+      "titulo": "Referencias cruzadas",
+      "descripcion": "Encontró todas las conclusiones que exigen combinar documentos.",
+      "desbloqueado": false,
+      "por_vuelta": true
+    },
+    {
+      "id": "lectura-integra",
+      "titulo": "Leído de cabo a rabo",
+      "descripcion": "Descubrió hasta la última pista del archivo.",
+      "desbloqueado": false,
+      "por_vuelta": true
+    },
+    {
+      "id": "hoja-sin-tacha",
+      "titulo": "Hoja de servicio sin tacha",
+      "descripcion": "Cerró todos los expedientes a su cargo sin perder una sola vida.",
+      "desbloqueado": false,
+      "por_vuelta": true
+    },
+    {
+      "id": "disciplina-de-partido",
+      "titulo": "Disciplina de partido",
+      "descripcion": "Respondió las ocho historias con la misma ideología, pasara lo que pasara.",
+      "desbloqueado": false,
+      "por_vuelta": true
+    },
+    {
+      "id": "instinto-de-archivo",
+      "titulo": "Instinto de archivo",
+      "descripcion": "Las ocho decisiones fueron la útil para el expediente. Ninguna por convicción.",
+      "desbloqueado": false,
+      "por_vuelta": true
+    },
+    {
+      "id": "metodo-del-descarte",
+      "titulo": "El método del descarte",
+      "descripcion": "Las ocho decisiones sembraron confusión. El archivo tomó nota.",
+      "desbloqueado": false,
+      "por_vuelta": true
+    },
+    {
+      "id": "papeleta-depositada",
+      "titulo": "Papeleta depositada",
+      "descripcion": "Llegó a un final político, fuera el que fuera.",
+      "desbloqueado": false,
+      "por_vuelta": true
+    },
+    {
+      "id": "ultimo-recurso",
+      "titulo": "Último recurso ejercido",
+      "descripcion": "Canjeó una carta por una vida. Consta en acta.",
+      "desbloqueado": false,
+      "por_vuelta": true
+    },
+    {
+      "id": "funcionario-del-mes",
+      "titulo": "Funcionario del mes",
+      "descripcion": "Cinco reclamaciones seguidas atendidas en la Ventanilla.",
+      "desbloqueado": false,
+      "por_vuelta": false
+    },
+    {
+      "id": "ventanilla-inagotable",
+      "titulo": "Ventanilla inagotable",
+      "descripcion": "Diez reclamaciones seguidas. El mostrador ya tiene su forma.",
+      "desbloqueado": false,
+      "por_vuelta": false
+    },
+    {
+      "id": "careo-a-puerta-cerrada",
+      "titulo": "Careo a puerta cerrada",
+      "descripcion": "Ganó un enfrentamiento que oficialmente nunca tuvo lugar.",
+      "desbloqueado": false,
+      "por_vuelta": false
+    },
+    {
+      "id": "la-garganta-abierta",
+      "titulo": "La garganta abierta",
+      "descripcion": "Se quedó mirando el sistema hasta que el sistema le devolvió la mirada.",
+      "desbloqueado": false,
+      "por_vuelta": false
+    }
+  ],
+  "tarot": [
+    {
+      "id": "el-loco",
+      "nombre": "El Loco",
+      "descripcion": "Empezó sin saber en qué expediente se estaba metiendo.",
+      "recogida": true,
+      "gastada": false,
+      "requisito": ""
+    },
+    {
+      "id": "el-mago",
+      "nombre": "El Mago",
+      "descripcion": "Convierte un formulario en otro con solo cambiar el membrete.",
+      "recogida": false,
+      "gastada": false,
+      "requisito": "Descubra su primera pista."
+    },
+    {
+      "id": "la-sacerdotisa",
+      "nombre": "La Sacerdotisa",
+      "descripcion": "Sabe lo que hay en el cajón cerrado y no lo dice.",
+      "recogida": false,
+      "gastada": false,
+      "requisito": "Hay algo oculto en «El expediente del empleado #427»."
+    },
+    {
+      "id": "la-emperatriz",
+      "nombre": "La Emperatriz",
+      "descripcion": "Firma en nombre de alguien que ya no trabaja aquí.",
+      "recogida": false,
+      "gastada": false,
+      "requisito": "Hay algo oculto en «El expediente de la herencia Karamázov»."
+    },
+    {
+      "id": "el-emperador",
+      "nombre": "El Emperador",
+      "descripcion": "Su despacho existe aunque nadie lo haya visto abierto.",
+      "recogida": false,
+      "gastada": false,
+      "requisito": "Consiga acceso administrativo."
+    },
+    {
+      "id": "el-hierofante",
+      "nombre": "El Hierofante",
+      "descripcion": "Dicta el procedimiento correcto, que cambia según el día.",
+      "recogida": false,
+      "gastada": false,
+      "requisito": "Cierre un expediente con una acusación."
+    },
+    {
+      "id": "los-enamorados",
+      "nombre": "Los Enamorados",
+      "descripcion": "Dos documentos que no deberían ir juntos, van juntos.",
+      "recogida": false,
+      "gastada": false,
+      "requisito": "Complete la investigación de un expediente."
+    },
+    {
+      "id": "el-carro",
+      "nombre": "El Carro",
+      "descripcion": "Avanza aunque nadie sepa hacia dónde apunta el trámite.",
+      "recogida": false,
+      "gastada": false,
+      "requisito": "Hay algo oculto en «El expediente MEMO-1978-014 (y 1993, y 2007)»."
+    },
+    {
+      "id": "la-fuerza",
+      "nombre": "La Fuerza",
+      "descripcion": "No necesita imponerse: solo aguanta más rondas de las que debería.",
+      "recogida": false,
+      "gastada": false,
+      "requisito": "Juegue en dificultad difícil."
+    },
+    {
+      "id": "el-ermitanio",
+      "nombre": "El Ermitaño",
+      "descripcion": "Se quedó solo con el expediente después de que lo señalaran.",
+      "recogida": false,
+      "gastada": false,
+      "requisito": "Pierda una vida por acusar sin fundamento."
+    },
+    {
+      "id": "la-rueda",
+      "nombre": "La Rueda de la Fortuna",
+      "descripcion": "El trámite gira y siempre cae del lado que no esperaba.",
+      "recogida": false,
+      "gastada": false,
+      "requisito": "Hay algo oculto en «El trámite de la silla 4-B»."
+    },
+    {
+      "id": "la-justicia",
+      "nombre": "La Justicia",
+      "descripcion": "Pesa las pruebas después de haber decidido ya la sentencia.",
+      "recogida": false,
+      "gastada": false,
+      "requisito": "Hay algo oculto en «El cierre de caja de 1999»."
+    },
+    {
+      "id": "el-colgado",
+      "nombre": "El Colgado",
+      "descripcion": "Cuelga de una decisión que todavía no ha terminado de tomar.",
+      "recogida": false,
+      "gastada": false,
+      "requisito": "Gane un enfrentamiento."
+    },
+    {
+      "id": "la-muerte",
+      "nombre": "La Muerte",
+      "descripcion": "No es el final. Aquí nunca lo es.",
+      "recogida": false,
+      "gastada": false,
+      "requisito": "Sea reasignado por acumular demasiados fallos."
+    },
+    {
+      "id": "la-templanza",
+      "nombre": "La Templanza",
+      "descripcion": "Cambia una certeza por otra cosa que todavía no sabe si necesita.",
+      "recogida": false,
+      "gastada": false,
+      "requisito": "Canjee una carta por una vida."
+    },
+    {
+      "id": "el-diablo",
+      "nombre": "El Diablo",
+      "descripcion": "Le hizo marcar una casilla que no significaba nada. Y usted la marcó.",
+      "recogida": false,
+      "gastada": false,
+      "requisito": "Tropiece con una verificación falsa."
+    },
+    {
+      "id": "la-torre",
+      "nombre": "La Torre",
+      "descripcion": "Todo lo que creía firme se cae de golpe, y sigue ahí de pie de todos modos.",
+      "recogida": false,
+      "gastada": false,
+      "requisito": "Deje pasar demasiado tiempo sin hacer nada."
+    },
+    {
+      "id": "la-estrella",
+      "nombre": "La Estrella",
+      "descripcion": "Una luz pequeña, pero constante, entre tanto expediente sin cerrar.",
+      "recogida": false,
+      "gastada": false,
+      "requisito": "Descubra al menos veinte pistas."
+    },
+    {
+      "id": "la-luna",
+      "nombre": "La Luna",
+      "descripcion": "Ilumina lo mismo de siempre, pero ahora se ve todo lo que había alrededor.",
+      "recogida": false,
+      "gastada": false,
+      "requisito": "Hay algo oculto en «Contrato de fin de año con Carcosa Servicios Escénicos»."
+    },
+    {
+      "id": "el-sol",
+      "nombre": "El Sol",
+      "descripcion": "El único documento que no necesita ninguna firma para ser verdad.",
+      "recogida": false,
+      "gastada": false,
+      "requisito": "Hay algo oculto en un expediente confidencial. Necesitará acceso administrativo."
+    },
+    {
+      "id": "el-juicio",
+      "nombre": "El Juicio",
+      "descripcion": "Ha señalado a alguien en cada expediente. Ahora que decida el sistema.",
+      "recogida": false,
+      "gastada": false,
+      "requisito": "Hay algo oculto en «Traspaso de personal: expediente de E. Montalvo»."
+    },
+    {
+      "id": "el-mundo",
+      "nombre": "El Mundo",
+      "descripcion": "Las veintiuna cartas anteriores, cerrando el círculo.",
+      "recogida": false,
+      "gastada": false,
+      "requisito": "Reúna el resto de cartas sin gastar ninguna."
+    }
+  ]
+}
