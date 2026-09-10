@@ -79,30 +79,18 @@ const CASA := {
 	],
 }
 
-## El sueño todavía no existe: es la tercera parte y va después. Mientras
-## tanto, una habitación que devuelve al archivo — un sitio de paso declarado
-## como tal, no una pantalla en negro que parezca un cuelgue.
-const SUENO := {
-	"rotulo": "…",
-	"suelo": Vector2(12, 12),
-	"color_suelo": Color(0.12, 0.11, 0.16),
-	"color_muro": Color(0.16, 0.14, 0.22),
-	"color_techo": Color(0.08, 0.07, 0.12),
-	"entrada": Vector3(0, 0, 4),
-	"bultos": [
-		{"pos": Vector3(0, 1.2, -3), "tam": Vector3(1.0, 2.4, 1.0),
-			"color": Color(0.30, 0.26, 0.40)},
-	],
-	"salidas": [
-		{"pos": Vector3(0, 1.1, -4.5), "destino": "archivo", "rotulo": "Despertar"},
-	],
-}
+## El sueño NO está aquí, y esa ausencia es el issue #86.
+##
+## Los sitios del día son uno por fase y siempre el mismo. El sueño son tres
+## escenas distintas cada noche, elegidas por lo que se leyó ese día, así que
+## no se puede declarar: se compone. Vive en `Sueno` y en `SuenoFormas`, y
+## quien pinta el día se lo pide en vez de buscarlo en esta tabla.
+
 
 const POR_FASE := {
 	"archivo": OFICINA,
 	"trayecto": CALLE,
 	"casa": CASA,
-	"sueño": SUENO,
 }
 
 

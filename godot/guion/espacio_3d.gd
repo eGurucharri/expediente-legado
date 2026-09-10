@@ -20,9 +20,20 @@ const GROSOR_MURO := 0.2
 ## Monta el espacio bajo [param raiz] y devuelve las salidas creadas, para que
 ## quien orquesta el día pueda escucharlas.
 static func construir(raiz: Node3D, espacio: Dictionary) -> Array:
-	_suelo(raiz, espacio.get("suelo", Vector2(10, 10)), espacio.get("color_suelo", Color(0.35, 0.34, 0.32)))
-	_techo(raiz, espacio.get("suelo", Vector2(10, 10)), espacio.get("color_techo", Color(0.28, 0.28, 0.27)))
-	_muros(raiz, espacio.get("suelo", Vector2(10, 10)), espacio.get("color_muro", Color(0.55, 0.54, 0.5)))
+	var color_suelo: Color = espacio.get("color_suelo", Color(0.35, 0.34, 0.32))
+	var color_techo: Color = espacio.get("color_techo", Color(0.28, 0.28, 0.27))
+	var color_muro: Color = espacio.get("color_muro", Color(0.55, 0.54, 0.5))
+
+	# Dos formas de declarar un sitio, y la caja es el caso fácil de la otra:
+	# un espacio con `planta` es un conjunto de celdas de cualquier forma, y uno
+	# con `suelo` es el rectángulo de siempre. Lo que NO hay es un sitio con
+	# nombre: el motor sigue sin saber si esto es una oficina o un sueño.
+	if espacio.has("planta"):
+		_por_planta(raiz, espacio["planta"], color_suelo, color_techo, color_muro)
+	else:
+		_suelo(raiz, espacio.get("suelo", Vector2(10, 10)), color_suelo)
+		_techo(raiz, espacio.get("suelo", Vector2(10, 10)), color_techo)
+		_muros(raiz, espacio.get("suelo", Vector2(10, 10)), color_muro)
 
 	for bulto in espacio.get("bultos", []):
 		_caja(raiz, bulto["pos"], bulto["tam"], bulto.get("color", Color(0.45, 0.44, 0.42)))
@@ -31,6 +42,39 @@ static func construir(raiz: Node3D, espacio: Dictionary) -> Array:
 	for salida in espacio.get("salidas", []):
 		salidas.append(_salida(raiz, salida))
 	return salidas
+
+
+## Una planta cualquiera: losas donde hay celda y muros donde no hay vecina.
+##
+## Nada de esto conoce la forma que está montando. El anillo del sueño sale con
+## el muro de su patio porque el patio es contorno igual que el borde de fuera,
+## no porque nadie haya declarado un patio.
+static func _por_planta(raiz: Node3D, bloques: Array, color_suelo: Color,
+		color_techo: Color, color_muro: Color) -> void:
+	for rect in Planta.rectangulos(bloques):
+		var esquina := Planta.esquina_en_metros(bloques, rect.position)
+		var tam := Vector3(rect.size.x * Planta.CELDA, GROSOR_MURO, rect.size.y * Planta.CELDA)
+		var centro := esquina + Vector3(tam.x / 2.0, 0, tam.z / 2.0)
+		_caja(raiz, centro + Vector3(0, -GROSOR_MURO / 2.0, 0), tam, color_suelo)
+		var techo := _caja(raiz, centro + Vector3(0, ALTURA_MURO + GROSOR_MURO / 2.0, 0),
+			tam, color_techo)
+		_emisivo(techo, color_techo)
+
+	for tramo in Planta.contorno(bloques):
+		var largo: float = (tramo["hasta"] - tramo["desde"]) * Planta.CELDA
+		var a: Vector2i
+		var tam: Vector3
+		if tramo["eje"] == "x":
+			a = Vector2i(tramo["desde"], tramo["linea"])
+			tam = Vector3(largo, ALTURA_MURO, GROSOR_MURO)
+		else:
+			a = Vector2i(tramo["linea"], tramo["desde"])
+			tam = Vector3(GROSOR_MURO, ALTURA_MURO, largo)
+		var esquina := Planta.esquina_en_metros(bloques, a)
+		var centro := esquina + Vector3(
+			tam.x / 2.0 if tramo["eje"] == "x" else 0.0, ALTURA_MURO / 2.0,
+			0.0 if tramo["eje"] == "x" else tam.z / 2.0)
+		_caja(raiz, centro, tam, color_muro)
 
 
 static func _suelo(raiz: Node3D, medidas: Vector2, color: Color) -> void:
@@ -46,6 +90,10 @@ static func _suelo(raiz: Node3D, medidas: Vector2, color: Color) -> void:
 static func _techo(raiz: Node3D, medidas: Vector2, color: Color) -> void:
 	var cuerpo := _caja(raiz, Vector3(0, ALTURA_MURO + GROSOR_MURO / 2.0, 0),
 		Vector3(medidas.x, GROSOR_MURO, medidas.y), color)
+	_emisivo(cuerpo, color)
+
+
+static func _emisivo(cuerpo: StaticBody3D, color: Color) -> void:
 	var malla: MeshInstance3D = cuerpo.get_child(0)
 	var material: StandardMaterial3D = malla.material_override
 	material.emission_enabled = true

@@ -30,6 +30,8 @@ func _init() -> void:
 	_acusacion()
 	_careo()
 	_cinematicas()
+	_plantas()
+	_sueno()
 
 	print("\n%d pasadas, %d fallos" % [pasadas, fallos])
 	quit(1 if fallos > 0 else 0)
@@ -917,8 +919,10 @@ func _ficheros_bajo(raiz: String, prefijo: String = "") -> Array:
 func _espacios() -> void:
 	# Cada fase de la jornada tiene su sitio: una fase sin espacio dejaría al
 	# jugador en la nada.
+	# El sueño es la excepción declarada: no es un sitio, son tres cada noche
+	# (#86), y lo compone `Sueno`. Se comprueba aparte, en `_sueno()`.
 	var sin_sitio := Jornada.FASES.filter(
-		func(f): return not EspaciosCatalogo.POR_FASE.has(f))
+		func(f): return f != "sueño" and not EspaciosCatalogo.POR_FASE.has(f))
 	comprobar("cada fase del día tiene su espacio", sin_sitio, [])
 
 	# Y las salidas forman un ciclo cerrado que vuelve al archivo: un sitio del
@@ -931,7 +935,8 @@ func _espacios() -> void:
 		if salidas.is_empty():
 			sin_salida.append(fase)
 		for salida in salidas:
-			if not EspaciosCatalogo.POR_FASE.has(salida["destino"]):
+			if not EspaciosCatalogo.POR_FASE.has(salida["destino"]) \
+					and salida["destino"] != "sueño":
 				rotos.append("%s -> %s" % [fase, salida["destino"]])
 	comprobar("ningún espacio es un callejón sin salida", sin_salida, [])
 	comprobar("ninguna salida lleva a un sitio que no existe", rotos, [])
@@ -1249,3 +1254,159 @@ func _cinematicas() -> void:
 	comprobar("y la segunda vez el careo dura menos",
 		Cinematica.duracion(acortada) < Cinematica.duracion(
 			CareoCinematica.planos_de({"nombre": "X"}, "F-1", 0)), true)
+
+
+# --- Plantas que no son una caja (#86) ---------------------------------------
+
+func _plantas() -> void:
+	# El caso fácil sigue saliendo igual: una sala rectangular tiene cuatro
+	# muros, ni uno más. Si la generalización rompiera esto, habría cambiado
+	# todos los sitios del día por el camino.
+	var caja := [Rect2i(0, 0, 5, 4)]
+	comprobar("una planta rectangular da cuatro muros",
+		Planta.contorno(caja).size(), 4)
+	comprobar("y una sola losa de suelo", Planta.rectangulos(caja), [Rect2i(0, 0, 5, 4)])
+
+	# Una ele tiene seis: es la primera forma que una caja no puede declarar.
+	var ele := [Rect2i(0, 0, 4, 2), Rect2i(0, 2, 2, 2)]
+	comprobar("una ele da seis muros", Planta.contorno(ele).size(), 6)
+
+	# Y un anillo, ocho: cuatro fuera y cuatro dentro. El patio no lo declara
+	# nadie — sale de que también es contorno.
+	var anillo := [
+		Rect2i(0, 0, 5, 1), Rect2i(0, 4, 5, 1),
+		Rect2i(0, 0, 1, 5), Rect2i(4, 0, 1, 5),
+	]
+	comprobar("un anillo da ocho muros (los cuatro del patio incluidos)",
+		Planta.contorno(anillo).size(), 8)
+	comprobar("y su patio no es suelo", Planta.contiene(anillo, Vector2i(2, 2)), false)
+
+	# La invariante que de verdad importa: los muros tapan TODO el borde. Un
+	# tramo que faltara es un hueco por el que se sale de la sala, y eso no se
+	# ve en una captura sino andando hasta que te caes del mundo.
+	for nombre in ["caja", "ele", "anillo"]:
+		var bloques: Array = {"caja": caja, "ele": ele, "anillo": anillo}[nombre]
+		var celdas := Planta.celdas(bloques)
+		var expuestas := 0
+		for celda in celdas:
+			for lado in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+				if not celdas.has(celda + lado):
+					expuestas += 1
+		var cubiertas := 0
+		for tramo in Planta.contorno(bloques):
+			cubiertas += tramo["hasta"] - tramo["desde"]
+		comprobar("los muros cubren todo el borde de %s" % nombre, cubiertas, expuestas)
+
+	# El suelo se parte en rectángulos que no se pisan entre sí: dos losas en el
+	# mismo plano son dos caras peleándose por el mismo píxel.
+	var solapadas := [Rect2i(0, 0, 6, 3), Rect2i(2, 0, 6, 3)]
+	var cubierto := 0
+	var vistas := {}
+	var repetidas := 0
+	for rect in Planta.rectangulos(solapadas):
+		cubierto += rect.size.x * rect.size.y
+		for x in range(rect.position.x, rect.position.x + rect.size.x):
+			for z in range(rect.position.y, rect.position.y + rect.size.y):
+				if vistas.has(Vector2i(x, z)):
+					repetidas += 1
+				vistas[Vector2i(x, z)] = true
+	comprobar("bloques solapados se cubren enteros", cubierto, Planta.area(solapadas))
+	comprobar("y sin poner dos losas en la misma celda", repetidas, 0)
+
+	# La distancia es de camino, no en línea recta: en un anillo, la celda de
+	# enfrente está al lado y a media vuelta de andar.
+	var lejana := Planta.mas_lejana(anillo, Vector2i(0, 0))
+	comprobar("la celda más lejana de un anillo está a media vuelta",
+		lejana == Vector2i(0, 0), false)
+	comprobar("y es una celda de la planta", Planta.contiene(anillo, lejana), true)
+
+	# Las medidas: una celda son dos metros y la planta aparece centrada.
+	comprobar("la planta se centra en el mundo",
+		Planta.centro_en_metros([Rect2i(0, 0, 2, 2)], Vector2i(0, 0)),
+		Vector3(-Planta.CELDA / 2.0, 0, -Planta.CELDA / 2.0))
+
+
+# --- El esqueleto del sueño (#86) -------------------------------------------
+
+func _sueno() -> void:
+	# Las salas del sueño son pocas y GRANDES, de una pieza, y ninguna es un
+	# rectángulo: una caja más grande no es una sala rara.
+	var pequenas := []
+	var partidas := []
+	var cajas := []
+	var entradas_fuera := []
+	for id in SuenoFormas.ids():
+		var forma := SuenoFormas.de(id)
+		var bloques: Array = forma["bloques"]
+		if Planta.area(bloques) < SuenoFormas.MINIMO_GRANDE:
+			pequenas.append(id)
+		if not Planta.conexa(bloques):
+			partidas.append(id)
+		if Planta.contorno(bloques).size() <= 4:
+			cajas.append(id)
+		if not Planta.contiene(bloques, forma["entrada"]):
+			entradas_fuera.append(id)
+	comprobar("ninguna sala del sueño es pequeña", pequenas, [])
+	comprobar("ninguna está partida en dos", partidas, [])
+	comprobar("ninguna es una caja", cajas, [])
+	comprobar("se entra dentro de la sala", entradas_fuera, [])
+	comprobar("hay salas de sobra para una noche",
+		SuenoFormas.ids().size() >= Sueno.ESCENAS_POR_NOCHE, true)
+
+	# Una noche son tres escenas distintas.
+	var noche := Sueno.noche(1, ["MEMO-1999-088"], [])
+	comprobar("una noche son tres escenas", noche.size(), Sueno.ESCENAS_POR_NOCHE)
+	var sin_repetir := {}
+	for id in noche:
+		sin_repetir[id] = true
+	comprobar("y no se repite ninguna dentro de la misma noche",
+		sin_repetir.size(), noche.size())
+
+	# El sueño es de su día: misma lectura, mismo sueño; otra lectura, otro.
+	comprobar("el mismo día leyendo lo mismo sueña lo mismo",
+		Sueno.noche(1, ["MEMO-1999-088"], []), noche)
+	comprobar("leer otra cosa cambia la noche",
+		Sueno.noche(1, ["FAC-1998-014"], []) == noche, false)
+	comprobar("y otro día también",
+		Sueno.noche(2, ["MEMO-1999-088"], []) == noche, false)
+
+	# El mapa crece: mientras queden salas sin ver, se ven salas sin ver.
+	var mapa := []
+	for id in noche:
+		Sueno.recordar(mapa, id)
+	comprobar("el mapa crece de tres en tres", mapa.size(), Sueno.ESCENAS_POR_NOCHE)
+	comprobar("y una sala ya vista no se apunta dos veces",
+		Sueno.recordar(mapa, noche[0]), false)
+	var segunda := Sueno.noche(2, ["FAC-1998-014"], mapa)
+	var nuevas := segunda.filter(func(id): return not mapa.has(id))
+	comprobar("la segunda noche enseña lo que queda sin ver",
+		nuevas.size(), mini(Sueno.ESCENAS_POR_NOCHE,
+			SuenoFormas.ids().size() - mapa.size()))
+
+	# Solo la última escena despierta. Las otras dos llevan a la siguiente: un
+	# sueño que devolviera al archivo en la primera sala no sería tres escenas.
+	var destinos := []
+	for i in noche.size():
+		destinos.append(Sueno.espacio(noche[i], noche.size() - 1 - i)["salidas"][0]["destino"])
+	comprobar("solo la última escena despierta", destinos,
+		["sueño", "sueño", "archivo"])
+
+	# La salida no está donde entras, y está dentro de la sala.
+	var espacio := Sueno.espacio(noche[0], 2)
+	comprobar("no se sale por donde se entra",
+		espacio["salidas"][0]["pos"] - Vector3(0, 1.1, 0) == espacio["entrada"], false)
+
+	# --- El mapa es de la vuelta, no de por vida ---
+	var vida := Jornada.nueva()
+	vida["fase"] = "casa"
+	vida["leido_hoy"] = ["MEMO-1999-088"]
+	Jornada.dormir(vida)
+	comprobar("dormir compone la noche",
+		vida["sueno_escenas"].size(), Sueno.ESCENAS_POR_NOCHE)
+	Jornada.despertar(vida)
+	comprobar("y despertar no deja media noche esperando",
+		vida["sueno_escenas"], [])
+
+	vida["mapa"] = ["patio", "peine"]
+	Jornada.reiniciar_vuelta(vida)
+	comprobar("el mapa del sueño no sobrevive al despido", vida["mapa"], [])

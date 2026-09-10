@@ -77,12 +77,30 @@ func _entrar_en(fase: String) -> void:
 	_mundo = Node3D.new()
 	add_child(_mundo)
 
-	var espacio := EspaciosCatalogo.de_fase(fase)
+	var espacio := _espacio_de(fase)
 	for salida in Espacio3D.construir(_mundo, espacio):
 		salida.body_entered.connect(_al_pisar_salida.bind(salida))
 
 	_caminante.situar(espacio["entrada"])
 	_refrescar_rotulos(espacio)
+
+
+## Dónde se está. Los sitios del día están declarados uno por fase; el sueño no
+## puede estarlo, porque son tres escenas distintas cada noche y cuáles depende
+## de lo que se leyó ese día. Es la única fase que pregunta en vez de mirar el
+## catálogo, y aun así esta pantalla no sabe qué forma tiene ninguna sala.
+func _espacio_de(fase: String) -> Dictionary:
+	if fase != "sueño":
+		return EspaciosCatalogo.de_fase(fase)
+
+	if jornada["sueno_escenas"].is_empty():
+		jornada["sueno_escenas"] = Sueno.noche(
+			jornada["dia"], jornada["leido_hoy"], jornada["mapa"])
+	var id: String = jornada["sueno_escenas"][0]
+	# Se apunta al ENTRAR y no al salir: el mapa es lo que has pisado, y
+	# despertarse de golpe en mitad de una sala no la borra de haber estado.
+	Sueno.recordar(jornada["mapa"], id)
+	return Sueno.espacio(id, jornada["sueno_escenas"].size() - 1)
 
 
 func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
@@ -105,8 +123,13 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 				noche["coste"], noche["dinero"],
 				"  El gato no está." if noche["gato_se_fue"] else ""]
 		"sueño":
-			var dia := Jornada.despertar(jornada)
-			_nomina.text = "Día %d." % dia
+			# Se sale de la escena que se acaba de recorrer. Si quedan más, la
+			# noche sigue en la siguiente y no se despierta: el destino de la
+			# salida ya lo decía.
+			jornada["sueno_escenas"].pop_front()
+			if jornada["sueno_escenas"].is_empty():
+				var dia := Jornada.despertar(jornada)
+				_nomina.text = "Día %d." % dia
 		_:
 			pass
 

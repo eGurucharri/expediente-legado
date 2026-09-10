@@ -55,6 +55,15 @@ static func nueva() -> Dictionary:
 		# Lo leído hoy: es lo que alimenta el sueño de esta noche. Se vacía al
 		# despertar, porque un sueño es de su día.
 		"leido_hoy": [],
+		# Las salas del sueño ya vistas. Es de la VUELTA y no de por vida
+		# (#86): cada vida laboral sueña lo suyo, así que el mapa se lo lleva
+		# el despido igual que el dinero — sin borrarlo en ningún sitio, porque
+		# reiniciar una vuelta es volver a esto.
+		"mapa": [],
+		# Las escenas que quedan por recorrer de la noche en curso. Se van
+		# gastando por delante, así que «cuántas quedan» y «cuál toca» son el
+		# mismo dato y no pueden contradecirse.
+		"sueno_escenas": [],
 	}
 
 
@@ -134,6 +143,8 @@ static func dormir(jornada: Dictionary) -> Dictionary:
 			se_fue = true
 
 	jornada["fase"] = "sueño"
+	jornada["sueno_escenas"] = Sueno.noche(
+		jornada["dia"], jornada["leido_hoy"], jornada["mapa"])
 	return {"coste": COSTE_DIARIO, "dinero": jornada["dinero"], "gato_se_fue": se_fue}
 
 
@@ -146,6 +157,9 @@ static func despertar(jornada: Dictionary) -> int:
 	jornada["cerrados_hoy"] = 0
 	jornada["acciones"] = ACCIONES_POR_DIA
 	jornada["leido_hoy"] = []
+	# La noche se acabó aunque queden escenas: despertar de golpe (#90) no
+	# puede dejar media noche esperando a la siguiente.
+	jornada["sueno_escenas"] = []
 	return jornada["dia"]
 
 
