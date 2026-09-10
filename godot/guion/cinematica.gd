@@ -28,16 +28,20 @@ extends RefCounted
 
 const TIPOS := ["3d", "2d", "video"]
 
-## Dónde viven los planos rodados. Un `.ogv` (Ogg Theora) es el ÚNICO formato de
-## vídeo que Godot 4 reproduce sin añadidos, así que no es una preferencia:
+## Dónde viven los planos rodados.
 ##
-##     ffmpeg -i loquesea.mp4 -c:v libtheora -q:v 7 -c:a libvorbis -q:a 4 \
-##         -s 320x240 godot/assets/video/nombre.ogv
-##
-## Los 320x240 no son un apaño: es la resolución que este juego ya finge tener,
-## y un plano rodado a 1080p y metido aquí se vería MEJOR que el resto del
-## juego, que es el fallo — no se pega un render en una máquina de 1998.
+## Se aceptan los formatos que trae FFmpeg —`.mp4`, `.mkv`, `.webm`, `.mov`— vía
+## la extensión `addons/ffmpeg`, y también `.ogv`, que Godot reproduce por su
+## cuenta. **No se prescribe resolución.** Un plano rodado se mete a la
+## resolución a la que se rodó: el look de esta máquina son el temblor de
+## vértices, la paleta cortada y el texto sin suavizar, y todo eso se sostiene a
+## cualquier tamaño. Bajar el metraje a 320x240 no sería estilo, sería estropear
+## el material — que no es lo mismo.
 const RUTA_VIDEO := "res://assets/video/"
+
+## Los que sabe abrir Godot por sí mismo. El resto pasa por la extensión: son
+## dos caminos de carga distintos y por eso hay que saber cuál es cuál.
+const NATIVOS := [".ogv"]
 
 ## Cuánto se recorta cada plano por cada vez que ya se ha visto la cinemática.
 ## Las que más se repiten —el inicio del día, el sello— son las que más lo
@@ -122,7 +126,11 @@ static func validar(planos: Array) -> Array:
 			var fichero := String(plano.get("fichero", ""))
 			if fichero.is_empty():
 				problemas.append("plano %d: video sin fichero" % i)
-			elif not ResourceLoader.exists(RUTA_VIDEO + fichero):
+			elif not FileAccess.file_exists(RUTA_VIDEO + fichero):
+				# Se pregunta por el FICHERO y no por el recurso: un `.mp4` no lo
+				# importa Godot —lo abre la extensión al reproducir— así que
+				# nunca sería un recurso y todos los planos rodados en mp4 se
+				# declararían rotos.
 				problemas.append("plano %d: no hay video %s" % [i, fichero])
 	return problemas
 
@@ -146,3 +154,23 @@ static func _rellenar(texto: String, datos: Dictionary) -> String:
 	for clave in datos:
 		salida = salida.replace("{%s}" % clave, str(datos[clave]))
 	return salida
+
+
+## Abre un fichero de vídeo, venga por donde venga.
+##
+## Los dos caminos no son intercambiables: un `.ogv` es un recurso que Godot
+## importa, y un `.mp4` NO lo es —la extensión lo abre por su cuenta al
+## reproducir—, así que pedirle `load()` a un mp4 devuelve nulo y pedirle
+## `FFmpegVideoStream` a un ogv se salta el decodificador que ya tenía.
+static func flujo_de(ruta: String) -> VideoStream:
+	if not FileAccess.file_exists(ruta):
+		return null
+	for extension in NATIVOS:
+		if ruta.ends_with(extension):
+			return load(ruta) if ResourceLoader.exists(ruta) else null
+	if not ClassDB.class_exists("FFmpegVideoStream"):
+		push_warning("Falta addons/ffmpeg: %s no se puede abrir" % ruta)
+		return null
+	var flujo = ClassDB.instantiate("FFmpegVideoStream")
+	flujo.file = ruta
+	return flujo

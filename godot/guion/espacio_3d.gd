@@ -80,6 +80,15 @@ static func construir(raiz: Node3D, espacio: Dictionary) -> Array:
 			bulto.get("color", Color(0.45, 0.44, 0.42)),
 			bulto.get("textura", "")
 		)
+		# Un bulto puede mirar a alguna parte. Sin esto un modelo se planta con la
+		# orientación que traiga su fichero, y un televisor de escaparate mirando
+		# a lo largo de la acera enseña el lomo a quien pasa. Gira el cuerpo
+		# entero —malla y colisión—, que es lo que hace que siga siendo cierto
+		# que la caja manda.
+		var giro: float = bulto.get("giro", 0.0)
+		if not is_zero_approx(giro):
+			pieza.rotation_degrees = Vector3(0, giro, 0)
+
 		# Un mueble que es malla y no caja. La caja sigue estando —es la
 		# colisión— y lo que se ve pasa a ser el modelo, encajado en el `tam`
 		# que declara el catálogo. Sin `modelo`, nada cambia.
@@ -105,6 +114,12 @@ static func construir(raiz: Node3D, espacio: Dictionary) -> Array:
 		# ilumina nada, solo se ve encendido — lo que alumbra es una luz.
 		if bulto.get("emisivo", false):
 			_emisivo(pieza, bulto.get("color", Color(0.45, 0.44, 0.42)))
+
+	# Las pantallas encendidas del sitio (un escaparate de televisores, la tele
+	# de casa). Este módulo sigue sin saber qué se ve en ellas: `Pantalla` monta
+	# el aparato y lo que emite lo dice la declaración.
+	for pantalla in espacio.get("pantallas", []):
+		Pantalla.montar(raiz, pantalla)
 
 	# Una ventana no es un bulto con otro color: no se atraviesa pero se ve a
 	# través, y de noche lo que se ve es que fuera está oscuro. Va emisiva

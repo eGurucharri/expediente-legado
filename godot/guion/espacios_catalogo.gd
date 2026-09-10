@@ -322,10 +322,115 @@ const CALLE := {
 			"tam": Vector3(1.2, 2.8, 6.0),
 			"color": Color(0.26, 0.25, 0.26)
 		},
+		# El escaparate de la tienda de televisores, en el bloque de la derecha:
+		# el hueco oscuro del cristal y la repisa donde se apoyan los aparatos.
+		# Es lo único iluminado de la calle que no es una farola.
+		{
+			"pos": Vector3(2.54, 1.35, 1),
+			"tam": Vector3(0.06, 1.5, 4.4),
+			"color": Color(0.05, 0.05, 0.06)
+		},
+		{
+			"pos": Vector3(2.4, 0.58, 1),
+			"tam": Vector3(0.35, 0.06, 4.4),
+			"color": Color(0.30, 0.28, 0.26)
+		},
 		{
 			"pos": Vector3(-3.2, 1.4, 8),
 			"tam": Vector3(1.2, 2.8, 5.0),
 			"color": Color(0.26, 0.25, 0.26)
+		},
+		# Los seis aparatos del escaparate, en dos filas de tres.
+		{
+			"pos": Vector3(2.36, 0.92, -0.70),
+			"tam": Vector3(0.44, 0.40, 0.42),
+			"color": Color(0.30, 0.28, 0.26),
+			"giro": -90.0,
+			"modelo": "televisionVintage"
+		},
+		{
+			"pos": Vector3(2.36, 1.62, -0.70),
+			"tam": Vector3(0.44, 0.40, 0.42),
+			"color": Color(0.30, 0.28, 0.26),
+			"giro": -90.0,
+			"modelo": "televisionVintage"
+		},
+		{
+			"pos": Vector3(2.36, 0.92, 0.35),
+			"tam": Vector3(0.44, 0.40, 0.42),
+			"color": Color(0.30, 0.28, 0.26),
+			"giro": -90.0,
+			"modelo": "televisionVintage"
+		},
+		{
+			"pos": Vector3(2.36, 1.62, 0.35),
+			"tam": Vector3(0.44, 0.40, 0.42),
+			"color": Color(0.30, 0.28, 0.26),
+			"giro": -90.0,
+			"modelo": "televisionVintage"
+		},
+		{
+			"pos": Vector3(2.36, 0.92, 1.40),
+			"tam": Vector3(0.44, 0.40, 0.42),
+			"color": Color(0.30, 0.28, 0.26),
+			"giro": -90.0,
+			"modelo": "televisionVintage"
+		},
+		{
+			"pos": Vector3(2.36, 1.62, 1.40),
+			"tam": Vector3(0.44, 0.40, 0.42),
+			"color": Color(0.30, 0.28, 0.26),
+			"giro": -90.0,
+			"modelo": "televisionVintage"
+		},
+	],
+	# Seis televisores y seis emisiones distintas. Mientras no haya metraje cada
+	# uno enseña su propia nieve —por la semilla—, que es lo que hace que se lean
+	# como seis aparatos y no como una imagen repetida. Poner aquí un `fichero`
+	# le da a ese aparato su plano.
+	"pantallas":
+	[
+		{
+			"pos": Vector3(2.13, 0.95, -0.70),
+			"tam": Vector2(0.26, 0.20),
+			"giro": -90.0,
+			"semilla": 1.0,
+			"fichero": ""
+		},
+		{
+			"pos": Vector3(2.13, 1.65, -0.70),
+			"tam": Vector2(0.26, 0.20),
+			"giro": -90.0,
+			"semilla": 2.0,
+			"fichero": ""
+		},
+		{
+			"pos": Vector3(2.13, 0.95, 0.35),
+			"tam": Vector2(0.26, 0.20),
+			"giro": -90.0,
+			"semilla": 3.0,
+			"fichero": ""
+		},
+		{
+			"pos": Vector3(2.13, 1.65, 0.35),
+			"tam": Vector2(0.26, 0.20),
+			"giro": -90.0,
+			"semilla": 4.0,
+			"fichero": ""
+		},
+		{
+			"pos": Vector3(2.13, 0.95, 1.40),
+			"tam": Vector2(0.26, 0.20),
+			"giro": -90.0,
+			"semilla": 5.0,
+			"fichero": ""
+		},
+		{
+			"pos": Vector3(2.13, 1.65, 1.40),
+			"tam": Vector2(0.26, 0.20),
+			"giro": -90.0,
+			"semilla": 6.0,
+			"fichero": ""
 		},
 	],
 	"ambiente": Color(0.16, 0.17, 0.22),

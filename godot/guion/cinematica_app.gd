@@ -133,7 +133,7 @@ func _poner_video(plano: Dictionary) -> void:
 		return
 
 	var ruta: String = Cinematica.RUTA_VIDEO + String(plano.get("fichero", ""))
-	var flujo: VideoStream = load(ruta) if ResourceLoader.exists(ruta) else null
+	var flujo := Cinematica.flujo_de(ruta)
 	if flujo == null:
 		# No se pinta nada y el plano pasa igual: el reproductor lleva su propio
 		# reloj, así que un fichero que falta cuesta unos segundos en negro y no
