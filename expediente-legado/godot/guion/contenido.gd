@@ -22,7 +22,18 @@ func cargar(ruta: String = RUTA) -> bool:
 		return false
 	casos = crudo.get("casos", [])
 	conceptos = crudo.get("conceptos", [])
+	_enteros()
 	return true
+
+
+## JSON no distingue entero de decimal, así que todo número vuelve en coma
+## flotante y un año se muestra como "1999.0". Ya había salido dos veces —en la
+## barra de título del visor y en la racha de la Ventanilla— y las dos se
+## arreglaron donde se veía. Se arregla aquí, que es por donde entra.
+func _enteros() -> void:
+	for caso in casos:
+		if caso.get("anioSuceso") != null:
+			caso["anioSuceso"] = int(caso["anioSuceso"])
 
 ## Los casos que cuentan para el final principal. El caso 8 está marcado como
 ## no principal en el contenido original.

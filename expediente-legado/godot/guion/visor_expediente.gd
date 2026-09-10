@@ -81,6 +81,11 @@ func _construir() -> void:
 	columnas.add_child(_columna_indice())
 	columnas.add_child(_columna_documento())
 
+	var acusar := Button.new()
+	acusar.text = "Imputar responsabilidad…"
+	acusar.pressed.connect(_abrir_formulario)
+	raiz.add_child(acusar)
+
 	_estado = _etiqueta("", EstiloSiga.NEGRO)
 	var barra_estado := _hueco()
 	barra_estado.custom_minimum_size.y = 26
@@ -215,6 +220,36 @@ func _al_pulsar_marca(meta: Variant) -> void:
 			_estado.text = "Carta localizada: %s" % partes[1]
 		"concepto":
 			_estado.text = "Concepto: %s" % partes[1]
+
+
+## Abre el formulario A-7. La ventana no decide nada: rellena un papel y
+## devuelve lo que  haya resuelto.
+func _abrir_formulario() -> void:
+	if Acusacion.esta_cerrado(partida.estado, caso["id"]):
+		_aviso_partida = "ESTE EXPEDIENTE YA TIENE VEREDICTO FIRME."
+		_refrescar_estado()
+		return
+
+	var formulario: Control = load("res://escenas/acusacion.tscn").instantiate()
+	formulario.caso = caso
+	formulario.estado = partida.estado
+	formulario.jornada = jornada
+	formulario.descubiertas = descubiertas
+	formulario.firmada.connect(_al_firmar.bind(formulario))
+	formulario.cancelada.connect(func():
+		formulario.queue_free())
+	add_child(formulario)
+
+
+func _al_firmar(resultado: Dictionary, formulario: Control) -> void:
+	formulario.queue_free()
+	partida.guardar()
+
+	_aviso_partida = "EXPEDIENTE CERRADO. %s%s" % [
+		resultado["desenlace"],
+		"  ·  ACUSACIÓN PRECIPITADA: consta en su hoja de servicio."
+			if resultado["precipitada"] else ""]
+	_refrescar_estado()
 
 
 func _refrescar_estado() -> void:

@@ -1,0 +1,185 @@
+## El formulario de imputación: la ventana donde se firma.
+##
+## Una acusación no se hace pulsando "acusar" — se rellena. La ceremonia es el
+## contenido: número de formulario, casilla por sospechoso, y una declaración
+## responsable que hay que marcar antes de poder presentar.
+##
+## Esa declaración es el chiste central de la pantalla: dice «declaro haber
+## revisado la documentación» y **la marcas hayas leído o no**, porque sin ella
+## el botón no se activa. El sistema no comprueba la casilla; comprueba, por su
+## cuenta y sin decírtelo, cuántas pistas habías descubierto de verdad. La
+## casilla es la burocracia; `Acusacion.acusar` es lo que pasa de verdad.
+##
+## No decide nada: la regla vive en `Acusacion` y el careo en su escena. Aquí
+## solo se rellena un papel.
+extends Control
+
+signal firmada(resultado: Dictionary)
+signal cancelada
+
+var caso: Dictionary = {}
+var estado: Dictionary = {}
+var jornada: Dictionary = {}
+var descubiertas: Array = []
+
+var _elegido := -1
+var _declarado := false
+var _casillas: Array = []
+var _presentar: Button
+var _aviso: Label
+
+
+func _ready() -> void:
+	theme = EstiloSiga.tema()
+	_construir()
+
+
+func _draw() -> void:
+	EstiloSiga.dibujar_bisel(self, Rect2(Vector2.ZERO, size), EstiloSiga.GRIS, true)
+
+
+func _construir() -> void:
+	var raiz := VBoxContainer.new()
+	raiz.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	raiz.offset_left = 10
+	raiz.offset_top = 10
+	raiz.offset_right = -10
+	raiz.offset_bottom = -10
+	raiz.add_theme_constant_override("separation", 8)
+	add_child(raiz)
+
+	raiz.add_child(_titulo("FORMULARIO A-7  ·  IMPUTACIÓN DE RESPONSABILIDAD"))
+	raiz.add_child(_linea("Expediente: %s" % caso.get("titulo", "")))
+	raiz.add_child(_linea(
+		"Ejercicio: %s        Instructor: auditor01" % str(caso.get("anioSuceso", "s/f"))))
+
+	raiz.add_child(_linea(
+		"Marque UNA casilla. La imputación es firme y no admite rectificación."))
+
+	var lista := VBoxContainer.new()
+	lista.add_theme_constant_override("separation", 2)
+	var hueco := PanelContainer.new()
+	hueco.add_theme_stylebox_override("panel", _hundido(EstiloSiga.BLANCO))
+	hueco.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	hueco.add_child(lista)
+	raiz.add_child(hueco)
+
+	for i in Acusacion.sospechosos_de(caso).size():
+		var sospechoso: Dictionary = caso["sospechosos"][i]
+		var casilla := CheckBox.new()
+		casilla.text = "%s — %s" % [sospechoso["nombre"], sospechoso.get("descripcion", "")]
+		casilla.add_theme_color_override("font_color", EstiloSiga.NEGRO)
+		casilla.toggled.connect(_al_marcar.bind(i))
+		lista.add_child(casilla)
+		_casillas.append(casilla)
+
+	# La declaración responsable. Obligatoria para presentar y completamente
+	# irrelevante para lo que pasa después.
+	var declaracion := CheckBox.new()
+	declaracion.text = "Declaro haber revisado íntegramente la documentación obrante en el expediente."
+	declaracion.add_theme_color_override("font_color", EstiloSiga.NEGRO)
+	declaracion.toggled.connect(func(marcada: bool):
+		_declarado = marcada
+		_revisar())
+	raiz.add_child(declaracion)
+
+	_aviso = _linea("")
+	raiz.add_child(_aviso)
+
+	var botones := HBoxContainer.new()
+	_presentar = Button.new()
+	_presentar.text = "PRESENTAR"
+	_presentar.disabled = true
+	_presentar.pressed.connect(_al_presentar)
+	botones.add_child(_presentar)
+
+	var volver := Button.new()
+	volver.text = "Volver al expediente"
+	volver.pressed.connect(func(): cancelada.emit())
+	botones.add_child(volver)
+	raiz.add_child(botones)
+
+	# El aviso desde el principio: un botón desactivado sin explicación se lee
+	# como una pantalla rota.
+	_revisar()
+
+
+func _al_marcar(marcada: bool, indice: int) -> void:
+	if not marcada:
+		if _elegido == indice:
+			_elegido = -1
+		_revisar()
+		return
+	# Una casilla y solo una: el formulario no admite dos responsables, que es
+	# precisamente lo que casi todos estos expedientes tienen.
+	_elegido = indice
+	for i in _casillas.size():
+		if i != indice:
+			_casillas[i].set_pressed_no_signal(false)
+	_revisar()
+
+
+func _revisar() -> void:
+	_presentar.disabled = _elegido < 0 or not _declarado
+	if _elegido < 0:
+		_aviso.text = "Marque la casilla del responsable."
+	elif not _declarado:
+		_aviso.text = "Falta la declaración responsable."
+	else:
+		_aviso.text = "Al presentar, el expediente queda cerrado."
+
+
+func _al_presentar() -> void:
+	var resultado := Acusacion.acusar(
+		estado, jornada, caso, caso["sospechosos"][_elegido], descubiertas)
+
+	if resultado["resultado"] == "sin_acciones":
+		_aviso.text = "SE ACABÓ LA JORNADA. El registro ya no admite entradas hoy."
+		return
+	if resultado["resultado"] == "ya_cerrado":
+		_aviso.text = "Este expediente ya tiene veredicto firme."
+		return
+
+	firmada.emit(resultado)
+
+
+# --- Cajas ------------------------------------------------------------------
+
+func _titulo(texto: String) -> Control:
+	var barra := PanelContainer.new()
+	var caja := StyleBoxFlat.new()
+	caja.bg_color = EstiloSiga.AZUL_TITULO
+	caja.set_corner_radius_all(0)
+	caja.content_margin_left = 6
+	caja.content_margin_top = 3
+	caja.content_margin_bottom = 3
+	barra.add_theme_stylebox_override("panel", caja)
+	var etiqueta := _linea(texto)
+	etiqueta.add_theme_color_override("font_color", EstiloSiga.BLANCO)
+	barra.add_child(etiqueta)
+	return barra
+
+
+func _linea(texto: String) -> Label:
+	var etiqueta := Label.new()
+	etiqueta.text = texto
+	etiqueta.add_theme_color_override("font_color", EstiloSiga.NEGRO)
+	etiqueta.add_theme_font_size_override("font_size", 14)
+	etiqueta.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	return etiqueta
+
+
+func _hundido(fondo: Color) -> StyleBoxFlat:
+	var caja := StyleBoxFlat.new()
+	caja.bg_color = fondo
+	caja.set_corner_radius_all(0)
+	caja.border_width_top = EstiloSiga.GROSOR
+	caja.border_width_left = EstiloSiga.GROSOR
+	caja.border_width_bottom = EstiloSiga.GROSOR
+	caja.border_width_right = EstiloSiga.GROSOR
+	caja.border_color = EstiloSiga.GRIS_OSCURO
+	caja.content_margin_left = 8
+	caja.content_margin_right = 8
+	caja.content_margin_top = 6
+	caja.content_margin_bottom = 6
+	return caja
