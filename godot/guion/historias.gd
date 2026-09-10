@@ -25,22 +25,25 @@ const TOPE_CARGAS := 2
 
 ## Qué hace cada habilidad dentro de una ronda. Ninguna es un bonus pasivo:
 ## todas son una decisión que se gasta.
+##
+## `nombre` y `efecto` son CLAVES de traducción: el texto vive en
+## `datos/textos.csv` y lo resuelve quien pinta el botón.
 const HABILIDADES := {
 	"comunismo": {
-		"nombre": "Asamblea",
-		"efecto": "Esta ronda, el empate también golpea al rival.",
+		"nombre": "HABILIDAD_ASAMBLEA",
+		"efecto": "HABILIDAD_ASAMBLEA_EFECTO",
 	},
 	"centrista": {
-		"nombre": "Mesa de diálogo",
-		"efecto": "Esta ronda nadie pierde vida.",
+		"nombre": "HABILIDAD_MESA",
+		"efecto": "HABILIDAD_MESA_EFECTO",
 	},
 	"socialdemocrata": {
-		"nombre": "Comisión de seguimiento",
-		"efecto": "Revela la réplica que viene.",
+		"nombre": "HABILIDAD_COMISION",
+		"efecto": "HABILIDAD_COMISION_EFECTO",
 	},
 	"neoliberal": {
-		"nombre": "Externalizar",
-		"efecto": "Esta ronda el daño cuenta doble, gane quien gane.",
+		"nombre": "HABILIDAD_EXTERNALIZAR",
+		"efecto": "HABILIDAD_EXTERNALIZAR_EFECTO",
 	},
 }
 

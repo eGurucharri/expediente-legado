@@ -12,17 +12,21 @@
 class_name Ventanilla
 extends RefCounted
 
+## Sus textos son CLAVES de traducción, igual que los del resto del código. Los
+## reclamantes de verdad vienen de `casos.json`, que todavía no está traducido y
+## trae el texto tal cual: quien los pinta pasa los dos por `tr()`, que devuelve
+## intacto lo que no es una clave. Esa costura se cierra cuando el catálogo pase
+## por su propia tarjeta.
 const DE_OFICIO := {
 	"id": "reclamante-de-oficio",
-	"nombre": "Reclamante sin expediente asignado",
+	"nombre": "OFICIO_NOMBRE",
 	"tipo": "PERSONA",
-	"resumen": "Se presenta cada mañana. No consta quién es ni qué reclama; "
-		+ "el sistema le asigna un turno igualmente.",
+	"resumen": "OFICIO_RESUMEN",
 	"ataques": [
-		"Vengo por lo del expediente.",
-		"Me dijeron que preguntara aquí.",
-		"Llevo desde las siete.",
-		"¿Es esta la ventanilla?",
+		"OFICIO_ATAQUE_1",
+		"OFICIO_ATAQUE_2",
+		"OFICIO_ATAQUE_3",
+		"OFICIO_ATAQUE_4",
 	],
 	"de_oficio": true,
 }

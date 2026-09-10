@@ -39,3 +39,6 @@ Thumbs.db
 
 # Notas de Claude Code para sí mismo: uso local, no se versiona
 CLAUDE.md
+
+# Traducciones compiladas: se regeneran con `godot4 --import` desde el .csv
+*.translation

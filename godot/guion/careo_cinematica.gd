@@ -56,14 +56,14 @@ const PLANOS := [
 		"camara": Vector3(0.0, 1.6, 2.6),
 		"mira": Vector3(0.0, 1.5, 0.0),
 		"segundos": 1.2,
-		"rotulo": "EXPEDIENTE {folio}",
+		"rotulo": "CAREO_ROTULO_EXPEDIENTE",
 	},
 ]
 
 ## Lo que se lee bajo el nombre cuando el acusado no tiene cargo escrito. No es
 ## un relleno: que no conste el cargo de alguien a quien estás acusando es
 ## exactamente el problema de este archivo.
-const CARGO_POR_DEFECTO := "Cargo no consta en el expediente"
+const CARGO_POR_DEFECTO := "CAREO_SIN_CARGO"
 
 
 ## El plano de rodaje ya resuelto para un acusado. Devuelve copias, así que
@@ -77,7 +77,7 @@ static func planos_de(acusado: Dictionary, folio: String = "", vistas: int = 0) 
 	return Cinematica.resolver(PLANOS, {
 		"nombre": nombre,
 		"cargo": cargo,
-		"folio": folio if not folio.is_empty() else "SIN NÚMERO",
+		"folio": folio if not folio.is_empty() else TranslationServer.translate("CAREO_SIN_FOLIO"),
 	}, vistas)
 
 
@@ -88,7 +88,7 @@ static func planos_de(acusado: Dictionary, folio: String = "", vistas: int = 0) 
 static func _cargo_deducido(acusado: Dictionary) -> String:
 	var descripcion: String = acusado.get("descripcion", "")
 	if descripcion.is_empty():
-		return CARGO_POR_DEFECTO
+		return TranslationServer.translate(CARGO_POR_DEFECTO)
 	var punto := descripcion.find(".")
 	var primera := descripcion.substr(0, punto) if punto > 0 else descripcion
 	return primera.strip_edges().to_upper()

@@ -32,6 +32,7 @@ func _init() -> void:
 	_cinematicas()
 	_plantas()
 	_sueno()
+	_traducciones()
 
 	print("\n%d pasadas, %d fallos" % [pasadas, fallos])
 	quit(1 if fallos > 0 else 0)
@@ -700,7 +701,7 @@ func _combate() -> void:
 	var anunciada: String = rc["revelada"]
 	var siguiente := Combate.jugar(comision, "objecion", "", sin_azar)
 	comprobar("y la ronda siguiente juega justo esa",
-		Combate.ETIQUETAS[siguiente["tipo_rival"]], anunciada)
+		Combate.etiqueta(siguiente["tipo_rival"]), anunciada)
 
 	# El rival reactivo contesta a la última jugada: se puede cebar.
 	var ventanilla := Combate.nuevo("reactiva", rival, {})
@@ -1138,7 +1139,7 @@ func _careo() -> void:
 	# cargo es parte del problema, y se dice.
 	comprobar("un acusado sin descripción tiene cartela igual",
 		CareoCinematica.planos_de({"nombre": "Nadie"})[2]["rotulo"],
-		CareoCinematica.CARGO_POR_DEFECTO)
+		TranslationServer.translate(CareoCinematica.CARGO_POR_DEFECTO))
 
 	# --- El cuñado ---
 	var azar := func(): return 0.0
@@ -1152,17 +1153,17 @@ func _careo() -> void:
 	# Si se ha gastado una habilidad, es de lo que habla: es lo que miraría.
 	comprobar("comenta la habilidad antes que el resultado",
 		Cunado.sobre_ronda({"habilidad": "comunismo", "veredicto": "gana_rival"}, azar)
-			in Cunado.AL_GASTAR_HABILIDAD, true)
+			in Cunado.AL_GASTAR_HABILIDAD.map(TranslationServer.translate), true)
 	comprobar("y si no hubo, el resultado",
 		Cunado.sobre_ronda({"habilidad": "", "veredicto": "gana_jugador"}, azar)
-			in Cunado.AL_GANAR_RONDA, true)
+			in Cunado.AL_GANAR_RONDA.map(TranslationServer.translate), true)
 
 	# LA REGLA: no da información. Si nunca nombra una jugada, no puede estar
 	# diciéndote qué hacer. Se comprueba sobre TODO lo que puede decir, no sobre
 	# una muestra: una regla sobre lo que se dice solo vale así.
 	var chivatazos := []
 	for frase in Cunado.todas_las_frases():
-		for prohibida in Cunado.PALABRAS_PROHIBIDAS:
+		for prohibida in Cunado.palabras_prohibidas():
 			if frase.contains(prohibida):
 				chivatazos.append(frase)
 	comprobar("el cuñado no nombra ninguna jugada", chivatazos, [])
@@ -1410,3 +1411,74 @@ func _sueno() -> void:
 	vida["mapa"] = ["patio", "peine"]
 	Jornada.reiniciar_vuelta(vida)
 	comprobar("el mapa del sueño no sobrevive al despido", vida["mapa"], [])
+
+
+# --- Que el texto siga fuera del código (#105) -------------------------------
+
+## Extraer el texto una vez no sirve de nada si la pantalla siguiente vuelve a
+## escribirlo dentro. Estas tres comprobaciones son lo que impide que esto se
+## deshaga solo: no revisan el español, revisan que el español no esté aquí.
+func _traducciones() -> void:
+	var claves := {}
+	var csv := FileAccess.open("res://datos/textos.csv", FileAccess.READ)
+	comprobar("hay fichero de traducción", csv != null, true)
+	if csv == null:
+		return
+	var primera := true
+	while not csv.eof_reached():
+		var linea := csv.get_csv_line()
+		if primera:
+			comprobar("la cabecera declara clave e idioma", linea, ["clave", "es"])
+			primera = false
+			continue
+		if linea.size() < 2 or linea[0].is_empty():
+			continue
+		claves[linea[0]] = linea[1]
+	csv.close()
+
+	var fuentes := PackedStringArray()
+	for nombre in DirAccess.get_files_at("res://guion"):
+		if nombre.ends_with(".gd"):
+			fuentes.append(FileAccess.get_file_as_string("res://guion/" + nombre))
+	var codigo := "\n".join(fuentes)
+
+	# 1. Toda clave que el código nombra existe. Godot devuelve la clave tal
+	#    cual cuando no la encuentra, así que una errata no revienta: se ve en
+	#    pantalla como un grito en mayúsculas y nadie la nota hasta que alguien
+	#    llega a esa esquina del juego. Pasó de verdad con los nombres de las
+	#    jugadas, y por eso esto NO busca solo `tr("...")`: media docena de
+	#    claves viven en tablas (`Combate.ETIQUETAS`, el cuñado, los rótulos de
+	#    los sitios) y se traducen lejos de donde se escriben. Lo que se busca
+	#    es la FORMA de una clave, que la convención hace inconfundible.
+	var pedidas := RegEx.create_from_string('"([A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+)"')
+	var sin_texto := []
+	for hallazgo in pedidas.search_all(codigo):
+		if not claves.has(hallazgo.get_string(1)):
+			sin_texto.append(hallazgo.get_string(1))
+	comprobar("ninguna clave pedida se queda sin texto", sin_texto, [])
+
+	# 2. Y ninguna sobra. Una clave que ya no pide nadie es texto que se sigue
+	#    traduciendo —y pagando— para una pantalla que se quitó.
+	var huerfanas := []
+	for clave in claves:
+		if not codigo.contains('"%s"' % clave):
+			huerfanas.append(clave)
+	comprobar("ninguna clave se queda sin quien la pida", huerfanas, [])
+
+	# 3. Ninguna pantalla escribe texto a mano. Es la comprobación que de
+	#    verdad sostiene esto: sin ella, la casa y el sueño llegan con el suyo
+	#    dentro y en tres pantallas hemos vuelto al principio.
+	# La letra tiene que ser letra de verdad: la "n" de un salto de línea y la
+	# "s" de un "%s" no son texto, y sin descontarlas la guarda se dispara sobre
+	# cadenas que no dicen nada.
+	var literales := RegEx.create_from_string(
+		'(\\.text|tooltip_text|placeholder_text)\\s*(=|\\+=)\\s*"[^"]*(?<![\\\\%])[a-zá-úA-ZÁ-Ú]')
+	var escritos := []
+	for nombre in DirAccess.get_files_at("res://guion"):
+		if not nombre.ends_with(".gd"):
+			continue
+		var fuente := FileAccess.get_file_as_string("res://guion/" + nombre)
+		for linea in fuente.split("\n"):
+			if literales.search(linea) != null:
+				escritos.append("%s: %s" % [nombre, linea.strip_edges()])
+	comprobar("ninguna pantalla escribe texto a mano", escritos, [])

@@ -16,57 +16,67 @@
 class_name Cunado
 extends RefCounted
 
-## Nombra a una jugada = está diciéndote qué hacer. La prueba usa esta lista
+## Nombrar una jugada = estar diciéndote qué hacer. La prueba usa esta lista
 ## para recorrer todo lo que puede decir.
-const PALABRAS_PROHIBIDAS := ["Objeción", "objeción", "Silencio", "silencio",
-	"Insistencia", "insistencia"]
+##
+## Se DERIVA de las jugadas que existen, no se copia al lado: una lista escrita
+## a mano no falla, se desincroniza — el día que el combate estrene una cuarta
+## jugada, el cuñado podría nombrarla sin que saltara nada. Es la misma regla
+## del cartel de reglas que se deriva de las constantes del motor.
+static func palabras_prohibidas() -> Array:
+	var palabras := []
+	for tipo in Combate.ETIQUETAS:
+		var nombre := Combate.etiqueta(tipo)
+		palabras.append(nombre)
+		palabras.append(nombre.to_lower())
+	return palabras
 
 const AL_LLEGAR := [
-	"¿Es el careo? Uy. A ese yo no le habría acusado un lunes.",
-	"Espera que me traigo la silla.",
-	"Yo tuve uno igual en el 96. Bueno, igual no. Parecido.",
-	"¿Has puesto el asunto en mayúsculas? Es que si no, no consta.",
-	"Yo esto lo veo desde aquí, que si me ven implicado me toca declarar.",
+	"CUNADO_LLEGADA_1",
+	"CUNADO_LLEGADA_2",
+	"CUNADO_LLEGADA_3",
+	"CUNADO_LLEGADA_4",
+	"CUNADO_LLEGADA_5",
 ]
 
 const AL_GANAR_RONDA := [
-	"Suerte. Una vez, ¿eh? Pero suerte.",
-	"Eso yo lo hacía todos los días antes de que lo digitalizaran.",
-	"Claro, es que le has pillado con el turno cambiado.",
-	"Bien, bien. Aunque yo habría ido por lo civil.",
+	"CUNADO_GANA_1",
+	"CUNADO_GANA_2",
+	"CUNADO_GANA_3",
+	"CUNADO_GANA_4",
 ]
 
 const AL_PERDER_RONDA := [
-	"Uy. Eso te lo iba a decir.",
-	"Ya. Es que ahí tenías que haber hecho lo otro.",
-	"A mí me pasó igual. Bueno, a mí no, a uno de contabilidad.",
-	"No pasa nada, hombre. Bueno, sí pasa, pero no pasa nada.",
-	"Es que has ido de frente. Con estos nunca de frente.",
+	"CUNADO_PIERDE_1",
+	"CUNADO_PIERDE_2",
+	"CUNADO_PIERDE_3",
+	"CUNADO_PIERDE_4",
+	"CUNADO_PIERDE_5",
 ]
 
 const AL_EMPATAR := [
-	"Esto puede durar años. Literalmente. Yo he visto uno de nueve.",
-	"Mira, así por lo menos no consta nada.",
-	"¿Bajamos luego a por café? Digo cuando acabe esto.",
+	"CUNADO_EMPATE_1",
+	"CUNADO_EMPATE_2",
+	"CUNADO_EMPATE_3",
 ]
 
 const AL_GASTAR_HABILIDAD := [
-	"Eso lo quitaron en la reforma. Bueno, o lo pusieron. Alguna de las dos.",
-	"¿Y eso se puede? Yo pregunto.",
-	"Anda, si funciona. Pues nada.",
+	"CUNADO_HABILIDAD_1",
+	"CUNADO_HABILIDAD_2",
+	"CUNADO_HABILIDAD_3",
 ]
 
 const AL_VENCER := [
-	"Bueno, bueno. Ya te vale, ya.",
-	"Enhorabuena. Ahora te toca el papeleo, que es lo gordo.",
-	"Yo lo habría cerrado el martes, pero oye, cada uno.",
+	"CUNADO_VICTORIA_1",
+	"CUNADO_VICTORIA_2",
+	"CUNADO_VICTORIA_3",
 ]
 
 const AL_CAER := [
-	"Es que se lo has puesto muy fácil.",
-	"Bueno. Tampoco es para tanto. A ver, sí lo es.",
-	"Yo de ti no volvía a intentarlo hasta el jueves.",
-	"¿Ves? Por ir de frente.",
+	"CUNADO_DERROTA_1",
+	"CUNADO_DERROTA_2",
+	"CUNADO_DERROTA_3",
+	"CUNADO_DERROTA_4",
 ]
 
 const POR_MOMENTO := {
@@ -86,7 +96,7 @@ static func comentario(momento: String, azar: Callable) -> String:
 	var frases: Array = POR_MOMENTO.get(momento, [])
 	if frases.is_empty():
 		return ""
-	return frases[int(azar.call() * frases.size()) % frases.size()]
+	return TranslationServer.translate(frases[int(azar.call() * frases.size()) % frases.size()])
 
 
 ## Lo que comenta de una ronda, a partir de su crónica. Habla de la habilidad
@@ -104,5 +114,6 @@ static func sobre_ronda(ronda: Dictionary, azar: Callable) -> String:
 static func todas_las_frases() -> Array:
 	var todas := []
 	for momento in POR_MOMENTO:
-		todas.append_array(POR_MOMENTO[momento])
+		for clave in POR_MOMENTO[momento]:
+			todas.append(TranslationServer.translate(clave))
 	return todas

@@ -20,11 +20,18 @@ extends RefCounted
 ## En orden circular: cada uno vence al SIGUIENTE.
 const TIPOS := ["objecion", "silencio", "insistencia"]
 
+## Cómo se llama cada jugada de cara al jugador. Los valores son CLAVES de
+## traducción, no el texto: quien lo pinta llama a `etiqueta()`.
 const ETIQUETAS := {
-	"objecion": "Objeción",
-	"silencio": "Silencio",
-	"insistencia": "Insistencia",
+	"objecion": "COMBATE_OBJECION",
+	"silencio": "COMBATE_SILENCIO",
+	"insistencia": "COMBATE_INSISTENCIA",
 }
+
+
+## El nombre de una jugada, ya en el idioma de la partida.
+static func etiqueta(tipo: String) -> String:
+	return TranslationServer.translate(ETIQUETAS.get(tipo, ""))
 
 const VIDA_INICIAL := 3
 
@@ -119,7 +126,7 @@ static func jugar(combate: Dictionary, tipo_jugador: String, habilidad: String,
 		"habilidad": gastada,
 		"dano_al_jugador": a_jugador,
 		"dano_al_rival": a_rival,
-		"revelada": ETIQUETAS.get(TIPOS[combate["revelada"]], "") \
+		"revelada": etiqueta(TIPOS[combate["revelada"]]) \
 			if combate["revelada"] >= 0 else "",
 		"replica": _replica(combate, azar),
 		"terminado": combate["terminado"],

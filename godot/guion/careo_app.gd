@@ -80,7 +80,7 @@ func _empezar_duelo() -> void:
 	_botones.visible = true
 	_figura_cunado.visible = true
 	_actualizar_marcador()
-	_cronica.text = "%s no reconoce la acusación." % acusado["nombre"]
+	_cronica.text = tr("CAREO_NO_RECONOCE") % acusado["nombre"]
 
 
 func _al_jugar(tipo: String) -> void:
@@ -88,11 +88,11 @@ func _al_jugar(tipo: String) -> void:
 		return
 	var ronda := Combate.jugar(_combate, tipo, "", _tirada())
 
-	_cronica.text = "Usted: %s   ·   %s: %s   —   %s" % [
-		Combate.ETIQUETAS[ronda["tipo_jugador"]], acusado["nombre"],
-		Combate.ETIQUETAS[ronda["tipo_rival"]], _veredicto(ronda["veredicto"])]
+	_cronica.text = tr("COMBATE_CRONICA") % [
+		Combate.etiqueta(ronda["tipo_jugador"]), acusado["nombre"],
+		Combate.etiqueta(ronda["tipo_rival"]), _veredicto(ronda["veredicto"])]
 	if not ronda["replica"].is_empty():
-		_cronica.text += "\n« %s »" % ronda["replica"]
+		_cronica.text += "\n" + tr("CAREO_REPLICA") % ronda["replica"]
 
 	_actualizar_marcador()
 
@@ -108,15 +108,15 @@ func _al_jugar(tipo: String) -> void:
 func _decir(frase: String) -> void:
 	if frase.is_empty():
 		return
-	_voz.text = "— %s" % frase
+	_voz.text = tr("VOZ_CUNADO") % frase
 	_desde = Time.get_ticks_msec() / 1000.0
 
 
 func _veredicto(cual: String) -> String:
 	match cual:
-		"gana_jugador": return "cede un punto"
-		"gana_rival": return "se le impone"
-		_: return "ninguno cede"
+		"gana_jugador": return tr("CAREO_VEREDICTO_JUGADOR")
+		"gana_rival": return tr("CAREO_VEREDICTO_RIVAL")
+		_: return tr("VEREDICTO_EMPATE")
 
 
 func _tirada() -> Callable:
@@ -124,7 +124,7 @@ func _tirada() -> Callable:
 
 
 func _actualizar_marcador() -> void:
-	_marcador.text = "Usted %s        %s %s" % [
+	_marcador.text = tr("CAREO_MARCADOR") % [
 		"█".repeat(maxi(0, _combate["vida_jugador"])),
 		acusado["nombre"],
 		"█".repeat(maxi(0, _combate["vida_rival"]))]
@@ -232,7 +232,7 @@ func _montar_interfaz() -> void:
 	_botones.visible = false
 	for tipo in Combate.TIPOS:
 		var boton := Button.new()
-		boton.text = Combate.ETIQUETAS[tipo]
+		boton.text = Combate.etiqueta(tipo)
 		boton.pressed.connect(_al_jugar.bind(tipo))
 		_botones.add_child(boton)
 	abajo.add_child(_botones)

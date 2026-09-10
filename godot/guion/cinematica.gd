@@ -46,8 +46,13 @@ static func resolver(planos: Array, datos: Dictionary = {}, vistas: int = 0) -> 
 	var rodaje := []
 	for i in planos.size():
 		var plano: Dictionary = planos[i].duplicate(true)
-		plano["rotulo"] = _rellenar(String(plano.get("rotulo", "")), datos)
-		plano["voz"] = _rellenar(String(plano.get("voz", "")), datos)
+		# El rótulo y la voz se declaran por CLAVE de traducción y se rellenan
+		# DESPUÉS: al revés, los huecos se sustituirían en la clave y ya no
+		# habría clave que buscar.
+		plano["rotulo"] = _rellenar(
+			TranslationServer.translate(String(plano.get("rotulo", ""))), datos)
+		plano["voz"] = _rellenar(
+			TranslationServer.translate(String(plano.get("voz", ""))), datos)
 		plano["segundos"] = float(plano.get("segundos", 0.0)) \
 			* factor(vistas, i == planos.size() - 1)
 		rodaje.append(plano)

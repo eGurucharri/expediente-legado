@@ -93,14 +93,14 @@ func _llenar_turno() -> void:
 	_lista.clear()
 	for reclamante in Ventanilla.disponibles(
 			contenido, partida.estado["pistas_descubiertas"]):
-		_lista.add_item(reclamante["nombre"])
+		_lista.add_item(tr(reclamante["nombre"]))
 		_lista.set_item_metadata(_lista.item_count - 1, reclamante)
 	_lista.visible = true
 	_botones.visible = false
 	_habilidades.visible = false
-	_cronica.text = "Llame al siguiente turno."
+	_cronica.text = tr("VENTANILLA_LLAME")
 	_replica.text = ""
-	_ficha.text = "[i]Nadie en el mostrador.[/i]"
+	_ficha.text = tr("VENTANILLA_NADIE")
 	_actualizar_marcador()
 
 
@@ -110,7 +110,7 @@ func _al_llamar(indice: int) -> void:
 	_lista.visible = false
 	_botones.visible = true
 	_habilidades.visible = true
-	_cronica.text = "%s se presenta en el mostrador." % _rival["nombre"]
+	_cronica.text = tr("VENTANILLA_SE_PRESENTA") % tr(_rival["nombre"])
 	_replica.text = ""
 	_pintar_ficha()
 	_pintar_habilidades()
@@ -126,11 +126,11 @@ func _al_jugar(tipo: String) -> void:
 
 
 func _contar(ronda: Dictionary) -> void:
-	var texto := "Usted: %s   ·   %s: %s   —   %s" % [
-		Combate.ETIQUETAS[ronda["tipo_jugador"]], _rival["nombre"],
-		Combate.ETIQUETAS[ronda["tipo_rival"]], _veredicto(ronda["veredicto"])]
+	var texto := tr("COMBATE_CRONICA") % [
+		Combate.etiqueta(ronda["tipo_jugador"]), tr(_rival["nombre"]),
+		Combate.etiqueta(ronda["tipo_rival"]), _veredicto(ronda["veredicto"])]
 	if not ronda["revelada"].is_empty():
-		texto += "\nLa comisión adelanta que la próxima réplica será: %s." % ronda["revelada"]
+		texto += "\n" + tr("VENTANILLA_ADELANTA") % ronda["revelada"]
 	_cronica.text = texto
 
 	_decir(ronda["replica"])
@@ -153,14 +153,14 @@ func _cerrar(gano: bool) -> void:
 
 	_botones.visible = false
 	_habilidades.visible = false
-	_cronica.text += "\n\n%s" % ("RECLAMACIÓN ATENDIDA. Racha: %d." % racha if gano
-		else "RECLAMACIÓN NO ATENDIDA. La racha vuelve a cero.")
+	_cronica.text += "\n\n%s" % (tr("VENTANILLA_ATENDIDA") % racha if gano
+		else tr("VENTANILLA_NO_ATENDIDA"))
 	_actualizar_marcador()
 
 	# Un botón para volver a la cola, en vez de saltar solo: el jugador decide
 	# cuándo llama al siguiente.
 	var siguiente := Button.new()
-	siguiente.text = "Llamar al siguiente turno"
+	siguiente.text = tr("VENTANILLA_SIGUIENTE")
 	siguiente.pressed.connect(func():
 		siguiente.queue_free()
 		_llenar_turno())
@@ -171,9 +171,9 @@ func _cerrar(gano: bool) -> void:
 ## de oficio no tiene expediente, y eso se DICE en vez de dejar el hueco en
 ## blanco — que no tenga ficha es su rasgo, no un fallo de la pantalla.
 func _pintar_ficha() -> void:
-	var etiqueta := "PERSONA" if _rival["tipo"] == "PERSONA" else "COMITÉ"
-	var cuerpo: String = _rival.get("resumen", "")
-	_ficha.text = "[b]%s[/b]   ·   %s\n\n%s" % [_rival["nombre"], etiqueta, cuerpo]
+	var etiqueta := tr("FICHA_PERSONA") if _rival["tipo"] == "PERSONA" else tr("FICHA_COMITE")
+	var cuerpo: String = tr(_rival.get("resumen", ""))
+	_ficha.text = tr("FICHA_RECLAMANTE") % [tr(_rival["nombre"]), etiqueta, cuerpo]
 
 
 func _decir(frase: String) -> void:
@@ -190,9 +190,9 @@ func _decir(frase: String) -> void:
 
 func _veredicto(cual: String) -> String:
 	match cual:
-		"gana_jugador": return "se impone su objeción"
-		"gana_rival": return "se impone el mostrador"
-		_: return "ninguno cede"
+		"gana_jugador": return tr("VEREDICTO_JUGADOR")
+		"gana_rival": return tr("VEREDICTO_RIVAL")
+		_: return tr("VEREDICTO_EMPATE")
 
 
 ## Las tiradas del combate salen de aquí, no de `randf` suelto: un solo sitio
@@ -216,8 +216,9 @@ func _pintar_habilidades() -> void:
 	for eje in Combate.cargas_disponibles(combate):
 		var habilidad: Dictionary = Historias.HABILIDADES[eje]
 		var boton := Button.new()
-		boton.text = "%s (%d)" % [habilidad["nombre"], combate["cargas"][eje]]
-		boton.tooltip_text = habilidad["efecto"]
+		boton.text = tr("VENTANILLA_HABILIDAD") % [
+			tr(habilidad["nombre"]), combate["cargas"][eje]]
+		boton.tooltip_text = tr(habilidad["efecto"])
 		boton.toggle_mode = true
 		boton.pressed.connect(func():
 			# Se arma para la ronda siguiente y no se gasta al pulsar: una
@@ -233,10 +234,10 @@ func _actualizar_marcador() -> void:
 	if combate.is_empty():
 		_vidas.text = ""
 	else:
-		_vidas.text = "Usted  %s %d        %s  %s %d" % [
+		_vidas.text = tr("COMBATE_VIDAS") % [
 			_barra(combate["vida_jugador"]), combate["vida_jugador"],
-			_rival["nombre"], _barra(combate["vida_rival"]), combate["vida_rival"]]
-	_marcador.text = "Racha: %d        Mejor marca: %d" % [
+			tr(_rival["nombre"]), _barra(combate["vida_rival"]), combate["vida_rival"]]
+	_marcador.text = tr("VENTANILLA_MARCADOR") % [
 		racha, partida.estado.get("coliseo_racha_mejor", 0)]
 
 
@@ -258,7 +259,7 @@ func _construir() -> void:
 	_tablero.add_theme_constant_override("separation", 8)
 	add_child(_tablero)
 
-	_tablero.add_child(_titulo("SIGA-98  —  VENTANILLA DE RECLAMACIONES"))
+	_tablero.add_child(_titulo(tr("VENTANILLA_TITULO")))
 
 	_marcador = _etiqueta("")
 	_tablero.add_child(_marcador)
@@ -301,7 +302,7 @@ func _construir() -> void:
 	_botones = HBoxContainer.new()
 	for tipo in Combate.TIPOS:
 		var boton := Button.new()
-		boton.text = Combate.ETIQUETAS[tipo]
+		boton.text = Combate.etiqueta(tipo)
 		boton.pressed.connect(_al_jugar.bind(tipo))
 		_botones.add_child(boton)
 	_tablero.add_child(_botones)

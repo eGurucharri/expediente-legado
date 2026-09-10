@@ -4,6 +4,9 @@
 ## nombre: aquí solo hay medidas, bultos y a dónde lleva cada salida, así que
 ## añadir un sitio es una entrada más y no tocar el motor.
 ##
+## Los rótulos son CLAVES de traducción, no texto: el texto vive en
+## `datos/textos.csv` y lo resuelve quien lo pinta.
+##
 ## Los bultos son cajas con nombre de mueble y nada más. Una mesa es una caja
 ## hasta que haya un asset con su ficha; llamarla mesa aquí es lo que permite
 ## sustituirla luego sin tocar la geografía.
@@ -11,7 +14,7 @@ class_name EspaciosCatalogo
 extends RefCounted
 
 const OFICINA := {
-	"rotulo": "SIGA — Archivo, planta 4",
+	"rotulo": "SITIO_OFICINA",
 	"suelo": Vector2(14, 10),
 	"color_suelo": Color(0.30, 0.29, 0.27),
 	"color_muro": Color(0.58, 0.57, 0.52),
@@ -31,12 +34,12 @@ const OFICINA := {
 			"color": Color(0.40, 0.39, 0.36)},
 	],
 	"salidas": [
-		{"pos": Vector3(-6.4, 1.1, 3.5), "destino": "trayecto", "rotulo": "Salida"},
+		{"pos": Vector3(-6.4, 1.1, 3.5), "destino": "trayecto", "rotulo": "SALIDA_OFICINA"},
 	],
 }
 
 const CALLE := {
-	"rotulo": "De vuelta a casa",
+	"rotulo": "SITIO_CALLE",
 	"suelo": Vector2(9, 34),
 	"color_suelo": Color(0.22, 0.22, 0.23),
 	"color_muro": Color(0.30, 0.29, 0.30),
@@ -51,12 +54,12 @@ const CALLE := {
 			"color": Color(0.26, 0.25, 0.26)},
 	],
 	"salidas": [
-		{"pos": Vector3(0, 1.1, 15.5), "destino": "casa", "rotulo": "Portal"},
+		{"pos": Vector3(0, 1.1, 15.5), "destino": "casa", "rotulo": "SALIDA_PORTAL"},
 	],
 }
 
 const CASA := {
-	"rotulo": "Casa",
+	"rotulo": "SITIO_CASA",
 	"suelo": Vector2(8, 7),
 	"color_suelo": Color(0.32, 0.27, 0.22),
 	"color_muro": Color(0.52, 0.47, 0.42),
@@ -74,7 +77,7 @@ const CASA := {
 			"color": Color(0.55, 0.50, 0.20)},
 	],
 	"salidas": [
-		{"pos": Vector3(-2.4, 0.9, -2), "destino": "sueño", "rotulo": "Dormir",
+		{"pos": Vector3(-2.4, 0.9, -2), "destino": "sueño", "rotulo": "SALIDA_DORMIR",
 			"tam": Vector3(1.6, 1.2, 2.4)},
 	],
 }
