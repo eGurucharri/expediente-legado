@@ -64,6 +64,14 @@ static func nueva() -> Dictionary:
 		# gastando por delante, así que «cuántas quedan» y «cuál toca» son el
 		# mismo dato y no pueden contradecirse.
 		"sueno_escenas": [],
+		# Lo que queda de noche, en segundos. La salida del sueño no se ve
+		# (#90), así que hace falta algo que corte: un sitio del que no se sale
+		# es un juego colgado.
+		"sueno_resto": 0.0,
+		# El mapa tal y como estaba al dormirse. Si la noche se acaba sin haber
+		# salido, se vuelve a él: **el mapa no crece esa noche**, que es un
+		# castigo que es exactamente lo que perdiste — no llegaste.
+		"mapa_anoche": [],
 	}
 
 
@@ -145,6 +153,8 @@ static func dormir(jornada: Dictionary) -> Dictionary:
 	jornada["fase"] = "sueño"
 	jornada["sueno_escenas"] = Sueno.noche(
 		jornada["dia"], jornada["leido_hoy"], jornada["mapa"])
+	jornada["sueno_resto"] = Sueno.segundos_de_noche(jornada["sueno_escenas"])
+	jornada["mapa_anoche"] = jornada["mapa"].duplicate()
 	return {"coste": COSTE_DIARIO, "dinero": jornada["dinero"], "gato_se_fue": se_fue}
 
 
@@ -160,7 +170,45 @@ static func despertar(jornada: Dictionary) -> int:
 	# La noche se acabó aunque queden escenas: despertar de golpe (#90) no
 	# puede dejar media noche esperando a la siguiente.
 	jornada["sueno_escenas"] = []
+	jornada["sueno_resto"] = 0.0
+	jornada["mapa_anoche"] = []
 	return jornada["dia"]
+
+
+## Gasta noche. Devuelve si se ha acabado.
+##
+## El reloj corre en tiempo real y no en pasos: pararse a leer una pared cuesta
+## noche igual que andar. Es duro con quien mira, y es lo que hace que el sueño
+## tenga prisa cuando el día no la tiene.
+static func gastar_sueno(jornada: Dictionary, segundos: float) -> bool:
+	if jornada["fase"] != "sueño":
+		return false
+	jornada["sueno_resto"] = maxf(0.0, jornada["sueno_resto"] - segundos)
+	return jornada["sueno_resto"] <= 0.0
+
+
+## Cuánto queda de noche, de 1 a 0. Para enseñarlo SIN un número: un reloj con
+## cifras dentro de un sueño es una interfaz de videojuego dentro de la parte
+## del juego que menos tiene que parecerlo.
+static func noche_restante(jornada: Dictionary) -> float:
+	var total: float = Sueno.segundos_de_noche(jornada["sueno_escenas"])
+	if total <= 0.0:
+		return 0.0
+	return clampf(jornada["sueno_resto"] / total, 0.0, 1.0)
+
+
+## Despertar de golpe, sin haber encontrado la salida.
+##
+## Empieza el día igual que despertar bien —no hay deuda ni castigo escondido—
+## y se lleva por delante UNA cosa: las salas de esta noche no quedan en el
+## mapa. Es el castigo más justo que hay, porque es lo que de verdad pasó.
+static func despertar_de_golpe(jornada: Dictionary) -> int:
+	if jornada["fase"] != "sueño":
+		return jornada["dia"]
+	var antes: Array = jornada["mapa_anoche"].duplicate()
+	var dia := despertar(jornada)
+	jornada["mapa"] = antes
+	return dia
 
 
 ## Anota un documento leído hoy. Es lo que el sueño de esta noche tendrá para

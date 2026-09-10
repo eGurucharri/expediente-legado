@@ -35,6 +35,7 @@ func _init() -> void:
 	_traducciones()
 	_sueno_contenido()
 	_compilan()
+	_salida_del_sueno()
 
 	print("\n%d pasadas, %d fallos" % [pasadas, fallos])
 	quit(1 if fallos > 0 else 0)
@@ -1613,3 +1614,86 @@ func _compilan() -> void:
 			if guion == null or not guion.can_instantiate():
 				rotos.append(nombre)
 	comprobar("todos los guiones compilan", rotos, [])
+
+
+# --- La salida del sueño (#90) ----------------------------------------------
+
+func _salida_del_sueno() -> void:
+	# La salida NO se ve. Es la decisión de #90 y tiene que estar declarada en
+	# el espacio, no conseguida por no ponerla: una zona sin marca sigue siendo
+	# una salida y se pisa igual.
+	var escena := Sueno.espacio("crucero", 0)
+	comprobar("la salida del sueño no se ve",
+		escena["salidas"][0].get("visible", true), false)
+	comprobar("y es más ancha que una puerta, porque hay que dar con ella",
+		escena["salidas"][0]["tam"].x > 3.0, true)
+
+	# El tiempo sale de la GEOMETRÍA: una nave y un pasillo no se buscan igual.
+	var una := Sueno.segundos_de_noche(["crucero"])
+	var tres := Sueno.segundos_de_noche(["crucero", "patio", "peine"])
+	comprobar("tres salas dan más noche que una", tres > una, true)
+	var salas := SuenoFormas.ids().map(func(id): return Sueno.segundos_de_noche([id]))
+	comprobar("y no todas las salas dan lo mismo",
+		salas.max() > salas.min(), true)
+
+	# Y da para cruzar la sala VARIAS veces: la salida no se ve, así que el
+	# tiempo es el de buscarla y no el de ir a ella.
+	var forma := SuenoFormas.de("crucero")
+	var directo: float = Planta.distancias_desde(forma["bloques"], forma["entrada"])["pasos"] \
+		* Planta.CELDA / Sueno.VELOCIDAD
+	comprobar("hay tiempo para buscar, no solo para llegar", una > directo * 3.0, true)
+
+	# El caminante y el cálculo tienen que andar a la misma velocidad. Está
+	# copiado a propósito —esto es lógica pura y no puede depender de un nodo—
+	# y por eso hace falta una prueba que los ate.
+	var fuente := FileAccess.get_file_as_string("res://guion/caminante.gd")
+	comprobar("la velocidad del cálculo es la del caminante",
+		fuente.contains("const VELOCIDAD := %s" % Sueno.VELOCIDAD), true)
+
+	# --- El reloj ---
+	var noche := Jornada.nueva()
+	noche["fase"] = "casa"
+	Jornada.dormir(noche)
+	comprobar("dormir da noche", noche["sueno_resto"] > 0.0, true)
+	comprobar("y guarda el mapa de antes", noche["mapa_anoche"], [])
+
+	comprobar("gastar un rato no acaba la noche",
+		Jornada.gastar_sueno(noche, 1.0), false)
+	comprobar("la señal empieza entera",
+		Sueno.senal_de_noche(Jornada.noche_restante(noche)), "·  ·  ·")
+
+	# Fuera del sueño el reloj no corre: el día no tiene prisa.
+	var dia := Jornada.nueva()
+	comprobar("en el archivo no se gasta noche", Jornada.gastar_sueno(dia, 10.0), false)
+
+	# --- Perderse ---
+	var perdido := Jornada.nueva()
+	perdido["fase"] = "casa"
+	perdido["mapa"] = ["patio"]
+	Jornada.dormir(perdido)
+	# Se recorren dos salas y se acaba la noche dentro de la tercera.
+	for id in perdido["sueno_escenas"]:
+		Sueno.recordar(perdido["mapa"], id)
+	comprobar("el mapa creció mientras soñaba", perdido["mapa"].size() > 1, true)
+	comprobar("se acaba la noche", Jornada.gastar_sueno(perdido, 100000.0), true)
+	Jornada.despertar_de_golpe(perdido)
+	comprobar("perderse deja el mapa como estaba", perdido["mapa"], ["patio"])
+	comprobar("pero el día siguiente empieza entero",
+		[perdido["dia"], perdido["acciones"], perdido["fase"]],
+		[2, Jornada.ACCIONES_POR_DIA, "archivo"])
+
+	# Salir por la salida sí conserva lo andado. Es toda la diferencia.
+	var salio := Jornada.nueva()
+	salio["fase"] = "casa"
+	Jornada.dormir(salio)
+	for id in salio["sueno_escenas"]:
+		Sueno.recordar(salio["mapa"], id)
+	Jornada.despertar(salio)
+	comprobar("salir por su pie deja el mapa crecido",
+		salio["mapa"].size(), Sueno.ESCENAS_POR_NOCHE)
+	comprobar("y no queda noche colgando", salio["sueno_resto"], 0.0)
+
+	# La señal avisa sin decir un número.
+	comprobar("la señal se apaga",
+		[Sueno.senal_de_noche(1.0), Sueno.senal_de_noche(0.5), Sueno.senal_de_noche(0.1)],
+		["·  ·  ·", "·  ·", "·"])

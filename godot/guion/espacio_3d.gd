@@ -208,6 +208,14 @@ static func _salida(raiz: Node3D, salida: Dictionary) -> Area3D:
 
 	# Se ve: una salida invisible es una trampa. Va en el color de lo accionable
 	# y no en el del mobiliario.
+	#
+	# La excepción es el sueño (#90), donde encontrarla ES el juego, y por eso
+	# la excepción se DECLARA aquí en vez de que el sueño se monte su propia
+	# zona: una salida sin marca sigue siendo una salida y no otra cosa.
+	if not salida.get("visible", true):
+		raiz.add_child(zona)
+		return zona
+
 	var marca := MeshInstance3D.new()
 	var malla := BoxMesh.new()
 	malla.size = salida.get("tam", Vector3(1.4, 2.2, 1.4))

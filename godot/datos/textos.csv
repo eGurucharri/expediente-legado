@@ -53,6 +53,7 @@ CUNADO_PIERDE_5,Es que has ido de frente. Con estos nunca de frente.
 CUNADO_VICTORIA_1,"Bueno, bueno. Ya te vale, ya."
 CUNADO_VICTORIA_2,"Enhorabuena. Ahora te toca el papeleo, que es lo gordo."
 CUNADO_VICTORIA_3,"Yo lo habría cerrado el martes, pero oye, cada uno."
+DIA_DESPERTAR_DE_GOLPE,"Se despierta de golpe. Día %d, y de esta noche no queda nada."
 DIA_NOMINA,Nómina del día %d: %d (base %d + %d por %d expediente(s)).  Tiene %d.
 DIA_NUEVO,Día %d.
 DIA_ROTULO,Día %d  ·  %s  ·  %d en el bolsillo%s

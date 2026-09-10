@@ -117,6 +117,21 @@ func _espacio_de(fase: String) -> Dictionary:
 		reparto[clampi(cual, 0, reparto.size() - 1)])
 
 
+## El reloj de la noche. Solo corre dentro del sueño: el día no tiene prisa y
+## el sueño sí, que es media parte de la diferencia entre los dos.
+func _process(delta: float) -> void:
+	if jornada.get("fase", "") != "sueño":
+		return
+	if Jornada.gastar_sueno(jornada, delta):
+		var dia := Jornada.despertar_de_golpe(jornada)
+		_nomina.text = tr("DIA_DESPERTAR_DE_GOLPE") % dia
+		partida.guardar()
+		_entrar_en("archivo")
+		return
+	_rotulo.text = _texto_de_rotulo(Sueno.senal_de_noche(
+		Jornada.noche_restante(jornada)))
+
+
 func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 	if cuerpo != _caminante:
 		return
@@ -152,6 +167,10 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 
 
 func _refrescar_rotulos(espacio: Dictionary) -> void:
-	_rotulo.text = tr("DIA_ROTULO") % [
-		jornada["dia"], tr(espacio.get("rotulo", "")), jornada["dinero"],
+	_rotulo.text = _texto_de_rotulo(tr(espacio.get("rotulo", "")))
+
+
+func _texto_de_rotulo(sitio: String) -> String:
+	return tr("DIA_ROTULO") % [
+		jornada["dia"], sitio, jornada["dinero"],
 		"" if jornada["gato"]["presente"] else tr("DIA_SIN_GATO")]
