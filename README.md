@@ -20,20 +20,39 @@ vidas y varios finales.
 ## Estructura
 
 ```
-expediente-legado/
+.
 ├── docker-compose.yml
 ├── .env                        # credenciales de desarrollo (no usar en producción)
 ├── dist/                       # empaquetado del build alpha standalone
 │   └── empaquetar-alpha.sh
-└── backend/
-    ├── Dockerfile
-    ├── pom.xml
-    └── src/main/java/com/legado/expediente/
-        ├── config/             # seguridad + datos semilla + build standalone
-        ├── model/              # Usuario, Caso, RegistroLegado, Pista, Concepto...
-        ├── repository/         # Spring Data JPA
-        ├── service/            # progreso, hotspots, cartas ocultas, resumen
-        └── controller/         # login, dashboard, casos, carpeta, menú
+├── backend/
+│   ├── Dockerfile
+│   ├── pom.xml
+│   └── src/main/java/com/legado/expediente/
+│       ├── config/             # seguridad + datos semilla + build standalone
+│       ├── model/              # Usuario, Caso, RegistroLegado, Pista, Concepto...
+│       ├── repository/         # Spring Data JPA
+│       ├── service/            # progreso, hotspots, cartas ocultas, resumen
+│       └── controller/         # login, dashboard, casos, carpeta, menú
+└── godot/                      # el port a Godot 4 (#54), donde está el trabajo vivo
+    ├── datos/                  # el contenido extraído del backend, como JSON
+    ├── guion/                  # la lógica, en GDScript
+    ├── escenas/
+    └── pruebas/
+```
+
+## El port a Godot
+
+El juego se está reescribiendo en **Godot 4** (issue #54) para distribuirlo sin
+servidor. `godot/` no es un port mecánico del backend: el contenido salió de
+`DataSeeder.java` a `datos/casos.json`, y la lógica se rehace en GDScript con
+sus pruebas portadas una a una desde las de JUnit y Vitest.
+
+La suite se ejecuta sin abrir el editor:
+
+```bash
+godot4 --headless --path godot --import          # una vez, por los class_name
+godot4 --headless --path godot --script pruebas/pruebas.gd
 ```
 
 ## Cómo levantarlo (desarrollo)
