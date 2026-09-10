@@ -18,6 +18,12 @@ var _mundo: Node3D
 var _rotulo: Label
 var _nomina: Label
 var _pantalla: CanvasLayer
+## Los rótulos del día. Se guarda para poder apagarlos mientras se pone la
+## entrada de la vuelta.
+var _hud: CanvasLayer
+## La entrada de la vuelta mientras se está poniendo (#68). Fuera de ella es
+## nula: el reproductor se descarta al terminar en vez de quedarse escuchando.
+var _entrada: Node3D
 var _ambiente: Environment
 var _sol: DirectionalLight3D
 var _voz: AudioStreamPlayer
@@ -38,6 +44,61 @@ func _ready() -> void:
 	_montar_entorno()
 	_montar_interfaz()
 	_entrar_en(jornada["fase"])
+	_abrir_vuelta()
+
+
+## La entrada de una vida laboral (#68).
+##
+## Se pone ENCIMA de la oficina ya montada y no antes de montarla: así al
+## terminar no hay ningún fotograma en negro esperando a que se construya el
+## archivo, y saltarla deja al jugador exactamente donde estaría.
+##
+## Solo abre una vuelta —día uno, en el archivo y con la jornada entera por
+## delante—, que es lo que distingue empezar de volver a cargar una partida a
+## medias. Una entrada que se repita cada vez que se abre el juego dejaría de
+## ser una entrada.
+##
+## PENDIENTE: hoy esto solo puede ocurrir al arrancar el proceso, porque
+## `Jornada.reiniciar_vuelta` todavía no lo llama ninguna pantalla — el careo,
+## el despido y la reasignación existen como lógica probada (`Acusacion`) pero
+## no están cableados a ninguna escena. Cuando lo estén (#73), la reasignación
+## tendrá que volver a pasar por aquí, o la segunda vuelta empezará sin puerta
+## por la que entrar.
+func _abrir_vuelta() -> void:
+	if jornada["fase"] != "archivo" or jornada["dia"] != 1:
+		return
+	if jornada["acciones"] != Jornada.ACCIONES_POR_DIA:
+		return
+
+	# El cuerpo se queda quieto mientras dura: la cinemática se salta con
+	# cualquier tecla, y sin esto esa misma tecla sería también un paso.
+	_caminante.set_physics_process(false)
+
+	# Y los rótulos del día se apagan. No es limpieza: la oficina ya está
+	# montada detrás, así que sin esto la frase de un compañero se lee ENCIMA de
+	# la pantalla de arranque —alguien te habla antes de que hayas entrado, en la
+	# cinemática cuyo remate es que no hay nadie más—.
+	_hud.visible = false
+
+	_entrada = load("res://escenas/cinematica.tscn").instantiate()
+	add_child(_entrada)
+	_entrada.terminada.connect(_cerrar_vuelta)
+	var vistas := Cinematica.vistas_de(partida.estado, EntradaCinematica.ID)
+	_entrada.reproducir(EntradaCinematica.planos_de(vistas), EntradaCinematica.ID, partida.estado)
+
+
+## Al acabar la entrada se guarda, y no por costumbre: lo que hay que conservar
+## es que se ha visto. Sin este guardado la cuenta se pierde al cerrar el juego
+## y la entrada volvería a durar lo mismo para siempre, que es justo lo que el
+## acortado de #67 vino a evitar.
+func _cerrar_vuelta() -> void:
+	if _entrada == null:
+		return
+	_entrada.queue_free()
+	_entrada = null
+	_caminante.set_physics_process(true)
+	_hud.visible = true
+	partida.guardar()
 
 
 ## Luz y ambiente. Una sola direccional y bastante ambiente: en un sitio de
@@ -75,6 +136,7 @@ func _montar_entorno() -> void:
 func _montar_interfaz() -> void:
 	var capa := CanvasLayer.new()
 	add_child(capa)
+	_hud = capa
 
 	var caja := VBoxContainer.new()
 	caja.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)

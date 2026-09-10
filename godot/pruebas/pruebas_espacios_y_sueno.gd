@@ -427,6 +427,77 @@ static func _cinematicas(comprobar: Callable) -> void:
 		[]
 	)
 
+	# --- La entrada de una vida laboral (#68) ---
+
+	comprobar.call(
+		"la entrada está bien declarada", Cinematica.validar(EntradaCinematica.planos()), []
+	)
+
+	var entrada := EntradaCinematica.planos_de()
+	comprobar.call("la entrada tiene sus cuatro planos", entrada.size(), 4)
+	comprobar.call("y dura algo", Cinematica.duracion(entrada) > 0.0, true)
+
+	# Las tres cosas que #68 le pide que deje puestas: que es una copia
+	# restaurada, quién la abre y que no mira nadie.
+	comprobar.call(
+		"dice que es una copia restaurada",
+		entrada[0]["rotulo"],
+		TranslationServer.translate("ENTRADA_RESTAURANDO")
+	)
+	comprobar.call(
+		"nombra al auditor que la abre",
+		entrada[2]["rotulo"].contains(EntradaCinematica.USUARIO),
+		true
+	)
+	comprobar.call(
+		"y remata diciendo que no mira nadie",
+		entrada[3]["rotulo"],
+		TranslationServer.translate("ENTRADA_NADIE_MIRA")
+	)
+
+	# La variación de cada vuelta: la copia se degrada. Es lo que hace que
+	# repetirla sea el reloj del juego y no una repetición.
+	comprobar.call(
+		"la primera vuelta trae una copia íntegra",
+		EntradaCinematica.registro_de(0),
+		"ENTRADA_COPIA_INTEGRA"
+	)
+	comprobar.call(
+		"la segunda ya no",
+		EntradaCinematica.registro_de(1) != EntradaCinematica.registro_de(0),
+		true
+	)
+	# La serie se agota en su última línea en vez de dar la vuelta: volver a
+	# "copia íntegra" en la quinta vida laboral desharía lo que esto afirma.
+	comprobar.call(
+		"y no vuelve nunca al principio",
+		EntradaCinematica.registro_de(99),
+		EntradaCinematica.REGISTRO_POR_VUELTA[-1]
+	)
+
+	# Por muy vista que esté conserva su remate: una entrada que desapareciera
+	# dejaría al jugador dentro de una oficina sin haber entrado en ella.
+	var gastada := EntradaCinematica.planos_de(99)
+	comprobar.call("muy vista sigue durando algo", Cinematica.duracion(gastada) > 0.0, true)
+	comprobar.call(
+		"y el remate sigue siendo el más largo de sus planos",
+		gastada[3]["segundos"] >= gastada[0]["segundos"],
+		true
+	)
+	comprobar.call(
+		"muy vista sigue diciendo que no mira nadie",
+		gastada[3]["rotulo"],
+		TranslationServer.translate("ENTRADA_NADIE_MIRA")
+	)
+
+	# Rodarla no puede estropear la siguiente.
+	entrada[0]["rotulo"] = "ESTROPEADO"
+	comprobar.call(
+		"la entrada se entrega en copia",
+		EntradaCinematica.planos_de()[0]["rotulo"],
+		TranslationServer.translate("ENTRADA_RESTAURANDO")
+	)
+
 	# --- La cuenta de vistas, que es estado de partida ---
 	var estado := {}
 	comprobar.call(

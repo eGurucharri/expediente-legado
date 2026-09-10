@@ -22,7 +22,12 @@ func _init() -> void:
 
 	# Qué escena capturar: por defecto el visor.
 	var ruta := "res://escenas/visor.tscn"
-	if destino.contains("ventanilla"):
+	if destino.contains("entrada"):
+		# La entrada (#68) se pone encima del día, así que la escena es la misma:
+		# lo que cambia es que aquí se adelanta plano a plano en vez de esperar a
+		# que termine.
+		ruta = "res://escenas/dia.tscn"
+	elif destino.contains("ventanilla"):
 		ruta = "res://escenas/ventanilla.tscn"
 	elif destino.contains("dia"):
 		ruta = "res://escenas/dia.tscn"
@@ -59,6 +64,27 @@ func _init() -> void:
 			await process_frame
 		var imagen_c := root.get_texture().get_image()
 		imagen_c.save_png(destino)
+		print("captura en %s" % destino)
+		quit(0)
+		return
+
+	if destino.contains("entrada"):
+		# La entrada son cuatro planos y hay que mirarlos por separado, igual que
+		# los del careo: se adelanta por el reproductor común, que es quien la
+		# lleva. Con un plano negativo se salta, para comprobar que saltarla deja
+		# la oficina a la vista y no una pantalla a medias.
+		var plano_e := int(argumentos[1]) if argumentos.size() > 1 else 0
+		for i in 3:
+			await process_frame
+		if plano_e < 0:
+			escena._entrada.saltar()
+		else:
+			for i in plano_e:
+				escena._entrada._siguiente()
+		for i in 6:
+			await process_frame
+		var imagen_e := root.get_texture().get_image()
+		imagen_e.save_png(destino)
 		print("captura en %s" % destino)
 		quit(0)
 		return
