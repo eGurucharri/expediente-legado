@@ -23,6 +23,10 @@ var _sol: DirectionalLight3D
 var _voz: AudioStreamPlayer
 var _pisada: AudioStreamPlayer3D
 var _desde_paso := 0.0
+## Si lo que se lee ahora mismo es algo que dijo alguien. Lo que dice un
+## compañero es de la oficina y del momento: llevárselo a la calle o al sueño
+## lo convierte en una voz que te sigue.
+var _hablando := false
 
 
 func _ready() -> void:
@@ -93,6 +97,9 @@ func _montar_interfaz() -> void:
 
 
 func _entrar_en(fase: String) -> void:
+	if _hablando:
+		_nomina.text = ""
+		_hablando = false
 	jornada["fase"] = fase
 	if _mundo != null:
 		_mundo.queue_free()
@@ -156,6 +163,7 @@ func _process(delta: float) -> void:
 		return
 	if Jornada.gastar_sueno(jornada, delta):
 		var dia := Jornada.despertar_de_golpe(jornada)
+		_hablando = false
 		_nomina.text = tr("DIA_DESPERTAR_DE_GOLPE") % dia
 		partida.guardar()
 		_entrar_en("archivo")
@@ -172,6 +180,7 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 	var frase: String = salida.get_meta("frase")
 	if not frase.is_empty():
 		_nomina.text = tr("DIA_DICE") % tr(frase)
+		_hablando = true
 		return
 
 	var destino: String = salida.get_meta("destino")
@@ -191,11 +200,13 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 		"archivo":
 			var paga := Jornada.fichar_salida(jornada)
 			_sonar("nomina")
+			_hablando = false
 			_nomina.text = tr("DIA_NOMINA") % [
 				jornada["dia"], paga["bruto"], paga["base"], paga["por_expedientes"],
 				paga["expedientes"], paga["dinero"]]
 		"casa":
 			var noche := Jornada.dormir(jornada)
+			_hablando = false
 			_nomina.text = tr("DIA_VIVIR") % [
 				noche["coste"], noche["dinero"],
 				tr("DIA_SIN_GATO_AVISO") if noche["gato_se_fue"] else ""]
@@ -206,6 +217,7 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 			jornada["sueno_escenas"].pop_front()
 			if jornada["sueno_escenas"].is_empty():
 				var dia := Jornada.despertar(jornada)
+				_hablando = false
 				_nomina.text = tr("DIA_NUEVO") % dia
 		_:
 			pass
@@ -287,6 +299,7 @@ func _abrir_expediente() -> void:
 	volver.pressed.connect(_cerrar_expediente)
 	_pantalla.add_child(volver)
 
+	_hablando = false
 	_nomina.text = tr("DIA_EN_EL_PUESTO")
 
 
