@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Set up Java (for Maven)
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: maven
+
+      # Set up Node.js (using Node 24 as Node 20 is deprecated)
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      # Cache Maven dependencies
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('backend/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2
+
+      # Install Godot 4 (headless)
+      - name: Install Godot 4
+        run: |
+          GODOT_VERSION=4.2.1-stable
+          wget -q https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_stable_linux_headless.tar.xz
+          tar -xf Godot_v${GODOT_VERSION}_stable_linux_headless.tar.xz
+          sudo mv Godot_v${GODOT_VERSION}_stable_linux_headless/godot_linux_headless.${GODOT_VERSION} /usr/local/bin/godot4
+          sudo chmod +x /usr/local/bin/godot4
+
+      # Install gdtoolkit for linting Godot GDScript
+      - name: Install gdtoolkit
+        run: |
+          pip install gdtoolkit
+
+      # Test backend with Maven
+      - name: Test backend with Maven
+        run: |
+          cd backend
+          mvn -B test
+          mvn -B checkstyle:check pmd:check spotbugs:check
+
+      # Test frontend (Vitest) in backend/
+      - name: Test frontend with Vitest
+        run: |
+          cd backend
+          npm ci
+          npm test
+
+      # Test Godot suite
+      - name: Test Godot suite
+        run: |
+          cd godot
+          godot4 --headless --path . --import
+          godot4 --headless --path . --script pruebas/pruebas.gd
+
+      # Lint Godot GDScript
+      - name: Lint Godot GDScript
+        run: |
+          cd godot
+          gdlint --check .
+          gdformat --check .
