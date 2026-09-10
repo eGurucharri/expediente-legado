@@ -21,9 +21,13 @@ func _init() -> void:
 
 	var indice := int(argumentos[1]) if argumentos.size() > 1 else 0
 	if argumentos.size() > 2 and argumentos[2] == "1":
+		# Por el mismo camino que un clic, no tocando el estado por detrás: si
+		# esto escribiera en `descubiertas` directamente, la captura enseñaría
+		# una pista descubierta que nunca llegó a guardarse.
 		for pista in escena.contenido.pistas_de_registro(
 				escena.caso, escena.caso["registros"][indice]["id"]):
-			escena.descubiertas.append(pista["id"])
+			if pista.get("fraseGatillo") != null:
+				escena._al_pulsar_marca("pista:%s" % pista["id"])
 	escena._lista.select(indice)
 	escena._mostrar_registro(escena.caso["registros"][indice])
 
