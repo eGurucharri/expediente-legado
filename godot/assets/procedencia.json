@@ -1,4 +1,101 @@
 {
   "_regla": "Todo fichero bajo assets/ necesita su ficha aquí, con sha256. Una prueba lo exige en las dos direcciones: ni ficheros sin ficha ni fichas sin fichero. Ver LEEME.md.",
-  "assets": []
+  "assets": [
+    {
+      "ruta": "audio/bookFlip1.ogg",
+      "titulo": "Book flip 1 (RPG Audio)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/rpg-audio",
+      "sha256": "fa81ac2fedc8c641661b87e349630a36c9800e795e0c800e029214efdbe26a7d"
+    },
+    {
+      "ruta": "audio/click_001.ogg",
+      "titulo": "Click 001 (Interface Sounds)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/interface-sounds",
+      "sha256": "ccfb7fa0cccdd9faec0eb16033c732b1e308d139d80f799161495d58f7adcdb9"
+    },
+    {
+      "ruta": "audio/confirmation_001.ogg",
+      "titulo": "Confirmation 001 (Interface Sounds)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/interface-sounds",
+      "sha256": "063564703b6094d70718a3e787a55cc9141611e4ecd6b6637f8828f79b4a8c3a"
+    },
+    {
+      "ruta": "audio/doorClose_1.ogg",
+      "titulo": "Door close 1 (RPG Audio)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/rpg-audio",
+      "sha256": "834d29c60a8a8bfb50b158cdb6b7dfa8f02812a408a1ee9703d038dfab0b1aeb"
+    },
+    {
+      "ruta": "audio/doorOpen_1.ogg",
+      "titulo": "Door open 1 (RPG Audio)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/rpg-audio",
+      "sha256": "4ab93bab96522d8eb109ff96dc57cb6765deb02448fe14c10472084be5bb2a0b"
+    },
+    {
+      "ruta": "audio/error_003.ogg",
+      "titulo": "Error 003 (Interface Sounds)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/interface-sounds",
+      "sha256": "885b28175c7b511118bcffab95675b48bbac9005cf6514656ebdad979276b3ab"
+    },
+    {
+      "ruta": "audio/footstep00.ogg",
+      "titulo": "Footstep 00 (RPG Audio)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/rpg-audio",
+      "sha256": "6fe61ef1fc3bcf0e253bf2eb64759db6cb69e2fe452f4d88cc597ecf78a3d601"
+    },
+    {
+      "ruta": "audio/footstep01.ogg",
+      "titulo": "Footstep 01 (RPG Audio)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/rpg-audio",
+      "sha256": "313472dba31fd0c855376069fa368bb5a198c27251cc8398ef464578b7047a4c"
+    },
+    {
+      "ruta": "audio/footstep02.ogg",
+      "titulo": "Footstep 02 (RPG Audio)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/rpg-audio",
+      "sha256": "2d9575b7dead6e1217ca113991fc5229e9b6d998ea0726ebbb277e7398ab888f"
+    },
+    {
+      "ruta": "audio/footstep03.ogg",
+      "titulo": "Footstep 03 (RPG Audio)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/rpg-audio",
+      "sha256": "a86756b9af9f370455ab47844239bb07fd1bee7a113068c91f0fcd9b72703fae"
+    },
+    {
+      "ruta": "audio/handleCoins.ogg",
+      "titulo": "Handle coins (RPG Audio)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/rpg-audio",
+      "sha256": "8a91f969e932df709df80ee124d86a51389eed9b67f22e5e716bc2bbf60d8dab"
+    },
+    {
+      "ruta": "audio/switch_002.ogg",
+      "titulo": "Switch 002 (Interface Sounds)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/interface-sounds",
+      "sha256": "6fc395be2ad1f99ce318a5d28f98fb76dbeb676d83a0b28239d8c1fb90736180"
+    }
+  ]
 }
