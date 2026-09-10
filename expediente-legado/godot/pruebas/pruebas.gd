@@ -27,6 +27,8 @@ func _init() -> void:
 	_procedencia()
 	_espacios()
 	_acciones_y_vuelta()
+	_acusacion()
+	_careo()
 
 	print("\n%d pasadas, %d fallos" % [pasadas, fallos])
 	quit(1 if fallos > 0 else 0)
@@ -994,3 +996,162 @@ func _acciones_y_vuelta() -> void:
 	Jornada.reiniciar_vuelta(sin_gato)
 	comprobar("un gato que se fue no vuelve con la vuelta nueva",
 		sin_gato["gato"]["presente"], false)
+
+
+# --- Acusar y cerrar ---------------------------------------------------------
+
+func _acusacion() -> void:
+	var contenido := Contenido.new()
+	contenido.cargar()
+	var caso: Dictionary = contenido.casos[0]
+	var todas_sus_pistas: Array = caso["pistas"].map(func(p): return p["id"])
+
+	var estado := Partida.nueva()
+	var dia := Jornada.nueva()
+
+	comprobar("un expediente empieza abierto",
+		Acusacion.esta_cerrado(estado, caso["id"]), false)
+
+	# Acusar sin haber leído nada: se puede, y por eso duele.
+	var precipitada := Acusacion.acusar(estado, dia, caso, caso["sospechosos"][0], [])
+	comprobar("se puede firmar sin evidencia", precipitada["resultado"], "cerrado")
+	comprobar("y el sistema lo apunta", precipitada["precipitada"], true)
+	comprobar("cuesta una vida", precipitada["vida"], Partida.VIDA_MAXIMA - 1)
+	comprobar("pero cuenta como cerrado igual: la nómina no distingue",
+		dia["cerrados_hoy"], 1)
+	comprobar("gasta una acción del día", dia["acciones"], Jornada.ACCIONES_POR_DIA - 1)
+	comprobar("y trae el desenlace de ese sospechoso",
+		precipitada["desenlace"] == caso["sospechosos"][0]["desenlace"], true)
+
+	# Irreversible: no se firma dos veces.
+	comprobar("el expediente queda cerrado",
+		Acusacion.esta_cerrado(estado, caso["id"]), true)
+	var repetida := Acusacion.acusar(estado, dia, caso, caso["sospechosos"][1], [])
+	comprobar("no se puede volver a firmar", repetida["resultado"], "ya_cerrado")
+	comprobar("y no gasta acción por intentarlo",
+		dia["acciones"], Jornada.ACCIONES_POR_DIA - 1)
+	comprobar("el veredicto sigue siendo el primero",
+		Acusacion.veredicto_de(estado, caso["id"]), caso["sospechosos"][0]["id"])
+
+	# Con la evidencia suficiente no hay castigo.
+	var limpio := Partida.nueva()
+	var dia2 := Jornada.nueva()
+	var bien := Acusacion.acusar(limpio, dia2, caso, caso["sospechosos"][0], todas_sus_pistas)
+	comprobar("con todas las pistas no es precipitada", bien["precipitada"], false)
+	comprobar("y no cuesta vidas", bien["vida"], Partida.VIDA_MAXIMA)
+
+	# Sin acciones no se puede acusar, y no se firma nada a medias.
+	var agotado := Partida.nueva()
+	var sin_dia := Jornada.nueva()
+	sin_dia["acciones"] = 0
+	var tarde := Acusacion.acusar(agotado, sin_dia, caso, caso["sospechosos"][0], todas_sus_pistas)
+	comprobar("sin acciones no se acusa", tarde["resultado"], "sin_acciones")
+	comprobar("y el expediente sigue abierto",
+		Acusacion.esta_cerrado(agotado, caso["id"]), false)
+
+	# --- El careo ---
+	comprobar("un sospechoso sin réplicas no abre duelo", bien["duelo"], {})
+	var caso6: Dictionary = contenido.casos.filter(
+		func(c): return c["sospechosos"].any(
+			func(s): return not s.get("ataques", []).is_empty()))[0]
+	var con_replicas: Dictionary = caso6["sospechosos"].filter(
+		func(s): return not s.get("ataques", []).is_empty())[0]
+	var careo := Acusacion.acusar(Partida.nueva(), Jornada.nueva(), caso6, con_replicas, [])
+	comprobar("uno con réplicas sí", careo["duelo"]["nombre"], con_replicas["nombre"])
+
+	# El duelo no cambia el veredicto: ya está firmado. Perderlo cuesta una vida.
+	var duelista := Partida.nueva()
+	var dia3 := Jornada.nueva()
+	Acusacion.acusar(duelista, dia3, caso6, con_replicas, [])
+	var antes_de_perder: int = duelista["vida"]
+	Acusacion.resolver_duelo(duelista, dia3, false)
+	comprobar("perder el careo cuesta una vida", duelista["vida"], antes_de_perder - 1)
+	comprobar("pero el expediente sigue cerrado con el mismo veredicto",
+		Acusacion.veredicto_de(duelista, caso6["id"]), con_replicas["id"])
+	var ganador := Partida.nueva()
+	var vida_intacta: int = ganador["vida"]
+	Acusacion.resolver_duelo(ganador, Jornada.nueva(), true)
+	comprobar("ganarlo no cuesta nada", ganador["vida"], vida_intacta)
+
+	# --- El despido ---
+	var ultimo := Partida.nueva()
+	var dia4 := Jornada.nueva()
+	ultimo["vida"] = 1
+	dia4["dia"] = 9
+	dia4["gato"]["dias_sin_comer"] = 2
+	var caida := Acusacion.perder_vida(ultimo, dia4, 1)
+	comprobar("sin vidas, te reasignan", caida["despido"], true)
+	comprobar("y empieza otra vida laboral", dia4["dia"], 1)
+	comprobar("con las vidas de la dificultad",
+		ultimo["vida"], Acusacion.DIFICULTADES["normal"]["vidas"])
+	comprobar("el gato sigue siendo tuyo", dia4["gato"]["dias_sin_comer"], 2)
+
+	comprobar("en fácil se exige menos evidencia",
+		Acusacion.DIFICULTADES["facil"]["umbral"] < Acusacion.DIFICULTADES["dificil"]["umbral"],
+		true)
+
+
+# --- La cinemática del careo y el cuñado -------------------------------------
+
+func _careo() -> void:
+	var contenido := Contenido.new()
+	contenido.cargar()
+	var acusado: Dictionary = {}
+	for c in contenido.casos:
+		for s in c["sospechosos"]:
+			if not s.get("ataques", []).is_empty():
+				acusado = s
+				break
+
+	var rodaje := CareoCinematica.planos_de(acusado, "ACTA-1958-001")
+	comprobar("la cinemática tiene sus cuatro planos", rodaje.size(), 4)
+	comprobar("dura lo que dura", CareoCinematica.duracion(rodaje) > 0.0, true)
+	comprobar("presenta al acusado por su nombre",
+		rodaje[1]["rotulo"], acusado["nombre"])
+	comprobar("y dice su cargo", rodaje[2]["rotulo"].is_empty(), false)
+	comprobar("el último plano cita el expediente",
+		rodaje[3]["rotulo"], "EXPEDIENTE ACTA-1958-001")
+
+	# Sin folio no se inventa un número: se dice que no consta.
+	comprobar("sin expediente lo dice",
+		CareoCinematica.planos_de(acusado)[3]["rotulo"], "EXPEDIENTE SIN NÚMERO")
+
+	# Rodar una no puede estropear la siguiente.
+	rodaje[0]["rotulo"] = "ESTROPEADO"
+	comprobar("los planos se entregan en copia",
+		CareoCinematica.planos_de(acusado)[0]["rotulo"], "")
+
+	# Un acusado sin descripción no se queda sin cartela: que no conste su
+	# cargo es parte del problema, y se dice.
+	comprobar("un acusado sin descripción tiene cartela igual",
+		CareoCinematica.planos_de({"nombre": "Nadie"})[2]["rotulo"],
+		CareoCinematica.CARGO_POR_DEFECTO)
+
+	# --- El cuñado ---
+	var azar := func(): return 0.0
+	comprobar("llega diciendo algo",
+		Cunado.comentario("llegada", azar).is_empty(), false)
+	comprobar("comenta una ronda perdida",
+		Cunado.comentario("gana_rival", azar).is_empty(), false)
+	comprobar("un momento que no existe le deja callado",
+		Cunado.comentario("no_existe", azar), "")
+
+	# Si se ha gastado una habilidad, es de lo que habla: es lo que miraría.
+	comprobar("comenta la habilidad antes que el resultado",
+		Cunado.sobre_ronda({"habilidad": "comunismo", "veredicto": "gana_rival"}, azar)
+			in Cunado.AL_GASTAR_HABILIDAD, true)
+	comprobar("y si no hubo, el resultado",
+		Cunado.sobre_ronda({"habilidad": "", "veredicto": "gana_jugador"}, azar)
+			in Cunado.AL_GANAR_RONDA, true)
+
+	# LA REGLA: no da información. Si nunca nombra una jugada, no puede estar
+	# diciéndote qué hacer. Se comprueba sobre TODO lo que puede decir, no sobre
+	# una muestra: una regla sobre lo que se dice solo vale así.
+	var chivatazos := []
+	for frase in Cunado.todas_las_frases():
+		for prohibida in Cunado.PALABRAS_PROHIBIDAS:
+			if frase.contains(prohibida):
+				chivatazos.append(frase)
+	comprobar("el cuñado no nombra ninguna jugada", chivatazos, [])
+	comprobar("y tiene algo que decir en cada momento",
+		Cunado.POR_MOMENTO.values().all(func(f): return f.size() >= 3), true)
