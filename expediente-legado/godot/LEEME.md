@@ -48,6 +48,23 @@ de `prometeo-ui.js` con `datos/extraer-prometeo.mjs` por el mismo motivo que
 los casos: es contenido, y teclearlo introduce erratas que nadie compara con el
 original.
 
+## La Ventanilla de Reclamaciones
+
+`escenas/ventanilla.tscn`. Piedra-papel-tijera burocrático —Objeción vence a
+Silencio, Silencio a Insistencia, Insistencia a Objeción—, tres vidas y una
+decisión por ronda. Es la pantalla donde el port deja de parecer un formulario:
+la réplica del rival se escribe sola y encajar un golpe sacude el mostrador.
+
+Tres reglas para que ese movimiento no mienta: **la ronda ya está resuelta**
+cuando empieza la animación (lo que se ve es el relato de algo decidido, no un
+sorteo en curso), **se puede saltar** pulsando, y **se puede apagar** entera con
+`reduccion_movimiento`.
+
+Los reclamantes salen del corcho —personas y comités ya descubiertos—, con uno
+de oficio siempre disponible: una cola vacía es indistinguible de una pantalla
+rota. Las cuatro habilidades (`guion/historias.gd`) se cargan con las
+decisiones políticas de las cartas ocultas, tope de dos por eje.
+
 ## Qué cambia respecto al backend Java
 
 **El contenido deja de ser código.** `DataSeeder.java` eran 1.443 líneas de
@@ -115,7 +132,10 @@ las 44 veía ninguno de los dos.
   vuelta), con sus 33 comprobaciones traídas del Vitest — incluida la invariante
   anti-moralizante de #45, que exige que cada ideología sea útil en exactamente
   4 de las 8 cartas. Lo que falta son las 3.181 líneas de DOM de `prometeo-ui.js`.
-- El corcho de conceptos, la acusación y el combate: sin pantalla todavía.
+- El corcho de conceptos y la acusación: sin pantalla todavía.
+- El duelo del caso 6: usa el mismo motor que la Ventanilla, pero necesita
+  poder llegar al caso 6 y hoy solo se llega al caso 1.
+- Sonido. La Ventanilla se mueve pero no suena.
 - El relato de las cartas ocultas: el visor acusa el hallazgo y nada más.
 - La persistencia. Un `Descubrimiento` era una fila; aquí habrá que decidir
   dónde vive la partida guardada.
