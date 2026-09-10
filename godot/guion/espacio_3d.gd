@@ -54,8 +54,21 @@ static func construir(raiz: Node3D, espacio: Dictionary) -> Array:
 			espacio.get("textura_muro", ""))
 
 	for bulto in espacio.get("bultos", []):
-		_caja(raiz, bulto["pos"], bulto["tam"], bulto.get("color", Color(0.45, 0.44, 0.42)),
-			bulto.get("textura", ""))
+		var pieza := _caja(raiz, bulto["pos"], bulto["tam"],
+			bulto.get("color", Color(0.45, 0.44, 0.42)), bulto.get("textura", ""))
+		# Un bulto que se enciende: la pantalla de un ordenador, un piloto. No
+		# ilumina nada, solo se ve encendido — lo que alumbra es una luz.
+		if bulto.get("emisivo", false):
+			_emisivo(pieza, bulto.get("color", Color(0.45, 0.44, 0.42)))
+
+	# Una ventana no es un bulto con otro color: no se atraviesa pero se ve a
+	# través, y de noche lo que se ve es que fuera está oscuro. Va emisiva
+	# porque desde dentro, con la luz encendida, un cristal de noche es una
+	# superficie que se ve y no un agujero negro.
+	for ventana in espacio.get("ventanas", []):
+		var cristal := _caja(raiz, ventana["pos"], ventana["tam"],
+			ventana.get("color", Color(0.09, 0.11, 0.20)))
+		_emisivo(cristal, ventana.get("color", Color(0.09, 0.11, 0.20)))
 
 	# Las figuras y los carteles son del sueño (#87), pero este módulo sigue sin
 	# saberlo: aquí solo hay una silueta en un sitio y un texto contra un muro.
