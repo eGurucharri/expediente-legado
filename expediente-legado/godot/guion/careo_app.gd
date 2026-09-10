@@ -14,79 +14,57 @@ extends Node3D
 ## habla de vez en cuando es un cuñado.
 const PAUSA_ENTRE_COMENTARIOS := 2.5
 
+## Con qué nombre se lleva la cuenta de veces vista.
+const ID_CINEMATICA := "careo"
+
 var acusado: Dictionary = {}
 var folio := ""
 var cargas: Dictionary = {}
 
+## La partida, para que la cinemática se acorte sola con las repeticiones. Sin
+## ella el careo funciona igual, solo que siempre a duración completa.
+var estado: Dictionary = {}
+
 signal terminado(gano: bool)
 
-var _rodaje: Array = []
-var _plano := 0
-var _en_plano := 0.0
+var _reproductor: Node3D
 var _en_cinematica := true
 var _combate: Dictionary = {}
 var _azar := RandomNumberGenerator.new()
 var _desde := 0.0
 
-var _camara: Camera3D
-var _rotulo: Label
 var _voz: Label
 var _cronica: Label
 var _marcador: Label
 var _botones: HBoxContainer
 var _figura_cunado: Node3D
+var _camara_duelo: Camera3D
 
 
 func _ready() -> void:
 	_azar.randomize()
 	if acusado.is_empty():
 		acusado = {"nombre": "El acusado", "ataques": []}
-	_rodaje = CareoCinematica.planos_de(acusado, folio)
 
 	_montar_sala()
 	_montar_interfaz()
 	_combate = Combate.nuevo("ciclo", acusado, cargas)
-	_entrar_en_plano(0)
+
+	# La cinemática la pone el reproductor común, no esta escena: el ritmo, el
+	# rótulo, el salto y el acortado por repetición son suyos.
+	_reproductor = load("res://escenas/cinematica.tscn").instantiate()
+	_reproductor.mundo = self
+	add_child(_reproductor)
+	_reproductor.terminada.connect(_empezar_duelo)
+	_reproductor.plano_entrado.connect(_al_entrar_plano)
+	var vistas := Cinematica.vistas_de(estado, ID_CINEMATICA)
+	_reproductor.reproducir(
+		CareoCinematica.planos_de(acusado, folio, vistas), ID_CINEMATICA, estado)
 
 
-func _process(delta: float) -> void:
-	if not _en_cinematica:
-		return
-	_en_plano += delta
-	var plano: Dictionary = _rodaje[_plano]
-
-	# La cámara se acerca un poco durante el plano. Un plano quieto se lee como
-	# una imagen; uno que avanza despacio se lee como alguien mirando.
-	var destino: Vector3 = plano["camara"]
-	var duracion: float = plano["segundos"]
-	var acercamiento: Vector3 = destino.normalized() * -0.25 * (_en_plano / duracion)
-	_camara.position = destino + acercamiento
-	_camara.look_at(plano["mira"], Vector3.UP)
-
-	if _en_plano >= duracion:
-		_entrar_en_plano(_plano + 1)
-
-
-func _unhandled_input(evento: InputEvent) -> void:
-	# Saltable SIEMPRE. Una cinemática que no se puede saltar es lo que hace
-	# que la segunda partida se juegue mirando a otro lado.
-	if _en_cinematica and evento.is_pressed():
-		_empezar_duelo()
-
-
-func _entrar_en_plano(indice: int) -> void:
-	if indice >= _rodaje.size():
-		_empezar_duelo()
-		return
-	_plano = indice
-	_en_plano = 0.0
-	_rotulo.text = _rodaje[indice]["rotulo"]
-	# Los nombres se leen grandes; los cargos son frases y quieren cuerpo menor.
-	_rotulo.add_theme_font_size_override(
-		"font_size", 34 if _rotulo.text.length() > 28 else 48)
-
-	# El compañero llega en el segundo plano: justo cuando la cosa se está
-	# poniendo solemne.
+## El compañero llega en el segundo plano: justo cuando la cosa se está
+## poniendo solemne.
+func _al_entrar_plano(indice: int, _plano: Dictionary) -> void:
 	if indice == 1:
 		_figura_cunado.visible = true
 		_decir(Cunado.comentario("llegada", _tirada()))
@@ -96,9 +74,9 @@ func _empezar_duelo() -> void:
 	if not _en_cinematica:
 		return
 	_en_cinematica = false
-	_rotulo.text = ""
-	_camara.position = Vector3(0.0, 1.6, 2.9)
-	_camara.look_at(Vector3(0, 1.5, 0), Vector3.UP)
+	_camara_duelo.current = true
+	_camara_duelo.position = Vector3(0.0, 1.6, 2.9)
+	_camara_duelo.look_at(Vector3(0, 1.5, 0), Vector3.UP)
 	_botones.visible = true
 	_figura_cunado.visible = true
 	_actualizar_marcador()
@@ -200,9 +178,11 @@ func _montar_sala() -> void:
 	_figura_cunado = _figura(self, Vector3(-3.2, 0, 3.4), Color(0.44, 0.42, 0.38))
 	_figura_cunado.visible = false
 
-	_camara = Camera3D.new()
-	add_child(_camara)
-	_camara.current = true
+	# La cámara del duelo es de esta escena; la de la cinemática es del
+	# reproductor. Dos cámaras y no una compartida: así saltar la cinemática no
+	# tiene que devolver ninguna cámara a su sitio.
+	_camara_duelo = Camera3D.new()
+	add_child(_camara_duelo)
 
 
 ## Una figura: tres cajas. No hay cara, y eso no es una limitación — a quien
@@ -231,19 +211,6 @@ func _figura(raiz: Node3D, base: Vector3, color: Color) -> Node3D:
 func _montar_interfaz() -> void:
 	var capa := CanvasLayer.new()
 	add_child(capa)
-
-	_rotulo = _texto(48)
-	_rotulo.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
-	_rotulo.offset_top = -230
-	_rotulo.offset_left = -460
-	_rotulo.offset_right = 460
-	_rotulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	# Los cargos salen de la descripción del sospechoso y algunos son largos
-	# ("el órgano que ha autorizado todo desde 1958 sin figurar en ningún
-	# organigrama"): sin ajuste de línea se salen de la pantalla por los dos
-	# lados. No se recortan — un cargo a medias diría otra cosa.
-	_rotulo.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	capa.add_child(_rotulo)
 
 	var abajo := VBoxContainer.new()
 	abajo.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)

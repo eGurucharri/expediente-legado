@@ -9,9 +9,10 @@
 ## diciendo que él eso lo habría cerrado el martes (`Cunado`). Sin esa segunda
 ## voz sería una imitación; con ella es la broma.
 ##
-## Una cinemática es DATOS: una lista de planos con su cámara y su duración. Ni
-## este módulo ni el que la reproduce saben a quién están presentando, así que
-## un acusado nuevo no toca nada — trae su nombre y su cargo y ya está.
+## Los planos se declaran en el formato común de `Cinematica` y los reproduce
+## el reproductor común: este módulo solo aporta el plano de rodaje y de dónde
+## sale el cargo. Ni él ni el reproductor saben a quién están presentando, así
+## que un acusado nuevo no toca nada.
 class_name CareoCinematica
 extends RefCounted
 
@@ -22,6 +23,7 @@ const PLANOS := [
 	{
 		# Contrapicado desde el suelo: la primera imagen del acusado es
 		# mirándole desde abajo, que es como se mira a una instancia superior.
+		"tipo": "3d",
 		"nombre": "contrapicado",
 		"camara": Vector3(0.0, 0.35, 3.2),
 		"mira": Vector3(0.0, 1.9, 0.0),
@@ -31,6 +33,7 @@ const PLANOS := [
 	{
 		# Órbita lenta. Lo que hay que ver es que no hay nada que ver: es un
 		# bulto gris con un cargo.
+		"tipo": "3d",
 		"nombre": "orbita",
 		"camara": Vector3(2.8, 1.7, 2.0),
 		"mira": Vector3(0.0, 1.4, 0.0),
@@ -39,6 +42,7 @@ const PLANOS := [
 	},
 	{
 		# El cargo, que es lo que de verdad da miedo.
+		"tipo": "3d",
 		"nombre": "cargo",
 		"camara": Vector3(-1.6, 1.5, 2.4),
 		"mira": Vector3(0.0, 1.5, 0.0),
@@ -47,6 +51,7 @@ const PLANOS := [
 	},
 	{
 		# Y el corte a la altura de los ojos, que es donde empieza el careo.
+		"tipo": "3d",
 		"nombre": "frente",
 		"camara": Vector3(0.0, 1.6, 2.6),
 		"mira": Vector3(0.0, 1.5, 0.0),
@@ -63,29 +68,17 @@ const CARGO_POR_DEFECTO := "Cargo no consta en el expediente"
 
 ## El plano de rodaje ya resuelto para un acusado. Devuelve copias, así que
 ## reproducir una cinemática no puede estropear la siguiente.
-static func planos_de(acusado: Dictionary, folio: String = "") -> Array:
+static func planos_de(acusado: Dictionary, folio: String = "", vistas: int = 0) -> Array:
 	var nombre: String = acusado.get("nombre", "")
 	var cargo: String = acusado.get("cargo", "")
 	if cargo.is_empty():
 		cargo = _cargo_deducido(acusado)
 
-	var rodaje := []
-	for plano in PLANOS:
-		var copia: Dictionary = plano.duplicate(true)
-		copia["rotulo"] = String(plano["rotulo"]) \
-			.replace("{nombre}", nombre) \
-			.replace("{cargo}", cargo) \
-			.replace("{folio}", folio if not folio.is_empty() else "SIN NÚMERO")
-		rodaje.append(copia)
-	return rodaje
-
-
-## Cuánto dura entera, para que quien la reproduzca pueda decirlo.
-static func duracion(rodaje: Array) -> float:
-	var total := 0.0
-	for plano in rodaje:
-		total += plano["segundos"]
-	return total
+	return Cinematica.resolver(PLANOS, {
+		"nombre": nombre,
+		"cargo": cargo,
+		"folio": folio if not folio.is_empty() else "SIN NÚMERO",
+	}, vistas)
 
 
 ## El cargo sale de la descripción que ya trae el sospechoso: su primera frase.

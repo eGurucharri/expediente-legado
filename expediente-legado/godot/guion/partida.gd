@@ -70,6 +70,11 @@ static func nueva() -> Dictionary:
 		"final_politico_mostrado": false,
 		"final_verdadero_mostrado": false,
 		"perdio_vida_en_esta_vuelta": false,
+		# Cuántas veces se ha visto cada cinemática, para que se acorten solas
+		# (#67). Es de por vida y NO de la vuelta: quien ya ha visto veinte
+		# veces la entrada de un careo no necesita verla entera porque le hayan
+		# reasignado.
+		"cinematicas_vistas": {},
 	}
 
 

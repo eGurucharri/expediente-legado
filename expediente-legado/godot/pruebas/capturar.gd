@@ -44,9 +44,12 @@ func _init() -> void:
 		for i in 3:
 			await process_frame
 		if plano < 0:
-			escena._empezar_duelo()
+			escena._reproductor.saltar()
 		else:
-			escena._entrar_en_plano(plano)
+			# Se adelanta la cinemática plano a plano por el reproductor común,
+			# que es quien la lleva desde #67.
+			for i in plano:
+				escena._reproductor._siguiente()
 		for i in 6:
 			await process_frame
 		var imagen_c := root.get_texture().get_image()
