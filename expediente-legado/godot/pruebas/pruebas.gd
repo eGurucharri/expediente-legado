@@ -23,6 +23,9 @@ func _init() -> void:
 	_historias()
 	_combate()
 	_ventanilla()
+	_jornada()
+	_procedencia()
+	_espacios()
 
 	print("\n%d pasadas, %d fallos" % [pasadas, fallos])
 	quit(1 if fallos > 0 else 0)
@@ -746,3 +749,196 @@ func _ventanilla() -> void:
 	comprobar("a las diez se ganan los tres hitos",
 		Ventanilla.cerrar(estado, 9, true)["logros"],
 		["ventanilla-tres", "funcionario-del-mes", "ventanilla-inagotable"])
+
+
+# --- La jornada --------------------------------------------------------------
+
+func _jornada() -> void:
+	var dia := Jornada.nueva()
+	comprobar("se empieza el día uno en el archivo",
+		[dia["dia"], dia["fase"]], [1, "archivo"])
+
+	# El orden del día es circular y vive en un solo sitio.
+	comprobar("el día va archivo -> trayecto -> casa -> sueño -> archivo",
+		[Jornada.siguiente_fase("archivo"), Jornada.siguiente_fase("trayecto"),
+		 Jornada.siguiente_fase("casa"), Jornada.siguiente_fase("sueño")],
+		["trayecto", "casa", "sueño", "archivo"])
+
+	# La nómina: se cobra por CERRAR, no por acertar. Un expediente mal cerrado
+	# paga lo mismo, que es toda la sátira.
+	dia["cerrados_hoy"] = 2
+	var nomina := Jornada.fichar_salida(dia)
+	comprobar("la nómina se desglosa",
+		[nomina["base"], nomina["expedientes"], nomina["por_expedientes"]],
+		[Jornada.BASE_DIARIA, 2, Jornada.POR_EXPEDIENTE * 2])
+	comprobar("y se cobra entera",
+		dia["dinero"], 120 + Jornada.BASE_DIARIA + Jornada.POR_EXPEDIENTE * 2)
+	comprobar("fichar lleva al trayecto", dia["fase"], "trayecto")
+	comprobar("no se puede fichar dos veces", Jornada.fichar_salida(dia), {})
+
+	# Un día sin cerrar nada también paga: el sueldo base no depende de ti.
+	var flojo := Jornada.nueva()
+	comprobar("un día sin cerrar nada paga la base",
+		Jornada.fichar_salida(flojo)["bruto"], Jornada.BASE_DIARIA)
+
+	# Gastar: sin dinero no hay compra, y no hay crédito.
+	comprobar("no se puede gastar más de lo que hay",
+		Jornada.gastar(dia, dia["dinero"] + 1), false)
+	var antes: int = dia["dinero"]
+	comprobar("una compra que cabe se hace", Jornada.gastar(dia, 10), true)
+	comprobar("y descuenta", dia["dinero"], antes - 10)
+	comprobar("gastar cero o menos no es una compra", Jornada.gastar(dia, 0), false)
+
+	# --- El gato ---
+	# No se muere: si lo desatiendes, un día no está.
+	var casa := Jornada.nueva()
+	casa["fase"] = "casa"
+	for i in Jornada.PACIENCIA_GATO:
+		var noche := Jornada.dormir(casa)
+		comprobar("el gato aguanta la noche %d" % (i + 1), noche["gato_se_fue"], false)
+		casa["fase"] = "sueño"
+		Jornada.despertar(casa)
+		casa["fase"] = "casa"
+	var ultima := Jornada.dormir(casa)
+	comprobar("pasada su paciencia, el gato se va", ultima["gato_se_fue"], true)
+	comprobar("y ya no está", casa["gato"]["presente"], false)
+	comprobar("no vuelve a irse: ya se fue",
+		Jornada.dormir(casa).get("gato_se_fue", false), false)
+
+	# Darle de comer reinicia la cuenta, y es una compra: puede no poder hacerse.
+	var cuidada := Jornada.nueva()
+	cuidada["fase"] = "casa"
+	Jornada.dormir(cuidada)
+	comprobar("darle de comer reinicia la cuenta",
+		Jornada.alimentar_gato(cuidada, 10) and cuidada["gato"]["dias_sin_comer"] == 0, true)
+	cuidada["dinero"] = 0
+	comprobar("sin dinero no se le puede dar de comer",
+		Jornada.alimentar_gato(cuidada, 10), false)
+	comprobar("y a un gato que ya se fue tampoco",
+		Jornada.alimentar_gato(casa, 0), false)
+
+	# Vivir cuesta, y no se baja de cero: no hay deuda.
+	var pobre := Jornada.nueva()
+	pobre["fase"] = "casa"
+	pobre["dinero"] = 5
+	comprobar("el coste de vivir no deja saldo negativo",
+		Jornada.dormir(pobre)["dinero"], 0)
+
+	# --- El día siguiente ---
+	var ciclo := Jornada.nueva()
+	Jornada.anotar_lectura(ciclo, "MEMO-1999-088")
+	Jornada.anotar_lectura(ciclo, "MEMO-1999-088")
+	comprobar("lo leído hoy no se repite", ciclo["leido_hoy"].size(), 1)
+	Jornada.anotar_lectura(ciclo, "")
+	comprobar("un folio vacío no se anota", ciclo["leido_hoy"].size(), 1)
+
+	ciclo["cerrados_hoy"] = 3
+	ciclo["fase"] = "sueño"
+	comprobar("despertar pasa al día dos", Jornada.despertar(ciclo), 2)
+	comprobar("y devuelve al archivo con todo a cero",
+		[ciclo["fase"], ciclo["cerrados_hoy"], ciclo["leido_hoy"]],
+		["archivo", 0, []])
+	comprobar("no se despierta dos veces", Jornada.despertar(ciclo), 2)
+
+
+# --- Procedencia de los assets ------------------------------------------------
+
+const RUTA_ASSETS := "res://assets"
+
+func _procedencia() -> void:
+	var fichero := FileAccess.open(RUTA_ASSETS + "/procedencia.json", FileAccess.READ)
+	comprobar("hay registro de procedencia", fichero != null, true)
+	if fichero == null:
+		return
+	var registro = JSON.parse_string(fichero.get_as_text())
+	fichero.close()
+	comprobar("y es un objeto", typeof(registro), TYPE_DICTIONARY)
+
+	var fichas: Array = registro.get("assets", [])
+	var por_ruta := {}
+	var fichas_incompletas := []
+	for ficha in fichas:
+		for campo in ["ruta", "titulo", "autor", "licencia", "fuente", "sha256"]:
+			if String(ficha.get(campo, "")).strip_edges().is_empty():
+				fichas_incompletas.append("%s sin %s" % [ficha.get("ruta", "?"), campo])
+		por_ruta[ficha.get("ruta", "")] = ficha
+	comprobar("ninguna ficha está a medias", fichas_incompletas, [])
+
+	# En las dos direcciones: ni ficheros sin ficha ni fichas sin fichero.
+	var sin_ficha := []
+	var mal_resumidos := []
+	for ruta in _ficheros_bajo(RUTA_ASSETS):
+		if ruta in ["procedencia.json", "LEEME.md"]:
+			continue
+		if not por_ruta.has(ruta):
+			sin_ficha.append(ruta)
+			continue
+		var real := FileAccess.get_sha256(RUTA_ASSETS + "/" + ruta)
+		if real != por_ruta[ruta]["sha256"]:
+			mal_resumidos.append(ruta)
+	comprobar("ningún asset sin ficha", sin_ficha, [])
+	comprobar("el sha256 de cada ficha es el del fichero real", mal_resumidos, [])
+
+	var huerfanas := []
+	for ruta in por_ruta:
+		if not FileAccess.file_exists(RUTA_ASSETS + "/" + ruta):
+			huerfanas.append(ruta)
+	comprobar("ninguna ficha apunta a un fichero que no existe", huerfanas, [])
+
+
+## Todo lo que cuelga de un directorio, con la ruta relativa a él. Se ignoran
+## los `.import` que Godot genera: son suyos, no material de terceros.
+func _ficheros_bajo(raiz: String, prefijo: String = "") -> Array:
+	var encontrados := []
+	var actual := raiz + ("/" + prefijo if not prefijo.is_empty() else "")
+	for nombre in DirAccess.get_files_at(actual):
+		if nombre.ends_with(".import") or nombre.ends_with(".uid"):
+			continue
+		encontrados.append(prefijo + nombre if prefijo.is_empty() else prefijo + "/" + nombre)
+	for dir in DirAccess.get_directories_at(actual):
+		encontrados.append_array(
+			_ficheros_bajo(raiz, dir if prefijo.is_empty() else prefijo + "/" + dir))
+	return encontrados
+
+
+# --- Los espacios del día ----------------------------------------------------
+
+func _espacios() -> void:
+	# Cada fase de la jornada tiene su sitio: una fase sin espacio dejaría al
+	# jugador en la nada.
+	var sin_sitio := Jornada.FASES.filter(
+		func(f): return not EspaciosCatalogo.POR_FASE.has(f))
+	comprobar("cada fase del día tiene su espacio", sin_sitio, [])
+
+	# Y las salidas forman un ciclo cerrado que vuelve al archivo: un sitio del
+	# que no se sale es un sitio donde se acaba la partida sin decirlo.
+	var rotos := []
+	var sin_salida := []
+	for fase in EspaciosCatalogo.POR_FASE:
+		var espacio: Dictionary = EspaciosCatalogo.POR_FASE[fase]
+		var salidas: Array = espacio.get("salidas", [])
+		if salidas.is_empty():
+			sin_salida.append(fase)
+		for salida in salidas:
+			if not EspaciosCatalogo.POR_FASE.has(salida["destino"]):
+				rotos.append("%s -> %s" % [fase, salida["destino"]])
+	comprobar("ningún espacio es un callejón sin salida", sin_salida, [])
+	comprobar("ninguna salida lleva a un sitio que no existe", rotos, [])
+
+	# Las salidas siguen el orden del día: no hay atajos que se salten una fase.
+	var desordenadas := []
+	for fase in EspaciosCatalogo.POR_FASE:
+		for salida in EspaciosCatalogo.POR_FASE[fase].get("salidas", []):
+			if salida["destino"] != Jornada.siguiente_fase(fase):
+				desordenadas.append("%s -> %s" % [fase, salida["destino"]])
+	comprobar("las salidas siguen el orden del día", desordenadas, [])
+
+	# Se entra pisando suelo, no dentro de un muro ni fuera de la sala.
+	var mal_situadas := []
+	for fase in EspaciosCatalogo.POR_FASE:
+		var espacio: Dictionary = EspaciosCatalogo.POR_FASE[fase]
+		var medidas: Vector2 = espacio["suelo"]
+		var entrada: Vector3 = espacio["entrada"]
+		if absf(entrada.x) >= medidas.x / 2.0 or absf(entrada.z) >= medidas.y / 2.0:
+			mal_situadas.append(fase)
+	comprobar("se entra dentro de la sala", mal_situadas, [])

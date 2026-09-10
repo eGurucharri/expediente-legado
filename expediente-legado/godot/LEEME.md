@@ -65,6 +65,42 @@ de oficio siempre disponible: una cola vacía es indistinguible de una pantalla
 rota. Las cuatro habilidades (`guion/historias.gd`) se cargan con las
 decisiones políticas de las cartas ocultas, tope de dos por eje.
 
+## El día (walking simulator)
+
+`escenas/dia.tscn`. La columna que al port le faltaba: hasta ahora una "vuelta"
+no era nada —el sistema te reasignaba y empezabas otra, sin tiempo ni vida
+fuera del archivo—. La jornada le da cuerpo: **una vuelta es una vida laboral**,
+y la memoria fantasma de #46 (las cartas que recuerdas de vueltas anteriores)
+deja de ser una regla rara para ser lo obvio.
+
+El ciclo es `archivo → trayecto → casa → sueño → archivo`, y cada tránsito es
+un acto: salir de la oficina **ficha y cobra**, meterse en la cama **paga el día
+y cuenta una noche más de gato**. La economía paga por CERRAR expedientes, no
+por acertar — el juego ya declara que no hay sospechoso correcto, y pagar por
+acertar desmontaría la sátira. El gato no se muere: si lo desatiendes, un día no
+está.
+
+Las tres piezas no se mezclan: `guion/jornada.gd` es el ciclo y la economía
+(puro), `guion/espacios_catalogo.gd` declara los sitios y `guion/espacio_3d.gd`
+los construye sin conocer el nombre de ninguno. Un sitio nuevo es una entrada
+más del catálogo.
+
+La geometría es cajas a propósito, no un placeholder esperando arte: es el mismo
+argumento que la tipografía sin suavizar. Y los techos van **emisivos** porque
+la luz del motor viene de arriba, así que la cara inferior de un techo está
+siempre en el mínimo y salía negra por construcción.
+
+El **sueño** todavía no existe: hay una habitación de paso que devuelve al
+archivo. La tercera parte (salas oníricas procedurales alimentadas por lo leído
+ese día) va después.
+
+## Assets
+
+`assets/` está vacío y **ya vigilado**: `procedencia.json` exige ficha con
+sha256 para todo lo que entre, y la prueba lo comprueba en las dos direcciones
+—ni ficheros sin ficha ni fichas sin fichero—. La disciplina existe desde antes
+del primer asset, que es la única forma de que no se documente "luego".
+
 ## Qué cambia respecto al backend Java
 
 **El contenido deja de ser código.** `DataSeeder.java` eran 1.443 líneas de

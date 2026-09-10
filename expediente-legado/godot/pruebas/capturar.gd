@@ -19,9 +19,26 @@ func _init() -> void:
 	var ruta := "res://escenas/visor.tscn"
 	if destino.contains("ventanilla"):
 		ruta = "res://escenas/ventanilla.tscn"
+	elif destino.contains("dia"):
+		ruta = "res://escenas/dia.tscn"
 	var escena: Node = load(ruta).instantiate()
 	root.add_child(escena)
 	await process_frame
+
+	if ruta.contains("dia"):
+		# La fase a capturar llega como argumento: el día entero no cabe en una
+		# imagen y cada sitio hay que mirarlo por separado.
+		if argumentos.size() > 1:
+			escena._entrar_en(argumentos[1])
+		# Unos cuantos fotogramas para que la física asiente al caminante en el
+		# suelo: capturar antes lo pilla cayendo.
+		for i in 12:
+			await process_frame
+		var imagen_d := root.get_texture().get_image()
+		imagen_d.save_png(destino)
+		print("captura en %s" % destino)
+		quit(0)
+		return
 
 	if ruta.contains("ventanilla"):
 		# Llamar al primer turno y jugar una ronda, para que la captura enseñe
