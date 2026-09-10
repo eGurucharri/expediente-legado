@@ -1,0 +1,281 @@
+## El careo: cinemática de entrada y duelo, con público.
+##
+## Reproduce el plano de rodaje de `CareoCinematica` sobre el acusado, deja que
+## se acerque el compañero (`Cunado`) y encima monta el duelo, que es el
+## `Combate` de siempre. Ninguna de esas tres piezas sabe de las otras: aquí
+## solo se ponen en fila.
+##
+## Nada de esto cambia el veredicto. Cuando esta escena arranca, la acusación ya
+## está firmada — el careo es una escena con una vida en juego, no un examen.
+extends Node3D
+
+## Cada cuánto habla el compañero, como mucho. Sin tope comentaría cada ronda y
+## dejaría de tener gracia: un cuñado que no calla nunca es ruido, y uno que
+## habla de vez en cuando es un cuñado.
+const PAUSA_ENTRE_COMENTARIOS := 2.5
+
+var acusado: Dictionary = {}
+var folio := ""
+var cargas: Dictionary = {}
+
+signal terminado(gano: bool)
+
+var _rodaje: Array = []
+var _plano := 0
+var _en_plano := 0.0
+var _en_cinematica := true
+var _combate: Dictionary = {}
+var _azar := RandomNumberGenerator.new()
+var _desde := 0.0
+
+var _camara: Camera3D
+var _rotulo: Label
+var _voz: Label
+var _cronica: Label
+var _marcador: Label
+var _botones: HBoxContainer
+var _figura_cunado: Node3D
+
+
+func _ready() -> void:
+	_azar.randomize()
+	if acusado.is_empty():
+		acusado = {"nombre": "El acusado", "ataques": []}
+	_rodaje = CareoCinematica.planos_de(acusado, folio)
+
+	_montar_sala()
+	_montar_interfaz()
+	_combate = Combate.nuevo("ciclo", acusado, cargas)
+	_entrar_en_plano(0)
+
+
+func _process(delta: float) -> void:
+	if not _en_cinematica:
+		return
+	_en_plano += delta
+	var plano: Dictionary = _rodaje[_plano]
+
+	# La cámara se acerca un poco durante el plano. Un plano quieto se lee como
+	# una imagen; uno que avanza despacio se lee como alguien mirando.
+	var destino: Vector3 = plano["camara"]
+	var duracion: float = plano["segundos"]
+	var acercamiento: Vector3 = destino.normalized() * -0.25 * (_en_plano / duracion)
+	_camara.position = destino + acercamiento
+	_camara.look_at(plano["mira"], Vector3.UP)
+
+	if _en_plano >= duracion:
+		_entrar_en_plano(_plano + 1)
+
+
+func _unhandled_input(evento: InputEvent) -> void:
+	# Saltable SIEMPRE. Una cinemática que no se puede saltar es lo que hace
+	# que la segunda partida se juegue mirando a otro lado.
+	if _en_cinematica and evento.is_pressed():
+		_empezar_duelo()
+
+
+func _entrar_en_plano(indice: int) -> void:
+	if indice >= _rodaje.size():
+		_empezar_duelo()
+		return
+	_plano = indice
+	_en_plano = 0.0
+	_rotulo.text = _rodaje[indice]["rotulo"]
+	# Los nombres se leen grandes; los cargos son frases y quieren cuerpo menor.
+	_rotulo.add_theme_font_size_override(
+		"font_size", 34 if _rotulo.text.length() > 28 else 48)
+
+	# El compañero llega en el segundo plano: justo cuando la cosa se está
+	# poniendo solemne.
+	if indice == 1:
+		_figura_cunado.visible = true
+		_decir(Cunado.comentario("llegada", _tirada()))
+
+
+func _empezar_duelo() -> void:
+	if not _en_cinematica:
+		return
+	_en_cinematica = false
+	_rotulo.text = ""
+	_camara.position = Vector3(0.0, 1.6, 2.9)
+	_camara.look_at(Vector3(0, 1.5, 0), Vector3.UP)
+	_botones.visible = true
+	_figura_cunado.visible = true
+	_actualizar_marcador()
+	_cronica.text = "%s no reconoce la acusación." % acusado["nombre"]
+
+
+func _al_jugar(tipo: String) -> void:
+	if _combate["terminado"]:
+		return
+	var ronda := Combate.jugar(_combate, tipo, "", _tirada())
+
+	_cronica.text = "Usted: %s   ·   %s: %s   —   %s" % [
+		Combate.ETIQUETAS[ronda["tipo_jugador"]], acusado["nombre"],
+		Combate.ETIQUETAS[ronda["tipo_rival"]], _veredicto(ronda["veredicto"])]
+	if not ronda["replica"].is_empty():
+		_cronica.text += "\n« %s »" % ronda["replica"]
+
+	_actualizar_marcador()
+
+	if ronda["terminado"]:
+		var gano: bool = ronda["ganador"] == "jugador"
+		_decir(Cunado.comentario("victoria" if gano else "derrota", _tirada()))
+		_botones.visible = false
+		terminado.emit(gano)
+	elif Time.get_ticks_msec() / 1000.0 - _desde > PAUSA_ENTRE_COMENTARIOS:
+		_decir(Cunado.sobre_ronda(ronda, _tirada()))
+
+
+func _decir(frase: String) -> void:
+	if frase.is_empty():
+		return
+	_voz.text = "— %s" % frase
+	_desde = Time.get_ticks_msec() / 1000.0
+
+
+func _veredicto(cual: String) -> String:
+	match cual:
+		"gana_jugador": return "cede un punto"
+		"gana_rival": return "se le impone"
+		_: return "ninguno cede"
+
+
+func _tirada() -> Callable:
+	return func(): return _azar.randf()
+
+
+func _actualizar_marcador() -> void:
+	_marcador.text = "Usted %s        %s %s" % [
+		"█".repeat(maxi(0, _combate["vida_jugador"])),
+		acusado["nombre"],
+		"█".repeat(maxi(0, _combate["vida_rival"]))]
+
+
+# --- La sala ----------------------------------------------------------------
+
+func _montar_sala() -> void:
+	var entorno := WorldEnvironment.new()
+	var ajustes := Environment.new()
+	ajustes.background_mode = Environment.BG_COLOR
+	ajustes.background_color = Color(0.03, 0.03, 0.04)
+	ajustes.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	ajustes.ambient_light_color = Color(0.35, 0.35, 0.40)
+	ajustes.ambient_light_energy = 0.5
+	entorno.environment = ajustes
+	add_child(entorno)
+
+	# Un foco desde arriba y nada más: el careo no ocurre en una oficina, ocurre
+	# en la idea que el sistema tiene de sí mismo.
+	#
+	# POR DEBAJO DEL TECHO. La primera versión lo puso a 4,2 m con el techo a
+	# 2,9 y la sala salía completamente negra: estaba alumbrando el otro lado.
+	var foco := SpotLight3D.new()
+	foco.position = Vector3(0, Espacio3D.ALTURA_MURO - 0.25, 0.5)
+	foco.rotation_degrees = Vector3(-78, 0, 0)
+	foco.light_energy = 9.0
+	foco.spot_range = 14.0
+	foco.spot_angle = 45.0
+	add_child(foco)
+
+	# Y un relleno flojo desde la cámara, o el acusado es una silueta negra
+	# desde cualquier ángulo que no sea justo debajo del foco.
+	var relleno := OmniLight3D.new()
+	relleno.position = Vector3(0, 1.8, 3.4)
+	relleno.light_energy = 1.6
+	relleno.omni_range = 9.0
+	add_child(relleno)
+
+	Espacio3D.construir(self, {
+		"suelo": Vector2(12, 12),
+		"color_suelo": Color(0.14, 0.14, 0.15),
+		"color_muro": Color(0.10, 0.10, 0.12),
+		"color_techo": Color(0.06, 0.06, 0.07),
+	})
+
+	_figura(self, Vector3(0, 0, 0), Color(0.52, 0.51, 0.48))
+	# Apartado de las cuatro posiciones de cámara. En la primera versión estaba
+	# en (2.4, 0, 1.9) y la cámara de la órbita cae en (2.8, 1.7, 2.0): el plano
+	# se rodaba DENTRO de su cabeza y no se veía más que un bulto negro.
+	_figura_cunado = _figura(self, Vector3(-3.2, 0, 3.4), Color(0.44, 0.42, 0.38))
+	_figura_cunado.visible = false
+
+	_camara = Camera3D.new()
+	add_child(_camara)
+	_camara.current = true
+
+
+## Una figura: tres cajas. No hay cara, y eso no es una limitación — a quien
+## acusas nunca le ves la cara, porque es un comité, una empresa o un cargo.
+func _figura(raiz: Node3D, base: Vector3, color: Color) -> Node3D:
+	var figura := Node3D.new()
+	figura.position = base
+	raiz.add_child(figura)
+	for pieza in [
+			{"pos": Vector3(0, 0.45, 0), "tam": Vector3(0.5, 0.9, 0.35)},
+			{"pos": Vector3(0, 1.25, 0), "tam": Vector3(0.7, 0.75, 0.4)},
+			{"pos": Vector3(0, 1.78, 0), "tam": Vector3(0.3, 0.32, 0.3)}]:
+		var malla := MeshInstance3D.new()
+		var caja := BoxMesh.new()
+		caja.size = pieza["tam"]
+		malla.mesh = caja
+		malla.position = pieza["pos"]
+		var material := StandardMaterial3D.new()
+		material.albedo_color = color
+		material.roughness = 1.0
+		malla.material_override = material
+		figura.add_child(malla)
+	return figura
+
+
+func _montar_interfaz() -> void:
+	var capa := CanvasLayer.new()
+	add_child(capa)
+
+	_rotulo = _texto(48)
+	_rotulo.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
+	_rotulo.offset_top = -230
+	_rotulo.offset_left = -460
+	_rotulo.offset_right = 460
+	_rotulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	# Los cargos salen de la descripción del sospechoso y algunos son largos
+	# ("el órgano que ha autorizado todo desde 1958 sin figurar en ningún
+	# organigrama"): sin ajuste de línea se salen de la pantalla por los dos
+	# lados. No se recortan — un cargo a medias diría otra cosa.
+	_rotulo.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	capa.add_child(_rotulo)
+
+	var abajo := VBoxContainer.new()
+	abajo.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+	abajo.offset_top = -150
+	abajo.offset_left = 16
+	abajo.offset_right = -16
+	abajo.offset_bottom = -12
+	capa.add_child(abajo)
+
+	_marcador = _texto(18)
+	abajo.add_child(_marcador)
+	_cronica = _texto(18)
+	abajo.add_child(_cronica)
+	_voz = _texto(18)
+	_voz.add_theme_color_override("font_color", Color(0.85, 0.82, 0.55))
+	abajo.add_child(_voz)
+
+	_botones = HBoxContainer.new()
+	_botones.visible = false
+	for tipo in Combate.TIPOS:
+		var boton := Button.new()
+		boton.text = Combate.ETIQUETAS[tipo]
+		boton.pressed.connect(_al_jugar.bind(tipo))
+		_botones.add_child(boton)
+	abajo.add_child(_botones)
+
+
+func _texto(tamano: int) -> Label:
+	var etiqueta := Label.new()
+	etiqueta.theme = EstiloSiga.tema()
+	etiqueta.add_theme_font_size_override("font_size", tamano)
+	etiqueta.add_theme_color_override("font_color", EstiloSiga.BLANCO)
+	etiqueta.add_theme_color_override("font_outline_color", EstiloSiga.NEGRO)
+	etiqueta.add_theme_constant_override("outline_size", 5)
+	return etiqueta

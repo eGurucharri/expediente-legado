@@ -21,9 +21,39 @@ func _init() -> void:
 		ruta = "res://escenas/ventanilla.tscn"
 	elif destino.contains("dia"):
 		ruta = "res://escenas/dia.tscn"
+	elif destino.contains("careo"):
+		ruta = "res://escenas/careo.tscn"
 	var escena: Node = load(ruta).instantiate()
+	if ruta.contains("careo"):
+		# El acusado se le pasa ANTES de añadirlo: la escena lo lee en _ready.
+		var contenido := Contenido.new()
+		contenido.cargar()
+		for c in contenido.casos:
+			for s in c["sospechosos"]:
+				if not s.get("ataques", []).is_empty():
+					escena.acusado = s
+					escena.folio = "ACTA-1958-001"
+					break
 	root.add_child(escena)
 	await process_frame
+
+	if ruta.contains("careo"):
+		# El plano a capturar llega como argumento: la cinemática son cuatro y
+		# hay que mirarlos por separado.
+		var plano := int(argumentos[1]) if argumentos.size() > 1 else 1
+		for i in 3:
+			await process_frame
+		if plano < 0:
+			escena._empezar_duelo()
+		else:
+			escena._entrar_en_plano(plano)
+		for i in 6:
+			await process_frame
+		var imagen_c := root.get_texture().get_image()
+		imagen_c.save_png(destino)
+		print("captura en %s" % destino)
+		quit(0)
+		return
 
 	if ruta.contains("dia"):
 		# La fase a capturar llega como argumento: el día entero no cabe en una
