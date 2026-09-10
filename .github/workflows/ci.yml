@@ -75,5 +75,5 @@ jobs:
       - name: Lint Godot GDScript
         run: |
           cd godot
-          gdlint --check .
+          gdlint .
           gdformat --check .
