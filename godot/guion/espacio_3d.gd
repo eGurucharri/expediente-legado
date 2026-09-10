@@ -59,13 +59,31 @@ static func construir(raiz: Node3D, espacio: Dictionary) -> Array:
 
 	# Las figuras y los carteles son del sueño (#87), pero este módulo sigue sin
 	# saberlo: aquí solo hay una silueta en un sitio y un texto contra un muro.
+	var zonas := []
 	for figura in espacio.get("figuras", []):
 		var cuerpo := FiguraSilueta.construir(
 			raiz, figura["pos"], figura.get("color", Color(0.30, 0.28, 0.34)))
 		if not figura.get("rotulo", "").is_empty():
-			_cartel(cuerpo, figura["rotulo"],
+			var nombre := _cartel(cuerpo, figura["rotulo"],
 				Vector3(0, FiguraSilueta.altura() + 0.35, 0), 0.0,
 				figura.get("color_rotulo", Color(0.75, 0.74, 0.78)), true)
+			# El nombre de alguien es una etiqueta, no un cartel de pared: al
+			# lado ocupaba media pantalla. Y se apaga de lejos, o la oficina es
+			# una lista de nombres flotando sobre las mesas.
+			nombre.pixel_size = 0.0026
+			nombre.visibility_range_end = 11.0
+			nombre.visibility_range_end_margin = 3.0
+		# Quien tiene algo que decir lo dice al acercarte, no al pulsarle: esto
+		# es un sitio y no un menú de diálogo. La zona es una más de las que se
+		# pisan, así que quien orquesta el día no aprende un mecanismo nuevo.
+		if not figura.get("frase", "").is_empty():
+			zonas.append(_salida(raiz, {
+				"pos": figura["pos"] + Vector3(0, 1.0, 0),
+				"destino": "",
+				"frase": figura["frase"],
+				"tam": Vector3(2.2, 2.0, 2.2),
+				"visible": false,
+			}))
 
 	for cartel in espacio.get("carteles", []):
 		_cartel(raiz, cartel["texto"], cartel["pos"] + Vector3(0, ALTURA_CARTEL, 0),
@@ -82,7 +100,7 @@ static func construir(raiz: Node3D, espacio: Dictionary) -> Array:
 	for luz in espacio.get("luces", []):
 		_luz(raiz, luz)
 
-	var salidas := []
+	var salidas := zonas
 	for salida in espacio.get("salidas", []):
 		salidas.append(_salida(raiz, salida))
 	return salidas
@@ -265,6 +283,7 @@ static func _salida(raiz: Node3D, salida: Dictionary) -> Area3D:
 	zona.position = salida["pos"]
 	zona.set_meta("destino", salida["destino"])
 	zona.set_meta("rotulo", salida.get("rotulo", ""))
+	zona.set_meta("frase", salida.get("frase", ""))
 
 	var forma := CollisionShape3D.new()
 	var caja := BoxShape3D.new()
