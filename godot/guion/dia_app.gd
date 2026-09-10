@@ -14,12 +14,14 @@ var _mundo: Node3D
 var _rotulo: Label
 var _nomina: Label
 var _pantalla: CanvasLayer
+var _ambiente: Environment
+var _sol: DirectionalLight3D
 
 
 func _ready() -> void:
 	partida.cargar()
 	contenido.cargar()
-	jornada = partida.estado.get("jornada", Jornada.nueva())
+	jornada = Jornada.completar(partida.estado.get("jornada", Jornada.nueva()))
 	partida.estado["jornada"] = jornada
 
 	_montar_entorno()
@@ -32,6 +34,7 @@ func _ready() -> void:
 func _montar_entorno() -> void:
 	var entorno := WorldEnvironment.new()
 	var ajustes := Environment.new()
+	_ambiente = ajustes
 	ajustes.background_mode = Environment.BG_COLOR
 	ajustes.background_color = Color(0.05, 0.05, 0.06)
 	ajustes.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
@@ -44,6 +47,7 @@ func _montar_entorno() -> void:
 	sol.rotation_degrees = Vector3(-55, -35, 0)
 	sol.light_energy = 0.7
 	add_child(sol)
+	_sol = sol
 
 	_caminante = load("res://escenas/caminante.tscn").instantiate()
 	add_child(_caminante)
@@ -84,7 +88,13 @@ func _entrar_en(fase: String) -> void:
 	for salida in Espacio3D.construir(_mundo, espacio):
 		salida.body_entered.connect(_al_pisar_salida.bind(salida))
 
-	_caminante.situar(espacio["entrada"])
+	# Cada sitio trae su luz general. El archivo no se ilumina como la calle, y
+	# con un solo ambiente para todo el día uno de los dos está siempre mal.
+	_ambiente.ambient_light_color = espacio.get("ambiente", Color(0.55, 0.55, 0.58))
+	_ambiente.ambient_light_energy = espacio.get("ambiente_energia", 0.7)
+	_sol.light_energy = espacio.get("sol", 0.7)
+
+	_caminante.situar(espacio["entrada"], espacio.get("mirada", NAN))
 	_refrescar_rotulos(espacio)
 
 
@@ -210,7 +220,7 @@ func _cerrar_expediente() -> void:
 	_pantalla = null
 
 	partida.cargar()
-	jornada = partida.estado.get("jornada", Jornada.nueva())
+	jornada = Jornada.completar(partida.estado.get("jornada", Jornada.nueva()))
 	partida.estado["jornada"] = jornada
 
 	_caminante.set_physics_process(true)

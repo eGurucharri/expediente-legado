@@ -41,7 +41,7 @@ func _ready() -> void:
 
 	var carga := partida.cargar()
 	descubiertas = partida.estado["pistas_descubiertas"]
-	jornada = partida.estado.get("jornada", Jornada.nueva())
+	jornada = Jornada.completar(partida.estado.get("jornada", Jornada.nueva()))
 	partida.estado["jornada"] = jornada
 	if carga["resultado"] == "apartada":
 		_aviso_partida = tr("VISOR_PARTIDA_APARTADA") % [

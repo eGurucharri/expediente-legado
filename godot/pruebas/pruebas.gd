@@ -36,6 +36,7 @@ func _init() -> void:
 	_sueno_contenido()
 	_compilan()
 	_salida_del_sueno()
+	_jornada_antigua()
 
 	print("\n%d pasadas, %d fallos" % [pasadas, fallos])
 	quit(1 if fallos > 0 else 0)
@@ -1713,3 +1714,34 @@ func _salida_del_sueno() -> void:
 	comprobar("la señal se apaga",
 		[Sueno.senal_de_noche(1.0), Sueno.senal_de_noche(0.5), Sueno.senal_de_noche(0.1)],
 		["·  ·  ·", "·  ·", "·"])
+
+
+# --- Partidas de una versión anterior ----------------------------------------
+
+## Cada vez que la jornada estrena una clave, una partida guardada antes se la
+## encuentra a faltar. Pasó con el reloj del sueño (#90): la primera partida
+## que entró en el sueño con el reloj nuevo despertó de golpe nada más
+## dormirse, porque su noche valía cero segundos.
+func _jornada_antigua() -> void:
+	var vieja := {"dia": 4, "fase": "casa", "dinero": 310, "cerrados_hoy": 1,
+		"acciones": 2, "gato": {"presente": true, "dias_sin_comer": 1},
+		"leido_hoy": ["MEMO-1999-088"]}
+	Jornada.completar(vieja)
+
+	var faltan := Jornada.nueva().keys().filter(func(c): return not vieja.has(c))
+	comprobar("una jornada vieja se completa", faltan, [])
+	comprobar("y no se pisa lo que ya traía",
+		[vieja["dia"], vieja["dinero"], vieja["acciones"]], [4, 310, 2])
+
+	# La que se guardó DENTRO del sueño es el caso que duele: sin noche que
+	# gastar, se despierta en el primer fotograma.
+	var sonando := {"dia": 6, "fase": "sueño", "dinero": 90, "cerrados_hoy": 0,
+		"acciones": 0, "gato": {"presente": false, "dias_sin_comer": 4},
+		"leido_hoy": []}
+	Jornada.completar(sonando)
+	comprobar("la que se guardó soñando recibe una noche",
+		sonando["sueno_resto"] > 0.0, true)
+	comprobar("y las escenas que le faltaban",
+		sonando["sueno_escenas"].size(), Sueno.ESCENAS_POR_NOCHE)
+	comprobar("y no se despierta en el primer fotograma",
+		Jornada.gastar_sueno(sonando, 0.016), false)
