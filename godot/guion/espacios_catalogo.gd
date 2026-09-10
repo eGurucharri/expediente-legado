@@ -30,11 +30,78 @@ const OFICINA := {
 		{"pos": Vector3(-4, 0.37, 1), "tam": Vector3(2.0, 0.75, 1.0)},
 		{"pos": Vector3(1, 0.37, -2), "tam": Vector3(2.0, 0.75, 1.0)},
 		{"pos": Vector3(1, 0.37, 1), "tam": Vector3(2.0, 0.75, 1.0)},
-		# Archivadores contra el muro del fondo.
+		# Archivadores contra el muro del fondo. Son seis y no dos: un archivo
+		# con dos archivadores es un despacho.
 		{"pos": Vector3(5.5, 0.9, -4), "tam": Vector3(1.0, 1.8, 0.6),
 			"color": Color(0.40, 0.39, 0.36)},
 		{"pos": Vector3(5.5, 0.9, -2.5), "tam": Vector3(1.0, 1.8, 0.6),
 			"color": Color(0.40, 0.39, 0.36)},
+		{"pos": Vector3(5.5, 0.9, -1.0), "tam": Vector3(1.0, 1.8, 0.6),
+			"color": Color(0.40, 0.39, 0.36)},
+		{"pos": Vector3(5.5, 0.9, 0.5), "tam": Vector3(1.0, 1.8, 0.6),
+			"color": Color(0.38, 0.37, 0.35)},
+		{"pos": Vector3(5.5, 0.9, 2.0), "tam": Vector3(1.0, 1.8, 0.6),
+			"color": Color(0.40, 0.39, 0.36)},
+		{"pos": Vector3(5.5, 0.9, 3.5), "tam": Vector3(1.0, 1.8, 0.6),
+			"color": Color(0.38, 0.37, 0.35)},
+
+		# Papel. Un archivo con las mesas despejadas no es un archivo: hay
+		# torres encima de cada puesto, cajas contra la pared y una pila en el
+		# suelo que lleva ahí desde antes que tú.
+		{"pos": Vector3(-4.7, 0.83, -2.2), "tam": Vector3(0.32, 0.16, 0.24),
+			"color": Color(0.80, 0.78, 0.70)},
+		{"pos": Vector3(-3.4, 0.80, -1.7), "tam": Vector3(0.30, 0.10, 0.22),
+			"color": Color(0.78, 0.76, 0.68)},
+		{"pos": Vector3(1.5, 0.86, 1.3), "tam": Vector3(0.34, 0.22, 0.26),
+			"color": Color(0.80, 0.78, 0.70)},
+		{"pos": Vector3(0.4, 0.79, -2.3), "tam": Vector3(0.30, 0.09, 0.22),
+			"color": Color(0.76, 0.74, 0.66)},
+		# Cajas de archivo apiladas contra el muro de la izquierda.
+		{"pos": Vector3(-6.2, 0.20, -3.4), "tam": Vector3(0.5, 0.40, 0.7),
+			"color": Color(0.62, 0.56, 0.44)},
+		{"pos": Vector3(-6.2, 0.61, -3.4), "tam": Vector3(0.5, 0.40, 0.7),
+			"color": Color(0.60, 0.54, 0.42)},
+		{"pos": Vector3(-6.2, 1.02, -3.4), "tam": Vector3(0.5, 0.40, 0.7),
+			"color": Color(0.62, 0.56, 0.44)},
+		{"pos": Vector3(-6.2, 0.20, -2.5), "tam": Vector3(0.5, 0.40, 0.7),
+			"color": Color(0.60, 0.54, 0.42)},
+		{"pos": Vector3(-6.2, 0.61, -2.5), "tam": Vector3(0.5, 0.40, 0.7),
+			"color": Color(0.62, 0.56, 0.44)},
+		# La pila del suelo, la que nadie va a mirar nunca.
+		{"pos": Vector3(3.6, 0.14, 4.2), "tam": Vector3(0.42, 0.28, 0.30),
+			"color": Color(0.74, 0.72, 0.64)},
+		{"pos": Vector3(4.1, 0.10, 4.3), "tam": Vector3(0.40, 0.20, 0.30),
+			"color": Color(0.72, 0.70, 0.62)},
+
+		# La máquina de café, junto a la puerta. En una oficina, el sitio donde
+		# se cuentan las cosas.
+		{"pos": Vector3(-6.0, 0.75, 4.2), "tam": Vector3(0.7, 1.5, 0.7),
+			"color": Color(0.34, 0.33, 0.36)},
+		{"pos": Vector3(-5.6, 0.95, 4.2), "tam": Vector3(0.12, 0.35, 0.5),
+			"color": Color(0.22, 0.21, 0.24)},
+
+		# El tablón de anuncios: papeles de los que no se lee la letra. Uno con
+		# un aviso escrito afirmaría algo que nadie ha decidido; así dice «aquí
+		# hay avisos» sin mentir. Es la regla de las paredes del sueño.
+		{"pos": Vector3(-1.5, 1.65, -4.85), "tam": Vector3(2.2, 1.1, 0.06),
+			"color": Color(0.36, 0.30, 0.24)},
+		{"pos": Vector3(-2.2, 1.75, -4.80), "tam": Vector3(0.28, 0.38, 0.02),
+			"color": Color(0.86, 0.85, 0.78)},
+		{"pos": Vector3(-1.7, 1.60, -4.80), "tam": Vector3(0.24, 0.32, 0.02),
+			"color": Color(0.84, 0.83, 0.76)},
+		{"pos": Vector3(-1.1, 1.80, -4.80), "tam": Vector3(0.30, 0.24, 0.02),
+			"color": Color(0.88, 0.80, 0.62)},
+		{"pos": Vector3(-0.7, 1.55, -4.80), "tam": Vector3(0.22, 0.30, 0.02),
+			"color": Color(0.86, 0.85, 0.78)},
+
+		# El ordenador de su puesto: encendido y sin nada legible hasta que se
+		# sienta. Una pantalla con datos afirmaría una lectura que no existe.
+		{"pos": Vector3(-4.0, 0.98, 1.35), "tam": Vector3(0.42, 0.36, 0.36),
+			"color": Color(0.74, 0.72, 0.66)},
+		{"pos": Vector3(-4.0, 0.98, 1.16), "tam": Vector3(0.34, 0.26, 0.02),
+			"color": Color(0.30, 0.42, 0.34), "emisivo": true},
+		{"pos": Vector3(-4.0, 0.78, 0.85), "tam": Vector3(0.44, 0.04, 0.16),
+			"color": Color(0.72, 0.70, 0.64)},
 	],
 	# La luz del archivo es de fluorescente: fría, plana y de más, que es lo
 	# que hace que a las tres de la tarde no se sepa qué hora es.
@@ -52,6 +119,16 @@ const OFICINA := {
 	# Dónde se sienta cada cual. Su puesto es el de (-4, 1): ese no se ocupa.
 	# El primero de la lista es el del cuñado, que está de pie al lado de su
 	# mesa porque el cuñado nunca está en la suya.
+	# La ventana. Es lo que le da hora al archivo: hasta ahora la única pista de
+	# que es tarde llegaba después, en la calle. El cristal va emisivo y en el
+	# azul de la noche — desde dentro, una ventana de noche es una superficie
+	# que se ve, no un agujero.
+	"ventanas": [
+		{"pos": Vector3(-1.5, 1.75, 4.9), "tam": Vector3(3.2, 1.5, 0.08),
+			"color": Color(0.09, 0.11, 0.20)},
+		{"pos": Vector3(2.6, 1.75, 4.9), "tam": Vector3(3.2, 1.5, 0.08),
+			"color": Color(0.09, 0.11, 0.20)},
+	],
 	"sitios_companeros": [
 		# El cuñado, de pie al lado de su mesa. Apartado del punto de entrada:
 		# puesto encima, te saludaba antes de que hubieras dado un paso.
