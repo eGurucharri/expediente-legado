@@ -1,0 +1,15 @@
+; Proyecto Godot de SIGA-98 · Expediente Legado.
+; Durante la migración convive con la app Spring de backend/: esta carpeta no
+; depende de ella, y el contenido llega por datos/casos.json.
+
+config_version=5
+
+[application]
+
+config/name="SIGA-98 · Expediente Legado"
+config/features=PackedStringArray("4.7", "GL Compatibility")
+run/main_scene=""
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
