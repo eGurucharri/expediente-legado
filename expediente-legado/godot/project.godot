@@ -7,9 +7,14 @@ config_version=5
 [application]
 
 config/name="SIGA-98 · Expediente Legado"
+run/main_scene="res://escenas/visor.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
-run/main_scene=""
 
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
+
+[display]
+
+window/size/viewport_width=1024
+window/size/viewport_height=680

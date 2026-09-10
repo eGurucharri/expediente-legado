@@ -48,11 +48,35 @@ guarda en el caso, se deriva de las pistas descubiertas.
 servicio escapaba por su cuenta; en BBCode es `[`, y se escapa una sola vez,
 solo en el texto plano.
 
+## El visor
+
+`escenas/visor.tscn` + `guion/visor_expediente.gd` es la pantalla que decide si
+Godot sirve para este juego: un `RichTextLabel` con BBCode donde la frase
+gatillo es pulsable dentro del texto corrido, y queda resaltada al descubrirse.
+Sustituye a `caso.html` + `documento-viewer.js` + `legacy-documentos.js`.
+
+El aspecto de los 90 es `guion/estilo_siga.gd`, port de `legacy-theme.css`. Lo
+que en CSS eran `border-style: outset` e `inset` aquí se DIBUJA, porque un
+`StyleBoxFlat` solo admite un color de borde y el bisel necesita dos: la luz
+arriba y a la izquierda, la sombra abajo y a la derecha. Invertirlas es toda la
+diferencia entre un botón y un hueco.
+
+Para verlo sin abrir el editor:
+
+```bash
+xvfb-run -a godot4 --path godot --script pruebas/capturar.gd -- visor.png 1     # sin descubrir
+xvfb-run -a godot4 --path godot --script pruebas/capturar.gd -- visto.png 1 1   # descubierta
+```
+
+Mirar la captura ya ha pagado su coste: encontró que el año salía como
+"Expediente 1999.0" (los números del JSON llegan en coma flotante) y que el
+documento abierto quedaba en blanco sobre blanco en la lista. Ninguna prueba de
+las 44 veía ninguno de los dos.
+
 ## Lo que este corte NO incluye
 
-- Ninguna escena ni interfaz. La pieza de riesgo es el visor de expedientes
-  (`RichTextLabel` con texto largo y frases pulsables) y quiere probarse antes
-  de comprometerse.
 - `prometeo-ui.js` (3.181 líneas: logros, tarot, vidas, finales) sigue sin portar.
+- La tipografía es la de serie de Godot, no una de mapa de bits de la época.
+- El relato de las cartas ocultas: el visor acusa el hallazgo y nada más.
 - La persistencia. Un `Descubrimiento` era una fila; aquí habrá que decidir
   dónde vive la partida guardada.

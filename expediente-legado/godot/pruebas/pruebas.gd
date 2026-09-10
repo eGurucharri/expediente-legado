@@ -237,3 +237,27 @@ func _contenido() -> void:
 				if r["id"] == p["registroOrigen"] and String(r["contenido"]).find(p["fraseGatillo"]) < 0:
 					gatillos_rotos.append(p["id"])
 	comprobar("toda frase gatillo está en su documento", gatillos_rotos, [])
+
+	# La cadena entera sobre un documento de verdad, que es lo que el visor
+	# pinta: contenido -> marcas -> BBCode.
+	var memo := {}
+	for r in contenido.casos[0]["registros"]:
+		if r["folio"] == "MEMO-1999-088":
+			memo = r
+	var pistas_memo := contenido.pistas_de_registro(contenido.casos[0], memo["id"])
+	var sin_ver := BBCode.render(Marcas.de_registro(memo, pistas_memo, []))
+	comprobar("un memorándum real deja su frase pulsable",
+		sin_ver.contains("[url=pista:"), true)
+	var ya_visto := BBCode.render(
+		Marcas.de_registro(memo, pistas_memo, [pistas_memo[0]["id"]]))
+	comprobar("y al descubrirla queda marcada como leída",
+		ya_visto.contains("[bgcolor="), true)
+	comprobar("el texto del documento no cambia al descubrirla",
+		_sin_etiquetas(sin_ver), _sin_etiquetas(ya_visto))
+
+
+## El texto visible, sin el marcado: lo que el jugador lee.
+func _sin_etiquetas(bbcode: String) -> String:
+	var expresion := RegEx.new()
+	expresion.compile("\\[[^\\]]*\\]")
+	return expresion.sub(bbcode, "", true)
