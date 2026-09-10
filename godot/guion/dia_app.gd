@@ -13,6 +13,7 @@ var _caminante: CharacterBody3D
 var _mundo: Node3D
 var _rotulo: Label
 var _nomina: Label
+var _pantalla: CanvasLayer
 
 
 func _ready() -> void:
@@ -133,9 +134,16 @@ func _process(delta: float) -> void:
 
 
 func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
-	if cuerpo != _caminante:
+	if cuerpo != _caminante or _pantalla != null:
 		return
 	var destino: String = salida.get_meta("destino")
+
+	# Hay dos clases de sitio que se pisan: los que llevan a otra parte del día
+	# y los que abren una PANTALLA. El puesto de trabajo es de los segundos —
+	# se sigue estando en la oficina mientras se lee.
+	if destino == "expediente":
+		_abrir_expediente()
+		return
 
 	# Cada tránsito es un acto de la jornada, no solo un cambio de sala: al
 	# salir de la oficina se ficha y se cobra; al meterse en la cama se paga el
@@ -164,6 +172,53 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 
 	partida.guardar()
 	_entrar_en(destino)
+
+
+## El expediente, encima del día y sin salir de él.
+##
+## El visor es una pantalla completa con su propia partida: mientras está
+## abierta manda ella, y al cerrarse el día vuelve a LEER el fichero en vez de
+## confiar en la copia que tenía. Es la costura entre los dos, y va en un solo
+## sitio: dos dueños del mismo estado a la vez es como se pierden partidas.
+func _abrir_expediente() -> void:
+	_caminante.set_physics_process(false)
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+	_pantalla = CanvasLayer.new()
+	add_child(_pantalla)
+	_pantalla.add_child(load("res://escenas/visor.tscn").instantiate())
+
+	# El botón de volver lo pone el DÍA y no el visor: el visor también se usa
+	# suelto, y no tiene por qué saber que hay una oficina alrededor.
+	var volver := Button.new()
+	volver.theme = EstiloSiga.tema()
+	volver.text = tr("PUESTO_LEVANTARSE")
+	volver.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	volver.offset_left = -190
+	volver.offset_top = 4
+	volver.offset_right = -8
+	volver.pressed.connect(_cerrar_expediente)
+	_pantalla.add_child(volver)
+
+	_nomina.text = tr("DIA_EN_EL_PUESTO")
+
+
+func _cerrar_expediente() -> void:
+	if _pantalla == null:
+		return
+	_pantalla.queue_free()
+	_pantalla = null
+
+	partida.cargar()
+	jornada = partida.estado.get("jornada", Jornada.nueva())
+	partida.estado["jornada"] = jornada
+
+	_caminante.set_physics_process(true)
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	# Se sale del puesto ANDANDO hacia atrás: quedarse encima del disparador
+	# reabriría el expediente en cuanto se mueva un dedo.
+	_caminante.situar(Vector3(-4, 0, 3.2))
+	_refrescar_rotulos(EspaciosCatalogo.de_fase(jornada["fase"]))
 
 
 func _refrescar_rotulos(espacio: Dictionary) -> void:

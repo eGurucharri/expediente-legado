@@ -939,19 +939,35 @@ func _espacios() -> void:
 		if salidas.is_empty():
 			sin_salida.append(fase)
 		for salida in salidas:
+			# Una salida lleva a otra fase del día o abre una PANTALLA. Las
+			# pantallas se declaran aquí: si aparece un destino que no es ni
+			# una cosa ni la otra, es un sitio al que no se puede ir.
 			if not EspaciosCatalogo.POR_FASE.has(salida["destino"]) \
-					and salida["destino"] != "sueño":
+					and not salida["destino"] in ["sueño", "expediente"]:
 				rotos.append("%s -> %s" % [fase, salida["destino"]])
 	comprobar("ningún espacio es un callejón sin salida", sin_salida, [])
 	comprobar("ninguna salida lleva a un sitio que no existe", rotos, [])
 
 	# Las salidas siguen el orden del día: no hay atajos que se salten una fase.
 	var desordenadas := []
+	var pantallas := []
 	for fase in EspaciosCatalogo.POR_FASE:
 		for salida in EspaciosCatalogo.POR_FASE[fase].get("salidas", []):
+			if not Jornada.FASES.has(salida["destino"]):
+				pantallas.append(salida["destino"])
+				continue
 			if salida["destino"] != Jornada.siguiente_fase(fase):
 				desordenadas.append("%s -> %s" % [fase, salida["destino"]])
 	comprobar("las salidas siguen el orden del día", desordenadas, [])
+
+	# Y cada fase tiene UNA sola salida hacia el día siguiente: dos formas de
+	# fichar es una forma de cobrar dos veces.
+	for fase in EspaciosCatalogo.POR_FASE:
+		var hacia_el_dia: Array = EspaciosCatalogo.POR_FASE[fase].get("salidas", []).filter(
+			func(s): return Jornada.FASES.has(s["destino"]))
+		comprobar("de %s se sale por un solo sitio" % fase, hacia_el_dia.size(), 1)
+
+	comprobar("el puesto de trabajo abre el expediente", pantallas, ["expediente"])
 
 	# Se entra pisando suelo, no dentro de un muro ni fuera de la sala.
 	var mal_situadas := []
