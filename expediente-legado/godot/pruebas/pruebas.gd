@@ -29,6 +29,7 @@ func _init() -> void:
 	_acciones_y_vuelta()
 	_acusacion()
 	_careo()
+	_cinematicas()
 
 	print("\n%d pasadas, %d fallos" % [pasadas, fallos])
 	quit(1 if fallos > 0 else 0)
@@ -1112,7 +1113,7 @@ func _careo() -> void:
 
 	var rodaje := CareoCinematica.planos_de(acusado, "ACTA-1958-001")
 	comprobar("la cinemática tiene sus cuatro planos", rodaje.size(), 4)
-	comprobar("dura lo que dura", CareoCinematica.duracion(rodaje) > 0.0, true)
+	comprobar("dura lo que dura", Cinematica.duracion(rodaje) > 0.0, true)
 	comprobar("presenta al acusado por su nombre",
 		rodaje[1]["rotulo"], acusado["nombre"])
 	comprobar("y dice su cargo", rodaje[2]["rotulo"].is_empty(), false)
@@ -1162,3 +1163,89 @@ func _careo() -> void:
 	comprobar("el cuñado no nombra ninguna jugada", chivatazos, [])
 	comprobar("y tiene algo que decir en cada momento",
 		Cunado.POR_MOMENTO.values().all(func(f): return f.size() >= 3), true)
+
+
+# --- El reproductor común de cinemáticas (#67) -------------------------------
+
+func _cinematicas() -> void:
+	var planos := [
+		{"tipo": "3d", "camara": Vector3(0, 1, 3), "mira": Vector3.ZERO,
+			"segundos": 2.0, "rotulo": "{quien}"},
+		{"tipo": "2d", "figura": [{"rect": Rect2(0, 0, 10, 10)}],
+			"segundos": 1.0, "voz": "dice {quien}"},
+	]
+
+	# Las plantillas se rellenan al reproducir, no al declarar.
+	var rodaje := Cinematica.resolver(planos, {"quien": "El Comité"})
+	comprobar("el rótulo se rellena", rodaje[0]["rotulo"], "El Comité")
+	comprobar("y la voz también", rodaje[1]["voz"], "dice El Comité")
+	comprobar("un dato que no se cita no estorba",
+		Cinematica.resolver(planos, {"otro": "x"})[0]["rotulo"], "{quien}")
+
+	# Se entregan copias: reproducir una no puede estropear la siguiente.
+	rodaje[0]["rotulo"] = "ESTROPEADO"
+	comprobar("los planos se entregan en copia",
+		Cinematica.resolver(planos, {"quien": "El Comité"})[0]["rotulo"], "El Comité")
+
+	# --- El acortado por repetición ---
+	comprobar("la primera vez dura lo declarado",
+		Cinematica.duracion(Cinematica.resolver(planos, {}, 0)), 3.0)
+	var segunda := Cinematica.duracion(Cinematica.resolver(planos, {}, 1))
+	comprobar("la segunda dura menos", segunda < 3.0, true)
+	comprobar("y la quinta menos que la segunda",
+		Cinematica.duracion(Cinematica.resolver(planos, {}, 4)) < segunda, true)
+
+	# El suelo: por muy vista que esté, no desaparece sin avisar. Y el REMATE
+	# tiene su propio suelo, más alto que el de los demás planos.
+	var muy_vista := Cinematica.resolver(planos, {}, 99)
+	comprobar("ningún plano baja de cero", Cinematica.duracion(muy_vista) > 0.0, true)
+	comprobar("el remate conserva más que los demás",
+		Cinematica.factor(99, true) > Cinematica.factor(99, false), true)
+	comprobar("el remate no baja de su suelo",
+		Cinematica.factor(99, true), Cinematica.SUELO_REMATE)
+	comprobar("las vistas negativas no alargan nada",
+		Cinematica.factor(-5, false), 1.0)
+
+	# --- La validación, al construir y no a mitad ---
+	comprobar("unos planos bien declarados no dan problemas",
+		Cinematica.validar(planos), [])
+	comprobar("una cinemática sin planos es un problema",
+		Cinematica.validar([]), ["sin planos"])
+	comprobar("un plano sin tipo se caza",
+		Cinematica.validar([{"segundos": 1.0}]).size() > 0, true)
+	comprobar("un plano sin duración se caza: se quedaría clavado en pantalla",
+		"plano 0: sin duración" in Cinematica.validar(
+			[{"tipo": "3d", "camara": Vector3.ZERO, "mira": Vector3.ZERO}]), true)
+	comprobar("un 3d sin cámara se caza",
+		"plano 0: 3d sin camara" in Cinematica.validar(
+			[{"tipo": "3d", "mira": Vector3.ZERO, "segundos": 1.0}]), true)
+	comprobar("un 2d sin figura se caza",
+		"plano 0: 2d sin figura" in Cinematica.validar(
+			[{"tipo": "2d", "segundos": 1.0}]), true)
+
+	# La del careo tiene que pasar su propia validación: es la primera que se
+	# declara en este formato y la que sirve de ejemplo a las otras nueve.
+	comprobar("la cinemática del careo está bien declarada",
+		Cinematica.validar(CareoCinematica.PLANOS), [])
+
+	# --- La cuenta de vistas, que es estado de partida ---
+	var estado := {}
+	comprobar("una cinemática nunca vista está a cero",
+		Cinematica.vistas_de(estado, "careo"), 0)
+	Cinematica.anotar_vista(estado, "careo")
+	Cinematica.anotar_vista(estado, "careo")
+	comprobar("se lleva la cuenta", Cinematica.vistas_de(estado, "careo"), 2)
+	comprobar("y cada una la suya", Cinematica.vistas_de(estado, "sello"), 0)
+
+	# El reproductor anota la vista por su cuenta si se le da id y estado. Es lo
+	# que evita que un llamante despistado deje su cinemática eterna mientras
+	# las demás se acortan.
+	var partida := Partida.nueva()
+	comprobar("la partida guarda la cuenta de cinemáticas vistas",
+		Cinematica.vistas_de(partida, "careo"), 0)
+	Cinematica.anotar_vista(partida, "careo")
+	var acortada := CareoCinematica.planos_de(
+		{"nombre": "X"}, "F-1", Cinematica.vistas_de(partida, "careo"))
+	comprobar("y la segunda vez el careo dura menos",
+		Cinematica.duracion(acortada) < Cinematica.duracion(
+			CareoCinematica.planos_de({"nombre": "X"}, "F-1", 0)), true)
