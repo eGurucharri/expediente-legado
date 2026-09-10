@@ -35,6 +35,21 @@ func caso(id: String) -> Dictionary:
 			return c
 	return {}
 
+## Los conceptos que el jugador ya conoce: los que tienen al menos una de sus
+## pistas descubierta. Un concepto del que aún no se sabe nada no puede
+## aparecer en el corcho ni presentarse en la Ventanilla.
+func conceptos_desbloqueados(descubiertas: Array) -> Array:
+	return conceptos.filter(func(c):
+		return c.get("pistas", []).any(func(p): return descubiertas.has(p)))
+
+
+## Quiénes pueden reclamar en la Ventanilla: personas y comités que el jugador
+## ya conoce. Las empresas, lugares y documentos no se presentan a reclamar.
+func reclamantes(descubiertas: Array) -> Array:
+	return conceptos_desbloqueados(descubiertas).filter(
+		func(c): return c["tipo"] in ["PERSONA", "COMITE"])
+
+
 ## Las pistas cuya frase gatillo vive en un registro dado.
 func pistas_de_registro(un_caso: Dictionary, registro_id: String) -> Array:
 	return un_caso.get("pistas", []).filter(

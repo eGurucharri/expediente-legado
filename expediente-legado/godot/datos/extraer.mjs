@@ -42,11 +42,43 @@ function texto(bruto) {
   return partes.join("").replace(/\\"/g,'"').replace(/\\n/g,"\n").replace(/\\\\/g,"\\");
 }
 
+// Parte una lista de argumentos por las comas de PRIMER nivel, sin cortar
+// dentro de una cadena ni dentro de una llamada anidada.
+function partirPorComas(texto) {
+  const partes = [];
+  let actual = "", enCadena = false, escapado = false, nivel = 0;
+  for (const ch of texto) {
+    if (escapado) { actual += ch; escapado = false; continue; }
+    if (ch === "\\" && enCadena) { actual += ch; escapado = true; continue; }
+    if (ch === '"') { enCadena = !enCadena; actual += ch; continue; }
+    if (!enCadena) {
+      if (ch === "(") nivel++;
+      else if (ch === ")") nivel--;
+      else if (ch === "," && nivel === 0) { partes.push(actual); actual = ""; continue; }
+    }
+    actual += ch;
+  }
+  if (actual.trim()) partes.push(actual);
+  return partes.map(x => x.trim()).filter(Boolean);
+}
+
 function valor(bruto) {
   let s = bruto.trim();
   if (s === "null") return null;
   for (const [nombre, texto2] of constantes) {
     s = s.split(nombre).join(JSON.stringify(texto2));
+  }
+  if (/^Arrays\.asList\(/.test(s) || /^List\.of\(/.test(s)) {
+    const dentro = s.slice(s.indexOf("(") + 1, s.lastIndexOf(")"));
+    // Los elementos pueden ser textos (los ataques de un sospechoso) o
+    // REFERENCIAS a otra entidad (las pistas que cita un concepto). Tratar
+    // ambos como texto perdía los enlaces del corcho en silencio, que es
+    // justo el fallo que esto viene a no repetir.
+    //
+    // Y se parte respetando las comillas: los ataques llevan comas DENTRO
+    // ("Vengo por lo del expediente, señorita"), igual que los expedientes
+    // llevaban punto y coma.
+    return partirPorComas(dentro).map(valor);
   }
   if (/^".*"|^".*"\s*\+/.test(s) || s.includes('"')) return texto(s);
   let m = s.match(/LocalDate\.of\(\s*(\d+)\s*,\s*Month\.(\w+)\s*,\s*(\d+)\s*\)/);
@@ -55,9 +87,13 @@ function valor(bruto) {
   if (m) return m[1];
   if (/^-?\d+$/.test(s)) return Number(s);
   if (s === "true" || s === "false") return s === "true";
-  if (/^Arrays\.asList\(/.test(s) || /^List\.of\(/.test(s)) {
-    return [...s.matchAll(/"((?:[^"\\]|\\.)*)"/g)].map(x => x[1]);
-  }
+  // `caso2Pistas.pista3()` es el accesor que el seeder usa para pasar una
+  // pista de un caso al corcho, que se siembra después. El id que le puso el
+  // extractor a esa pista es `pista3@2`, así que la referencia se resuelve
+  // sin tener que interpretar los records intermedios.
+  m = s.match(/^caso(\d+)Pistas\.(\w+)\(\)$/);
+  if (m) return {ref: `${m[2]}@${m[1]}`, directa: true};
+
   return {ref: s};                       // referencia a otra entidad
 }
 
@@ -90,7 +126,11 @@ for (const bruta of sentencias) {
 const idDe = o => o.__id;
 for (const o of orden) {
   for (const [k, v] of Object.entries(o)) {
-    const res = x => (x && x.ref && objetos.has(x.ref)) ? idDe(objetos.get(x.ref)) : x;
+    const res = x => {
+      if (!x || !x.ref) return x;
+      if (x.directa) return x.ref;       // ya viene con la forma del id
+      return objetos.has(x.ref) ? idDe(objetos.get(x.ref)) : x;
+    };
     o[k] = Array.isArray(v) ? v.map(res) : res(v);
   }
 }

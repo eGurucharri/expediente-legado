@@ -20,6 +20,9 @@ func _init() -> void:
 	_contenido()
 	_prometeo()
 	_partida()
+	_historias()
+	_combate()
+	_ventanilla()
 
 	print("\n%d pasadas, %d fallos" % [pasadas, fallos])
 	quit(1 if fallos > 0 else 0)
@@ -239,6 +242,33 @@ func _contenido() -> void:
 				if r["id"] == p["registroOrigen"] and String(r["contenido"]).find(p["fraseGatillo"]) < 0:
 					gatillos_rotos.append(p["id"])
 	comprobar("toda frase gatillo está en su documento", gatillos_rotos, [])
+
+	# Dos cosas que el extractor perdió en silencio y que ninguna cuenta veía:
+	# los enlaces de un concepto a sus pistas (llegaban vacíos) y las réplicas
+	# de un sospechoso (llegaban como UNA cadena con las tres pegadas).
+	var enlaces_rotos := []
+	var ids_pista := {}
+	for c in contenido.casos:
+		for p in c["pistas"]:
+			ids_pista[p["id"]] = true
+	for concepto in contenido.conceptos:
+		for id in concepto.get("pistas", []):
+			if not ids_pista.has(id):
+				enlaces_rotos.append(id)
+	comprobar("los conceptos citan pistas que existen", enlaces_rotos, [])
+	comprobar("y casi todos citan alguna",
+		contenido.conceptos.filter(func(c): return not c.get("pistas", []).is_empty()).size(),
+		15)
+
+	var replicas_mal := []
+	for c in contenido.casos:
+		for sospechoso in c["sospechosos"]:
+			var ataques = sospechoso.get("ataques")
+			if ataques == null:
+				continue
+			if typeof(ataques) != TYPE_ARRAY or ataques.size() != 3:
+				replicas_mal.append(sospechoso["nombre"])
+	comprobar("los cuatro rivales tienen sus tres réplicas sueltas", replicas_mal, [])
 
 	# La cadena entera sobre un documento de verdad, que es lo que el visor
 	# pinta: contenido -> marcas -> BBCode.
@@ -506,3 +536,213 @@ func _borrar_pruebas() -> void:
 		var ruta: String = RUTA_PRUEBA + sufijo
 		if FileAccess.file_exists(ruta):
 			DirAccess.remove_absolute(ProjectSettings.globalize_path(ruta))
+
+
+# --- Las historias políticas -------------------------------------------------
+
+func _historias() -> void:
+	var historias := Historias.new()
+	comprobar("el catálogo de historias carga", historias.cargar(), true)
+	comprobar("son ocho", historias.catalogo.size(), 8)
+
+	# Una historia por carta oculta, ni más ni menos: una carta sin historia
+	# sería un hallazgo que no lleva a ninguna parte, y una historia sin carta
+	# un relato inalcanzable.
+	var ids_historias := historias.catalogo.keys()
+	ids_historias.sort()
+	var ids_cartas := CartasOcultas.POR_FOLIO.values().map(func(c): return c["carta"])
+	ids_cartas.sort()
+	comprobar("cada carta oculta tiene su historia y al revés", ids_historias, ids_cartas)
+
+	var estado := {"historias_cartas": {}}
+
+	# Sin resolver se ofrecen las cuatro salidas.
+	var pendiente := historias.vista(estado, "la-luna")
+	comprobar("una historia sin resolver ofrece sus opciones", pendiente["estado"], "pendiente")
+	comprobar("y son cuatro, una por eje",
+		pendiente["opciones"].map(func(o): return o["eje"]),
+		["comunismo", "centrista", "socialdemocrata", "neoliberal"])
+
+	# La Luna es útil para centrista y neoliberal (Prometeo.UTILIDAD_CARTAS).
+	var util := historias.resolver(estado, "la-luna", "centrista")
+	comprobar("la elección útil se clasifica como pista", util["clasificacion"], "pista")
+	comprobar("y su secuela apunta a documentos reales",
+		util["secuela"] == historias.de("la-luna")["secuelaUtil"], true)
+
+	# Una historia resuelta ya no se vuelve a preguntar, y NO se puede cambiar
+	# el voto: en el original la asignación era incondicional y solo la interfaz
+	# lo impedía.
+	comprobar("una historia resuelta no vuelve a ofrecer opciones",
+		historias.vista(estado, "la-luna")["estado"], "resuelta")
+	historias.resolver(estado, "la-luna", "comunismo")
+	comprobar("y el voto no se puede cambiar",
+		estado["historias_cartas"]["la-luna"], "centrista")
+
+	# Una elección que no era la útil da la secuela que despista.
+	var confusa := historias.resolver(estado, "la-justicia", "centrista")
+	comprobar("la elección inútil se clasifica como confusión",
+		confusa["clasificacion"], "confusion")
+	comprobar("y su secuela es la que despista",
+		confusa["secuela"] == historias.de("la-justicia")["secuelaConfusion"], true)
+
+	# Las cargas: tope de dos, así que casarse con una ideología no da ocho usos.
+	comprobar("dos elecciones del mismo eje dan dos cargas",
+		historias.cargas(estado)["centrista"], 2)
+	historias.resolver(estado, "el-carro", "centrista")
+	comprobar("la tercera ya no suma: el tope es dos",
+		historias.cargas(estado)["centrista"], 2)
+	comprobar("un eje sin elegir no tiene cargas",
+		historias.cargas(estado)["neoliberal"], 0)
+
+	comprobar("quedan cinco historias por decidir", historias.pendientes(estado), 5)
+
+	# Cada eje tiene su habilidad declarada, o una carga sería inservible.
+	comprobar("los cuatro ejes tienen habilidad",
+		Prometeo.EJES.all(func(e): return Historias.HABILIDADES.has(e)), true)
+
+	# Una carta que no existe no revienta ni inventa una historia.
+	comprobar("una carta sin historia devuelve vacío", historias.vista(estado, "el-loco"), {})
+
+
+# --- El motor de combate -----------------------------------------------------
+
+func _combate() -> void:
+	# La cadena circular tiene que cerrarse: si un tipo no venciera a nadie o
+	# venciera a dos, habría una jugada dominante y el juego se acabaría.
+	var vencidos := Combate.TIPOS.map(func(t): return Combate.vence_a(t))
+	vencidos.sort()
+	var todos := Combate.TIPOS.duplicate()
+	todos.sort()
+	comprobar("cada tipo lo vence exactamente otro", vencidos, todos)
+	comprobar("objeción vence al silencio", Combate.vence_a("silencio"), "objecion")
+
+	var rival := {"nombre": "La Ventanilla", "ataques": ["Vuelva usted mañana."]}
+	var sin_azar := func(): return 0.0
+
+	# En modo ciclo el rival es la ronda módulo tres: determinista y aprendible.
+	var duelo := Combate.nuevo("ciclo", rival)
+	var r1 := Combate.jugar(duelo, "objecion", "", sin_azar)
+	comprobar("ronda 0 en ciclo: el rival abre con el primero",
+		r1["tipo_rival"], "objecion")
+	comprobar("mismo tipo es empate", r1["veredicto"], "empate")
+	comprobar("y un empate no cuesta vidas",
+		[duelo["vida_jugador"], duelo["vida_rival"]], [3, 3])
+
+	var r2 := Combate.jugar(duelo, "objecion", "", sin_azar)
+	comprobar("ronda 1: el rival pasa al siguiente", r2["tipo_rival"], "silencio")
+	comprobar("objeción vence a silencio", r2["veredicto"], "gana_jugador")
+	comprobar("y el rival pierde una vida", duelo["vida_rival"], 2)
+
+	# Tres victorias acaban el combate. En ciclo el rival juega TIPOS[ronda % 3],
+	# así que para ganar hay que jugar el que le vence.
+	Combate.jugar(duelo, "silencio", "", sin_azar)      # ronda 2: rival insistencia
+	var final := Combate.jugar(duelo, "insistencia", "", sin_azar)  # ronda 3: objecion
+	comprobar("el combate termina al agotar al rival", final["terminado"], true)
+	comprobar("y lo gana el jugador", final["ganador"], "jugador")
+	comprobar("una ronda más no hace nada",
+		Combate.jugar(duelo, "objecion", "", sin_azar), {})
+
+	# --- Las cuatro habilidades ---
+	var cargas := {"comunismo": 1, "centrista": 1, "socialdemocrata": 1, "neoliberal": 1}
+
+	# Asamblea: el empate también golpea al rival. Es lo único que hace que un
+	# empate sirva de algo.
+	var asamblea := Combate.nuevo("ciclo", rival, cargas)
+	var ra := Combate.jugar(asamblea, "objecion", "comunismo", sin_azar)
+	comprobar("Asamblea: el empate golpea al rival",
+		[ra["veredicto"], asamblea["vida_rival"]], ["empate", 2])
+	comprobar("y gasta su carga", asamblea["cargas"]["comunismo"], 0)
+	comprobar("gastar una carga que no se tiene no hace nada",
+		Combate.jugar(asamblea, "objecion", "comunismo", sin_azar)["habilidad"], "")
+
+	# Mesa de diálogo: nadie pierde vida, ni siquiera perdiendo la ronda.
+	var mesa := Combate.nuevo("ciclo", rival, cargas)
+	Combate.jugar(mesa, "objecion", "", sin_azar)          # ronda 0, empate
+	var rm := Combate.jugar(mesa, "insistencia", "centrista", sin_azar)
+	comprobar("Mesa de diálogo: la ronda se pierde igual",
+		rm["veredicto"], "gana_rival")
+	comprobar("pero no cuesta vidas",
+		[mesa["vida_jugador"], mesa["vida_rival"]], [3, 3])
+
+	# Externalizar: el daño cuenta doble, y también en contra.
+	var externa := Combate.nuevo("ciclo", rival, cargas)
+	Combate.jugar(externa, "objecion", "", sin_azar)
+	var re := Combate.jugar(externa, "objecion", "neoliberal", sin_azar)
+	comprobar("Externalizar: ganar quita dos vidas",
+		[re["veredicto"], externa["vida_rival"]], ["gana_jugador", 1])
+	var contra := Combate.nuevo("ciclo", rival, cargas)
+	Combate.jugar(contra, "objecion", "", sin_azar)
+	Combate.jugar(contra, "insistencia", "neoliberal", sin_azar)
+	comprobar("y perder también cuesta dos", contra["vida_jugador"], 1)
+
+	# Comisión de seguimiento: revela la réplica que viene, y esa réplica es la
+	# que sale de verdad. Si el motor volviera a tirar, la habilidad mentiría.
+	var comision := Combate.nuevo("reactiva", rival, cargas)
+	var rc := Combate.jugar(comision, "objecion", "socialdemocrata", sin_azar)
+	comprobar("Comisión de seguimiento anuncia una réplica",
+		rc["revelada"].is_empty(), false)
+	var anunciada: String = rc["revelada"]
+	var siguiente := Combate.jugar(comision, "objecion", "", sin_azar)
+	comprobar("y la ronda siguiente juega justo esa",
+		Combate.ETIQUETAS[siguiente["tipo_rival"]], anunciada)
+
+	# El rival reactivo contesta a la última jugada: se puede cebar.
+	var ventanilla := Combate.nuevo("reactiva", rival, {})
+	# Cada ronda gasta tiradas: las del rival (una o dos) y una más para elegir
+	# su réplica de ambiente.
+	Combate.jugar(ventanilla, "objecion", "", _tiradas([0.9, 0.5, 0.0]))
+	var cebo := Combate.jugar(ventanilla, "silencio", "", _tiradas([0.1, 0.0]))
+	comprobar("el rival reactivo contraataca la última jugada",
+		cebo["tipo_rival"], Combate.vence_a("objecion"))
+
+	# La réplica es ambiente y nada más: un rival sin ataques calla en vez de
+	# soltar una frase genérica.
+	comprobar("un rival con réplicas dice una", cebo["replica"], "Vuelva usted mañana.")
+	var mudo := Combate.nuevo("ciclo", {"nombre": "Nadie"}, {})
+	comprobar("uno sin réplicas no dice nada",
+		Combate.jugar(mudo, "objecion", "", sin_azar)["replica"], "")
+
+	# Las cargas a cero no se ofrecen: una habilidad sin carga no es una opción.
+	comprobar("solo se ofrecen las cargas que quedan",
+		Combate.cargas_disponibles({"cargas": {"comunismo": 0, "centrista": 2}}),
+		{"centrista": 2})
+
+
+# --- La Ventanilla -----------------------------------------------------------
+
+func _ventanilla() -> void:
+	var contenido := Contenido.new()
+	contenido.cargar()
+
+	# Sin haber investigado nada, la Ventanilla NO está vacía: atiende el de
+	# oficio. Una lista vacía sería indistinguible de una pantalla rota.
+	var recien_llegado := Ventanilla.disponibles(contenido, [])
+	comprobar("una partida nueva tiene un reclamante", recien_llegado.size(), 1)
+	comprobar("y es el de oficio", recien_llegado[0]["de_oficio"], true)
+	comprobar("que tiene réplicas propias",
+		recien_llegado[0]["ataques"].is_empty(), false)
+
+	# Al descubrir pistas se van presentando los conceptos que las citan.
+	var todas := []
+	for c in contenido.casos:
+		for p in c["pistas"]:
+			todas.append(p["id"])
+	var con_todo := Ventanilla.disponibles(contenido, todas)
+	comprobar("investigándolo todo se presentan los ocho conocidos y el de oficio",
+		con_todo.size(), 9)
+	comprobar("y ninguno es una empresa, un lugar ni un documento",
+		con_todo.all(func(r): return r["tipo"] in ["PERSONA", "COMITE"]), true)
+
+	# La racha: la marca solo sube, y los hitos son los tres logros de #43.
+	var estado := {"coliseo_racha_mejor": 0}
+	var dos := Ventanilla.cerrar(estado, 2, true)
+	comprobar("ganar sube la racha y la marca", [dos["racha"], dos["mejor"]], [3, 3])
+	comprobar("y a las tres seguidas se gana su logro",
+		dos["logros"], ["ventanilla-tres"])
+	var perdida := Ventanilla.cerrar(estado, 3, false)
+	comprobar("perder devuelve la racha a cero", perdida["racha"], 0)
+	comprobar("pero la mejor marca no baja nunca", estado["coliseo_racha_mejor"], 3)
+	comprobar("sin racha no hay logros", perdida["logros"], [])
+	comprobar("a las diez se ganan los tres hitos",
+		Ventanilla.cerrar(estado, 9, true)["logros"],
+		["ventanilla-tres", "funcionario-del-mes", "ventanilla-inagotable"])
