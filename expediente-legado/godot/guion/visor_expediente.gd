@@ -24,6 +24,10 @@ var registro_actual: Dictionary = {}
 ## haber jugado nunca.
 var _aviso_partida := ""
 
+## La jornada en curso: abrir un documento por primera vez hoy gasta una de las
+## acciones del día.
+var jornada: Dictionary = {}
+
 var _lista: ItemList
 var _documento: RichTextLabel
 var _cabecera: Label
@@ -37,12 +41,18 @@ func _ready() -> void:
 
 	var carga := partida.cargar()
 	descubiertas = partida.estado["pistas_descubiertas"]
+	jornada = partida.estado.get("jornada", Jornada.nueva())
+	partida.estado["jornada"] = jornada
 	if carga["resultado"] == "apartada":
 		_aviso_partida = "PARTIDA ANTERIOR ILEGIBLE (%s), APARTADA EN %s" % [
 			carga["motivo"], carga["copia"]]
 	caso = contenido.casos[0]
 	_construir()
-	_mostrar_registro(caso["registros"][0])
+	# No se abre nada solo: abrir cuesta una acción, y un documento servido de
+	# regalo al arrancar se podría cobrar cerrando y reabriendo el juego.
+	_documento.text = ""
+	_cabecera.text = "Elija un documento del expediente."
+	_refrescar_estado()
 
 
 func _draw() -> void:
@@ -118,7 +128,6 @@ func _columna_indice() -> Control:
 	for registro in caso["registros"]:
 		_lista.add_item("%s  %s" % [_icono(registro["tipo"]), registro["folio"]])
 	_lista.item_selected.connect(_al_elegir_documento)
-	_lista.select(0)
 	columna.add_child(_lista)
 	return columna
 
@@ -159,7 +168,22 @@ func _icono(tipo: String) -> String:
 
 
 func _al_elegir_documento(indice: int) -> void:
-	_mostrar_registro(caso["registros"][indice])
+	var registro: Dictionary = caso["registros"][indice]
+
+	# Releer es GRATIS. Cobrar por volver a un documento castigaría justo lo que
+	# el juego pide hacer; lo que cuesta es abrir uno nuevo, así que la decisión
+	# del día es QUÉ mirar y no cuánto.
+	var ya_visto: bool = jornada["leido_hoy"].has(registro["folio"])
+	if not ya_visto:
+		if not Jornada.gastar_accion(jornada):
+			_aviso_partida = "SE ACABÓ LA JORNADA. Fiche la salida."
+			_refrescar_estado()
+			return
+		Jornada.anotar_lectura(jornada, registro["folio"])
+		partida.guardar()
+
+	_aviso_partida = ""
+	_mostrar_registro(registro)
 
 
 func _mostrar_registro(registro: Dictionary) -> void:
@@ -198,8 +222,9 @@ func _refrescar_estado() -> void:
 		_estado.text = _aviso_partida
 		return
 	var resumen: Dictionary = Progreso.de_casos([caso], descubiertas)[0]
-	_estado.text = "%s   ·   Pistas: %d de %d%s" % [
+	_estado.text = "%s   ·   Pistas: %d de %d   ·   Día %d, %d acción(es)%s" % [
 		caso["titulo"], resumen["encontradas"], resumen["total"],
+		jornada.get("dia", 1), jornada.get("acciones", 0),
 		"   ·   EXPEDIENTE RESUELTO" if resumen["resuelto"] else ""]
 
 

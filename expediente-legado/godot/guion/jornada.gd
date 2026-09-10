@@ -27,6 +27,14 @@ const POR_EXPEDIENTE := 60
 ## Lo que cuesta vivir un día, se haga lo que se haga.
 const COSTE_DIARIO := 25
 
+## Cuántas cosas se pueden hacer en un día: abrir un documento, acusar, atender
+## la Ventanilla. Es lo que obliga a fichar la salida — sin un tope, lo óptimo
+## sería no salir nunca de la oficina y el resto del día no existiría.
+##
+## Lo que se decide con esto no es leer deprisa sino QUÉ leer: un expediente
+## tiene más documentos de los que caben en una jornada.
+const ACCIONES_POR_DIA := 6
+
 ## Días seguidos sin comer que aguanta el gato antes de irse. No se muere ni
 ## deja cadáver: un día no está. En este sistema las cosas no terminan, se
 ## traspapelan.
@@ -39,11 +47,30 @@ static func nueva() -> Dictionary:
 		"fase": "archivo",
 		"dinero": 120,
 		"cerrados_hoy": 0,
+		"acciones": ACCIONES_POR_DIA,
+		# El gato NO es estado de la vuelta: sobrevive a que te reasignen,
+		# porque es tuyo y no del trabajo. Acaba siendo lo único cálido del
+		# registro permanente, al lado de las cartas que recuerdas.
 		"gato": {"presente": true, "dias_sin_comer": 0},
 		# Lo leído hoy: es lo que alimenta el sueño de esta noche. Se vacía al
 		# despertar, porque un sueño es de su día.
 		"leido_hoy": [],
 	}
+
+
+## Gasta una acción del día. Devuelve si se pudo: agotadas, en el archivo no se
+## puede hacer nada más y hay que fichar.
+static func gastar_accion(jornada: Dictionary) -> bool:
+	if jornada["fase"] != "archivo" or jornada["acciones"] <= 0:
+		return false
+	jornada["acciones"] -= 1
+	return true
+
+
+## Si ya no queda nada que hacer hoy. Quien pinte la oficina lo usa para decir
+## que la jornada se acabó, en vez de dejar al jugador probando botones muertos.
+static func jornada_agotada(jornada: Dictionary) -> bool:
+	return jornada["acciones"] <= 0
 
 
 ## Ficha la salida: cobra y pasa al trayecto.
@@ -117,6 +144,7 @@ static func despertar(jornada: Dictionary) -> int:
 	jornada["dia"] += 1
 	jornada["fase"] = "archivo"
 	jornada["cerrados_hoy"] = 0
+	jornada["acciones"] = ACCIONES_POR_DIA
 	jornada["leido_hoy"] = []
 	return jornada["dia"]
 
@@ -136,3 +164,18 @@ static func siguiente_fase(fase: String) -> String:
 	if i < 0:
 		return FASES[0]
 	return FASES[(i + 1) % FASES.size()]
+
+
+## Te reasignan: empieza otra vida laboral.
+##
+## Se va el día, el dinero y lo leído — otra persona en el mismo puesto. **El
+## gato se queda**, tal y como lo dejaste: si lo cuidaste sigue ahí, y si se fue
+## no vuelve. Es la única continuidad que no pasa por el archivo, y por eso es
+## la que más dice de cómo llevaste la vuelta anterior.
+static func reiniciar_vuelta(jornada: Dictionary) -> Dictionary:
+	var gato: Dictionary = jornada["gato"]
+	var nueva_vida := nueva()
+	nueva_vida["gato"] = gato
+	for clave in nueva_vida:
+		jornada[clave] = nueva_vida[clave]
+	return jornada
