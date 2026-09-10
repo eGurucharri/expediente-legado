@@ -54,8 +54,15 @@ static func area(bloques: Array) -> int:
 ## metros donde caben cuatro muros es lo que convierte una sala grande en una
 ## sala cara.
 ##
-## Cada tramo es `{"eje", "linea", "desde", "hasta"}` en celdas: `eje` "x" es un
-## muro que corre a lo largo de x sobre la línea z = `linea`, y "z" al revés.
+## Cada tramo es `{"eje", "linea", "desde", "hasta", "hacia"}` en celdas: `eje`
+## "x" es un muro que corre a lo largo de x sobre la línea z = `linea`, y "z" al
+## revés. `hacia` dice de qué lado está la SALA (+1 hacia coordenadas mayores,
+## -1 hacia menores), que es lo que necesita cualquiera que quiera poner algo
+## contra un muro: sin eso, la mitad de los carteles quedan pintados por fuera.
+##
+## Dos tramos de la misma línea pueden mirar en sentidos contrarios —pasa en
+## cuanto una planta se dobla sobre sí misma—, así que un tramo se corta también
+## cuando cambia el lado, no solo cuando se acaba la pared.
 static func contorno(bloques: Array) -> Array:
 	var dentro := celdas(bloques)
 	var aristas := {"x": {}, "z": {}}
@@ -63,39 +70,42 @@ static func contorno(bloques: Array) -> Array:
 	for celda in dentro:
 		# Norte y sur: muros que corren a lo largo de x.
 		if not dentro.has(celda + Vector2i(0, -1)):
-			_anotar(aristas["x"], celda.y, celda.x)
+			_anotar(aristas["x"], celda.y, celda.x, 1)
 		if not dentro.has(celda + Vector2i(0, 1)):
-			_anotar(aristas["x"], celda.y + 1, celda.x)
+			_anotar(aristas["x"], celda.y + 1, celda.x, -1)
 		# Oeste y este: muros que corren a lo largo de z.
 		if not dentro.has(celda + Vector2i(-1, 0)):
-			_anotar(aristas["z"], celda.x, celda.y)
+			_anotar(aristas["z"], celda.x, celda.y, 1)
 		if not dentro.has(celda + Vector2i(1, 0)):
-			_anotar(aristas["z"], celda.x + 1, celda.y)
+			_anotar(aristas["z"], celda.x + 1, celda.y, -1)
 
 	var tramos := []
 	for eje in ["x", "z"]:
 		var lineas: Dictionary = aristas[eje]
 		for linea in lineas.keys():
-			var posiciones: Array = lineas[linea]
+			var posiciones: Array = lineas[linea].keys()
 			posiciones.sort()
+			var lado: Dictionary = lineas[linea]
 			var desde: int = posiciones[0]
 			var ultima: int = posiciones[0]
 			for i in range(1, posiciones.size()):
-				if posiciones[i] == ultima + 1:
+				if posiciones[i] == ultima + 1 and lado[posiciones[i]] == lado[ultima]:
 					ultima = posiciones[i]
 					continue
-				tramos.append({"eje": eje, "linea": linea, "desde": desde, "hasta": ultima + 1})
+				tramos.append({"eje": eje, "linea": linea, "desde": desde,
+					"hasta": ultima + 1, "hacia": lado[ultima]})
 				desde = posiciones[i]
 				ultima = posiciones[i]
-			tramos.append({"eje": eje, "linea": linea, "desde": desde, "hasta": ultima + 1})
+			tramos.append({"eje": eje, "linea": linea, "desde": desde,
+				"hasta": ultima + 1, "hacia": lado[ultima]})
 	tramos.sort_custom(func(a, b): return str(a) < str(b))
 	return tramos
 
 
-static func _anotar(lineas: Dictionary, linea: int, posicion: int) -> void:
+static func _anotar(lineas: Dictionary, linea: int, posicion: int, hacia: int) -> void:
 	if not lineas.has(linea):
-		lineas[linea] = []
-	lineas[linea].append(posicion)
+		lineas[linea] = {}
+	lineas[linea][posicion] = hacia
 
 
 ## Si la planta es una sola pieza. Una planta partida en dos deja media sala
@@ -235,3 +245,95 @@ static func rectangulos(bloques: Array) -> Array:
 			tramo.y - tramo.x, pendientes[tramo][1] - pendientes[tramo][0]))
 	salida.sort_custom(func(a, b): return str(a) < str(b))
 	return salida
+
+
+## Celdas repartidas por la planta, lo más lejos posible unas de otras y de lo
+## que se le diga que evite.
+##
+## Es para colocar cosas dentro de una sala sin escribir sus coordenadas: en
+## una planta de cuatrocientas celdas, un puñado de posiciones a mano ata el
+## contenido a una forma concreta, y la forma la elige el sueño cada noche.
+##
+## Toma la que está más lejos de todo lo ya elegido, y repite. Determinista:
+## ante empate gana la primera en orden de recorrido, y el recorrido lo es.
+static func repartidas(bloques: Array, cuantas: int, evitar: Array = []) -> Array:
+	var libres := celdas(bloques).keys()
+	libres.sort_custom(func(a, b): return [a.x, a.y] < [b.x, b.y])
+	var elegidas := []
+	var ocupadas := evitar.duplicate()
+	for i in cuantas:
+		var mejor: Vector2i = libres[0]
+		var mejor_distancia := -1
+		for celda in libres:
+			if elegidas.has(celda):
+				continue
+			var distancia := 1 << 30
+			for otra in ocupadas:
+				distancia = mini(distancia, absi(celda.x - otra.x) + absi(celda.y - otra.y))
+			if distancia > mejor_distancia:
+				mejor_distancia = distancia
+				mejor = celda
+		elegidas.append(mejor)
+		ocupadas.append(mejor)
+	return elegidas
+
+
+## Los tramos de muro donde cabe algo, del más largo al más corto.
+##
+## [param minimo] es lo que tiene que medir un tramo, en celdas, para que quepa:
+## un cartel en un muro de dos metros no se lee de lejos y se sale por los
+## lados. El orden es por longitud para que lo primero que se cuelgue vaya al
+## paño más ancho, que es donde se ve.
+static func paredes(bloques: Array, minimo: int = 3) -> Array:
+	var utiles := contorno(bloques).filter(
+		func(t): return t["hasta"] - t["desde"] >= minimo)
+	utiles.sort_custom(func(a, b):
+		var largo_a: int = a["hasta"] - a["desde"]
+		var largo_b: int = b["hasta"] - b["desde"]
+		if largo_a != largo_b:
+			return largo_a > largo_b
+		return str(a) < str(b))
+	return utiles
+
+
+## El punto de un muro donde se cuelga algo: el centro del tramo, y separado de
+## la pared hacia DENTRO de la sala.
+##
+## `hacia` es lo que evita el error que no se ve en ninguna prueba y sí en
+## cuanto entras: la mitad de los carteles pintados por fuera del edificio.
+static func en_pared(bloques: Array, tramo: Dictionary, separacion: float) -> Dictionary:
+	var medio := (float(tramo["desde"]) + float(tramo["hasta"])) / 2.0
+	var origen := esquina_en_metros(bloques, Vector2i.ZERO)
+	var punto: Vector3
+	var giro: float
+	if tramo["eje"] == "x":
+		punto = origen + Vector3(medio * CELDA, 0,
+			float(tramo["linea"]) * CELDA + separacion * float(tramo["hacia"]))
+		giro = 0.0 if int(tramo["hacia"]) > 0 else PI
+	else:
+		punto = origen + Vector3(
+			float(tramo["linea"]) * CELDA + separacion * float(tramo["hacia"]),
+			0, medio * CELDA)
+		giro = PI / 2.0 if int(tramo["hacia"]) > 0 else -PI / 2.0
+	return {"pos": punto, "giro": giro}
+
+
+## La celda que se tiene DELANTE al entrar, a [param pasos] de distancia.
+##
+## Se entra mirando hacia -z (es la cámara del caminante sin girar), así que
+## "delante" es esa dirección y no una cualquiera. Si no hay tanta sala, se
+## queda en la última celda que sí la hay: es preferible tener algo cerca a
+## tenerlo dentro de un muro.
+##
+## Existe porque en una nave de cuarenta metros repartir el contenido por lo
+## más lejano deja la sala vacía justo donde se mira al llegar, y entonces el
+## sueño parece que no tiene nada — que es lo contrario de lo que #87 quiere.
+static func a_la_vista(bloques: Array, entrada: Vector2i, pasos: int) -> Vector2i:
+	var dentro := celdas(bloques)
+	var ultima := entrada
+	for i in range(1, pasos + 1):
+		var candidata := entrada + Vector2i(0, -i)
+		if not dentro.has(candidata):
+			break
+		ultima = candidata
+	return ultima

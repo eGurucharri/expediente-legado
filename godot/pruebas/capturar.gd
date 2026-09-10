@@ -70,7 +70,20 @@ func _init() -> void:
 			# poder pedirla por su nombre: si no, solo se ven las tres que
 			# toquen. La forma va como tercer argumento.
 			if argumentos[1] == "sueño" and argumentos.size() > 2:
-				escena.jornada["sueno_escenas"] = [argumentos[2]]
+				# Las tres, la misma: el reparto del contenido es de la NOCHE
+				# entera (#87), así que con una sola escena se estaría mirando
+				# el trozo que le toca a la tercera y no el de la primera.
+				escena.jornada["sueno_escenas"] = [argumentos[2], argumentos[2], argumentos[2]]
+				# Un sueño sin nada leído sale VACÍO a propósito (#87), así que
+				# para mirar lo que dibuja hay que darle un día de trabajo: se
+				# le da el primer expediente entero y sus pistas descubiertas.
+				var caso: Dictionary = escena.contenido.casos[0]
+				escena.jornada["leido_hoy"] = caso["registros"].map(
+					func(r): return r["folio"])
+				escena.partida.estado["pistas_descubiertas"] = caso["pistas"].map(
+					func(p): return p["id"])
+				escena.partida.estado["veredictos"] = {
+					caso["id"]: caso["sospechosos"][0]["id"]}
 			escena._entrar_en(argumentos[1])
 		# Unos cuantos fotogramas para que la física asiente al caminante en el
 		# suelo: capturar antes lo pilla cayendo.

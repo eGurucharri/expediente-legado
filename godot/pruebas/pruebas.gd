@@ -33,6 +33,8 @@ func _init() -> void:
 	_plantas()
 	_sueno()
 	_traducciones()
+	_sueno_contenido()
+	_compilan()
 
 	print("\n%d pasadas, %d fallos" % [pasadas, fallos])
 	quit(1 if fallos > 0 else 0)
@@ -1482,3 +1484,132 @@ func _traducciones() -> void:
 			if literales.search(linea) != null:
 				escritos.append("%s: %s" % [nombre, linea.strip_edges()])
 	comprobar("ninguna pantalla escribe texto a mano", escritos, [])
+
+
+# --- De qué está hecho el sueño (#87) ---------------------------------------
+
+func _sueno_contenido() -> void:
+	var casos := [{
+		"id": "caso1",
+		"registros": [
+			{"id": "memo1", "folio": "MEMO-1"},
+			{"id": "fac1", "folio": "FAC-1"},
+			{"id": "acta1", "folio": "ACTA-1"},
+		],
+		"pistas": [
+			{"id": "p1", "registroOrigen": "memo1", "fraseGatillo": "sin revisión previa"},
+			{"id": "p2", "registroOrigen": "memo1", "fraseGatillo": "por orden directa"},
+			{"id": "p3", "registroOrigen": "acta1", "fraseGatillo": "no consta"},
+		],
+		"sospechosos": [
+			{"id": "s1", "nombre": "J. Ibarra"},
+			{"id": "s2", "nombre": "Comité de Adquisiciones"},
+		],
+	}]
+
+	# Solo lo LEÍDO hoy: un expediente que no se abrió no está en el sueño.
+	comprobar("sin leer nada, no hay nada que deformar",
+		SuenoContenido.fuentes([], casos, ["p1"], {}),
+		{"frases": [], "figuras": [], "casos": []})
+
+	# Y solo las frases que SÍ notaste. La que se te pasó no se escribe en la
+	# pared: eso sería decirte dónde mirar, y dormir pasaría a ser lo óptimo.
+	var leido := SuenoContenido.fuentes(["MEMO-1"], casos, ["p1"], {})
+	comprobar("se escriben las frases que notaste", leido["frases"], ["sin revisión previa"])
+
+	comprobar("y no las que se te pasaron",
+		SuenoContenido.fuentes(["MEMO-1"], casos, [], {})["frases"], [])
+
+	# Una pista descubierta en otro documento tampoco: el sueño es de HOY.
+	comprobar("ni las de un documento que hoy no abriste",
+		SuenoContenido.fuentes(["MEMO-1"], casos, ["p1", "p3"], {})["frases"],
+		["sin revisión previa"])
+
+	# Las figuras: todos los sospechosos del expediente que tocaste, y el que
+	# firmaste se distingue.
+	comprobar("aparecen todos los sospechosos del expediente",
+		leido["figuras"].size(), 2)
+	comprobar("y ninguno es el acusado si no has acusado",
+		leido["figuras"].any(func(f): return f["acusado"]), false)
+	var tras_acusar := SuenoContenido.fuentes(
+		["MEMO-1"], casos, ["p1"], {"caso1": "s2"})
+	comprobar("a quien firmaste se le ve distinto",
+		tras_acusar["figuras"].map(func(f): return f["acusado"]), [false, true])
+
+	# El reparto: lo leído amuebla las TRES salas, no una.
+	var reparto := SuenoContenido.repartir(tras_acusar, Sueno.ESCENAS_POR_NOCHE, 7)
+	comprobar("el reparto tiene una entrada por escena",
+		reparto.size(), Sueno.ESCENAS_POR_NOCHE)
+	var repartidas := 0
+	for escena in reparto:
+		repartidas += escena["figuras"].size()
+	comprobar("y no se pierde ni se duplica ninguna figura",
+		repartidas, tras_acusar["figuras"].size())
+	comprobar("con dos figuras y tres salas, una sala se queda vacía",
+		reparto.map(func(e): return e["figuras"].size()), [1, 1, 0])
+	comprobar("el mismo día reparte igual",
+		SuenoContenido.repartir(tras_acusar, Sueno.ESCENAS_POR_NOCHE, 7), reparto)
+
+	# --- Cómo cae en la sala ---
+	var escena := Sueno.espacio("patio", 2, reparto[0])
+	comprobar("la figura de la escena se planta en la sala",
+		escena["figuras"].size(), reparto[0]["figuras"].size())
+	var dentro := Planta.celdas(SuenoFormas.de("patio")["bloques"])
+	var fuera := []
+	for figura in escena["figuras"]:
+		# Nadie se queda dentro del patio al que no se entra.
+		if not dentro.has(_celda_de(SuenoFormas.de("patio")["bloques"], figura["pos"])):
+			fuera.append(figura["rotulo"])
+	comprobar("y ninguna figura acaba fuera de la sala", fuera, [])
+
+	# Los carteles miran hacia dentro. Es el fallo que ninguna prueba ve y que
+	# se nota a la primera: media colección pintada por fuera del edificio.
+	var con_frases := Sueno.espacio("crucero", 1, {"frases": ["una frase"], "figuras": []})
+	comprobar("la frase se cuelga de una pared", con_frases["carteles"].size(), 1)
+	var bloques: Array = SuenoFormas.de("crucero")["bloques"]
+	var pared: Dictionary = Planta.paredes(bloques)[0]
+	var sitio := Planta.en_pared(bloques, pared, 0.5)
+	comprobar("y a este lado del muro está la sala",
+		Planta.contiene(bloques, _celda_de(bloques, sitio["pos"])), true)
+
+	# Y quedan por FUERA del muro. Un muro es una caja centrada en la línea de
+	# la planta: separarse menos de medio grosor deja la frase dentro de la
+	# pared, que no es un parpadeo sino una frase que no está.
+	comprobar("un cartel se cuelga por delante del muro y no dentro",
+		Sueno.SEPARACION_PARED > Espacio3D.GROSOR_MURO / 2.0, true)
+
+	# Sin nada leído, la sala se monta igual y sale vacía.
+	var vacia := Sueno.espacio("peine", 0)
+	comprobar("una noche sin lecturas da salas vacías",
+		[vacia["figuras"], vacia["carteles"]], [[], []])
+	comprobar("pero con su salida", vacia["salidas"].size(), 1)
+
+
+## En qué celda cae un punto del mundo. Solo para las pruebas: es el camino de
+## vuelta de `Planta.centro_en_metros`, y sirve para preguntar si algo acabó
+## dentro de la sala o en mitad de un muro.
+func _celda_de(bloques: Array, pos: Vector3) -> Vector2i:
+	var origen := Planta.esquina_en_metros(bloques, Vector2i.ZERO)
+	return Vector2i(
+		int(floor((pos.x - origen.x) / Planta.CELDA)),
+		int(floor((pos.z - origen.z) / Planta.CELDA)))
+
+
+# --- Que todo lo del árbol compile -------------------------------------------
+
+## La suite no toca todos los guiones: `dia_app.gd` no lo carga ninguna prueba,
+## y por eso pudo estar ROTO con las 320 en verde. Un error de tipo en una
+## pantalla no es un fallo sutil —el juego no arranca— y aun así no lo veía
+## nadie hasta abrirlo a mano.
+##
+## Esto no comprueba qué hace cada guion: comprueba que existe como código.
+func _compilan() -> void:
+	var rotos := []
+	for carpeta in ["res://guion", "res://pruebas"]:
+		for nombre in DirAccess.get_files_at(carpeta):
+			if not nombre.ends_with(".gd"):
+				continue
+			var guion = load("%s/%s" % [carpeta, nombre])
+			if guion == null or not guion.can_instantiate():
+				rotos.append(nombre)
+	comprobar("todos los guiones compilan", rotos, [])

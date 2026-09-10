@@ -16,6 +16,10 @@ extends RefCounted
 const ALTURA_MURO := 2.8
 const GROSOR_MURO := 0.2
 
+## A qué altura se escribe en una pared: a la de los ojos, que es donde se lee
+## sin levantar la cabeza.
+const ALTURA_CARTEL := 1.7
+
 
 ## Monta el espacio bajo [param raiz] y devuelve las salidas creadas, para que
 ## quien orquesta el día pueda escucharlas.
@@ -38,10 +42,59 @@ static func construir(raiz: Node3D, espacio: Dictionary) -> Array:
 	for bulto in espacio.get("bultos", []):
 		_caja(raiz, bulto["pos"], bulto["tam"], bulto.get("color", Color(0.45, 0.44, 0.42)))
 
+	# Las figuras y los carteles son del sueño (#87), pero este módulo sigue sin
+	# saberlo: aquí solo hay una silueta en un sitio y un texto contra un muro.
+	for figura in espacio.get("figuras", []):
+		var cuerpo := FiguraSilueta.construir(
+			raiz, figura["pos"], figura.get("color", Color(0.30, 0.28, 0.34)))
+		if not figura.get("rotulo", "").is_empty():
+			_cartel(cuerpo, figura["rotulo"],
+				Vector3(0, FiguraSilueta.altura() + 0.35, 0), 0.0,
+				figura.get("color_rotulo", Color(0.75, 0.74, 0.78)), true)
+
+	for cartel in espacio.get("carteles", []):
+		_cartel(raiz, cartel["texto"], cartel["pos"] + Vector3(0, ALTURA_CARTEL, 0),
+			cartel.get("giro", 0.0), cartel.get("color", Color(0.75, 0.74, 0.78)), false)
+
 	var salidas := []
 	for salida in espacio.get("salidas", []):
 		salidas.append(_salida(raiz, salida))
 	return salidas
+
+
+## Un texto en el mundo, no en la interfaz.
+##
+## Lo que se escribe en una pared del sueño está EN la pared: hay que acercarse
+## y hay que mirar. Puesto en la interfaz sería una nota al margen, y una frase
+## que te sigue por la pantalla no es lo mismo que una frase que está escrita
+## en un sitio.
+##
+## [param sigue] hace que el texto mire siempre al jugador. Lo lleva el nombre
+## de una figura —que se lee desde donde sea— y NO un texto de pared, que si
+## girase dejaría de estar escrito en la pared.
+static func _cartel(raiz: Node3D, texto: String, pos: Vector3, giro: float,
+		color: Color, sigue: bool) -> Label3D:
+	var cartel := Label3D.new()
+	cartel.text = texto
+	cartel.position = pos
+	cartel.rotation.y = giro
+	cartel.modulate = color
+	# En la letra del archivo, sin suavizar: una frase gatillo en el sueño es la
+	# MISMA frase del documento, y en otra tipografía sería una cita.
+	cartel.font = EstiloSiga.fuente_mono()
+	cartel.font_size = 48
+	cartel.pixel_size = 0.006
+	cartel.outline_size = 12
+	cartel.outline_modulate = Color(0, 0, 0, 0.85)
+	cartel.width = 1400
+	cartel.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	cartel.billboard = BaseMaterial3D.BILLBOARD_FIXED_Y if sigue \
+		else BaseMaterial3D.BILLBOARD_DISABLED
+	# Se lee de noche: sin esto la letra queda tan a oscuras como el muro que
+	# tiene detrás, y una frase que no se lee no está escrita.
+	cartel.shaded = false
+	raiz.add_child(cartel)
+	return cartel
 
 
 ## Una planta cualquiera: losas donde hay celda y muros donde no hay vecina.

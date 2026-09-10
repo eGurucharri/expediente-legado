@@ -49,27 +49,38 @@ static func dibujar_bisel(lienzo: CanvasItem, rect: Rect2, fondo: Color, salient
 ## dos cosas y forzando el hinting, los trazos caen en la rejilla de píxeles y
 ## el texto se lee como el de un programa de 1998 — sin traer al repositorio ni
 ## un fichero de fuente.
-static func tema() -> Theme:
-	var fuente := SystemFont.new()
-	# Las de sistema de la época primero; en cualquier máquina donde no estén,
-	# la que haya. Que la elección degrade es lo que evita traer un binario.
-	fuente.font_names = PackedStringArray([
+## La de la interfaz. Las de sistema de la época primero; en cualquier máquina
+## donde no estén, la que haya. Que la elección degrade es lo que evita traer un
+## binario al repositorio.
+static func fuente() -> SystemFont:
+	return _sin_suavizar([
 		"MS Sans Serif", "Tahoma", "Verdana", "DejaVu Sans", "Sans-Serif"])
-	fuente.antialiasing = TextServer.FONT_ANTIALIASING_NONE
-	fuente.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_DISABLED
-	fuente.hinting = TextServer.HINTING_NORMAL
-	fuente.allow_system_fallback = true
 
-	# El cuerpo de un documento va en monoespaciada: es un volcado de un
-	# sistema de texto, no una página maquetada.
-	var mono := SystemFont.new()
-	mono.font_names = PackedStringArray([
+
+## La del cuerpo de un documento: monoespaciada, porque es un volcado de un
+## sistema de texto y no una página maquetada.
+##
+## Sale de dentro de `tema()` al llegar su segundo consumidor: las frases que el
+## sueño escribe en las paredes (#87) van en la letra del documento del que
+## salen, que es media parte de reconocerlas.
+static func fuente_mono() -> SystemFont:
+	return _sin_suavizar([
 		"Courier New", "DejaVu Sans Mono", "Liberation Mono", "Monospace"])
-	mono.antialiasing = TextServer.FONT_ANTIALIASING_NONE
-	mono.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_DISABLED
-	mono.hinting = TextServer.HINTING_NORMAL
-	mono.allow_system_fallback = true
 
+
+static func _sin_suavizar(nombres: Array) -> SystemFont:
+	var tipo := SystemFont.new()
+	tipo.font_names = PackedStringArray(nombres)
+	tipo.antialiasing = TextServer.FONT_ANTIALIASING_NONE
+	tipo.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_DISABLED
+	tipo.hinting = TextServer.HINTING_NORMAL
+	tipo.allow_system_fallback = true
+	return tipo
+
+
+static func tema() -> Theme:
+	var fuente := fuente()
+	var mono := fuente_mono()
 	var tema := Theme.new()
 	tema.default_font = fuente
 	tema.default_font_size = 14

@@ -185,27 +185,10 @@ func _montar_sala() -> void:
 	add_child(_camara_duelo)
 
 
-## Una figura: tres cajas. No hay cara, y eso no es una limitación — a quien
-## acusas nunca le ves la cara, porque es un comité, una empresa o un cargo.
+## La figura del acusado. La silueta vive en `FiguraSilueta` desde que el sueño
+## (#87) empezó a poblar sus salas con los mismos sospechosos.
 func _figura(raiz: Node3D, base: Vector3, color: Color) -> Node3D:
-	var figura := Node3D.new()
-	figura.position = base
-	raiz.add_child(figura)
-	for pieza in [
-			{"pos": Vector3(0, 0.45, 0), "tam": Vector3(0.5, 0.9, 0.35)},
-			{"pos": Vector3(0, 1.25, 0), "tam": Vector3(0.7, 0.75, 0.4)},
-			{"pos": Vector3(0, 1.78, 0), "tam": Vector3(0.3, 0.32, 0.3)}]:
-		var malla := MeshInstance3D.new()
-		var caja := BoxMesh.new()
-		caja.size = pieza["tam"]
-		malla.mesh = caja
-		malla.position = pieza["pos"]
-		var material := StandardMaterial3D.new()
-		material.albedo_color = color
-		material.roughness = 1.0
-		malla.material_override = material
-		figura.add_child(malla)
-	return figura
+	return FiguraSilueta.construir(raiz, base, color)
 
 
 func _montar_interfaz() -> void:
