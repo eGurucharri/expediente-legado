@@ -44,7 +44,9 @@ static func construir(raiz: Node3D, espacio: Dictionary) -> Array:
 	# con `suelo` es el rectángulo de siempre. Lo que NO hay es un sitio con
 	# nombre: el motor sigue sin saber si esto es una oficina o un sueño.
 	if espacio.has("planta"):
-		_por_planta(raiz, espacio["planta"], color_suelo, color_techo, color_muro)
+		_por_planta(raiz, espacio["planta"], color_suelo, color_techo, color_muro,
+			espacio.get("textura_suelo", ""), espacio.get("textura_muro", ""),
+			espacio.get("textura_techo", ""), espacio.get("escala_textura", 1.2))
 	else:
 		_suelo(raiz, espacio.get("suelo", Vector2(10, 10)), color_suelo,
 			espacio.get("textura_suelo", ""))
@@ -180,14 +182,17 @@ static func _cartel(raiz: Node3D, texto: String, pos: Vector3, giro: float,
 ## el muro de su patio porque el patio es contorno igual que el borde de fuera,
 ## no porque nadie haya declarado un patio.
 static func _por_planta(raiz: Node3D, bloques: Array, color_suelo: Color,
-		color_techo: Color, color_muro: Color) -> void:
+		color_techo: Color, color_muro: Color, textura_suelo: String = "",
+		textura_muro: String = "", textura_techo: String = "",
+		metros: float = 1.2) -> void:
 	for rect in Planta.rectangulos(bloques):
 		var esquina := Planta.esquina_en_metros(bloques, rect.position)
 		var tam := Vector3(rect.size.x * Planta.CELDA, GROSOR_MURO, rect.size.y * Planta.CELDA)
 		var centro := esquina + Vector3(tam.x / 2.0, 0, tam.z / 2.0)
-		_caja(raiz, centro + Vector3(0, -GROSOR_MURO / 2.0, 0), tam, color_suelo)
+		_caja(raiz, centro + Vector3(0, -GROSOR_MURO / 2.0, 0), tam, color_suelo,
+			textura_suelo, metros)
 		var techo := _caja(raiz, centro + Vector3(0, ALTURA_MURO + GROSOR_MURO / 2.0, 0),
-			tam, color_techo)
+			tam, color_techo, textura_techo, metros)
 		_emisivo(techo, color_techo)
 
 	for tramo in Planta.contorno(bloques):
@@ -204,7 +209,7 @@ static func _por_planta(raiz: Node3D, bloques: Array, color_suelo: Color,
 		var centro := esquina + Vector3(
 			tam.x / 2.0 if tramo["eje"] == "x" else 0.0, ALTURA_MURO / 2.0,
 			0.0 if tramo["eje"] == "x" else tam.z / 2.0)
-		_caja(raiz, centro, tam, color_muro)
+		_caja(raiz, centro, tam, color_muro, textura_muro, metros)
 
 
 static func _suelo(raiz: Node3D, medidas: Vector2, color: Color, textura: String = "") -> void:

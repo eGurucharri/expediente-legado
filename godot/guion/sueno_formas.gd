@@ -23,6 +23,20 @@
 ## caminante cuando no se la ha girado. Por eso las entradas están al fondo del
 ## eje largo de cada sala y no en cualquier celda de dentro: aparecer a dos
 ## metros de un muro convierte una nave en un armario hasta que giras.
+## **De qué está hecha una sala del sueño**: de lo mismo que el archivo, mal
+## (#127). El linóleo estirado hasta que una plancha mide quince metros, las
+## planchas del techo puestas en el suelo, el gotelé a una escala que no existe.
+## No hay ni una textura nueva — todas salen de `TexturaProcedural`, que es la
+## que viste la oficina, cambiando el tamaño al que se repiten. Un sueño con
+## texturas propias sería otro sitio; con las de tu trabajo a escalas
+## imposibles es tu trabajo, y esa es la diferencia que persigue #79.
+##
+## Y **la luz viene de algún sitio**. Antes el techo era emisivo y punto: todo
+## se veía igual de lejos que de cerca, que es lo contrario de un sitio donde
+## hay que buscar la salida (#90). Ahora cada sala tiene UNA fuente lejana y de
+## su propio color, así que hay una dirección hacia la que se ve mejor. Lo que
+## NO se ha hecho, porque es una decisión de juego y no de arte, es que la luz
+## te siga: eso cambiaría por completo cómo se busca a ciegas.
 class_name SuenoFormas
 extends RefCounted
 
@@ -36,6 +50,13 @@ const FORMAS := {
 	"crucero": {
 		"rotulo": "SUENO_ROTULO",
 		"bloques": [Rect2i(0, 5, 22, 6), Rect2i(8, 0, 6, 16)],
+		"textura_suelo": "linoleo",
+		"textura_muro": "gotele",
+		"escala_textura": 7.5,
+		"ambiente": Color(0.20, 0.19, 0.26),
+		"ambiente_energia": 0.42,
+		"sol": 0.05,
+		"luces": [{"pos": Vector3(0, 2.4, -12), "color": Color(0.55, 0.52, 0.78), "energia": 3.4, "alcance": 16.0, "tam": Vector3(0.5, 0.1, 0.5)}],
 		"entrada": Vector2i(11, 14),
 		"color_suelo": Color(0.26, 0.24, 0.30),
 		"color_muro": Color(0.33, 0.30, 0.39),
@@ -50,6 +71,17 @@ const FORMAS := {
 			Rect2i(0, 0, 18, 3), Rect2i(0, 15, 18, 3),
 			Rect2i(0, 0, 3, 18), Rect2i(15, 0, 3, 18),
 		],
+		"textura_suelo": "techo",
+		"textura_muro": "gotele",
+		"escala_textura": 0.55,
+		"ambiente": Color(0.22, 0.21, 0.20),
+		"ambiente_energia": 0.42,
+		"sol": 0.04,
+		# En el CORREDOR, no en el patio: puesta en el centro geométrico caía
+		# en el hueco al que no se entra, iluminando un sitio donde no hay
+		# nadie y dejando la sala entera a oscuras.
+		"luces": [{"pos": Vector3(-15, 2.4, 6), "color": Color(0.78, 0.74, 0.62),
+			"energia": 3.4, "alcance": 15.0, "tam": Vector3(0.6, 0.1, 0.6)}],
 		"entrada": Vector2i(1, 16),
 		"color_suelo": Color(0.28, 0.27, 0.26),
 		"color_muro": Color(0.35, 0.34, 0.32),
@@ -63,6 +95,13 @@ const FORMAS := {
 			Rect2i(0, 0, 26, 4),
 			Rect2i(2, 4, 4, 9), Rect2i(11, 4, 4, 9), Rect2i(20, 4, 4, 9),
 		],
+		"textura_suelo": "linoleo",
+		"textura_muro": "linoleo",
+		"escala_textura": 3.2,
+		"ambiente": Color(0.22, 0.20, 0.17),
+		"ambiente_energia": 0.42,
+		"sol": 0.05,
+		"luces": [{"pos": Vector3(-20, 2.4, 0), "color": Color(0.85, 0.70, 0.45), "energia": 3.2, "alcance": 15.0, "tam": Vector3(0.4, 0.1, 0.4)}],
 		"entrada": Vector2i(3, 11),
 		"color_suelo": Color(0.27, 0.24, 0.20),
 		"color_muro": Color(0.37, 0.33, 0.27),
@@ -72,6 +111,13 @@ const FORMAS := {
 	"escalera": {
 		"rotulo": "SUENO_ROTULO",
 		"bloques": [Rect2i(0, 0, 10, 6), Rect2i(7, 5, 10, 6), Rect2i(14, 10, 10, 6)],
+		"textura_suelo": "moqueta",
+		"textura_muro": "gotele",
+		"escala_textura": 5.0,
+		"ambiente": Color(0.17, 0.20, 0.24),
+		"ambiente_energia": 0.42,
+		"sol": 0.06,
+		"luces": [{"pos": Vector3(10, 2.4, 8), "color": Color(0.55, 0.75, 0.85), "energia": 3.0, "alcance": 14.0, "tam": Vector3(0.5, 0.1, 0.5)}],
 		"entrada": Vector2i(15, 14),
 		"color_suelo": Color(0.20, 0.24, 0.28),
 		"color_muro": Color(0.27, 0.32, 0.37),
@@ -82,6 +128,13 @@ const FORMAS := {
 	"embudo": {
 		"rotulo": "SUENO_ROTULO",
 		"bloques": [Rect2i(0, 0, 16, 9), Rect2i(6, 9, 4, 4), Rect2i(2, 13, 12, 7)],
+		"textura_suelo": "asfalto",
+		"textura_muro": "gotele",
+		"escala_textura": 0.35,
+		"ambiente": Color(0.24, 0.18, 0.18),
+		"ambiente_energia": 0.42,
+		"sol": 0.05,
+		"luces": [{"pos": Vector3(0, 2.4, 6), "color": Color(0.90, 0.45, 0.35), "energia": 3.2, "alcance": 14.0, "tam": Vector3(0.5, 0.1, 0.5)}],
 		"entrada": Vector2i(8, 18),
 		"color_suelo": Color(0.30, 0.23, 0.23),
 		"color_muro": Color(0.37, 0.27, 0.27),
