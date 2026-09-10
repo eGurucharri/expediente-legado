@@ -136,9 +136,19 @@ static func conexa(bloques: Array) -> bool:
 ## cuesta llegar. Ante empate gana la primera en orden de recorrido, que es
 ## determinista porque el recorrido lo es.
 static func mas_lejana(bloques: Array, origen: Vector2i) -> Vector2i:
+	return distancias_desde(bloques, origen)["lejana"]
+
+
+## Lo que cuesta llegar a cada celda desde [param origen], andando.
+##
+## Devuelve `{"lejana", "pasos", "distancias"}`. La distancia a la celda más
+## lejana no es un dato de adorno: es lo que mide una sala DE VERDAD, y de ahí
+## sale cuánto tiempo es razonable dar para cruzarla (#90). Un número escrito a
+## mano diría lo mismo para una sala de diez metros y para una de cuarenta.
+static func distancias_desde(bloques: Array, origen: Vector2i) -> Dictionary:
 	var dentro := celdas(bloques)
 	if not dentro.has(origen):
-		return origen
+		return {"lejana": origen, "pasos": 0, "distancias": {origen: 0}}
 	var distancias := {origen: 0}
 	var cola := [origen]
 	var lejana := origen
@@ -153,7 +163,7 @@ static func mas_lejana(bloques: Array, origen: Vector2i) -> Vector2i:
 			if dentro.has(vecina) and not distancias.has(vecina):
 				distancias[vecina] = distancias[celda] + 1
 				cola.append(vecina)
-	return lejana
+	return {"lejana": lejana, "pasos": distancias[lejana], "distancias": distancias}
 
 
 ## El rectángulo de celdas que abarca la planta. De aquí sale el centro, y del

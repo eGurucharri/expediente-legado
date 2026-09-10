@@ -44,6 +44,34 @@ const SEPARACION_PARED := 0.2
 ## llegar.
 const PASOS_PRIMERA_FIGURA := 5
 
+## Cuántas veces el camino directo se da por bueno para encontrar la salida.
+##
+## La salida NO se ve (#90), así que el tiempo no puede ser el que cuesta ir a
+## ella: es el que cuesta BUSCARLA, que es andar la sala varias veces. Tres y
+## media es lo que hay entre cruzar una nave y haberla recorrido entera un par
+## de veces con vueltas.
+const MARGEN_DE_BUSQUEDA := 3.5
+
+## Lo que anda el caminante, en metros por segundo. Copiado a propósito de
+## `caminante.gd` y no importado: esto es lógica pura y no debe depender de un
+## nodo de escena. Hay prueba de que los dos números siguen siendo el mismo.
+const VELOCIDAD := 2.6
+
+
+## Cuántos segundos dura una noche.
+##
+## Sale de la GEOMETRÍA de las salas que toquen esa noche, no de un número
+## escrito a mano: una nave de cuarenta metros y un pasillo de diez no se
+## buscan en el mismo tiempo, y con una constante única una de las dos estaría
+## mal siempre.
+static func segundos_de_noche(escenas: Array) -> float:
+	var total := 0.0
+	for id in escenas:
+		var forma := SuenoFormas.de(id)
+		var medida := Planta.distancias_desde(forma["bloques"], forma["entrada"])
+		total += float(medida["pasos"]) * Planta.CELDA / VELOCIDAD * MARGEN_DE_BUSQUEDA
+	return total
+
 
 ## La semilla de esta noche: el día y lo que se leyó en él.
 ##
@@ -149,8 +177,29 @@ static func espacio(id: String, quedan: int, contenido: Dictionary = {}) -> Dict
 			"pos": Planta.centro_en_metros(bloques, salida) + Vector3(0, 1.1, 0),
 			"destino": "sueño" if quedan > 0 else "archivo",
 			"rotulo": "SALIDA_DESPERTAR" if quedan == 0 else "SUENO_ROTULO",
+			# No se ve (#90): hay que dar con ella. Lo que impide que sea una
+			# lotería no es una marca sino el MAPA que crece (#86) — la segunda
+			# vez que te toca una sala, ya sabes por dónde se salía.
+			"visible": false,
+			# Y por eso es más ancha que una puerta: buscar a ciegas un cuadro
+			# de metro y medio en una nave de cuarenta es otro juego, y no uno
+			# mejor.
+			"tam": Vector3(3.2, 2.4, 3.2),
 		}],
 	}
+
+
+## Lo que queda de noche, dicho sin un número.
+##
+## Un reloj con cifras dentro de un sueño es una interfaz de videojuego en la
+## parte del juego que menos tiene que parecerlo. Pero algo tiene que haber: un
+## límite del que no avisa nada se lee como que el programa te ha echado.
+static func senal_de_noche(restante: float) -> String:
+	if restante > 0.66:
+		return "·  ·  ·"
+	if restante > 0.33:
+		return "·  ·"
+	return "·"
 
 
 static func _barajar(lista: Array, rng: RandomNumberGenerator) -> void:
