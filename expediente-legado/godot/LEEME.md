@@ -61,6 +61,15 @@ que en CSS eran `border-style: outset` e `inset` aquí se DIBUJA, porque un
 arriba y a la izquierda, la sombra abajo y a la derecha. Invertirlas es toda la
 diferencia entre un botón y un hueco.
 
+Lo que más delata la época no es la forma de la letra sino el **suavizado**:
+con antialiasing y posicionamiento subpíxel el texto se ve contemporáneo aunque
+el marco sea gris con biseles. `EstiloSiga.tema()` los apaga y fuerza el
+hinting, así que los trazos caen en la rejilla de píxeles. Las fuentes se piden
+al sistema por nombre y con degradación (`MS Sans Serif` → `Tahoma` → lo que
+haya), para no traer al repositorio ni un fichero de fuente. El cuerpo de un
+documento va monoespaciado: es el volcado de un sistema de texto, no una página
+maquetada.
+
 Para verlo sin abrir el editor:
 
 ```bash
@@ -75,8 +84,15 @@ las 44 veía ninguno de los dos.
 
 ## Lo que este corte NO incluye
 
-- `prometeo-ui.js` (3.181 líneas: logros, tarot, vidas, finales) sigue sin portar.
-- La tipografía es la de serie de Godot, no una de mapa de bits de la época.
+- La **interfaz** de Prometeo. Sus reglas sí están portadas (`guion/prometeo.gd`,
+  port de `prometeo-logic.js`: fusión con lo guardado, tarot, acusación
+  precipitada, ejes políticos, el rival del duelo, rachas y el borrado de una
+  vuelta), con sus 33 comprobaciones traídas del Vitest — incluida la invariante
+  anti-moralizante de #45, que exige que cada ideología sea útil en exactamente
+  4 de las 8 cartas. Lo que falta son las 3.181 líneas de DOM de `prometeo-ui.js`.
+- **Dónde se guarda una partida.** En el original el estado vivía en
+  `localStorage`; `prometeo.gd` no guarda nada a propósito, son funciones sobre
+  un estado que se recibe. La decisión sigue abierta.
 - El relato de las cartas ocultas: el visor acusa el hallazgo y nada más.
 - La persistencia. Un `Descubrimiento` era una fila; aquí habrá que decidir
   dónde vive la partida guardada.

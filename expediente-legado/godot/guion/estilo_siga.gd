@@ -39,3 +39,39 @@ static func dibujar_bisel(lienzo: CanvasItem, rect: Rect2, fondo: Color, salient
 			rect.position + Vector2(rect.size.x - d, rect.size.y - 1.0 - d), sombra)
 		lienzo.draw_line(rect.position + Vector2(rect.size.x - 1.0 - d, d),
 			rect.position + Vector2(rect.size.x - 1.0 - d, rect.size.y - d), sombra)
+
+
+## El tema de toda la interfaz.
+##
+## Lo que delata la época no es tanto la forma de la letra como el SUAVIZADO:
+## una tipografía moderna con antialiasing y posicionamiento subpíxel se ve
+## limpia y contemporánea aunque el marco sea gris con biseles. Apagando las
+## dos cosas y forzando el hinting, los trazos caen en la rejilla de píxeles y
+## el texto se lee como el de un programa de 1998 — sin traer al repositorio ni
+## un fichero de fuente.
+static func tema() -> Theme:
+	var fuente := SystemFont.new()
+	# Las de sistema de la época primero; en cualquier máquina donde no estén,
+	# la que haya. Que la elección degrade es lo que evita traer un binario.
+	fuente.font_names = PackedStringArray([
+		"MS Sans Serif", "Tahoma", "Verdana", "DejaVu Sans", "Sans-Serif"])
+	fuente.antialiasing = TextServer.FONT_ANTIALIASING_NONE
+	fuente.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_DISABLED
+	fuente.hinting = TextServer.HINTING_NORMAL
+	fuente.allow_system_fallback = true
+
+	# El cuerpo de un documento va en monoespaciada: es un volcado de un
+	# sistema de texto, no una página maquetada.
+	var mono := SystemFont.new()
+	mono.font_names = PackedStringArray([
+		"Courier New", "DejaVu Sans Mono", "Liberation Mono", "Monospace"])
+	mono.antialiasing = TextServer.FONT_ANTIALIASING_NONE
+	mono.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_DISABLED
+	mono.hinting = TextServer.HINTING_NORMAL
+	mono.allow_system_fallback = true
+
+	var tema := Theme.new()
+	tema.default_font = fuente
+	tema.default_font_size = 14
+	tema.set_font("mono_font", "RichTextLabel", mono)
+	return tema
