@@ -74,6 +74,10 @@ func _init() -> void:
 				# entera (#87), así que con una sola escena se estaría mirando
 				# el trozo que le toca a la tercera y no el de la primera.
 				escena.jornada["sueno_escenas"] = [argumentos[2], argumentos[2], argumentos[2]]
+				# Y su noche: sin reloj, el sueño se acaba en el primer
+				# fotograma y lo que se captura es el archivo del día siguiente.
+				escena.jornada["sueno_resto"] = Sueno.segundos_de_noche(
+					escena.jornada["sueno_escenas"])
 				# Un sueño sin nada leído sale VACÍO a propósito (#87), así que
 				# para mirar lo que dibuja hay que darle un día de trabajo: se
 				# le da el primer expediente entero y sus pistas descubiertas.

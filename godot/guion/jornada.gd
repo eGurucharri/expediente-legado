@@ -75,6 +75,32 @@ static func nueva() -> Dictionary:
 	}
 
 
+## Rellena lo que le falte a una jornada guardada.
+##
+## Una partida escrita por una versión anterior no trae las claves que esa
+## versión no tenía —el mapa del sueño, el reloj de la noche—, y el juego se
+## las encuentra a cero o directamente no están. No es teórico: la primera
+## partida que entró en el sueño con el reloj nuevo despertó de golpe nada más
+## dormirse, porque su noche valía cero segundos.
+##
+## Se completa con lo que trae `nueva()` y NO se pisa lo que ya hay: esto
+## rellena huecos, no reinicia días.
+static func completar(jornada: Dictionary) -> Dictionary:
+	var molde := nueva()
+	for clave in molde:
+		if not jornada.has(clave):
+			jornada[clave] = molde[clave]
+	# Y si se cargó dentro del sueño sin noche que gastar, se le da una: un
+	# sueño de cero segundos es despertarse en el mismo fotograma.
+	if jornada["fase"] == "sueño" and jornada["sueno_resto"] <= 0.0:
+		if jornada["sueno_escenas"].is_empty():
+			jornada["sueno_escenas"] = Sueno.noche(
+				jornada["dia"], jornada["leido_hoy"], jornada["mapa"])
+		jornada["sueno_resto"] = Sueno.segundos_de_noche(jornada["sueno_escenas"])
+		jornada["mapa_anoche"] = jornada["mapa"].duplicate()
+	return jornada
+
+
 ## Gasta una acción del día. Devuelve si se pudo: agotadas, en el archivo no se
 ## puede hacer nada más y hay que fichar.
 static func gastar_accion(jornada: Dictionary) -> bool:

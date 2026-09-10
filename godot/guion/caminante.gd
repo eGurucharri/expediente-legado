@@ -44,6 +44,12 @@ func _physics_process(delta: float) -> void:
 
 ## Deja el cuerpo en un sitio, mirando al frente. Se usa al cambiar de espacio:
 ## conservar la posición anterior te dejaría dentro de un muro del sitio nuevo.
-func situar(donde: Vector3) -> void:
+func situar(donde: Vector3, mirando: float = NAN) -> void:
 	position = donde + Vector3(0, 1.0, 0)
 	velocity = Vector3.ZERO
+	# El rumbo lo declara el sitio. Sin esto se entra siempre mirando a -z, que
+	# en la calle era mirar a la pared de al lado mientras el camino se va en
+	# la otra dirección.
+	if not is_nan(mirando):
+		rotation.y = deg_to_rad(mirando)
+		_camara.rotation.x = 0.0

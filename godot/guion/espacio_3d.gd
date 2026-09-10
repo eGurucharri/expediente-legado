@@ -16,6 +16,17 @@ extends RefCounted
 const ALTURA_MURO := 2.8
 const GROSOR_MURO := 0.2
 
+## Todo lo que se construye aquí se pinta con el mismo shader: el temblor de
+## vértices y el color cortado no son un efecto de algunas superficies, son cómo
+## dibuja esta máquina. Un solo material significa además que el día que haya
+## que tocarlo se toca una vez.
+const SHADER_PSX := "res://arte/psx.gdshader"
+
+## Cada cuántos metros se pone un vértice de más. Es el mando que decide si una
+## lámpara da un charco de luz o tiñe la pared entera.
+const METROS_POR_VERTICE := 1.4
+const TOPE_SUBDIVISION := 14
+
 ## A qué altura se escribe en una pared: a la de los ojos, que es donde se lee
 ## sin levantar la cabeza.
 const ALTURA_CARTEL := 1.7
@@ -35,12 +46,16 @@ static func construir(raiz: Node3D, espacio: Dictionary) -> Array:
 	if espacio.has("planta"):
 		_por_planta(raiz, espacio["planta"], color_suelo, color_techo, color_muro)
 	else:
-		_suelo(raiz, espacio.get("suelo", Vector2(10, 10)), color_suelo)
-		_techo(raiz, espacio.get("suelo", Vector2(10, 10)), color_techo)
-		_muros(raiz, espacio.get("suelo", Vector2(10, 10)), color_muro)
+		_suelo(raiz, espacio.get("suelo", Vector2(10, 10)), color_suelo,
+			espacio.get("textura_suelo", ""))
+		_techo(raiz, espacio.get("suelo", Vector2(10, 10)), color_techo,
+			espacio.get("textura_techo", ""))
+		_muros(raiz, espacio.get("suelo", Vector2(10, 10)), color_muro,
+			espacio.get("textura_muro", ""))
 
 	for bulto in espacio.get("bultos", []):
-		_caja(raiz, bulto["pos"], bulto["tam"], bulto.get("color", Color(0.45, 0.44, 0.42)))
+		_caja(raiz, bulto["pos"], bulto["tam"], bulto.get("color", Color(0.45, 0.44, 0.42)),
+			bulto.get("textura", ""))
 
 	# Las figuras y los carteles son del sueño (#87), pero este módulo sigue sin
 	# saberlo: aquí solo hay una silueta en un sitio y un texto contra un muro.
@@ -56,10 +71,41 @@ static func construir(raiz: Node3D, espacio: Dictionary) -> Array:
 		_cartel(raiz, cartel["texto"], cartel["pos"] + Vector3(0, ALTURA_CARTEL, 0),
 			cartel.get("giro", 0.0), cartel.get("color", Color(0.75, 0.74, 0.78)), false)
 
+	# Se fumaba en la oficina, y en casa, y en la calle. Es un objeto del sitio
+	# como cualquier otro y por eso lo declara el catálogo.
+	for cigarro in espacio.get("cigarros", []):
+		Cigarro.construir(raiz, cigarro)
+
+	# Las luces las declara el sitio, igual que sus muebles. Un fluorescente no
+	# es un efecto: es una lámpara que está en el techo del archivo y que se ve
+	# desde debajo, y por eso va en el catálogo y no en la pantalla que lo monta.
+	for luz in espacio.get("luces", []):
+		_luz(raiz, luz)
+
 	var salidas := []
 	for salida in espacio.get("salidas", []):
 		salidas.append(_salida(raiz, salida))
 	return salidas
+
+
+## Una lámpara. Va con su carcasa: una luz sin nada que la emita es una luz que
+## viene de ninguna parte, y eso se nota antes de saber por qué.
+static func _luz(raiz: Node3D, luz: Dictionary) -> void:
+	var punto := OmniLight3D.new()
+	punto.position = luz["pos"]
+	punto.light_color = luz.get("color", Color(1, 1, 1))
+	punto.light_energy = luz.get("energia", 1.0)
+	punto.omni_range = luz.get("alcance", 8.0)
+	# Sin sombras: son caras, y en un sitio de cajas planas lo único que
+	# enseñan es que son cajas. Es el mismo argumento que ya llevaba el sol.
+	punto.shadow_enabled = false
+	raiz.add_child(punto)
+
+	if not luz.get("carcasa", true):
+		return
+	var cuerpo := _caja(raiz, luz["pos"], luz.get("tam", Vector3(1.2, 0.08, 0.3)),
+		luz.get("color", Color(1, 1, 1)))
+	_emisivo(cuerpo, luz.get("color", Color(1, 1, 1)))
 
 
 ## Un texto en el mundo, no en la interfaz.
@@ -130,9 +176,9 @@ static func _por_planta(raiz: Node3D, bloques: Array, color_suelo: Color,
 		_caja(raiz, centro, tam, color_muro)
 
 
-static func _suelo(raiz: Node3D, medidas: Vector2, color: Color) -> void:
+static func _suelo(raiz: Node3D, medidas: Vector2, color: Color, textura: String = "") -> void:
 	_caja(raiz, Vector3(0, -GROSOR_MURO / 2.0, 0),
-		Vector3(medidas.x, GROSOR_MURO, medidas.y), color)
+		Vector3(medidas.x, GROSOR_MURO, medidas.y), color, textura)
 
 
 ## El techo va EMISIVO, no solo claro. La luz del motor viene de arriba, así
@@ -140,45 +186,65 @@ static func _suelo(raiz: Node3D, medidas: Vector2, color: Color) -> void:
 ## construcción — mirar arriba en cualquiera de estas salas era mirar a un
 ## agujero. Un techo que se pinta a sí mismo es además lo que hay: en 1998 esa
 ## superficie eran paneles de fluorescente.
-static func _techo(raiz: Node3D, medidas: Vector2, color: Color) -> void:
+static func _techo(raiz: Node3D, medidas: Vector2, color: Color, textura: String = "") -> void:
 	var cuerpo := _caja(raiz, Vector3(0, ALTURA_MURO + GROSOR_MURO / 2.0, 0),
-		Vector3(medidas.x, GROSOR_MURO, medidas.y), color)
+		Vector3(medidas.x, GROSOR_MURO, medidas.y), color, textura)
 	_emisivo(cuerpo, color)
 
 
 static func _emisivo(cuerpo: StaticBody3D, color: Color) -> void:
 	var malla: MeshInstance3D = cuerpo.get_child(0)
-	var material: StandardMaterial3D = malla.material_override
-	material.emission_enabled = true
-	material.emission = color
-	material.emission_energy_multiplier = 0.9
+	var material: ShaderMaterial = malla.material_override
+	material.set_shader_parameter("emision", color)
+	material.set_shader_parameter("emision_fuerza", 0.9)
 
 
 ## Los cuatro muros salen de lo que mide el suelo, no escritos uno a uno: un
 ## espacio no puede quedarse con un lado abierto por un descuido.
-static func _muros(raiz: Node3D, medidas: Vector2, color: Color) -> void:
+static func _muros(raiz: Node3D, medidas: Vector2, color: Color, textura: String = "") -> void:
 	var mitad_x := medidas.x / 2.0
 	var mitad_z := medidas.y / 2.0
 	var alto := ALTURA_MURO / 2.0
-	_caja(raiz, Vector3(0, alto, -mitad_z), Vector3(medidas.x, ALTURA_MURO, GROSOR_MURO), color)
-	_caja(raiz, Vector3(0, alto, mitad_z), Vector3(medidas.x, ALTURA_MURO, GROSOR_MURO), color)
-	_caja(raiz, Vector3(-mitad_x, alto, 0), Vector3(GROSOR_MURO, ALTURA_MURO, medidas.y), color)
-	_caja(raiz, Vector3(mitad_x, alto, 0), Vector3(GROSOR_MURO, ALTURA_MURO, medidas.y), color)
+	_caja(raiz, Vector3(0, alto, -mitad_z),
+		Vector3(medidas.x, ALTURA_MURO, GROSOR_MURO), color, textura)
+	_caja(raiz, Vector3(0, alto, mitad_z),
+		Vector3(medidas.x, ALTURA_MURO, GROSOR_MURO), color, textura)
+	_caja(raiz, Vector3(-mitad_x, alto, 0),
+		Vector3(GROSOR_MURO, ALTURA_MURO, medidas.y), color, textura)
+	_caja(raiz, Vector3(mitad_x, alto, 0),
+		Vector3(GROSOR_MURO, ALTURA_MURO, medidas.y), color, textura)
 
 
-static func _caja(raiz: Node3D, pos: Vector3, tam: Vector3, color: Color) -> StaticBody3D:
+static func _caja(raiz: Node3D, pos: Vector3, tam: Vector3, color: Color,
+		textura: String = "", metros: float = 1.2) -> StaticBody3D:
 	var cuerpo := StaticBody3D.new()
 	cuerpo.position = pos
 
 	var malla := MeshInstance3D.new()
 	var caja := BoxMesh.new()
 	caja.size = tam
+	# La luz se calcula por VÉRTICE (es lo que hacía la máquina que se imita),
+	# así que una caja de catorce metros con ocho vértices se ilumina entera de
+	# un tono y las lámparas del techo no se notan. Subdividir es lo que hacían
+	# aquellos juegos por el mismo motivo, y es lo que devuelve el charco de luz
+	# debajo de cada fluorescente. El tope evita que un suelo grande se convierta
+	# en miles de caras por una lámpara.
+	caja.subdivide_width = clampi(int(tam.x / METROS_POR_VERTICE), 0, TOPE_SUBDIVISION)
+	caja.subdivide_height = clampi(int(tam.y / METROS_POR_VERTICE), 0, TOPE_SUBDIVISION)
+	caja.subdivide_depth = clampi(int(tam.z / METROS_POR_VERTICE), 0, TOPE_SUBDIVISION)
 	malla.mesh = caja
-	var material := StandardMaterial3D.new()
-	material.albedo_color = color
-	# Sin brillo: una oficina de 1998 no tiene reflejos especulares.
-	material.roughness = 1.0
-	material.metallic = 0.0
+	var material := ShaderMaterial.new()
+	material.shader = load(SHADER_PSX)
+	material.set_shader_parameter("color_base", color)
+	if not textura.is_empty():
+		var imagen := TexturaProcedural.por_nombre(textura, color, hash(textura))
+		if imagen != null:
+			material.set_shader_parameter("textura", imagen)
+			material.set_shader_parameter("con_textura", true)
+			# La textura se pega a las coordenadas del MUNDO: un muro de
+			# catorce metros y uno de dos tienen así el mismo grano. Pegada a
+			# la caja, cada pared contaría una escala distinta.
+			material.set_shader_parameter("escala_textura", 1.0 / metros)
 	malla.material_override = material
 	cuerpo.add_child(malla)
 
