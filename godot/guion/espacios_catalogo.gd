@@ -35,6 +35,12 @@ const OFICINA := {
 	],
 	"salidas": [
 		{"pos": Vector3(-6.4, 1.1, 3.5), "destino": "trayecto", "rotulo": "SALIDA_OFICINA"},
+		# El puesto de trabajo. No lleva a una fase del día: abre una PANTALLA,
+		# y se entra en ella pisando el sitio donde se trabaja — igual que se
+		# ficha saliendo por la puerta. Un botón flotante diría que el archivo
+		# es un menú; el puesto dice que es un sitio.
+		{"pos": Vector3(-4, 1.1, 1), "destino": "expediente", "rotulo": "SALIDA_PUESTO",
+			"tam": Vector3(2.4, 2.2, 2.2)},
 	],
 }
 

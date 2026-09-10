@@ -54,6 +54,7 @@ CUNADO_VICTORIA_1,"Bueno, bueno. Ya te vale, ya."
 CUNADO_VICTORIA_2,"Enhorabuena. Ahora te toca el papeleo, que es lo gordo."
 CUNADO_VICTORIA_3,"Yo lo habría cerrado el martes, pero oye, cada uno."
 DIA_DESPERTAR_DE_GOLPE,"Se despierta de golpe. Día %d, y de esta noche no queda nada."
+DIA_EN_EL_PUESTO,Se sienta en su puesto.
 DIA_NOMINA,Nómina del día %d: %d (base %d + %d por %d expediente(s)).  Tiene %d.
 DIA_NUEVO,Día %d.
 DIA_ROTULO,Día %d  ·  %s  ·  %d en el bolsillo%s
@@ -77,10 +78,12 @@ OFICIO_ATAQUE_3,Llevo desde las siete.
 OFICIO_ATAQUE_4,¿Es esta la ventanilla?
 OFICIO_NOMBRE,Reclamante sin expediente asignado
 OFICIO_RESUMEN,Se presenta cada mañana. No consta quién es ni qué reclama; el sistema le asigna un turno igualmente.
+PUESTO_LEVANTARSE,Levantarse del puesto
 SALIDA_DESPERTAR,Despertar
 SALIDA_DORMIR,Dormir
 SALIDA_OFICINA,Salida
 SALIDA_PORTAL,Portal
+SALIDA_PUESTO,Su puesto
 SIN_FECHA_CORTA,s/f
 SITIO_CALLE,De vuelta a casa
 SITIO_CASA,Casa
