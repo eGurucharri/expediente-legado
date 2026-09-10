@@ -38,6 +38,7 @@ var _rotulo: Label
 var _voz: Label
 var _fondo: ColorRect
 var _figuras: Node2D
+var _video: VideoStreamPlayer
 
 
 func _ready() -> void:
@@ -108,14 +109,47 @@ func _siguiente() -> void:
 	plano_entrado.emit(_plano, plano)
 
 	var es_2d: bool = plano["tipo"] == "2d"
-	_fondo.visible = es_2d
+	var es_video: bool = plano["tipo"] == "video"
+	# El fondo negro es de los dos planos que NO son el mundo: tapa la escena 3D
+	# que haya detrás igual para una figura declarada que para uno rodado.
+	_fondo.visible = es_2d or es_video
 	_figuras.visible = es_2d
 	if _camara != null:
-		_camara.current = not es_2d and mundo != null
+		_camara.current = not (es_2d or es_video) and mundo != null
+
+	_poner_video(plano if es_video else {})
+
+
+## Pone o quita el plano rodado. Se llama SIEMPRE al cambiar de plano, también
+## con un diccionario vacío: un vídeo que no se para al salir de su plano se
+## sigue oyendo por debajo del siguiente.
+func _poner_video(plano: Dictionary) -> void:
+	if _video == null:
+		return
+	if plano.is_empty():
+		if _video.is_playing():
+			_video.stop()
+		_video.visible = false
+		return
+
+	var ruta: String = Cinematica.RUTA_VIDEO + String(plano.get("fichero", ""))
+	var flujo: VideoStream = load(ruta) if ResourceLoader.exists(ruta) else null
+	if flujo == null:
+		# No se pinta nada y el plano pasa igual: el reproductor lleva su propio
+		# reloj, así que un fichero que falta cuesta unos segundos en negro y no
+		# una cinemática colgada. `Cinematica.validar` lo caza antes, al
+		# construir el catálogo — esto es la red de debajo.
+		push_warning("No hay vídeo en %s" % ruta)
+		_video.visible = false
+		return
+	_video.stream = flujo
+	_video.visible = true
+	_video.play()
 
 
 func _terminar() -> void:
 	_reproduciendo = false
+	_poner_video({})
 	# Saltarla cuenta como verla: quien la salta ya la conoce, que es
 	# exactamente lo que el acortado quiere premiar.
 	if not _id.is_empty() and not _estado.is_empty():
@@ -187,6 +221,20 @@ func _montar() -> void:
 	_figuras.draw.connect(_dibujar_figuras)
 	_figuras.visible = false
 	_lienzo.add_child(_figuras)
+
+	# Los planos rodados (#66). Va DEBAJO de los rótulos y encima del fondo, en
+	# el mismo sitio que las figuras: un plano rodado es un plano más, así que
+	# lleva su rótulo y su voz como los otros dos y se salta igual.
+	_video = VideoStreamPlayer.new()
+	_video.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	# `expand` deja que ocupe el cuadro en vez de quedarse al tamaño del
+	# fichero. `VideoStreamPlayer` no tiene modos de encaje como un `TextureRect`
+	# —solo esto—, así que la proporción se cuida al CODIFICAR: por eso la receta
+	# de `Cinematica.RUTA_VIDEO` fija 320x240 y no lo deja a gusto de cada plano.
+	_video.expand = true
+	_video.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_video.visible = false
+	_lienzo.add_child(_video)
 
 	_rotulo = _texto(48)
 	_rotulo.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)

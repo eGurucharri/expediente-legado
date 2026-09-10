@@ -15,13 +15,29 @@
 ##   `desde` y `hasta` para moverla. La figura va como DATOS y no como un
 ##   nombre a propósito: si el reproductor tuviera que saber qué es un "sello",
 ##   volveríamos a tener el nombre de una cosa concreta dentro del motor.
+## - `video`: `fichero`, un `.ogv` bajo `assets/video/`. Es para los planos que
+##   se ruedan de verdad, y por eso NO manda sobre el ritmo: la duración la
+##   sigue declarando `segundos`, como en los otros dos. Si el reproductor
+##   esperase a que el vídeo terminara, un plano rodado sería el único que no
+##   se acorta al repetirse y el único que no se puede saltar a media frase.
 ##
 ## Todas se saltan. Todas se repiten. En un juego de vueltas, un momento que no
 ## vuelve se pierde para siempre.
 class_name Cinematica
 extends RefCounted
 
-const TIPOS := ["3d", "2d"]
+const TIPOS := ["3d", "2d", "video"]
+
+## Dónde viven los planos rodados. Un `.ogv` (Ogg Theora) es el ÚNICO formato de
+## vídeo que Godot 4 reproduce sin añadidos, así que no es una preferencia:
+##
+##     ffmpeg -i loquesea.mp4 -c:v libtheora -q:v 7 -c:a libvorbis -q:a 4 \
+##         -s 320x240 godot/assets/video/nombre.ogv
+##
+## Los 320x240 no son un apaño: es la resolución que este juego ya finge tener,
+## y un plano rodado a 1080p y metido aquí se vería MEJOR que el resto del
+## juego, que es el fallo — no se pega un render en una máquina de 1998.
+const RUTA_VIDEO := "res://assets/video/"
 
 ## Cuánto se recorta cada plano por cada vez que ya se ha visto la cinemática.
 ## Las que más se repiten —el inicio del día, el sello— son las que más lo
@@ -99,6 +115,15 @@ static func validar(planos: Array) -> Array:
 				or plano["figura"].is_empty()
 			):
 				problemas.append("plano %d: 2d sin figura" % i)
+		elif tipo == "video":
+			# El fichero se comprueba al construir el catálogo y no al llegar al
+			# plano: un `.ogv` que no está deja la pantalla en negro el tiempo
+			# que dure, y eso es indistinguible de un cuelgue.
+			var fichero := String(plano.get("fichero", ""))
+			if fichero.is_empty():
+				problemas.append("plano %d: video sin fichero" % i)
+			elif not ResourceLoader.exists(RUTA_VIDEO + fichero):
+				problemas.append("plano %d: no hay video %s" % [i, fichero])
 	return problemas
 
 
