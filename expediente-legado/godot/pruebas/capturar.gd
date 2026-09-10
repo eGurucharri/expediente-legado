@@ -100,6 +100,8 @@ func _init() -> void:
 	# jugando. Es el mismo atajo que ya falseó una captura antes.
 	escena._lista.select(indice)
 	escena._al_elegir_documento(indice)
+	if argumentos.size() > 2 and argumentos[2] == "formulario":
+		escena._abrir_formulario()
 
 	# Dos fotogramas: uno para que los contenedores repartan el espacio y otro
 	# para que se dibuje con el reparto ya hecho.

@@ -213,6 +213,13 @@ func _contenido() -> void:
 	# el final principal no depende de ellos.
 	comprobar("seis casos principales", contenido.principales().size(), 6)
 
+	# Los años son enteros, no "1999.0". Es el fallo del float de JSON, que ya
+	# se coló dos veces en pantallas distintas antes de arreglarse por donde
+	# entra.
+	var anios_decimales := contenido.casos.filter(
+		func(c): return c.get("anioSuceso") != null and typeof(c["anioSuceso"]) != TYPE_INT)
+	comprobar("los años son enteros", anios_decimales, [])
+
 	# Toda referencia [[...]] de un concepto apunta a un concepto que existe:
 	# si no, el corcho tendría un enlace a un expediente inexistente.
 	var nombres := contenido.conceptos.map(func(c): return c["nombre"])
