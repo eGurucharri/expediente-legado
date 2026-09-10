@@ -26,8 +26,11 @@ static func linoleo(base: Color, semilla: int) -> ImageTexture:
 	imagen.fill(base)
 	for i in LADO * LADO / 6:
 		var claro := rng.randf() < 0.5
-		imagen.set_pixel(rng.randi() % LADO, rng.randi() % LADO,
-			base.lightened(0.10) if claro else base.darkened(0.10))
+		imagen.set_pixel(
+			rng.randi() % LADO,
+			rng.randi() % LADO,
+			base.lightened(0.10) if claro else base.darkened(0.10)
+		)
 	return ImageTexture.create_from_image(imagen)
 
 
@@ -101,9 +104,15 @@ static func moqueta(base: Color, semilla: int) -> ImageTexture:
 ## este módulo. Añadir una textura es una entrada más aquí.
 static func por_nombre(nombre: String, base: Color, semilla: int) -> ImageTexture:
 	match nombre:
-		"linoleo": return linoleo(base, semilla)
-		"gotele": return gotele(base, semilla)
-		"techo": return plancha_techo(base, semilla)
-		"asfalto": return asfalto(base, semilla)
-		"moqueta": return moqueta(base, semilla)
-		_: return null
+		"linoleo":
+			return linoleo(base, semilla)
+		"gotele":
+			return gotele(base, semilla)
+		"techo":
+			return plancha_techo(base, semilla)
+		"asfalto":
+			return asfalto(base, semilla)
+		"moqueta":
+			return moqueta(base, semilla)
+		_:
+			return null

@@ -2,7 +2,8 @@
 ## deducirlo de las pruebas. Es herramienta, no juego: por eso vive aquí y el
 ## visor no sabe que existe.
 ##
-##     xvfb-run -a godot4 --path godot --script pruebas/capturar.gd -- salida.png [documento] [descubrir]
+##     xvfb-run -a godot4 --path godot --script pruebas/capturar.gd \
+##         -- salida.png [documento] [descubrir]
 ##
 ## Con un destino que contenga "dia", el segundo argumento es la FASE, y para
 ## la fase "sueño" el tercero es la sala que se quiere mirar.
@@ -11,6 +12,7 @@
 ## a "1" descubre sus pistas antes de capturar, para poder comparar el antes y
 ## el después de notar una frase.
 extends SceneTree
+
 
 func _init() -> void:
 	var destino := "captura.png"
@@ -77,17 +79,17 @@ func _init() -> void:
 				# Y su noche: sin reloj, el sueño se acaba en el primer
 				# fotograma y lo que se captura es el archivo del día siguiente.
 				escena.jornada["sueno_resto"] = Sueno.segundos_de_noche(
-					escena.jornada["sueno_escenas"])
+					escena.jornada["sueno_escenas"]
+				)
 				# Un sueño sin nada leído sale VACÍO a propósito (#87), así que
 				# para mirar lo que dibuja hay que darle un día de trabajo: se
 				# le da el primer expediente entero y sus pistas descubiertas.
 				var caso: Dictionary = escena.contenido.casos[0]
-				escena.jornada["leido_hoy"] = caso["registros"].map(
-					func(r): return r["folio"])
+				escena.jornada["leido_hoy"] = caso["registros"].map(func(r): return r["folio"])
 				escena.partida.estado["pistas_descubiertas"] = caso["pistas"].map(
-					func(p): return p["id"])
-				escena.partida.estado["veredictos"] = {
-					caso["id"]: caso["sospechosos"][0]["id"]}
+					func(p): return p["id"]
+				)
+				escena.partida.estado["veredictos"] = {caso["id"]: caso["sospechosos"][0]["id"]}
 			escena._entrar_en(argumentos[1])
 		# Unos cuantos fotogramas para que la física asiente al caminante en el
 		# suelo: capturar antes lo pilla cayendo.
@@ -121,7 +123,8 @@ func _init() -> void:
 		# esto escribiera en `descubiertas` directamente, la captura enseñaría
 		# una pista descubierta que nunca llegó a guardarse.
 		for pista in escena.contenido.pistas_de_registro(
-				escena.caso, escena.caso["registros"][indice]["id"]):
+			escena.caso, escena.caso["registros"][indice]["id"]
+		):
 			if pista.get("fraseGatillo") != null:
 				escena._al_pulsar_marca("pista:%s" % pista["id"])
 	# Por el selector, no llamando al pintor: abrir un documento gasta una

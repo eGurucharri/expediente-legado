@@ -13,20 +13,30 @@ extends Control
 
 const MARGEN := 8
 
+const ICONOS_POR_TIPO := {
+	"FACTURA": "[$]",
+	"MEMORANDO": "[M]",
+	"EMPLEADO": "[P]",
+	"ACTA": "[A]",
+	"OFICIO": "[O]",
+	"CIRCULAR": "[C]",
+	"FAX": "[F]",
+}
+
 var contenido := Contenido.new()
 var partida := Partida.new()
 var caso: Dictionary = {}
 var descubiertas: Array = []
 var registro_actual: Dictionary = {}
 
+## La jornada en curso: abrir un documento por primera vez hoy gasta una de las
+## acciones del día.
+var jornada: Dictionary = {}
+
 ## Lo que hay que contar al jugador sobre su partida guardada, si es que hay
 ## algo que contar. Una partida apartada por ilegible no puede parecerse a no
 ## haber jugado nunca.
 var _aviso_partida := ""
-
-## La jornada en curso: abrir un documento por primera vez hoy gasta una de las
-## acciones del día.
-var jornada: Dictionary = {}
 
 var _lista: ItemList
 var _documento: RichTextLabel
@@ -44,8 +54,7 @@ func _ready() -> void:
 	jornada = Jornada.completar(partida.estado.get("jornada", Jornada.nueva()))
 	partida.estado["jornada"] = jornada
 	if carga["resultado"] == "apartada":
-		_aviso_partida = tr("VISOR_PARTIDA_APARTADA") % [
-			carga["motivo"], carga["copia"]]
+		_aviso_partida = tr("VISOR_PARTIDA_APARTADA") % [carga["motivo"], carga["copia"]]
 	caso = contenido.casos[0]
 	_construir()
 	# No se abre nada solo: abrir cuesta una acción, y un documento servido de
@@ -106,9 +115,12 @@ func _barra_titulo() -> Control:
 	var titulo := _etiqueta(
 		# El año llega del JSON como número en coma flotante: sin el int()
 		# la barra de título anuncia "Expediente 1999.0".
-		tr("VISOR_BARRA_TITULO")
-			% (int(caso["anioSuceso"]) if caso.get("anioSuceso") != null else tr("SIN_FECHA_CORTA")),
-		EstiloSiga.BLANCO)
+		(
+			tr("VISOR_BARRA_TITULO")
+			% (int(caso["anioSuceso"]) if caso.get("anioSuceso") != null else tr("SIN_FECHA_CORTA"))
+		),
+		EstiloSiga.BLANCO
+	)
 	barra.add_child(titulo)
 	return barra
 
@@ -161,15 +173,7 @@ func _columna_documento() -> Control:
 ## Un tipo de documento se reconoce antes de leerlo, como en un gestor de
 ## archivos de la época.
 func _icono(tipo: String) -> String:
-	match tipo:
-		"FACTURA": return "[$]"
-		"MEMORANDO": return "[M]"
-		"EMPLEADO": return "[P]"
-		"ACTA": return "[A]"
-		"OFICIO": return "[O]"
-		"CIRCULAR": return "[C]"
-		"FAX": return "[F]"
-		_: return "[ ]"
+	return ICONOS_POR_TIPO.get(tipo, "[ ]")
 
 
 func _al_elegir_documento(indice: int) -> void:
@@ -199,9 +203,14 @@ func _al_elegir_documento(indice: int) -> void:
 func _mostrar_registro(registro: Dictionary) -> void:
 	registro_actual = registro
 	var fecha = registro.get("fecha")
-	_cabecera.text = tr("VISOR_CABECERA") % [
-		registro["folio"], registro["tipo"].capitalize(),
-		fecha if fecha != null else tr("VISOR_SIN_FECHA")]
+	_cabecera.text = (
+		tr("VISOR_CABECERA")
+		% [
+			registro["folio"],
+			registro["tipo"].capitalize(),
+			fecha if fecha != null else tr("VISOR_SIN_FECHA")
+		]
+	)
 
 	var pistas := contenido.pistas_de_registro(caso, registro["id"])
 	_documento.text = BBCode.render(Marcas.de_registro(registro, pistas, descubiertas))
@@ -241,8 +250,7 @@ func _abrir_formulario() -> void:
 	formulario.jornada = jornada
 	formulario.descubiertas = descubiertas
 	formulario.firmada.connect(_al_firmar.bind(formulario))
-	formulario.cancelada.connect(func():
-		formulario.queue_free())
+	formulario.cancelada.connect(func(): formulario.queue_free())
 	add_child(formulario)
 
 
@@ -250,9 +258,10 @@ func _al_firmar(resultado: Dictionary, formulario: Control) -> void:
 	formulario.queue_free()
 	partida.guardar()
 
-	_aviso_partida = tr("VISOR_CERRADO") % [
-		resultado["desenlace"],
-		tr("VISOR_PRECIPITADA") if resultado["precipitada"] else ""]
+	_aviso_partida = (
+		tr("VISOR_CERRADO")
+		% [resultado["desenlace"], tr("VISOR_PRECIPITADA") if resultado["precipitada"] else ""]
+	)
 	_refrescar_estado()
 
 
@@ -261,13 +270,21 @@ func _refrescar_estado() -> void:
 		_estado.text = _aviso_partida
 		return
 	var resumen: Dictionary = Progreso.de_casos([caso], descubiertas)[0]
-	_estado.text = tr("VISOR_ESTADO") % [
-		caso["titulo"], resumen["encontradas"], resumen["total"],
-		jornada.get("dia", 1), jornada.get("acciones", 0),
-		tr("VISOR_RESUELTO") if resumen["resuelto"] else ""]
+	_estado.text = (
+		tr("VISOR_ESTADO")
+		% [
+			caso["titulo"],
+			resumen["encontradas"],
+			resumen["total"],
+			jornada.get("dia", 1),
+			jornada.get("acciones", 0),
+			tr("VISOR_RESUELTO") if resumen["resuelto"] else ""
+		]
+	)
 
 
 # --- Cajas ------------------------------------------------------------------
+
 
 func _etiqueta(texto: String, color: Color) -> Label:
 	var etiqueta := Label.new()

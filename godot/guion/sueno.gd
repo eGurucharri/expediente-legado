@@ -137,17 +137,23 @@ static func espacio(id: String, quedan: int, contenido: Dictionary = {}) -> Dict
 		# la sala. Todas lejos es lo mismo que ninguna en una nave de cuarenta
 		# metros — se llega, no se ve nada, y el sueño parece vacío.
 		celdas.append(Planta.a_la_vista(bloques, entrada, PASOS_PRIMERA_FIGURA))
-		celdas.append_array(Planta.repartidas(
-			bloques, quienes.size() - 1, [entrada, salida, celdas[0]]))
+		celdas.append_array(
+			Planta.repartidas(bloques, quienes.size() - 1, [entrada, salida, celdas[0]])
+		)
 	for i in quienes.size():
 		var quien: Dictionary = quienes[i]
-		figuras.append({
-			"pos": Planta.centro_en_metros(bloques, celdas[i]),
-			"color": COLOR_ACUSADO if quien.get("acusado", false) else COLOR_FIGURA,
-			"rotulo": quien.get("nombre", ""),
-			"color_rotulo": COLOR_ACUSADO_TEXTO if quien.get("acusado", false) \
-				else COLOR_TEXTO,
-		})
+		(
+			figuras
+			. append(
+				{
+					"pos": Planta.centro_en_metros(bloques, celdas[i]),
+					"color": COLOR_ACUSADO if quien.get("acusado", false) else COLOR_FIGURA,
+					"rotulo": quien.get("nombre", ""),
+					"color_rotulo":
+					COLOR_ACUSADO_TEXTO if quien.get("acusado", false) else COLOR_TEXTO,
+				}
+			)
+		)
 
 	# Las frases van a los paños más anchos, y solo caben las que caben: un
 	# muro por frase. Lo que sobra no se apila en el mismo sitio — se queda
@@ -157,12 +163,17 @@ static func espacio(id: String, quedan: int, contenido: Dictionary = {}) -> Dict
 	var frases: Array = contenido.get("frases", [])
 	for i in mini(frases.size(), paredes.size()):
 		var sitio := Planta.en_pared(bloques, paredes[i], SEPARACION_PARED)
-		carteles.append({
-			"texto": frases[i],
-			"pos": sitio["pos"],
-			"giro": sitio["giro"],
-			"color": COLOR_TEXTO,
-		})
+		(
+			carteles
+			. append(
+				{
+					"texto": frases[i],
+					"pos": sitio["pos"],
+					"giro": sitio["giro"],
+					"color": COLOR_TEXTO,
+				}
+			)
+		)
 
 	return {
 		"rotulo": forma["rotulo"],
@@ -180,19 +191,22 @@ static func espacio(id: String, quedan: int, contenido: Dictionary = {}) -> Dict
 		"entrada": Planta.centro_en_metros(bloques, entrada),
 		"figuras": figuras,
 		"carteles": carteles,
-		"salidas": [{
-			"pos": Planta.centro_en_metros(bloques, salida) + Vector3(0, 1.1, 0),
-			"destino": "sueño" if quedan > 0 else "archivo",
-			"rotulo": "SALIDA_DESPERTAR" if quedan == 0 else "SUENO_ROTULO",
-			# No se ve (#90): hay que dar con ella. Lo que impide que sea una
-			# lotería no es una marca sino el MAPA que crece (#86) — la segunda
-			# vez que te toca una sala, ya sabes por dónde se salía.
-			"visible": false,
-			# Y por eso es más ancha que una puerta: buscar a ciegas un cuadro
-			# de metro y medio en una nave de cuarenta es otro juego, y no uno
-			# mejor.
-			"tam": Vector3(3.2, 2.4, 3.2),
-		}],
+		"salidas":
+		[
+			{
+				"pos": Planta.centro_en_metros(bloques, salida) + Vector3(0, 1.1, 0),
+				"destino": "sueño" if quedan > 0 else "archivo",
+				"rotulo": "SALIDA_DESPERTAR" if quedan == 0 else "SUENO_ROTULO",
+				# No se ve (#90): hay que dar con ella. Lo que impide que sea una
+				# lotería no es una marca sino el MAPA que crece (#86) — la segunda
+				# vez que te toca una sala, ya sabes por dónde se salía.
+				"visible": false,
+				# Y por eso es más ancha que una puerta: buscar a ciegas un cuadro
+				# de metro y medio en una nave de cuarenta es otro juego, y no uno
+				# mejor.
+				"tam": Vector3(3.2, 2.4, 3.2),
+			}
+		],
 	}
 
 

@@ -44,20 +44,42 @@ static func construir(raiz: Node3D, espacio: Dictionary) -> Array:
 	# con `suelo` es el rectángulo de siempre. Lo que NO hay es un sitio con
 	# nombre: el motor sigue sin saber si esto es una oficina o un sueño.
 	if espacio.has("planta"):
-		_por_planta(raiz, espacio["planta"], color_suelo, color_techo, color_muro,
-			espacio.get("textura_suelo", ""), espacio.get("textura_muro", ""),
-			espacio.get("textura_techo", ""), espacio.get("escala_textura", 1.2))
+		_por_planta(
+			raiz,
+			espacio["planta"],
+			color_suelo,
+			color_techo,
+			color_muro,
+			espacio.get("textura_suelo", ""),
+			espacio.get("textura_muro", ""),
+			espacio.get("textura_techo", ""),
+			espacio.get("escala_textura", 1.2)
+		)
 	else:
-		_suelo(raiz, espacio.get("suelo", Vector2(10, 10)), color_suelo,
-			espacio.get("textura_suelo", ""))
-		_techo(raiz, espacio.get("suelo", Vector2(10, 10)), color_techo,
-			espacio.get("textura_techo", ""))
-		_muros(raiz, espacio.get("suelo", Vector2(10, 10)), color_muro,
-			espacio.get("textura_muro", ""))
+		_suelo(
+			raiz,
+			espacio.get("suelo", Vector2(10, 10)),
+			color_suelo,
+			espacio.get("textura_suelo", "")
+		)
+		_techo(
+			raiz,
+			espacio.get("suelo", Vector2(10, 10)),
+			color_techo,
+			espacio.get("textura_techo", "")
+		)
+		_muros(
+			raiz, espacio.get("suelo", Vector2(10, 10)), color_muro, espacio.get("textura_muro", "")
+		)
 
 	for bulto in espacio.get("bultos", []):
-		var pieza := _caja(raiz, bulto["pos"], bulto["tam"],
-			bulto.get("color", Color(0.45, 0.44, 0.42)), bulto.get("textura", ""))
+		var pieza := _caja(
+			raiz,
+			bulto["pos"],
+			bulto["tam"],
+			bulto.get("color", Color(0.45, 0.44, 0.42)),
+			bulto.get("textura", "")
+		)
 		# Un bulto que se enciende: la pantalla de un ordenador, un piloto. No
 		# ilumina nada, solo se ve encendido — lo que alumbra es una luz.
 		if bulto.get("emisivo", false):
@@ -68,8 +90,9 @@ static func construir(raiz: Node3D, espacio: Dictionary) -> Array:
 	# porque desde dentro, con la luz encendida, un cristal de noche es una
 	# superficie que se ve y no un agujero negro.
 	for ventana in espacio.get("ventanas", []):
-		var cristal := _caja(raiz, ventana["pos"], ventana["tam"],
-			ventana.get("color", Color(0.09, 0.11, 0.20)))
+		var cristal := _caja(
+			raiz, ventana["pos"], ventana["tam"], ventana.get("color", Color(0.09, 0.11, 0.20))
+		)
 		_emisivo(cristal, ventana.get("color", Color(0.09, 0.11, 0.20)))
 
 	# Las figuras y los carteles son del sueño (#87), pero este módulo sigue sin
@@ -77,11 +100,17 @@ static func construir(raiz: Node3D, espacio: Dictionary) -> Array:
 	var zonas := []
 	for figura in espacio.get("figuras", []):
 		var cuerpo := FiguraSilueta.construir(
-			raiz, figura["pos"], figura.get("color", Color(0.30, 0.28, 0.34)))
+			raiz, figura["pos"], figura.get("color", Color(0.30, 0.28, 0.34))
+		)
 		if not figura.get("rotulo", "").is_empty():
-			var nombre := _cartel(cuerpo, figura["rotulo"],
-				Vector3(0, FiguraSilueta.altura() + 0.35, 0), 0.0,
-				figura.get("color_rotulo", Color(0.75, 0.74, 0.78)), true)
+			var nombre := _cartel(
+				cuerpo,
+				figura["rotulo"],
+				Vector3(0, FiguraSilueta.altura() + 0.35, 0),
+				0.0,
+				figura.get("color_rotulo", Color(0.75, 0.74, 0.78)),
+				true
+			)
 			# El nombre de alguien es una etiqueta, no un cartel de pared: al
 			# lado ocupaba media pantalla. Y se apaga de lejos, o la oficina es
 			# una lista de nombres flotando sobre las mesas.
@@ -92,17 +121,31 @@ static func construir(raiz: Node3D, espacio: Dictionary) -> Array:
 		# es un sitio y no un menú de diálogo. La zona es una más de las que se
 		# pisan, así que quien orquesta el día no aprende un mecanismo nuevo.
 		if not figura.get("frase", "").is_empty():
-			zonas.append(_salida(raiz, {
-				"pos": figura["pos"] + Vector3(0, 1.0, 0),
-				"destino": "",
-				"frase": figura["frase"],
-				"tam": Vector3(2.2, 2.0, 2.2),
-				"visible": false,
-			}))
+			(
+				zonas
+				. append(
+					_salida(
+						raiz,
+						{
+							"pos": figura["pos"] + Vector3(0, 1.0, 0),
+							"destino": "",
+							"frase": figura["frase"],
+							"tam": Vector3(2.2, 2.0, 2.2),
+							"visible": false,
+						}
+					)
+				)
+			)
 
 	for cartel in espacio.get("carteles", []):
-		_cartel(raiz, cartel["texto"], cartel["pos"] + Vector3(0, ALTURA_CARTEL, 0),
-			cartel.get("giro", 0.0), cartel.get("color", Color(0.75, 0.74, 0.78)), false)
+		_cartel(
+			raiz,
+			cartel["texto"],
+			cartel["pos"] + Vector3(0, ALTURA_CARTEL, 0),
+			cartel.get("giro", 0.0),
+			cartel.get("color", Color(0.75, 0.74, 0.78)),
+			false
+		)
 
 	# Se fumaba en la oficina, y en casa, y en la calle. Es un objeto del sitio
 	# como cualquier otro y por eso lo declara el catálogo.
@@ -136,8 +179,9 @@ static func _luz(raiz: Node3D, luz: Dictionary) -> void:
 
 	if not luz.get("carcasa", true):
 		return
-	var cuerpo := _caja(raiz, luz["pos"], luz.get("tam", Vector3(1.2, 0.08, 0.3)),
-		luz.get("color", Color(1, 1, 1)))
+	var cuerpo := _caja(
+		raiz, luz["pos"], luz.get("tam", Vector3(1.2, 0.08, 0.3)), luz.get("color", Color(1, 1, 1))
+	)
 	_emisivo(cuerpo, luz.get("color", Color(1, 1, 1)))
 
 
@@ -151,8 +195,9 @@ static func _luz(raiz: Node3D, luz: Dictionary) -> void:
 ## [param sigue] hace que el texto mire siempre al jugador. Lo lleva el nombre
 ## de una figura —que se lee desde donde sea— y NO un texto de pared, que si
 ## girase dejaría de estar escrito en la pared.
-static func _cartel(raiz: Node3D, texto: String, pos: Vector3, giro: float,
-		color: Color, sigue: bool) -> Label3D:
+static func _cartel(
+	raiz: Node3D, texto: String, pos: Vector3, giro: float, color: Color, sigue: bool
+) -> Label3D:
 	var cartel := Label3D.new()
 	cartel.text = texto
 	cartel.position = pos
@@ -167,8 +212,9 @@ static func _cartel(raiz: Node3D, texto: String, pos: Vector3, giro: float,
 	cartel.outline_modulate = Color(0, 0, 0, 0.85)
 	cartel.width = 1400
 	cartel.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	cartel.billboard = BaseMaterial3D.BILLBOARD_FIXED_Y if sigue \
-		else BaseMaterial3D.BILLBOARD_DISABLED
+	cartel.billboard = (
+		BaseMaterial3D.BILLBOARD_FIXED_Y if sigue else BaseMaterial3D.BILLBOARD_DISABLED
+	)
 	# Se lee de noche: sin esto la letra queda tan a oscuras como el muro que
 	# tiene detrás, y una frase que no se lee no está escrita.
 	cartel.shaded = false
@@ -181,18 +227,37 @@ static func _cartel(raiz: Node3D, texto: String, pos: Vector3, giro: float,
 ## Nada de esto conoce la forma que está montando. El anillo del sueño sale con
 ## el muro de su patio porque el patio es contorno igual que el borde de fuera,
 ## no porque nadie haya declarado un patio.
-static func _por_planta(raiz: Node3D, bloques: Array, color_suelo: Color,
-		color_techo: Color, color_muro: Color, textura_suelo: String = "",
-		textura_muro: String = "", textura_techo: String = "",
-		metros: float = 1.2) -> void:
+static func _por_planta(
+	raiz: Node3D,
+	bloques: Array,
+	color_suelo: Color,
+	color_techo: Color,
+	color_muro: Color,
+	textura_suelo: String = "",
+	textura_muro: String = "",
+	textura_techo: String = "",
+	metros: float = 1.2
+) -> void:
 	for rect in Planta.rectangulos(bloques):
 		var esquina := Planta.esquina_en_metros(bloques, rect.position)
 		var tam := Vector3(rect.size.x * Planta.CELDA, GROSOR_MURO, rect.size.y * Planta.CELDA)
 		var centro := esquina + Vector3(tam.x / 2.0, 0, tam.z / 2.0)
-		_caja(raiz, centro + Vector3(0, -GROSOR_MURO / 2.0, 0), tam, color_suelo,
-			textura_suelo, metros)
-		var techo := _caja(raiz, centro + Vector3(0, ALTURA_MURO + GROSOR_MURO / 2.0, 0),
-			tam, color_techo, textura_techo, metros)
+		_caja(
+			raiz,
+			centro + Vector3(0, -GROSOR_MURO / 2.0, 0),
+			tam,
+			color_suelo,
+			textura_suelo,
+			metros
+		)
+		var techo := _caja(
+			raiz,
+			centro + Vector3(0, ALTURA_MURO + GROSOR_MURO / 2.0, 0),
+			tam,
+			color_techo,
+			textura_techo,
+			metros
+		)
 		_emisivo(techo, color_techo)
 
 	for tramo in Planta.contorno(bloques):
@@ -206,15 +271,25 @@ static func _por_planta(raiz: Node3D, bloques: Array, color_suelo: Color,
 			a = Vector2i(tramo["linea"], tramo["desde"])
 			tam = Vector3(GROSOR_MURO, ALTURA_MURO, largo)
 		var esquina := Planta.esquina_en_metros(bloques, a)
-		var centro := esquina + Vector3(
-			tam.x / 2.0 if tramo["eje"] == "x" else 0.0, ALTURA_MURO / 2.0,
-			0.0 if tramo["eje"] == "x" else tam.z / 2.0)
+		var centro := (
+			esquina
+			+ Vector3(
+				tam.x / 2.0 if tramo["eje"] == "x" else 0.0,
+				ALTURA_MURO / 2.0,
+				0.0 if tramo["eje"] == "x" else tam.z / 2.0
+			)
+		)
 		_caja(raiz, centro, tam, color_muro, textura_muro, metros)
 
 
 static func _suelo(raiz: Node3D, medidas: Vector2, color: Color, textura: String = "") -> void:
-	_caja(raiz, Vector3(0, -GROSOR_MURO / 2.0, 0),
-		Vector3(medidas.x, GROSOR_MURO, medidas.y), color, textura)
+	_caja(
+		raiz,
+		Vector3(0, -GROSOR_MURO / 2.0, 0),
+		Vector3(medidas.x, GROSOR_MURO, medidas.y),
+		color,
+		textura
+	)
 
 
 ## El techo va EMISIVO, no solo claro. La luz del motor viene de arriba, así
@@ -223,8 +298,13 @@ static func _suelo(raiz: Node3D, medidas: Vector2, color: Color, textura: String
 ## agujero. Un techo que se pinta a sí mismo es además lo que hay: en 1998 esa
 ## superficie eran paneles de fluorescente.
 static func _techo(raiz: Node3D, medidas: Vector2, color: Color, textura: String = "") -> void:
-	var cuerpo := _caja(raiz, Vector3(0, ALTURA_MURO + GROSOR_MURO / 2.0, 0),
-		Vector3(medidas.x, GROSOR_MURO, medidas.y), color, textura)
+	var cuerpo := _caja(
+		raiz,
+		Vector3(0, ALTURA_MURO + GROSOR_MURO / 2.0, 0),
+		Vector3(medidas.x, GROSOR_MURO, medidas.y),
+		color,
+		textura
+	)
 	_emisivo(cuerpo, color)
 
 
@@ -241,18 +321,44 @@ static func _muros(raiz: Node3D, medidas: Vector2, color: Color, textura: String
 	var mitad_x := medidas.x / 2.0
 	var mitad_z := medidas.y / 2.0
 	var alto := ALTURA_MURO / 2.0
-	_caja(raiz, Vector3(0, alto, -mitad_z),
-		Vector3(medidas.x, ALTURA_MURO, GROSOR_MURO), color, textura)
-	_caja(raiz, Vector3(0, alto, mitad_z),
-		Vector3(medidas.x, ALTURA_MURO, GROSOR_MURO), color, textura)
-	_caja(raiz, Vector3(-mitad_x, alto, 0),
-		Vector3(GROSOR_MURO, ALTURA_MURO, medidas.y), color, textura)
-	_caja(raiz, Vector3(mitad_x, alto, 0),
-		Vector3(GROSOR_MURO, ALTURA_MURO, medidas.y), color, textura)
+	_caja(
+		raiz,
+		Vector3(0, alto, -mitad_z),
+		Vector3(medidas.x, ALTURA_MURO, GROSOR_MURO),
+		color,
+		textura
+	)
+	_caja(
+		raiz,
+		Vector3(0, alto, mitad_z),
+		Vector3(medidas.x, ALTURA_MURO, GROSOR_MURO),
+		color,
+		textura
+	)
+	_caja(
+		raiz,
+		Vector3(-mitad_x, alto, 0),
+		Vector3(GROSOR_MURO, ALTURA_MURO, medidas.y),
+		color,
+		textura
+	)
+	_caja(
+		raiz,
+		Vector3(mitad_x, alto, 0),
+		Vector3(GROSOR_MURO, ALTURA_MURO, medidas.y),
+		color,
+		textura
+	)
 
 
-static func _caja(raiz: Node3D, pos: Vector3, tam: Vector3, color: Color,
-		textura: String = "", metros: float = 1.2) -> StaticBody3D:
+static func _caja(
+	raiz: Node3D,
+	pos: Vector3,
+	tam: Vector3,
+	color: Color,
+	textura: String = "",
+	metros: float = 1.2
+) -> StaticBody3D:
 	var cuerpo := StaticBody3D.new()
 	cuerpo.position = pos
 

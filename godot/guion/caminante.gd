@@ -22,13 +22,16 @@ func _unhandled_input(evento: InputEvent) -> void:
 	if evento is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		rotate_y(-evento.relative.x * SENSIBILIDAD)
 		_camara.rotation.x = clampf(
-			_camara.rotation.x - evento.relative.y * SENSIBILIDAD,
-			-TOPE_VERTICAL, TOPE_VERTICAL)
+			_camara.rotation.x - evento.relative.y * SENSIBILIDAD, -TOPE_VERTICAL, TOPE_VERTICAL
+		)
 	# Soltar el ratón: sin esto, una ventana que captura el puntero y no lo
 	# devuelve se siente como un programa colgado.
 	elif evento.is_action_pressed("ui_cancel"):
-		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if \
-			Input.mouse_mode == Input.MOUSE_MODE_CAPTURED else Input.MOUSE_MODE_CAPTURED
+		Input.mouse_mode = (
+			Input.MOUSE_MODE_VISIBLE
+			if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
+			else Input.MOUSE_MODE_CAPTURED
+		)
 
 
 func _physics_process(delta: float) -> void:

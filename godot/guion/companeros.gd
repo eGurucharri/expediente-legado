@@ -48,8 +48,7 @@ const ROSTER := [
 	{
 		"id": "correspondencia",
 		"nombre": "COMPA_CORRESPONDENCIA",
-		"frases": ["COMPA_CORRESPONDENCIA_1", "COMPA_CORRESPONDENCIA_2",
-			"COMPA_CORRESPONDENCIA_3"],
+		"frases": ["COMPA_CORRESPONDENCIA_1", "COMPA_CORRESPONDENCIA_2", "COMPA_CORRESPONDENCIA_3"],
 		"color": Color(0.31, 0.30, 0.33),
 	},
 	{

@@ -134,7 +134,8 @@ func _espacio_de(fase: String) -> Dictionary:
 
 	if jornada["sueno_escenas"].is_empty():
 		jornada["sueno_escenas"] = Sueno.noche(
-			jornada["dia"], jornada["leido_hoy"], jornada["mapa"])
+			jornada["dia"], jornada["leido_hoy"], jornada["mapa"]
+		)
 	var id: String = jornada["sueno_escenas"][0]
 	# Se apunta al ENTRAR y no al salir: el mapa es lo que has pisado, y
 	# despertarse de golpe en mitad de una sala no la borra de haber estado.
@@ -144,14 +145,18 @@ func _espacio_de(fase: String) -> Dictionary:
 	# sala: se calcula con la lista entera de escenas y se coge el trozo que le
 	# toca a esta, o las tres saldrían amuebladas con lo mismo.
 	var fuentes := SuenoContenido.fuentes(
-		jornada["leido_hoy"], contenido.casos,
-		partida.estado["pistas_descubiertas"], partida.estado.get("veredictos", {}))
+		jornada["leido_hoy"],
+		contenido.casos,
+		partida.estado["pistas_descubiertas"],
+		partida.estado.get("veredictos", {})
+	)
 	var reparto := SuenoContenido.repartir(
-		fuentes, Sueno.ESCENAS_POR_NOCHE,
-		Sueno.semilla(jornada["dia"], jornada["leido_hoy"]))
+		fuentes, Sueno.ESCENAS_POR_NOCHE, Sueno.semilla(jornada["dia"], jornada["leido_hoy"])
+	)
 	var cual: int = Sueno.ESCENAS_POR_NOCHE - jornada["sueno_escenas"].size()
-	return Sueno.espacio(id, jornada["sueno_escenas"].size() - 1,
-		reparto[clampi(cual, 0, reparto.size() - 1)])
+	return Sueno.espacio(
+		id, jornada["sueno_escenas"].size() - 1, reparto[clampi(cual, 0, reparto.size() - 1)]
+	)
 
 
 ## El reloj de la noche. Solo corre dentro del sueño: el día no tiene prisa y
@@ -168,8 +173,7 @@ func _process(delta: float) -> void:
 		partida.guardar()
 		_entrar_en("archivo")
 		return
-	_rotulo.text = _texto_de_rotulo(Sueno.senal_de_noche(
-		Jornada.noche_restante(jornada)))
+	_rotulo.text = _texto_de_rotulo(Sueno.senal_de_noche(Jornada.noche_restante(jornada)))
 
 
 func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
@@ -201,15 +205,28 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 			var paga := Jornada.fichar_salida(jornada)
 			_sonar("nomina")
 			_hablando = false
-			_nomina.text = tr("DIA_NOMINA") % [
-				jornada["dia"], paga["bruto"], paga["base"], paga["por_expedientes"],
-				paga["expedientes"], paga["dinero"]]
+			_nomina.text = (
+				tr("DIA_NOMINA")
+				% [
+					jornada["dia"],
+					paga["bruto"],
+					paga["base"],
+					paga["por_expedientes"],
+					paga["expedientes"],
+					paga["dinero"]
+				]
+			)
 		"casa":
 			var noche := Jornada.dormir(jornada)
 			_hablando = false
-			_nomina.text = tr("DIA_VIVIR") % [
-				noche["coste"], noche["dinero"],
-				tr("DIA_SIN_GATO_AVISO") if noche["gato_se_fue"] else ""]
+			_nomina.text = (
+				tr("DIA_VIVIR")
+				% [
+					noche["coste"],
+					noche["dinero"],
+					tr("DIA_SIN_GATO_AVISO") if noche["gato_se_fue"] else ""
+				]
+			)
 		"sueño":
 			# Se sale de la escena que se acaba de recorrer. Si quedan más, la
 			# noche sigue en la siguiente y no se despierta: el destino de la
@@ -241,12 +258,17 @@ func _plantilla_en(sitio: Dictionary) -> Array:
 	var quienes := Companeros.plantilla(jornada["plantilla"])
 	for i in mini(quienes.size(), sitios.size()):
 		var quien: Dictionary = quienes[i]
-		figuras.append({
-			"pos": sitios[i],
-			"color": quien["color"],
-			"rotulo": tr(quien["nombre"]),
-			"frase": Companeros.frase_de(quien, jornada["dia"]),
-		})
+		(
+			figuras
+			. append(
+				{
+					"pos": sitios[i],
+					"color": quien["color"],
+					"rotulo": tr(quien["nombre"]),
+					"frase": Companeros.frase_de(quien, jornada["dia"]),
+				}
+			)
+		)
 	return figuras
 
 
@@ -327,6 +349,12 @@ func _refrescar_rotulos(espacio: Dictionary) -> void:
 
 
 func _texto_de_rotulo(sitio: String) -> String:
-	return tr("DIA_ROTULO") % [
-		jornada["dia"], sitio, jornada["dinero"],
-		"" if jornada["gato"]["presente"] else tr("DIA_SIN_GATO")]
+	return (
+		tr("DIA_ROTULO")
+		% [
+			jornada["dia"],
+			sitio,
+			jornada["dinero"],
+			"" if jornada["gato"]["presente"] else tr("DIA_SIN_GATO")
+		]
+	)
