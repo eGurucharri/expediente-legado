@@ -1,5 +1,6 @@
 # Compilados y artefactos de build
 **/target/
+backend/target/
 *.class
 node_modules/
 
@@ -13,6 +14,13 @@ node_modules/
 .settings/
 .project
 .classpath
+
+# Empaquetado alpha (issue #36): JREs descargados y zips generados
+dist/.cache/
+dist/salida/
+
+# Caché de importación de Godot: se regenera con `godot4 --import`
+godot/.godot/
 
 # Sistema
 .DS_Store
