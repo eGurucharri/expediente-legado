@@ -76,6 +76,7 @@ OFICIO_ATAQUE_3,Llevo desde las siete.
 OFICIO_ATAQUE_4,¿Es esta la ventanilla?
 OFICIO_NOMBRE,Reclamante sin expediente asignado
 OFICIO_RESUMEN,Se presenta cada mañana. No consta quién es ni qué reclama; el sistema le asigna un turno igualmente.
+SALIDA_DESPERTAR,Despertar
 SALIDA_DORMIR,Dormir
 SALIDA_OFICINA,Salida
 SALIDA_PORTAL,Portal

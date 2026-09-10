@@ -6,6 +6,7 @@
 extends Node3D
 
 var partida := Partida.new()
+var contenido := Contenido.new()
 var jornada: Dictionary = {}
 
 var _caminante: CharacterBody3D
@@ -16,6 +17,7 @@ var _nomina: Label
 
 func _ready() -> void:
 	partida.cargar()
+	contenido.cargar()
 	jornada = partida.estado.get("jornada", Jornada.nueva())
 	partida.estado["jornada"] = jornada
 
@@ -100,7 +102,19 @@ func _espacio_de(fase: String) -> Dictionary:
 	# Se apunta al ENTRAR y no al salir: el mapa es lo que has pisado, y
 	# despertarse de golpe en mitad de una sala no la borra de haber estado.
 	Sueno.recordar(jornada["mapa"], id)
-	return Sueno.espacio(id, jornada["sueno_escenas"].size() - 1)
+
+	# De qué está hecha esta escena (#87). El reparto es de la NOCHE y no de la
+	# sala: se calcula con la lista entera de escenas y se coge el trozo que le
+	# toca a esta, o las tres saldrían amuebladas con lo mismo.
+	var fuentes := SuenoContenido.fuentes(
+		jornada["leido_hoy"], contenido.casos,
+		partida.estado["pistas_descubiertas"], partida.estado.get("veredictos", {}))
+	var reparto := SuenoContenido.repartir(
+		fuentes, Sueno.ESCENAS_POR_NOCHE,
+		Sueno.semilla(jornada["dia"], jornada["leido_hoy"]))
+	var cual: int = Sueno.ESCENAS_POR_NOCHE - jornada["sueno_escenas"].size()
+	return Sueno.espacio(id, jornada["sueno_escenas"].size() - 1,
+		reparto[clampi(cual, 0, reparto.size() - 1)])
 
 
 func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
