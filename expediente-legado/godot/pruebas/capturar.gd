@@ -15,9 +15,29 @@ func _init() -> void:
 	if argumentos.size() > 0:
 		destino = argumentos[0]
 
-	var escena: Node = load("res://escenas/visor.tscn").instantiate()
+	# Qué escena capturar: por defecto el visor.
+	var ruta := "res://escenas/visor.tscn"
+	if destino.contains("ventanilla"):
+		ruta = "res://escenas/ventanilla.tscn"
+	var escena: Node = load(ruta).instantiate()
 	root.add_child(escena)
 	await process_frame
+
+	if ruta.contains("ventanilla"):
+		# Llamar al primer turno y jugar una ronda, para que la captura enseñe
+		# un combate en marcha y no una cola vacía.
+		escena.reduccion_movimiento = true
+		escena._al_llamar(int(argumentos[1]) if argumentos.size() > 1 else 0)
+		await process_frame
+		escena._al_jugar("objecion")
+		await process_frame
+		var imagen_v := root.get_texture().get_image()
+		imagen_v.save_png(destino)
+		print("captura en %s" % destino)
+		# quit() no interrumpe la función: sin este return se sigue ejecutando
+		# el camino del visor y revienta al buscar un `caso` que aquí no hay.
+		quit(0)
+		return
 
 	var indice := int(argumentos[1]) if argumentos.size() > 1 else 0
 	if argumentos.size() > 2 and argumentos[2] == "1":
