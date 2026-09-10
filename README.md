@@ -55,6 +55,12 @@ godot4 --headless --path godot --import          # una vez, por los class_name
 godot4 --headless --path godot --script pruebas/pruebas.gd
 ```
 
+El `--import` no es solo por los `class_name`: también compila `datos/textos.csv`
+a la traducción que el juego carga. **Todo el texto vive en ese CSV** y el código
+solo nombra claves (`tr("VISOR_ELIJA")`); una pantalla que escriba una cadena a
+mano hace fallar la suite, que es lo que impide que esto se deshaga solo. El
+texto de los ocho casos sigue en `datos/casos.json` y todavía no está traducido.
+
 ## Cómo levantarlo (desarrollo)
 
 ```bash

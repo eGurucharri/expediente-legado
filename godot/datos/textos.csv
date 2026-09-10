@@ -1,0 +1,115 @@
+clave,es
+A7_AVISO_CIERRE,"Al presentar, el expediente queda cerrado."
+A7_CASILLA,%s — %s
+A7_DECLARACION,Declaro haber revisado íntegramente la documentación obrante en el expediente.
+A7_EJERCICIO,Ejercicio: %s        Instructor: auditor01
+A7_EXPEDIENTE,Expediente: %s
+A7_FALTA_CASILLA,Marque la casilla del responsable.
+A7_FALTA_DECLARACION,Falta la declaración responsable.
+A7_INSTRUCCION,Marque UNA casilla. La imputación es firme y no admite rectificación.
+A7_PRESENTAR,PRESENTAR
+A7_SIN_FECHA,s/f
+A7_SIN_JORNADA,SE ACABÓ LA JORNADA. El registro ya no admite entradas hoy.
+A7_TITULO,FORMULARIO A-7  ·  IMPUTACIÓN DE RESPONSABILIDAD
+A7_VOLVER,Volver al expediente
+A7_YA_CERRADO,Este expediente ya tiene veredicto firme.
+CAREO_MARCADOR,Usted %s        %s %s
+CAREO_NO_RECONOCE,%s no reconoce la acusación.
+CAREO_REPLICA,« %s »
+CAREO_ROTULO_EXPEDIENTE,EXPEDIENTE {folio}
+CAREO_SIN_CARGO,Cargo no consta en el expediente
+CAREO_SIN_FOLIO,SIN NÚMERO
+CAREO_VEREDICTO_JUGADOR,cede un punto
+CAREO_VEREDICTO_RIVAL,se le impone
+COMBATE_CRONICA,Usted: %s   ·   %s: %s   —   %s
+COMBATE_INSISTENCIA,Insistencia
+COMBATE_OBJECION,Objeción
+COMBATE_SILENCIO,Silencio
+COMBATE_VIDAS,Usted  %s %d        %s  %s %d
+CUNADO_DERROTA_1,Es que se lo has puesto muy fácil.
+CUNADO_DERROTA_2,"Bueno. Tampoco es para tanto. A ver, sí lo es."
+CUNADO_DERROTA_3,Yo de ti no volvía a intentarlo hasta el jueves.
+CUNADO_DERROTA_4,¿Ves? Por ir de frente.
+CUNADO_EMPATE_1,Esto puede durar años. Literalmente. Yo he visto uno de nueve.
+CUNADO_EMPATE_2,"Mira, así por lo menos no consta nada."
+CUNADO_EMPATE_3,¿Bajamos luego a por café? Digo cuando acabe esto.
+CUNADO_GANA_1,"Suerte. Una vez, ¿eh? Pero suerte."
+CUNADO_GANA_2,Eso yo lo hacía todos los días antes de que lo digitalizaran.
+CUNADO_GANA_3,"Claro, es que le has pillado con el turno cambiado."
+CUNADO_GANA_4,"Bien, bien. Aunque yo habría ido por lo civil."
+CUNADO_HABILIDAD_1,"Eso lo quitaron en la reforma. Bueno, o lo pusieron. Alguna de las dos."
+CUNADO_HABILIDAD_2,¿Y eso se puede? Yo pregunto.
+CUNADO_HABILIDAD_3,"Anda, si funciona. Pues nada."
+CUNADO_LLEGADA_1,¿Es el careo? Uy. A ese yo no le habría acusado un lunes.
+CUNADO_LLEGADA_2,Espera que me traigo la silla.
+CUNADO_LLEGADA_3,"Yo tuve uno igual en el 96. Bueno, igual no. Parecido."
+CUNADO_LLEGADA_4,"¿Has puesto el asunto en mayúsculas? Es que si no, no consta."
+CUNADO_LLEGADA_5,"Yo esto lo veo desde aquí, que si me ven implicado me toca declarar."
+CUNADO_PIERDE_1,Uy. Eso te lo iba a decir.
+CUNADO_PIERDE_2,Ya. Es que ahí tenías que haber hecho lo otro.
+CUNADO_PIERDE_3,"A mí me pasó igual. Bueno, a mí no, a uno de contabilidad."
+CUNADO_PIERDE_4,"No pasa nada, hombre. Bueno, sí pasa, pero no pasa nada."
+CUNADO_PIERDE_5,Es que has ido de frente. Con estos nunca de frente.
+CUNADO_VICTORIA_1,"Bueno, bueno. Ya te vale, ya."
+CUNADO_VICTORIA_2,"Enhorabuena. Ahora te toca el papeleo, que es lo gordo."
+CUNADO_VICTORIA_3,"Yo lo habría cerrado el martes, pero oye, cada uno."
+DIA_NOMINA,Nómina del día %d: %d (base %d + %d por %d expediente(s)).  Tiene %d.
+DIA_NUEVO,Día %d.
+DIA_ROTULO,Día %d  ·  %s  ·  %d en el bolsillo%s
+DIA_SIN_GATO,  ·  sin gato
+DIA_SIN_GATO_AVISO,  El gato no está.
+DIA_VIVIR,Vivir cuesta %d. Le quedan %d.%s
+FICHA_COMITE,COMITÉ
+FICHA_PERSONA,PERSONA
+FICHA_RECLAMANTE,[b]%s[/b]   ·   %s\n\n%s
+HABILIDAD_ASAMBLEA,Asamblea
+HABILIDAD_ASAMBLEA_EFECTO,"Esta ronda, el empate también golpea al rival."
+HABILIDAD_COMISION,Comisión de seguimiento
+HABILIDAD_COMISION_EFECTO,Revela la réplica que viene.
+HABILIDAD_EXTERNALIZAR,Externalizar
+HABILIDAD_EXTERNALIZAR_EFECTO,"Esta ronda el daño cuenta doble, gane quien gane."
+HABILIDAD_MESA,Mesa de diálogo
+HABILIDAD_MESA_EFECTO,Esta ronda nadie pierde vida.
+OFICIO_ATAQUE_1,Vengo por lo del expediente.
+OFICIO_ATAQUE_2,Me dijeron que preguntara aquí.
+OFICIO_ATAQUE_3,Llevo desde las siete.
+OFICIO_ATAQUE_4,¿Es esta la ventanilla?
+OFICIO_NOMBRE,Reclamante sin expediente asignado
+OFICIO_RESUMEN,Se presenta cada mañana. No consta quién es ni qué reclama; el sistema le asigna un turno igualmente.
+SALIDA_DORMIR,Dormir
+SALIDA_OFICINA,Salida
+SALIDA_PORTAL,Portal
+SIN_FECHA_CORTA,s/f
+SITIO_CALLE,De vuelta a casa
+SITIO_CASA,Casa
+SITIO_OFICINA,"SIGA — Archivo, planta 4"
+SUENO_ROTULO,…
+VENTANILLA_ADELANTA,La comisión adelanta que la próxima réplica será: %s.
+VENTANILLA_ATENDIDA,RECLAMACIÓN ATENDIDA. Racha: %d.
+VENTANILLA_HABILIDAD,%s (%d)
+VENTANILLA_LLAME,Llame al siguiente turno.
+VENTANILLA_MARCADOR,Racha: %d        Mejor marca: %d
+VENTANILLA_NADIE,[i]Nadie en el mostrador.[/i]
+VENTANILLA_NO_ATENDIDA,RECLAMACIÓN NO ATENDIDA. La racha vuelve a cero.
+VENTANILLA_SE_PRESENTA,%s se presenta en el mostrador.
+VENTANILLA_SIGUIENTE,Llamar al siguiente turno
+VENTANILLA_TITULO,SIGA-98  —  VENTANILLA DE RECLAMACIONES
+VEREDICTO_EMPATE,ninguno cede
+VEREDICTO_JUGADOR,se impone su objeción
+VEREDICTO_RIVAL,se impone el mostrador
+VISOR_BARRA_TITULO,SIGA-98  —  Sistema Integral de Gestión Administrativa   [Expediente %s]
+VISOR_CABECERA,Folio %s   ·   %s   ·   %s
+VISOR_CARTA,Carta localizada: %s
+VISOR_CERRADO,EXPEDIENTE CERRADO. %s%s
+VISOR_CONCEPTO,Concepto: %s
+VISOR_DOCUMENTOS,Documentos del expediente:
+VISOR_ELIJA,Elija un documento del expediente.
+VISOR_ESTADO,"%s   ·   Pistas: %d de %d   ·   Día %d, %d acción(es)%s"
+VISOR_IMPUTAR,Imputar responsabilidad…
+VISOR_ITEM,%s  %s
+VISOR_PARTIDA_APARTADA,"PARTIDA ANTERIOR ILEGIBLE (%s), APARTADA EN %s"
+VISOR_PRECIPITADA,  ·  ACUSACIÓN PRECIPITADA: consta en su hoja de servicio.
+VISOR_RESUELTO,   ·   EXPEDIENTE RESUELTO
+VISOR_SIN_FECHA,sin fecha de registro
+VISOR_SIN_JORNADA,SE ACABÓ LA JORNADA. Fiche la salida.
+VOZ_CUNADO,— %s

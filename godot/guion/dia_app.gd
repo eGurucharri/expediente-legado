@@ -114,14 +114,14 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 	match jornada["fase"]:
 		"archivo":
 			var paga := Jornada.fichar_salida(jornada)
-			_nomina.text = "Nómina del día %d: %d (base %d + %d por %d expediente(s)).  Tiene %d." % [
+			_nomina.text = tr("DIA_NOMINA") % [
 				jornada["dia"], paga["bruto"], paga["base"], paga["por_expedientes"],
 				paga["expedientes"], paga["dinero"]]
 		"casa":
 			var noche := Jornada.dormir(jornada)
-			_nomina.text = "Vivir cuesta %d. Le quedan %d.%s" % [
+			_nomina.text = tr("DIA_VIVIR") % [
 				noche["coste"], noche["dinero"],
-				"  El gato no está." if noche["gato_se_fue"] else ""]
+				tr("DIA_SIN_GATO_AVISO") if noche["gato_se_fue"] else ""]
 		"sueño":
 			# Se sale de la escena que se acaba de recorrer. Si quedan más, la
 			# noche sigue en la siguiente y no se despierta: el destino de la
@@ -129,7 +129,7 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 			jornada["sueno_escenas"].pop_front()
 			if jornada["sueno_escenas"].is_empty():
 				var dia := Jornada.despertar(jornada)
-				_nomina.text = "Día %d." % dia
+				_nomina.text = tr("DIA_NUEVO") % dia
 		_:
 			pass
 
@@ -138,6 +138,6 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 
 
 func _refrescar_rotulos(espacio: Dictionary) -> void:
-	_rotulo.text = "Día %d  ·  %s  ·  %d en el bolsillo%s" % [
-		jornada["dia"], espacio.get("rotulo", ""), jornada["dinero"],
-		"" if jornada["gato"]["presente"] else "  ·  sin gato"]
+	_rotulo.text = tr("DIA_ROTULO") % [
+		jornada["dia"], tr(espacio.get("rotulo", "")), jornada["dinero"],
+		"" if jornada["gato"]["presente"] else tr("DIA_SIN_GATO")]

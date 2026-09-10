@@ -48,13 +48,13 @@ func _construir() -> void:
 	raiz.add_theme_constant_override("separation", 8)
 	add_child(raiz)
 
-	raiz.add_child(_titulo("FORMULARIO A-7  ·  IMPUTACIÓN DE RESPONSABILIDAD"))
-	raiz.add_child(_linea("Expediente: %s" % caso.get("titulo", "")))
+	raiz.add_child(_titulo(tr("A7_TITULO")))
+	raiz.add_child(_linea(tr("A7_EXPEDIENTE") % caso.get("titulo", "")))
 	raiz.add_child(_linea(
-		"Ejercicio: %s        Instructor: auditor01" % str(caso.get("anioSuceso", "s/f"))))
+		tr("A7_EJERCICIO") % str(caso.get("anioSuceso", tr("A7_SIN_FECHA")))))
 
 	raiz.add_child(_linea(
-		"Marque UNA casilla. La imputación es firme y no admite rectificación."))
+		tr("A7_INSTRUCCION")))
 
 	var lista := VBoxContainer.new()
 	lista.add_theme_constant_override("separation", 2)
@@ -67,7 +67,7 @@ func _construir() -> void:
 	for i in Acusacion.sospechosos_de(caso).size():
 		var sospechoso: Dictionary = caso["sospechosos"][i]
 		var casilla := CheckBox.new()
-		casilla.text = "%s — %s" % [sospechoso["nombre"], sospechoso.get("descripcion", "")]
+		casilla.text = tr("A7_CASILLA") % [sospechoso["nombre"], sospechoso.get("descripcion", "")]
 		casilla.add_theme_color_override("font_color", EstiloSiga.NEGRO)
 		casilla.toggled.connect(_al_marcar.bind(i))
 		lista.add_child(casilla)
@@ -76,7 +76,7 @@ func _construir() -> void:
 	# La declaración responsable. Obligatoria para presentar y completamente
 	# irrelevante para lo que pasa después.
 	var declaracion := CheckBox.new()
-	declaracion.text = "Declaro haber revisado íntegramente la documentación obrante en el expediente."
+	declaracion.text = tr("A7_DECLARACION")
 	declaracion.add_theme_color_override("font_color", EstiloSiga.NEGRO)
 	declaracion.toggled.connect(func(marcada: bool):
 		_declarado = marcada
@@ -88,13 +88,13 @@ func _construir() -> void:
 
 	var botones := HBoxContainer.new()
 	_presentar = Button.new()
-	_presentar.text = "PRESENTAR"
+	_presentar.text = tr("A7_PRESENTAR")
 	_presentar.disabled = true
 	_presentar.pressed.connect(_al_presentar)
 	botones.add_child(_presentar)
 
 	var volver := Button.new()
-	volver.text = "Volver al expediente"
+	volver.text = tr("A7_VOLVER")
 	volver.pressed.connect(func(): cancelada.emit())
 	botones.add_child(volver)
 	raiz.add_child(botones)
@@ -122,11 +122,11 @@ func _al_marcar(marcada: bool, indice: int) -> void:
 func _revisar() -> void:
 	_presentar.disabled = _elegido < 0 or not _declarado
 	if _elegido < 0:
-		_aviso.text = "Marque la casilla del responsable."
+		_aviso.text = tr("A7_FALTA_CASILLA")
 	elif not _declarado:
-		_aviso.text = "Falta la declaración responsable."
+		_aviso.text = tr("A7_FALTA_DECLARACION")
 	else:
-		_aviso.text = "Al presentar, el expediente queda cerrado."
+		_aviso.text = tr("A7_AVISO_CIERRE")
 
 
 func _al_presentar() -> void:
@@ -134,10 +134,10 @@ func _al_presentar() -> void:
 		estado, jornada, caso, caso["sospechosos"][_elegido], descubiertas)
 
 	if resultado["resultado"] == "sin_acciones":
-		_aviso.text = "SE ACABÓ LA JORNADA. El registro ya no admite entradas hoy."
+		_aviso.text = tr("A7_SIN_JORNADA")
 		return
 	if resultado["resultado"] == "ya_cerrado":
-		_aviso.text = "Este expediente ya tiene veredicto firme."
+		_aviso.text = tr("A7_YA_CERRADO")
 		return
 
 	firmada.emit(resultado)

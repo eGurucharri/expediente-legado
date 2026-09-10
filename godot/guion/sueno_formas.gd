@@ -34,7 +34,7 @@ const FORMAS := {
 	# Dos naves cruzadas. Desde el centro se ven cuatro fondos y ninguno dice
 	# nada; desde un brazo no se ve el resto.
 	"crucero": {
-		"rotulo": "…",
+		"rotulo": "SUENO_ROTULO",
 		"bloques": [Rect2i(0, 5, 22, 6), Rect2i(8, 0, 6, 16)],
 		"entrada": Vector2i(11, 14),
 		"color_suelo": Color(0.26, 0.24, 0.30),
@@ -45,7 +45,7 @@ const FORMAS := {
 	# justifica el issue entero: sus cuatro muros de dentro no los declara
 	# nadie, salen de que el patio también es contorno.
 	"patio": {
-		"rotulo": "…",
+		"rotulo": "SUENO_ROTULO",
 		"bloques": [
 			Rect2i(0, 0, 18, 3), Rect2i(0, 15, 18, 3),
 			Rect2i(0, 0, 3, 18), Rect2i(15, 0, 3, 18),
@@ -58,7 +58,7 @@ const FORMAS := {
 	# El archivo, si el archivo fuera infinito a lo ancho: un pasillo larguísimo
 	# con estanterías que son salas.
 	"peine": {
-		"rotulo": "…",
+		"rotulo": "SUENO_ROTULO",
 		"bloques": [
 			Rect2i(0, 0, 26, 4),
 			Rect2i(2, 4, 4, 9), Rect2i(11, 4, 4, 9), Rect2i(20, 4, 4, 9),
@@ -70,7 +70,7 @@ const FORMAS := {
 	},
 	# Salas que se desbordan una en otra en diagonal. Se anda siempre torcido.
 	"escalera": {
-		"rotulo": "…",
+		"rotulo": "SUENO_ROTULO",
 		"bloques": [Rect2i(0, 0, 10, 6), Rect2i(7, 5, 10, 6), Rect2i(14, 10, 10, 6)],
 		"entrada": Vector2i(15, 14),
 		"color_suelo": Color(0.20, 0.24, 0.28),
@@ -80,7 +80,7 @@ const FORMAS := {
 	# Una nave enorme que se estrecha hasta un cuello y se vuelve a abrir. Se
 	# ve el final desde el principio y aun así hay que rodear.
 	"embudo": {
-		"rotulo": "…",
+		"rotulo": "SUENO_ROTULO",
 		"bloques": [Rect2i(0, 0, 16, 9), Rect2i(6, 9, 4, 4), Rect2i(2, 13, 12, 7)],
 		"entrada": Vector2i(8, 18),
 		"color_suelo": Color(0.30, 0.23, 0.23),
