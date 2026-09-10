@@ -99,7 +99,8 @@ static func completar(jornada: Dictionary) -> Dictionary:
 	if jornada["fase"] == "sueño" and jornada["sueno_resto"] <= 0.0:
 		if jornada["sueno_escenas"].is_empty():
 			jornada["sueno_escenas"] = Sueno.noche(
-				jornada["dia"], jornada["leido_hoy"], jornada["mapa"])
+				jornada["dia"], jornada["leido_hoy"], jornada["mapa"]
+			)
 		jornada["sueno_resto"] = Sueno.segundos_de_noche(jornada["sueno_escenas"])
 		jornada["mapa_anoche"] = jornada["mapa"].duplicate()
 	return jornada
@@ -181,8 +182,7 @@ static func dormir(jornada: Dictionary) -> Dictionary:
 			se_fue = true
 
 	jornada["fase"] = "sueño"
-	jornada["sueno_escenas"] = Sueno.noche(
-		jornada["dia"], jornada["leido_hoy"], jornada["mapa"])
+	jornada["sueno_escenas"] = Sueno.noche(jornada["dia"], jornada["leido_hoy"], jornada["mapa"])
 	jornada["sueno_resto"] = Sueno.segundos_de_noche(jornada["sueno_escenas"])
 	jornada["mapa_anoche"] = jornada["mapa"].duplicate()
 	return {"coste": COSTE_DIARIO, "dinero": jornada["dinero"], "gato_se_fue": se_fue}

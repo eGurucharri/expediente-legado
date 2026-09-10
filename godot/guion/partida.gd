@@ -49,6 +49,12 @@ const ALIAS := {}
 ## sitio donde se ve sino aquí, que es por donde entra.
 const CAMPOS_ENTEROS := ["vida", "coliseo_racha_mejor"]
 
+## Los campos de estado de cada catálogo: lo único suyo que la partida guarda.
+## Todo lo demás (título, descripción, requisito) es contenido y se vuelve a
+## leer de `prometeo.json` en cada arranque.
+const ESTADO_LOGRO := ["desbloqueado"]
+const ESTADO_CARTA := ["recogida", "gastada"]
+
 var estado: Dictionary = {}
 
 
@@ -105,13 +111,6 @@ func cargar(ruta: String = RUTA) -> Dictionary:
 	return {"resultado": "cargada", "version": version}
 
 
-## Los campos de estado de cada catálogo: lo único suyo que la partida guarda.
-## Todo lo demás (título, descripción, requisito) es contenido y se vuelve a
-## leer de `prometeo.json` en cada arranque.
-const ESTADO_LOGRO := ["desbloqueado"]
-const ESTADO_CARTA := ["recogida", "gastada"]
-
-
 ## Guarda el estado actual. Devuelve true solo si la partida quedó escrita de
 ## verdad: quien llame puede avisar, en vez de dar por hecho que se guardó.
 func guardar(ruta: String = RUTA) -> bool:
@@ -128,7 +127,8 @@ func guardar(ruta: String = RUTA) -> bool:
 	# El renombrado es lo que hace atómico el guardado: hasta esta línea, la
 	# partida buena sigue siendo la de antes.
 	var error := DirAccess.rename_absolute(
-		ProjectSettings.globalize_path(temporal), ProjectSettings.globalize_path(ruta))
+		ProjectSettings.globalize_path(temporal), ProjectSettings.globalize_path(ruta)
+	)
 	if error != OK:
 		push_error("No se pudo reemplazar %s (error %d)" % [ruta, error])
 		return false
@@ -169,13 +169,14 @@ func _fusionar(guardado: Dictionary) -> Dictionary:
 		if clave in ["version", "logros", "tarot"]:
 			continue
 		if guardado.has(clave):
-			fusionado[clave] = int(guardado[clave]) if clave in CAMPOS_ENTEROS \
-				else guardado[clave]
+			fusionado[clave] = int(guardado[clave]) if clave in CAMPOS_ENTEROS else guardado[clave]
 
 	fusionado["logros"] = Prometeo.fusionar_con_guardado(
-		guardado.get("logros", []), fusionado["logros"], ESTADO_LOGRO, ALIAS)
+		guardado.get("logros", []), fusionado["logros"], ESTADO_LOGRO, ALIAS
+	)
 	fusionado["tarot"] = Prometeo.fusionar_con_guardado(
-		guardado.get("tarot", []), fusionado["tarot"], ESTADO_CARTA, ALIAS)
+		guardado.get("tarot", []), fusionado["tarot"], ESTADO_CARTA, ALIAS
+	)
 	return fusionado
 
 
@@ -183,7 +184,8 @@ func _fusionar(guardado: Dictionary) -> Dictionary:
 func _apartar(ruta: String, motivo: String) -> Dictionary:
 	var destino := ruta + ".roto"
 	var error := DirAccess.rename_absolute(
-		ProjectSettings.globalize_path(ruta), ProjectSettings.globalize_path(destino))
+		ProjectSettings.globalize_path(ruta), ProjectSettings.globalize_path(destino)
+	)
 	push_warning("Partida %s; apartada en %s" % [motivo, destino])
 	return {
 		"resultado": "apartada",

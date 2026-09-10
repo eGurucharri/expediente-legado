@@ -27,8 +27,9 @@ extends RefCounted
 ##
 ## [param leido_hoy] son folios; [param descubiertas], ids de pista;
 ## [param veredictos], el `caso_id -> sospechoso_id` que guarda `Acusacion`.
-static func fuentes(leido_hoy: Array, casos: Array, descubiertas: Array,
-		veredictos: Dictionary) -> Dictionary:
+static func fuentes(
+	leido_hoy: Array, casos: Array, descubiertas: Array, veredictos: Dictionary
+) -> Dictionary:
 	var frases := []
 	var figuras := []
 	var casos_tocados := {}
@@ -55,10 +56,15 @@ static func fuentes(leido_hoy: Array, casos: Array, descubiertas: Array,
 
 		var acusado: String = veredictos.get(caso["id"], "")
 		for sospechoso in caso.get("sospechosos", []):
-			figuras.append({
-				"nombre": sospechoso.get("nombre", ""),
-				"acusado": sospechoso.get("id", "") == acusado,
-			})
+			(
+				figuras
+				. append(
+					{
+						"nombre": sospechoso.get("nombre", ""),
+						"acusado": sospechoso.get("id", "") == acusado,
+					}
+				)
+			)
 
 	return {"frases": frases, "figuras": figuras, "casos": casos_tocados.keys()}
 

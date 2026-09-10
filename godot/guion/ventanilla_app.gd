@@ -47,6 +47,7 @@ var _botones: HBoxContainer
 var _habilidades: HBoxContainer
 var _lista: ItemList
 var _ficha: RichTextLabel
+var _habilidad_elegida_eje := ""
 
 
 func _ready() -> void:
@@ -71,7 +72,8 @@ func _process(delta: float) -> void:
 		_sacudida = maxf(0.0, _sacudida - delta)
 		var fuerza := SACUDIDA * (_sacudida / SACUDIDA_SEGUNDOS)
 		_tablero.position = Vector2(
-			_azar.randf_range(-fuerza, fuerza), _azar.randf_range(-fuerza, fuerza))
+			_azar.randf_range(-fuerza, fuerza), _azar.randf_range(-fuerza, fuerza)
+		)
 		if is_zero_approx(_sacudida):
 			_tablero.position = Vector2.ZERO
 
@@ -88,11 +90,11 @@ func _draw() -> void:
 
 # --- Turno ------------------------------------------------------------------
 
+
 func _llenar_turno() -> void:
 	combate = {}
 	_lista.clear()
-	for reclamante in Ventanilla.disponibles(
-			contenido, partida.estado["pistas_descubiertas"]):
+	for reclamante in Ventanilla.disponibles(contenido, partida.estado["pistas_descubiertas"]):
 		_lista.add_item(tr(reclamante["nombre"]))
 		_lista.set_item_metadata(_lista.item_count - 1, reclamante)
 	_lista.visible = true
@@ -126,9 +128,15 @@ func _al_jugar(tipo: String) -> void:
 
 
 func _contar(ronda: Dictionary) -> void:
-	var texto := tr("COMBATE_CRONICA") % [
-		Combate.etiqueta(ronda["tipo_jugador"]), tr(_rival["nombre"]),
-		Combate.etiqueta(ronda["tipo_rival"]), _veredicto(ronda["veredicto"])]
+	var texto := (
+		tr("COMBATE_CRONICA")
+		% [
+			Combate.etiqueta(ronda["tipo_jugador"]),
+			tr(_rival["nombre"]),
+			Combate.etiqueta(ronda["tipo_rival"]),
+			_veredicto(ronda["veredicto"])
+		]
+	)
 	if not ronda["revelada"].is_empty():
 		texto += "\n" + tr("VENTANILLA_ADELANTA") % ronda["revelada"]
 	_cronica.text = texto
@@ -153,17 +161,20 @@ func _cerrar(gano: bool) -> void:
 
 	_botones.visible = false
 	_habilidades.visible = false
-	_cronica.text += "\n\n%s" % (tr("VENTANILLA_ATENDIDA") % racha if gano
-		else tr("VENTANILLA_NO_ATENDIDA"))
+	_cronica.text += (
+		"\n\n%s" % (tr("VENTANILLA_ATENDIDA") % racha if gano else tr("VENTANILLA_NO_ATENDIDA"))
+	)
 	_actualizar_marcador()
 
 	# Un botón para volver a la cola, en vez de saltar solo: el jugador decide
 	# cuándo llama al siguiente.
 	var siguiente := Button.new()
 	siguiente.text = tr("VENTANILLA_SIGUIENTE")
-	siguiente.pressed.connect(func():
-		siguiente.queue_free()
-		_llenar_turno())
+	siguiente.pressed.connect(
+		func():
+			siguiente.queue_free()
+			_llenar_turno()
+	)
 	_botones.get_parent().add_child(siguiente)
 
 
@@ -190,9 +201,12 @@ func _decir(frase: String) -> void:
 
 func _veredicto(cual: String) -> String:
 	match cual:
-		"gana_jugador": return tr("VEREDICTO_JUGADOR")
-		"gana_rival": return tr("VEREDICTO_RIVAL")
-		_: return tr("VEREDICTO_EMPATE")
+		"gana_jugador":
+			return tr("VEREDICTO_JUGADOR")
+		"gana_rival":
+			return tr("VEREDICTO_RIVAL")
+		_:
+			return tr("VEREDICTO_EMPATE")
 
 
 ## Las tiradas del combate salen de aquí, no de `randf` suelto: un solo sitio
@@ -202,8 +216,6 @@ func _tirada() -> Callable:
 
 
 # --- Habilidades ------------------------------------------------------------
-
-var _habilidad_elegida_eje := ""
 
 
 func _habilidad_elegida() -> String:
@@ -216,17 +228,18 @@ func _pintar_habilidades() -> void:
 	for eje in Combate.cargas_disponibles(combate):
 		var habilidad: Dictionary = Historias.HABILIDADES[eje]
 		var boton := Button.new()
-		boton.text = tr("VENTANILLA_HABILIDAD") % [
-			tr(habilidad["nombre"]), combate["cargas"][eje]]
+		boton.text = tr("VENTANILLA_HABILIDAD") % [tr(habilidad["nombre"]), combate["cargas"][eje]]
 		boton.tooltip_text = tr(habilidad["efecto"])
 		boton.toggle_mode = true
-		boton.pressed.connect(func():
-			# Se arma para la ronda siguiente y no se gasta al pulsar: una
-			# habilidad es una decisión DENTRO de la ronda.
-			_habilidad_elegida_eje = eje if boton.button_pressed else ""
-			for otro in _habilidades.get_children():
-				if otro != boton:
-					otro.button_pressed = false)
+		boton.pressed.connect(
+			func():
+				# Se arma para la ronda siguiente y no se gasta al pulsar: una
+				# habilidad es una decisión DENTRO de la ronda.
+				_habilidad_elegida_eje = eje if boton.button_pressed else ""
+				for otro in _habilidades.get_children():
+					if otro != boton:
+						otro.button_pressed = false
+		)
 		_habilidades.add_child(boton)
 
 
@@ -234,11 +247,19 @@ func _actualizar_marcador() -> void:
 	if combate.is_empty():
 		_vidas.text = ""
 	else:
-		_vidas.text = tr("COMBATE_VIDAS") % [
-			_barra(combate["vida_jugador"]), combate["vida_jugador"],
-			tr(_rival["nombre"]), _barra(combate["vida_rival"]), combate["vida_rival"]]
-	_marcador.text = tr("VENTANILLA_MARCADOR") % [
-		racha, partida.estado.get("coliseo_racha_mejor", 0)]
+		_vidas.text = (
+			tr("COMBATE_VIDAS")
+			% [
+				_barra(combate["vida_jugador"]),
+				combate["vida_jugador"],
+				tr(_rival["nombre"]),
+				_barra(combate["vida_rival"]),
+				combate["vida_rival"]
+			]
+		)
+	_marcador.text = (
+		tr("VENTANILLA_MARCADOR") % [racha, partida.estado.get("coliseo_racha_mejor", 0)]
+	)
 
 
 ## Las vidas como bloques y no como un número: se leen de un vistazo y el
@@ -248,6 +269,7 @@ func _barra(vidas: int) -> String:
 
 
 # --- Cajas ------------------------------------------------------------------
+
 
 func _construir() -> void:
 	_tablero = VBoxContainer.new()
@@ -280,8 +302,7 @@ func _construir() -> void:
 	_replica.custom_minimum_size.y = 120
 	_replica.add_theme_stylebox_override("normal", _hundido(EstiloSiga.BLANCO))
 	_replica.add_theme_color_override("default_color", EstiloSiga.NEGRO)
-	_replica.add_theme_font_override(
-		"normal_font", theme.get_font("mono_font", "RichTextLabel"))
+	_replica.add_theme_font_override("normal_font", theme.get_font("mono_font", "RichTextLabel"))
 	_tablero.add_child(_replica)
 
 	_cronica = _etiqueta("")

@@ -23,8 +23,9 @@ const OFICINA := {
 	"textura_muro": "gotele",
 	"textura_techo": "techo",
 	"entrada": Vector3(0, 0, 3),
-	"bultos": [
-		# Cuatro puestos idénticos: la planta es la misma para todos, que es
+	"bultos":
+	# Cuatro puestos idénticos: la planta es la misma para todos, que es
+	[
 		# parte de lo que cuenta.
 		{"pos": Vector3(-4, 0.37, -2), "tam": Vector3(2.0, 0.75, 1.0)},
 		{"pos": Vector3(-4, 0.37, 1), "tam": Vector3(2.0, 0.75, 1.0)},
@@ -32,83 +33,162 @@ const OFICINA := {
 		{"pos": Vector3(1, 0.37, 1), "tam": Vector3(2.0, 0.75, 1.0)},
 		# Archivadores contra el muro del fondo. Son seis y no dos: un archivo
 		# con dos archivadores es un despacho.
-		{"pos": Vector3(5.5, 0.9, -4), "tam": Vector3(1.0, 1.8, 0.6),
-			"color": Color(0.40, 0.39, 0.36)},
-		{"pos": Vector3(5.5, 0.9, -2.5), "tam": Vector3(1.0, 1.8, 0.6),
-			"color": Color(0.40, 0.39, 0.36)},
-		{"pos": Vector3(5.5, 0.9, -1.0), "tam": Vector3(1.0, 1.8, 0.6),
-			"color": Color(0.40, 0.39, 0.36)},
-		{"pos": Vector3(5.5, 0.9, 0.5), "tam": Vector3(1.0, 1.8, 0.6),
-			"color": Color(0.38, 0.37, 0.35)},
-		{"pos": Vector3(5.5, 0.9, 2.0), "tam": Vector3(1.0, 1.8, 0.6),
-			"color": Color(0.40, 0.39, 0.36)},
-		{"pos": Vector3(5.5, 0.9, 3.5), "tam": Vector3(1.0, 1.8, 0.6),
-			"color": Color(0.38, 0.37, 0.35)},
-
+		{
+			"pos": Vector3(5.5, 0.9, -4),
+			"tam": Vector3(1.0, 1.8, 0.6),
+			"color": Color(0.40, 0.39, 0.36)
+		},
+		{
+			"pos": Vector3(5.5, 0.9, -2.5),
+			"tam": Vector3(1.0, 1.8, 0.6),
+			"color": Color(0.40, 0.39, 0.36)
+		},
+		{
+			"pos": Vector3(5.5, 0.9, -1.0),
+			"tam": Vector3(1.0, 1.8, 0.6),
+			"color": Color(0.40, 0.39, 0.36)
+		},
+		{
+			"pos": Vector3(5.5, 0.9, 0.5),
+			"tam": Vector3(1.0, 1.8, 0.6),
+			"color": Color(0.38, 0.37, 0.35)
+		},
+		{
+			"pos": Vector3(5.5, 0.9, 2.0),
+			"tam": Vector3(1.0, 1.8, 0.6),
+			"color": Color(0.40, 0.39, 0.36)
+		},
+		{
+			"pos": Vector3(5.5, 0.9, 3.5),
+			"tam": Vector3(1.0, 1.8, 0.6),
+			"color": Color(0.38, 0.37, 0.35)
+		},
 		# Papel. Un archivo con las mesas despejadas no es un archivo: hay
 		# torres encima de cada puesto, cajas contra la pared y una pila en el
 		# suelo que lleva ahí desde antes que tú.
-		{"pos": Vector3(-4.7, 0.83, -2.2), "tam": Vector3(0.32, 0.16, 0.24),
-			"color": Color(0.80, 0.78, 0.70)},
-		{"pos": Vector3(-3.4, 0.80, -1.7), "tam": Vector3(0.30, 0.10, 0.22),
-			"color": Color(0.78, 0.76, 0.68)},
-		{"pos": Vector3(1.5, 0.86, 1.3), "tam": Vector3(0.34, 0.22, 0.26),
-			"color": Color(0.80, 0.78, 0.70)},
-		{"pos": Vector3(0.4, 0.79, -2.3), "tam": Vector3(0.30, 0.09, 0.22),
-			"color": Color(0.76, 0.74, 0.66)},
+		{
+			"pos": Vector3(-4.7, 0.83, -2.2),
+			"tam": Vector3(0.32, 0.16, 0.24),
+			"color": Color(0.80, 0.78, 0.70)
+		},
+		{
+			"pos": Vector3(-3.4, 0.80, -1.7),
+			"tam": Vector3(0.30, 0.10, 0.22),
+			"color": Color(0.78, 0.76, 0.68)
+		},
+		{
+			"pos": Vector3(1.5, 0.86, 1.3),
+			"tam": Vector3(0.34, 0.22, 0.26),
+			"color": Color(0.80, 0.78, 0.70)
+		},
+		{
+			"pos": Vector3(0.4, 0.79, -2.3),
+			"tam": Vector3(0.30, 0.09, 0.22),
+			"color": Color(0.76, 0.74, 0.66)
+		},
 		# Cajas de archivo apiladas contra el muro de la izquierda.
-		{"pos": Vector3(-6.2, 0.20, -3.4), "tam": Vector3(0.5, 0.40, 0.7),
-			"color": Color(0.62, 0.56, 0.44)},
-		{"pos": Vector3(-6.2, 0.61, -3.4), "tam": Vector3(0.5, 0.40, 0.7),
-			"color": Color(0.60, 0.54, 0.42)},
-		{"pos": Vector3(-6.2, 1.02, -3.4), "tam": Vector3(0.5, 0.40, 0.7),
-			"color": Color(0.62, 0.56, 0.44)},
-		{"pos": Vector3(-6.2, 0.20, -2.5), "tam": Vector3(0.5, 0.40, 0.7),
-			"color": Color(0.60, 0.54, 0.42)},
-		{"pos": Vector3(-6.2, 0.61, -2.5), "tam": Vector3(0.5, 0.40, 0.7),
-			"color": Color(0.62, 0.56, 0.44)},
+		{
+			"pos": Vector3(-6.2, 0.20, -3.4),
+			"tam": Vector3(0.5, 0.40, 0.7),
+			"color": Color(0.62, 0.56, 0.44)
+		},
+		{
+			"pos": Vector3(-6.2, 0.61, -3.4),
+			"tam": Vector3(0.5, 0.40, 0.7),
+			"color": Color(0.60, 0.54, 0.42)
+		},
+		{
+			"pos": Vector3(-6.2, 1.02, -3.4),
+			"tam": Vector3(0.5, 0.40, 0.7),
+			"color": Color(0.62, 0.56, 0.44)
+		},
+		{
+			"pos": Vector3(-6.2, 0.20, -2.5),
+			"tam": Vector3(0.5, 0.40, 0.7),
+			"color": Color(0.60, 0.54, 0.42)
+		},
+		{
+			"pos": Vector3(-6.2, 0.61, -2.5),
+			"tam": Vector3(0.5, 0.40, 0.7),
+			"color": Color(0.62, 0.56, 0.44)
+		},
 		# La pila del suelo, la que nadie va a mirar nunca.
-		{"pos": Vector3(3.6, 0.14, 4.2), "tam": Vector3(0.42, 0.28, 0.30),
-			"color": Color(0.74, 0.72, 0.64)},
-		{"pos": Vector3(4.1, 0.10, 4.3), "tam": Vector3(0.40, 0.20, 0.30),
-			"color": Color(0.72, 0.70, 0.62)},
-
+		{
+			"pos": Vector3(3.6, 0.14, 4.2),
+			"tam": Vector3(0.42, 0.28, 0.30),
+			"color": Color(0.74, 0.72, 0.64)
+		},
+		{
+			"pos": Vector3(4.1, 0.10, 4.3),
+			"tam": Vector3(0.40, 0.20, 0.30),
+			"color": Color(0.72, 0.70, 0.62)
+		},
 		# La máquina de café, junto a la puerta. En una oficina, el sitio donde
 		# se cuentan las cosas.
-		{"pos": Vector3(-6.0, 0.75, 4.2), "tam": Vector3(0.7, 1.5, 0.7),
-			"color": Color(0.34, 0.33, 0.36)},
-		{"pos": Vector3(-5.6, 0.95, 4.2), "tam": Vector3(0.12, 0.35, 0.5),
-			"color": Color(0.22, 0.21, 0.24)},
-
+		{
+			"pos": Vector3(-6.0, 0.75, 4.2),
+			"tam": Vector3(0.7, 1.5, 0.7),
+			"color": Color(0.34, 0.33, 0.36)
+		},
+		{
+			"pos": Vector3(-5.6, 0.95, 4.2),
+			"tam": Vector3(0.12, 0.35, 0.5),
+			"color": Color(0.22, 0.21, 0.24)
+		},
 		# El tablón de anuncios: papeles de los que no se lee la letra. Uno con
 		# un aviso escrito afirmaría algo que nadie ha decidido; así dice «aquí
 		# hay avisos» sin mentir. Es la regla de las paredes del sueño.
-		{"pos": Vector3(-1.5, 1.65, -4.85), "tam": Vector3(2.2, 1.1, 0.06),
-			"color": Color(0.36, 0.30, 0.24)},
-		{"pos": Vector3(-2.2, 1.75, -4.80), "tam": Vector3(0.28, 0.38, 0.02),
-			"color": Color(0.86, 0.85, 0.78)},
-		{"pos": Vector3(-1.7, 1.60, -4.80), "tam": Vector3(0.24, 0.32, 0.02),
-			"color": Color(0.84, 0.83, 0.76)},
-		{"pos": Vector3(-1.1, 1.80, -4.80), "tam": Vector3(0.30, 0.24, 0.02),
-			"color": Color(0.88, 0.80, 0.62)},
-		{"pos": Vector3(-0.7, 1.55, -4.80), "tam": Vector3(0.22, 0.30, 0.02),
-			"color": Color(0.86, 0.85, 0.78)},
-
+		{
+			"pos": Vector3(-1.5, 1.65, -4.85),
+			"tam": Vector3(2.2, 1.1, 0.06),
+			"color": Color(0.36, 0.30, 0.24)
+		},
+		{
+			"pos": Vector3(-2.2, 1.75, -4.80),
+			"tam": Vector3(0.28, 0.38, 0.02),
+			"color": Color(0.86, 0.85, 0.78)
+		},
+		{
+			"pos": Vector3(-1.7, 1.60, -4.80),
+			"tam": Vector3(0.24, 0.32, 0.02),
+			"color": Color(0.84, 0.83, 0.76)
+		},
+		{
+			"pos": Vector3(-1.1, 1.80, -4.80),
+			"tam": Vector3(0.30, 0.24, 0.02),
+			"color": Color(0.88, 0.80, 0.62)
+		},
+		{
+			"pos": Vector3(-0.7, 1.55, -4.80),
+			"tam": Vector3(0.22, 0.30, 0.02),
+			"color": Color(0.86, 0.85, 0.78)
+		},
 		# El ordenador de su puesto: encendido y sin nada legible hasta que se
 		# sienta. Una pantalla con datos afirmaría una lectura que no existe.
-		{"pos": Vector3(-4.0, 0.98, 1.35), "tam": Vector3(0.42, 0.36, 0.36),
-			"color": Color(0.74, 0.72, 0.66)},
-		{"pos": Vector3(-4.0, 0.98, 1.16), "tam": Vector3(0.34, 0.26, 0.02),
-			"color": Color(0.30, 0.42, 0.34), "emisivo": true},
-		{"pos": Vector3(-4.0, 0.78, 0.85), "tam": Vector3(0.44, 0.04, 0.16),
-			"color": Color(0.72, 0.70, 0.64)},
+		{
+			"pos": Vector3(-4.0, 0.98, 1.35),
+			"tam": Vector3(0.42, 0.36, 0.36),
+			"color": Color(0.74, 0.72, 0.66)
+		},
+		{
+			"pos": Vector3(-4.0, 0.98, 1.16),
+			"tam": Vector3(0.34, 0.26, 0.02),
+			"color": Color(0.30, 0.42, 0.34),
+			"emisivo": true
+		},
+		{
+			"pos": Vector3(-4.0, 0.78, 0.85),
+			"tam": Vector3(0.44, 0.04, 0.16),
+			"color": Color(0.72, 0.70, 0.64)
+		},
 	],
 	# La luz del archivo es de fluorescente: fría, plana y de más, que es lo
 	# que hace que a las tres de la tarde no se sepa qué hora es.
 	"ambiente": Color(0.42, 0.43, 0.45),
 	"ambiente_energia": 0.55,
 	"sol": 0.25,
-	"luces": [
+	"luces":
+	[
 		{"pos": Vector3(-4, 2.65, -2), "color": Color(0.86, 0.90, 0.92), "energia": 2.2},
 		{"pos": Vector3(-4, 2.65, 2), "color": Color(0.86, 0.90, 0.92), "energia": 2.2},
 		{"pos": Vector3(2, 2.65, -2), "color": Color(0.86, 0.90, 0.92), "energia": 2.2},
@@ -123,14 +203,22 @@ const OFICINA := {
 	# que es tarde llegaba después, en la calle. El cristal va emisivo y en el
 	# azul de la noche — desde dentro, una ventana de noche es una superficie
 	# que se ve, no un agujero.
-	"ventanas": [
-		{"pos": Vector3(-1.5, 1.75, 4.9), "tam": Vector3(3.2, 1.5, 0.08),
-			"color": Color(0.09, 0.11, 0.20)},
-		{"pos": Vector3(2.6, 1.75, 4.9), "tam": Vector3(3.2, 1.5, 0.08),
-			"color": Color(0.09, 0.11, 0.20)},
+	"ventanas":
+	[
+		{
+			"pos": Vector3(-1.5, 1.75, 4.9),
+			"tam": Vector3(3.2, 1.5, 0.08),
+			"color": Color(0.09, 0.11, 0.20)
+		},
+		{
+			"pos": Vector3(2.6, 1.75, 4.9),
+			"tam": Vector3(3.2, 1.5, 0.08),
+			"color": Color(0.09, 0.11, 0.20)
+		},
 	],
-	"sitios_companeros": [
-		# El cuñado, de pie al lado de su mesa. Apartado del punto de entrada:
+	"sitios_companeros":
+	# El cuñado, de pie al lado de su mesa. Apartado del punto de entrada:
+	[
 		# puesto encima, te saludaba antes de que hubieras dado un paso.
 		Vector3(-1.9, 0, 0.4),
 		Vector3(-4, 0, -2.95),
@@ -141,14 +229,19 @@ const OFICINA := {
 	],
 	# Uno en su puesto y otro en el de al lado, que no es suyo y también humea.
 	"cigarros": [Vector3(-3.3, 0.76, 1.2), Vector3(1.4, 0.76, -2.1)],
-	"salidas": [
+	"salidas":
+	[
 		{"pos": Vector3(-6.4, 1.1, 3.5), "destino": "trayecto", "rotulo": "SALIDA_OFICINA"},
 		# El puesto de trabajo. No lleva a una fase del día: abre una PANTALLA,
 		# y se entra en ella pisando el sitio donde se trabaja — igual que se
 		# ficha saliendo por la puerta. Un botón flotante diría que el archivo
 		# es un menú; el puesto dice que es un sitio.
-		{"pos": Vector3(-4, 1.1, 1), "destino": "expediente", "rotulo": "SALIDA_PUESTO",
-			"tam": Vector3(2.4, 2.2, 2.2)},
+		{
+			"pos": Vector3(-4, 1.1, 1),
+			"destino": "expediente",
+			"rotulo": "SALIDA_PUESTO",
+			"tam": Vector3(2.4, 2.2, 2.2)
+		},
 	],
 }
 
@@ -164,28 +257,55 @@ const CALLE := {
 	# Se entra por un extremo y el portal está en el otro: hay que mirar hacia
 	# donde se anda.
 	"mirada": 180.0,
-	"bultos": [
-		{"pos": Vector3(-3.2, 1.4, -6), "tam": Vector3(1.2, 2.8, 4.0),
-			"color": Color(0.26, 0.25, 0.26)},
-		{"pos": Vector3(3.2, 1.4, 1), "tam": Vector3(1.2, 2.8, 6.0),
-			"color": Color(0.26, 0.25, 0.26)},
-		{"pos": Vector3(-3.2, 1.4, 8), "tam": Vector3(1.2, 2.8, 5.0),
-			"color": Color(0.26, 0.25, 0.26)},
+	"bultos":
+	[
+		{
+			"pos": Vector3(-3.2, 1.4, -6),
+			"tam": Vector3(1.2, 2.8, 4.0),
+			"color": Color(0.26, 0.25, 0.26)
+		},
+		{
+			"pos": Vector3(3.2, 1.4, 1),
+			"tam": Vector3(1.2, 2.8, 6.0),
+			"color": Color(0.26, 0.25, 0.26)
+		},
+		{
+			"pos": Vector3(-3.2, 1.4, 8),
+			"tam": Vector3(1.2, 2.8, 5.0),
+			"color": Color(0.26, 0.25, 0.26)
+		},
 	],
 	"ambiente": Color(0.16, 0.17, 0.22),
 	"ambiente_energia": 0.35,
 	"sol": 0.08,
 	# Farolas de sodio: naranjas, separadas, y con oscuridad de verdad entre
 	# una y otra. Es lo que hace que la calle se ande y no se cruce.
-	"luces": [
-		{"pos": Vector3(0, 2.6, -10), "color": Color(1.0, 0.72, 0.38), "energia": 3.0,
-			"alcance": 11.0, "tam": Vector3(0.5, 0.12, 0.5)},
-		{"pos": Vector3(0, 2.6, 0), "color": Color(1.0, 0.72, 0.38), "energia": 3.0,
-			"alcance": 11.0, "tam": Vector3(0.5, 0.12, 0.5)},
-		{"pos": Vector3(0, 2.6, 10), "color": Color(1.0, 0.72, 0.38), "energia": 3.0,
-			"alcance": 11.0, "tam": Vector3(0.5, 0.12, 0.5)},
+	"luces":
+	[
+		{
+			"pos": Vector3(0, 2.6, -10),
+			"color": Color(1.0, 0.72, 0.38),
+			"energia": 3.0,
+			"alcance": 11.0,
+			"tam": Vector3(0.5, 0.12, 0.5)
+		},
+		{
+			"pos": Vector3(0, 2.6, 0),
+			"color": Color(1.0, 0.72, 0.38),
+			"energia": 3.0,
+			"alcance": 11.0,
+			"tam": Vector3(0.5, 0.12, 0.5)
+		},
+		{
+			"pos": Vector3(0, 2.6, 10),
+			"color": Color(1.0, 0.72, 0.38),
+			"energia": 3.0,
+			"alcance": 11.0,
+			"tam": Vector3(0.5, 0.12, 0.5)
+		},
 	],
-	"salidas": [
+	"salidas":
+	[
 		{"pos": Vector3(0, 1.1, 15.5), "destino": "casa", "rotulo": "SALIDA_PORTAL"},
 	],
 }
@@ -200,29 +320,50 @@ const CASA := {
 	"textura_suelo": "moqueta",
 	"textura_muro": "gotele",
 	"entrada": Vector3(0, 0, 2.5),
-	"bultos": [
+	"bultos":
+	[
 		# La cama, que es la salida del día.
-		{"pos": Vector3(-2.4, 0.28, -2), "tam": Vector3(1.4, 0.55, 2.2),
-			"color": Color(0.40, 0.33, 0.30)},
-		{"pos": Vector3(2.6, 0.45, -2.4), "tam": Vector3(1.6, 0.9, 0.7),
-			"color": Color(0.44, 0.38, 0.32)},
+		{
+			"pos": Vector3(-2.4, 0.28, -2),
+			"tam": Vector3(1.4, 0.55, 2.2),
+			"color": Color(0.40, 0.33, 0.30)
+		},
+		{
+			"pos": Vector3(2.6, 0.45, -2.4),
+			"tam": Vector3(1.6, 0.9, 0.7),
+			"color": Color(0.44, 0.38, 0.32)
+		},
 		# El cuenco del gato. Vacío mientras no se compre comida.
-		{"pos": Vector3(2.8, 0.05, 1.5), "tam": Vector3(0.3, 0.1, 0.3),
-			"color": Color(0.55, 0.50, 0.20)},
+		{
+			"pos": Vector3(2.8, 0.05, 1.5),
+			"tam": Vector3(0.3, 0.1, 0.3),
+			"color": Color(0.55, 0.50, 0.20)
+		},
 	],
 	"ambiente": Color(0.30, 0.26, 0.22),
 	"ambiente_energia": 0.45,
 	"sol": 0.10,
 	# Una bombilla. No hay más luz en casa, y eso es parte de lo que se cuenta.
-	"luces": [
-		{"pos": Vector3(0, 2.5, 0), "color": Color(1.0, 0.84, 0.62), "energia": 2.6,
-			"alcance": 9.0, "tam": Vector3(0.22, 0.22, 0.22)},
+	"luces":
+	[
+		{
+			"pos": Vector3(0, 2.5, 0),
+			"color": Color(1.0, 0.84, 0.62),
+			"energia": 2.6,
+			"alcance": 9.0,
+			"tam": Vector3(0.22, 0.22, 0.22)
+		},
 	],
 	# El de casa está en la mesa, encendido y solo. Nadie lo ha apagado.
 	"cigarros": [Vector3(2.6, 0.91, -2.4)],
-	"salidas": [
-		{"pos": Vector3(-2.4, 0.9, -2), "destino": "sueño", "rotulo": "SALIDA_DORMIR",
-			"tam": Vector3(1.6, 1.2, 2.4)},
+	"salidas":
+	[
+		{
+			"pos": Vector3(-2.4, 0.9, -2),
+			"destino": "sueño",
+			"rotulo": "SALIDA_DORMIR",
+			"tam": Vector3(1.6, 1.2, 2.4)
+		},
 	],
 }
 
@@ -232,7 +373,6 @@ const CASA := {
 ## escenas distintas cada noche, elegidas por lo que se leyó ese día, así que
 ## no se puede declarar: se compone. Vive en `Sueno` y en `SuenoFormas`, y
 ## quien pinta el día se lo pide en vez de buscarlo en esta tabla.
-
 
 const POR_FASE := {
 	"archivo": OFICINA,
