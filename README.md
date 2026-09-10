@@ -99,3 +99,14 @@ npm test                                              # Vitest (lógica JS pura)
 mvn test -Dtest=AutenticacionE2E,ModalesFocoE2E,MapaConexionesE2E \
     -De2e.baseUrl=http://localhost:1998               # E2E (app ya levantada)
 ```
+
+## Licencia
+
+**MIT** (ver [`LICENSE`](LICENSE)): código, textos y datos de este repositorio.
+Cualquiera puede cogerlo, modificarlo y venderlo, incluido cerrar su copia — es
+lo que la MIT permite y se eligió a sabiendas.
+
+Lo que **no** cubre es el material de terceros bajo `godot/assets/`, que
+conserva la licencia con la que llegó: cada fichero declara la suya en
+`assets/procedencia.json` con su autor, su fuente y su sha256, y hay una prueba
+que falla si un asset no tiene ficha o una ficha no tiene asset.
