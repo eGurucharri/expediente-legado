@@ -21,6 +21,39 @@ static func _espacios(comprobar: Callable) -> void:
 	)
 	comprobar.call("cada fase del día tiene su espacio", sin_sitio, [])
 
+	# Todo `modelo` que declara un bulto existe de verdad en el árbol. Sin esta
+	# guarda una errata NO se ve: `Modelos.vestir` devuelve false y el bulto se
+	# queda siendo su caja, que es exactamente el aspecto que tenía antes — así
+	# que un mueble mal escrito se leería como «todavía no le han puesto malla».
+	var modelos_rotos := []
+	var con_modelo := 0
+	for fase in EspaciosCatalogo.POR_FASE:
+		var sitio: Dictionary = EspaciosCatalogo.POR_FASE[fase]
+		for bulto in sitio.get("bultos", []):
+			var modelo: String = bulto.get("modelo", "")
+			if modelo.is_empty():
+				continue
+			con_modelo += 1
+			if not Modelos.hay(modelo):
+				modelos_rotos.append("%s: %s" % [fase, modelo])
+	comprobar.call("ningún bulto nombra un modelo que no está", modelos_rotos, [])
+	comprobar.call("y hay muebles con malla de verdad", con_modelo > 0, true)
+
+	# Y al revés: todo modelo del árbol tiene su ficha de procedencia. Lo cubre
+	# `_procedencia()` en las dos direcciones, así que aquí solo se comprueba que
+	# los modelos entren por ese camino y no por otro.
+	var sin_ficha := []
+	var registro = JSON.parse_string(FileAccess.get_file_as_string("res://assets/procedencia.json"))
+	var rutas := []
+	for ficha in registro.get("assets", []):
+		rutas.append(ficha.get("ruta", ""))
+	for nombre in DirAccess.get_files_at(Modelos.RUTA):
+		if nombre.ends_with(".import") or nombre.ends_with(".uid"):
+			continue
+		if not ("modelos/" + nombre) in rutas:
+			sin_ficha.append(nombre)
+	comprobar.call("ningún modelo sin ficha de procedencia", sin_ficha, [])
+
 	# Y las salidas forman un ciclo cerrado que vuelve al archivo: un sitio del
 	# que no se sale es un sitio donde se acaba la partida sin decirlo.
 	var rotos := []

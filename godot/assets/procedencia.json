@@ -96,6 +96,62 @@
       "licencia": "CC0-1.0",
       "fuente": "https://kenney.nl/assets/interface-sounds",
       "sha256": "6fc395be2ad1f99ce318a5d28f98fb76dbeb676d83a0b28239d8c1fb90736180"
+    },
+    {
+      "ruta": "modelos/bookcaseClosed.glb",
+      "titulo": "Bookcase closed (Furniture Kit)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/furniture-kit",
+      "sha256": "9d210448de5e1179541da895450bbc7a39f4cd673d677654cd6b134e4ea0e047"
+    },
+    {
+      "ruta": "modelos/cardboardBoxClosed.glb",
+      "titulo": "Cardboard box closed (Furniture Kit)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/furniture-kit",
+      "sha256": "4af079dca52960912764574950f0549ff2ae1224b3db1528718629473a2d5d81"
+    },
+    {
+      "ruta": "modelos/chairDesk.glb",
+      "titulo": "Chair desk (Furniture Kit)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/furniture-kit",
+      "sha256": "46406619186034cbe92b19b79a5f1a8e3f442a17a70a7524ef2c0ad0f35095c6"
+    },
+    {
+      "ruta": "modelos/computerScreen.glb",
+      "titulo": "Computer screen (Furniture Kit)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/furniture-kit",
+      "sha256": "5942cbad29a2d2b956619569926e81d50a4174403d592fece6556e57632dc643"
+    },
+    {
+      "ruta": "modelos/desk.glb",
+      "titulo": "Desk (Furniture Kit)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/furniture-kit",
+      "sha256": "0164fe828f028b321730fb8c74502e353583f751be74da1682d42fff7d3c5a42"
+    },
+    {
+      "ruta": "modelos/televisionVintage.glb",
+      "titulo": "Television vintage (Furniture Kit)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/furniture-kit",
+      "sha256": "eb144cc8fb1e7f761e3665226e4266c8868679421d21d6548f24d2abad7c67cf"
+    },
+    {
+      "ruta": "modelos/trashcan.glb",
+      "titulo": "Trashcan (Furniture Kit)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/furniture-kit",
+      "sha256": "e0ccc1fe50cbd05386477fdff527171d1cf7c0de2ba7ff3233f8d9561feb2561"
     }
   ]
 }

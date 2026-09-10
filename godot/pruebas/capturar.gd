@@ -90,6 +90,13 @@ func _init() -> void:
 		return
 
 	if ruta.contains("dia"):
+		# La entrada de la vuelta (#68) se pone encima del día nada más
+		# arrancar, así que sin saltarla lo que se captura es ella y no el sitio
+		# que se venía a mirar.
+		if escena._entrada != null:
+			escena._entrada.saltar()
+			await process_frame
+
 		# La fase a capturar llega como argumento: el día entero no cabe en una
 		# imagen y cada sitio hay que mirarlo por separado.
 		if argumentos.size() > 1:
