@@ -28,23 +28,22 @@ jobs:
           cache: 'npm'
           cache-dependency-path: backend/package-lock.json
 
-      # Install Godot 4 (headless)
+      # Install Godot 4 (the linux.x86_64 build runs headless via the --headless flag;
+      # since 4.x there is no separate *_linux_headless.tar.xz asset)
       - name: Install Godot 4
         run: |
           set -e
           echo "Installing Godot 4.2.2-stable"
           GODOT_VERSION="4.2.2-stable"
           echo "Downloading Godot $GODOT_VERSION"
-          wget --quiet --show-progress https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_stable_linux_headless.tar.xz
+          wget --quiet --show-progress https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_linux.x86_64.zip
           echo "Extracting Godot"
-          tar -xf Godot_v${GODOT_VERSION}_stable_linux_headless.tar.xz
-          # Extract just the version number (e.g., "4.2.2" from "4.2.2-stable")
-          GODOT_BIN_VERSION=${GODOT_VERSION%-stable}
+          unzip -q Godot_v${GODOT_VERSION}_linux.x86_64.zip
           echo "Moving binary to /usr/local/bin/godot4"
-          sudo mv Godot_v${GODOT_VERSION}_stable_linux_headless/godot_linux_headless.${GODOT_BIN_VERSION} /usr/local/bin/godot4
+          sudo mv Godot_v${GODOT_VERSION}_linux.x86_64 /usr/local/bin/godot4
           sudo chmod +x /usr/local/bin/godot4
           echo "Verifying installation"
-          godot4 --version
+          godot4 --headless --version
 
       # Install gdtoolkit for linting Godot GDScript
       - name: Install gdtoolkit
