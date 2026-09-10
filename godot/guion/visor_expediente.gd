@@ -181,11 +181,16 @@ func _al_elegir_documento(indice: int) -> void:
 	var ya_visto: bool = jornada["leido_hoy"].has(registro["folio"])
 	if not ya_visto:
 		if not Jornada.gastar_accion(jornada):
+			Sonido.sonar(self, "error")
 			_aviso_partida = tr("VISOR_SIN_JORNADA")
 			_refrescar_estado()
 			return
 		Jornada.anotar_lectura(jornada, registro["folio"])
 		partida.guardar()
+
+	# Abrir un documento nuevo suena a papel; releer, a nada. La diferencia se
+	# oye antes de leer el aviso, y es la que cuesta una acción.
+	Sonido.sonar(self, "documento" if not ya_visto else "pulsar")
 
 	_aviso_partida = ""
 	_mostrar_registro(registro)

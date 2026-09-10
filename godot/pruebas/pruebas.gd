@@ -38,6 +38,7 @@ func _init() -> void:
 	_salida_del_sueno()
 	_jornada_antigua()
 	_companeros()
+	_sonido()
 
 	print("\n%d pasadas, %d fallos" % [pasadas, fallos])
 	quit(1 if fallos > 0 else 0)
@@ -1811,3 +1812,42 @@ func _companeros() -> void:
 	comprobar("la oficina tiene sillas para la plantilla",
 		EspaciosCatalogo.OFICINA["sitios_companeros"].size() >= Companeros.POR_VUELTA + 1,
 		true)
+
+
+# --- El sonido (#119) --------------------------------------------------------
+
+func _sonido() -> void:
+	# Todo lo que el catálogo puede pedir existe. Un nombre que apunta a un
+	# fichero que no está no falla al arrancar: falla el día que alguien abre
+	# esa puerta, que es el peor momento para enterarse.
+	var faltan := []
+	for fichero in Sonido.ficheros():
+		if not ResourceLoader.exists(Sonido.RUTA + fichero):
+			faltan.append(fichero)
+	comprobar("todo sonido del catálogo existe", faltan, [])
+
+	comprobar("y se carga de verdad", Sonido.stream("nomina") != null, true)
+	comprobar("un nombre que no está no revienta", Sonido.stream("no_existe"), null)
+
+	# Los pasos son varios: uno solo repetido a cada zancada deja de ser un
+	# paso y pasa a ser un tic.
+	comprobar("hay más de un paso", Sonido.PASOS.size() > 1, true)
+	comprobar("y se pueden pedir en orden",
+		Sonido.paso(0) == Sonido.paso(Sonido.PASOS.size()), true)
+
+	# Todos llevan ficha. Es la regla de assets/ aplicada al primer material de
+	# terceros que entra en el repositorio: sin esto, la procedencia se
+	# documenta «luego», que es como no documentarla.
+	var registro = JSON.parse_string(
+		FileAccess.get_file_as_string("res://assets/procedencia.json"))
+	var con_ficha := {}
+	for ficha in registro["assets"]:
+		con_ficha[String(ficha["ruta"]).replace("audio/", "")] = ficha
+	var sin_ficha := Sonido.ficheros().filter(func(f): return not con_ficha.has(f))
+	comprobar("todo sonido tiene su ficha", sin_ficha, [])
+
+	var mal_licenciados := []
+	for fichero in Sonido.ficheros():
+		if con_ficha.has(fichero) and con_ficha[fichero]["licencia"] != "CC0-1.0":
+			mal_licenciados.append(fichero)
+	comprobar("y todos son CC0", mal_licenciados, [])

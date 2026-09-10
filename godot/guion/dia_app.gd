@@ -5,6 +5,10 @@
 ## avanzar —eso es `Jornada`—: aquí solo se pega una cosa con la otra.
 extends Node3D
 
+## Lo que se anda entre paso y paso. Una zancada de persona son unos setenta
+## centímetros.
+const METROS_POR_ZANCADA := 0.72
+
 var partida := Partida.new()
 var contenido := Contenido.new()
 var jornada: Dictionary = {}
@@ -16,6 +20,9 @@ var _nomina: Label
 var _pantalla: CanvasLayer
 var _ambiente: Environment
 var _sol: DirectionalLight3D
+var _voz: AudioStreamPlayer
+var _pisada: AudioStreamPlayer3D
+var _desde_paso := 0.0
 
 
 func _ready() -> void:
@@ -51,6 +58,14 @@ func _montar_entorno() -> void:
 
 	_caminante = load("res://escenas/caminante.tscn").instantiate()
 	add_child(_caminante)
+
+	# Dos voces: lo que pasa (una puerta, la nómina) y lo que haces tú (andar).
+	# La segunda va pegada al cuerpo, que es de donde salen los pasos.
+	_voz = AudioStreamPlayer.new()
+	add_child(_voz)
+	_pisada = AudioStreamPlayer3D.new()
+	_pisada.unit_size = 3.0
+	_caminante.add_child(_pisada)
 
 
 func _montar_interfaz() -> void:
@@ -135,6 +150,8 @@ func _espacio_de(fase: String) -> Dictionary:
 ## El reloj de la noche. Solo corre dentro del sueño: el día no tiene prisa y
 ## el sueño sí, que es media parte de la diferencia entre los dos.
 func _process(delta: float) -> void:
+	_andar(delta)
+
 	if jornada.get("fase", "") != "sueño":
 		return
 	if Jornada.gastar_sueno(jornada, delta):
@@ -163,6 +180,7 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 	# y los que abren una PANTALLA. El puesto de trabajo es de los segundos —
 	# se sigue estando en la oficina mientras se lee.
 	if destino == "expediente":
+		_sonar("documento")
 		_abrir_expediente()
 		return
 
@@ -172,6 +190,7 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 	match jornada["fase"]:
 		"archivo":
 			var paga := Jornada.fichar_salida(jornada)
+			_sonar("nomina")
 			_nomina.text = tr("DIA_NOMINA") % [
 				jornada["dia"], paga["bruto"], paga["base"], paga["por_expedientes"],
 				paga["expedientes"], paga["dinero"]]
@@ -192,6 +211,8 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 			pass
 
 	partida.guardar()
+	if jornada["fase"] != "sueño":
+		_sonar("puerta_abre")
 	_entrar_en(destino)
 
 
@@ -215,6 +236,29 @@ func _plantilla_en(sitio: Dictionary) -> Array:
 			"frase": Companeros.frase_de(quien, jornada["dia"]),
 		})
 	return figuras
+
+
+## Los pasos. Suenan por DISTANCIA andada y no por tiempo: parado no se pisa,
+## y a la misma velocidad la zancada es siempre la misma. Con un temporizador,
+## quedarse quieto contra una pared seguiría sonando a alguien caminando.
+func _andar(delta: float) -> void:
+	if _pantalla != null or not _caminante.is_physics_processing():
+		return
+	var avance := Vector2(_caminante.velocity.x, _caminante.velocity.z).length() * delta
+	_desde_paso += avance
+	if _desde_paso < METROS_POR_ZANCADA:
+		return
+	_desde_paso = 0.0
+	_pisada.stream = Sonido.paso()
+	_pisada.pitch_scale = randf_range(0.94, 1.06)
+	_pisada.play()
+
+
+func _sonar(nombre: String) -> void:
+	var stream := Sonido.stream(nombre)
+	if stream != null:
+		_voz.stream = stream
+		_voz.play()
 
 
 ## El expediente, encima del día y sin salir de él.
@@ -251,6 +295,7 @@ func _cerrar_expediente() -> void:
 		return
 	_pantalla.queue_free()
 	_pantalla = null
+	_sonar("puerta_cierra")
 
 	partida.cargar()
 	jornada = Jornada.completar(partida.estado.get("jornada", Jornada.nueva()))

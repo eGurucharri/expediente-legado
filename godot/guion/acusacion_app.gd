@@ -105,6 +105,7 @@ func _construir() -> void:
 
 
 func _al_marcar(marcada: bool, indice: int) -> void:
+	Sonido.sonar(self, "marcar")
 	if not marcada:
 		if _elegido == indice:
 			_elegido = -1
@@ -134,12 +135,17 @@ func _al_presentar() -> void:
 		estado, jornada, caso, caso["sospechosos"][_elegido], descubiertas)
 
 	if resultado["resultado"] == "sin_acciones":
+		Sonido.sonar(self, "error")
 		_aviso.text = tr("A7_SIN_JORNADA")
 		return
 	if resultado["resultado"] == "ya_cerrado":
+		Sonido.sonar(self, "error")
 		_aviso.text = tr("A7_YA_CERRADO")
 		return
 
+	# Firmar suena distinto de todo lo demás: es lo único irreversible que hace
+	# el juego, y el sonido es la última vez que se dice.
+	Sonido.sonar(self, "firmar")
 	firmada.emit(resultado)
 
 
