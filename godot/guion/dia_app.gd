@@ -104,7 +104,11 @@ func _entrar_en(fase: String) -> void:
 ## catálogo, y aun así esta pantalla no sabe qué forma tiene ninguna sala.
 func _espacio_de(fase: String) -> Dictionary:
 	if fase != "sueño":
-		return EspaciosCatalogo.de_fase(fase)
+		# En copia: el catálogo es una constante, y añadirle la plantilla de
+		# esta vuelta encima la dejaría pegada para toda la partida.
+		var sitio := EspaciosCatalogo.de_fase(fase).duplicate(true)
+		sitio["figuras"] = _plantilla_en(sitio)
+		return sitio
 
 	if jornada["sueno_escenas"].is_empty():
 		jornada["sueno_escenas"] = Sueno.noche(
@@ -146,6 +150,13 @@ func _process(delta: float) -> void:
 func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 	if cuerpo != _caminante or _pantalla != null:
 		return
+	# Alguien que dice algo al pasar. No lleva a ninguna parte, así que se
+	# atiende antes de mirar destinos.
+	var frase: String = salida.get_meta("frase")
+	if not frase.is_empty():
+		_nomina.text = tr("DIA_DICE") % tr(frase)
+		return
+
 	var destino: String = salida.get_meta("destino")
 
 	# Hay dos clases de sitio que se pisan: los que llevan a otra parte del día
@@ -182,6 +193,28 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 
 	partida.guardar()
 	_entrar_en(destino)
+
+
+## Los compañeros de esta vida laboral, sentados donde el sitio diga.
+##
+## La plantilla se sortea por la semilla de la vuelta, que vive en la jornada:
+## te reasignan y los de al lado son otros, pero volver a cargar la partida no
+## los cambia. Una oficina cuya gente cambia al recargar no es una oficina.
+func _plantilla_en(sitio: Dictionary) -> Array:
+	var sitios: Array = sitio.get("sitios_companeros", [])
+	if sitios.is_empty():
+		return []
+	var figuras := []
+	var quienes := Companeros.plantilla(jornada["plantilla"])
+	for i in mini(quienes.size(), sitios.size()):
+		var quien: Dictionary = quienes[i]
+		figuras.append({
+			"pos": sitios[i],
+			"color": quien["color"],
+			"rotulo": tr(quien["nombre"]),
+			"frase": Companeros.frase_de(quien, jornada["dia"]),
+		})
+	return figuras
 
 
 ## El expediente, encima del día y sin salir de él.

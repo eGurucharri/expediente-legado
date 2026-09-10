@@ -26,6 +26,46 @@ COMBATE_INSISTENCIA,Insistencia
 COMBATE_OBJECION,Objeción
 COMBATE_SILENCIO,Silencio
 COMBATE_VIDAS,Usted  %s %d        %s  %s %d
+COMPA_ADUANERO_NY,El inspector
+COMPA_ADUANERO_NY_1,Diecinueve años mirando lo que entra por el puerto. Aquí entra menos.
+COMPA_ADUANERO_NY_2,"Escribí un libro. No lo lea, es muy largo."
+COMPA_ADUANERO_NY_3,"Preferiría no hacerlo. Pero lo hago igual, que para eso me pagan."
+COMPA_BECARIO,El becario
+COMPA_BECARIO_1,Llevo aquí cuatro años. En prácticas.
+COMPA_BECARIO_2,No salgo en la nómina. Lo he preguntado tres veces.
+COMPA_BECARIO_3,"Si un día no vengo, el sistema no lo va a notar."
+COMPA_CORRESPONDENCIA,El auxiliar de correspondencia
+COMPA_CORRESPONDENCIA_1,"Yo llevo la correspondencia. La de la casa, digo."
+COMPA_CORRESPONDENCIA_2,Hay días en que uno es varios. Eso no consta en ningún sitio.
+COMPA_CORRESPONDENCIA_3,Cuando salgo de aquí escribo. No es nada. No pregunte.
+COMPA_CUNADO,Su compañero
+COMPA_CUNADO_1,Yo eso lo tramitaba en papel y no fallaba nunca.
+COMPA_CUNADO_2,"¿Ya te han dado el sello? A mí me lo dieron el segundo día. Bueno, el tercero."
+COMPA_CUNADO_3,"Aquí lo que hay que saber es a quién preguntar. Yo lo sé, pero es que llevo mucho."
+COMPA_EMPERADOR,El señor de la mesa del fondo
+COMPA_EMPERADOR_1,Antes tenía otro trabajo. No se lo recomendaría a nadie.
+COMPA_EMPERADOR_2,Los papeles se ordenan igual en todas partes. Eso lo aprendí tarde.
+COMPA_EMPERADOR_3,Aquí nadie se levanta cuando entro. Es un alivio.
+COMPA_EN_MEDIO,El de la mesa de en medio
+COMPA_EN_MEDIO_1,¿Yo? De aquí. De la casa.
+COMPA_EN_MEDIO_2,"Llevo más que el jefe. Que el anterior, también."
+COMPA_EN_MEDIO_3,Nadie me ha dicho nunca de qué departamento soy. Yo tampoco pregunto.
+COMPA_FIELATO,El del fielato
+COMPA_FIELATO_1,"Yo estuve veinte años en el fielato. Cobrando el peaje, ahí parado."
+COMPA_FIELATO_2,"Pinto. Selvas, sobre todo. No he visto ninguna."
+COMPA_FIELATO_3,"Si le cuento lo que sueño, no me cree."
+COMPA_JUBILACION,La que se jubila
+COMPA_JUBILACION_1,Me quedan tres semanas. Ya no cojo nada nuevo.
+COMPA_JUBILACION_2,Sé dónde está todo. Ya no es mi problema.
+COMPA_JUBILACION_3,El truco de los últimos años es no aprender nada.
+COMPA_RIEGOS,El de Riegos
+COMPA_RIEGOS_1,"Yo vengo del Departamento de Riegos. Sí, de aquí. Lo cerraron."
+COMPA_RIEGOS_2,Treinta años en esta mesa. Nadie me ha preguntado nunca qué hago.
+COMPA_RIEGOS_3,Las cosas importantes pasan lejos y tarde. Uno se entera por el archivo.
+COMPA_TELEFONO,El del teléfono
+COMPA_TELEFONO_1,"…sí… sí… no, si yo lo entiendo…"
+COMPA_TELEFONO_2,Llevo desde las nueve. No contestan.
+COMPA_TELEFONO_3,"Un momento, que me tienen en espera desde ayer."
 CUNADO_DERROTA_1,Es que se lo has puesto muy fácil.
 CUNADO_DERROTA_2,"Bueno. Tampoco es para tanto. A ver, sí lo es."
 CUNADO_DERROTA_3,Yo de ti no volvía a intentarlo hasta el jueves.
@@ -54,6 +94,7 @@ CUNADO_VICTORIA_1,"Bueno, bueno. Ya te vale, ya."
 CUNADO_VICTORIA_2,"Enhorabuena. Ahora te toca el papeleo, que es lo gordo."
 CUNADO_VICTORIA_3,"Yo lo habría cerrado el martes, pero oye, cada uno."
 DIA_DESPERTAR_DE_GOLPE,"Se despierta de golpe. Día %d, y de esta noche no queda nada."
+DIA_DICE,— %s
 DIA_EN_EL_PUESTO,Se sienta en su puesto.
 DIA_NOMINA,Nómina del día %d: %d (base %d + %d por %d expediente(s)).  Tiene %d.
 DIA_NUEVO,Día %d.

@@ -37,6 +37,7 @@ func _init() -> void:
 	_compilan()
 	_salida_del_sueno()
 	_jornada_antigua()
+	_companeros()
 
 	print("\n%d pasadas, %d fallos" % [pasadas, fallos])
 	quit(1 if fallos > 0 else 0)
@@ -1745,3 +1746,68 @@ func _jornada_antigua() -> void:
 		sonando["sueno_escenas"].size(), Sueno.ESCENAS_POR_NOCHE)
 	comprobar("y no se despierta en el primer fotograma",
 		Jornada.gastar_sueno(sonando, 0.016), false)
+
+
+# --- La plantilla del archivo (#125) -----------------------------------------
+
+func _companeros() -> void:
+	# El cuñado está siempre, y es el primero: es la continuidad de una vuelta
+	# a otra, igual que el gato.
+	for semilla in [1, 7, 4242, 999999]:
+		var quienes := Companeros.plantilla(semilla)
+		comprobar("el cuñado está en la vuelta %d" % semilla,
+			quienes[0]["id"], "cunado")
+		comprobar("y la planta se llena", quienes.size(), Companeros.POR_VUELTA + 1)
+		var ids := {}
+		for quien in quienes:
+			ids[quien["id"]] = true
+		comprobar("sin repetir a nadie en la %d" % semilla, ids.size(), quienes.size())
+
+	# Dos vidas laborales distintas traen gente distinta...
+	var una := Companeros.plantilla(1).map(func(q): return q["id"])
+	var otra := Companeros.plantilla(2).map(func(q): return q["id"])
+	comprobar("dos vueltas no traen la misma plantilla", una == otra, false)
+	# ...y la misma vuelta, recargada, trae la misma: una oficina cuya gente
+	# cambia al recargar la partida no es una oficina.
+	comprobar("la misma vuelta trae siempre la misma",
+		Companeros.plantilla(1).map(func(q): return q["id"]), una)
+
+	# Lo que dice rota con el DÍA. Al azar por fotograma no estaría hablando,
+	# estaría sorteando.
+	var quien: Dictionary = Companeros.ROSTER[0]
+	comprobar("dice lo mismo si pasas dos veces el mismo día",
+		Companeros.frase_de(quien, 3), Companeros.frase_de(quien, 3))
+	comprobar("y otra cosa al día siguiente",
+		Companeros.frase_de(quien, 3) == Companeros.frase_de(quien, 4), false)
+
+	# LA REGLA: ninguno da información. Es la del cuñado extendida a todos.
+	var contenido := Contenido.new()
+	contenido.cargar()
+	var prohibido := []
+	for caso in contenido.casos:
+		for registro in caso["registros"]:
+			prohibido.append(registro["folio"])
+		for sospechoso in caso["sospechosos"]:
+			prohibido.append(sospechoso["nombre"])
+	var chivatazos := []
+	for frase in Companeros.todas_las_frases():
+		for termino in prohibido:
+			if frase.contains(termino):
+				chivatazos.append(frase)
+	comprobar("ningún compañero nombra un documento ni un sospechoso", chivatazos, [])
+
+	# Y ninguno se queda mudo: una silueta con nombre y sin nada que decir se
+	# lee como que está rota.
+	var mudos := []
+	for alguien in [Companeros.CUNADO] + Companeros.ROSTER:
+		if alguien["frases"].is_empty() or Companeros.frase_de(alguien, 1).is_empty():
+			mudos.append(alguien["id"])
+		if TranslationServer.translate(alguien["nombre"]) == alguien["nombre"]:
+			mudos.append(alguien["id"])
+	comprobar("ninguno se queda sin nombre ni sin voz", mudos, [])
+
+	# Hay sitio para todos los que se sortean: con menos sillas que gente, uno
+	# se queda de pie dentro de otro.
+	comprobar("la oficina tiene sillas para la plantilla",
+		EspaciosCatalogo.OFICINA["sitios_companeros"].size() >= Companeros.POR_VUELTA + 1,
+		true)

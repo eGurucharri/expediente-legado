@@ -49,6 +49,19 @@ const OFICINA := {
 		# El que parpadea no existe todavía; cuando exista, es una entrada más.
 		{"pos": Vector3(5.5, 2.65, 0), "color": Color(0.86, 0.90, 0.92), "energia": 1.6},
 	],
+	# Dónde se sienta cada cual. Su puesto es el de (-4, 1): ese no se ocupa.
+	# El primero de la lista es el del cuñado, que está de pie al lado de su
+	# mesa porque el cuñado nunca está en la suya.
+	"sitios_companeros": [
+		# El cuñado, de pie al lado de su mesa. Apartado del punto de entrada:
+		# puesto encima, te saludaba antes de que hubieras dado un paso.
+		Vector3(-1.9, 0, 0.4),
+		Vector3(-4, 0, -2.95),
+		Vector3(1, 0, -2.95),
+		# Al otro lado de su mesa, no en el lado de la puerta: sentado ahí, se
+		# entraba en la oficina con su nombre a metro y medio de la cara.
+		Vector3(1, 0, 0.05),
+	],
 	# Uno en su puesto y otro en el de al lado, que no es suyo y también humea.
 	"cigarros": [Vector3(-3.3, 0.76, 1.2), Vector3(1.4, 0.76, -2.1)],
 	"salidas": [

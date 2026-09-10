@@ -72,6 +72,10 @@ static func nueva() -> Dictionary:
 		# salido, se vuelve a él: **el mapa no crece esa noche**, que es un
 		# castigo que es exactamente lo que perdiste — no llegaste.
 		"mapa_anoche": [],
+		# Con quién te toca compartir planta esta vida laboral. Se sortea una
+		# vez y se guarda: los compañeros cambian cuando te reasignan, no
+		# cuando recargas la partida.
+		"plantilla": randi(),
 	}
 
 
