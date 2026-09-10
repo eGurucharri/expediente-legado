@@ -28,23 +28,23 @@ jobs:
           cache: 'npm'
           cache-dependency-path: backend/package-lock.json
 
-      # Cache Maven dependencies
-      - name: Cache Maven packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('backend/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-m2
-
       # Install Godot 4 (headless)
       - name: Install Godot 4
         run: |
-          GODOT_VERSION=4.2.1-stable
-          wget -q https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_stable_linux_headless.tar.xz
+          set -e
+          echo "Installing Godot 4.2.2-stable"
+          GODOT_VERSION="4.2.2-stable"
+          echo "Downloading Godot $GODOT_VERSION"
+          wget --quiet --show-progress https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_stable_linux_headless.tar.xz
+          echo "Extracting Godot"
           tar -xf Godot_v${GODOT_VERSION}_stable_linux_headless.tar.xz
-          sudo mv Godot_v${GODOT_VERSION}_stable_linux_headless/godot_linux_headless.${GODOT_VERSION} /usr/local/bin/godot4
+          # Extract just the version number (e.g., "4.2.2" from "4.2.2-stable")
+          GODOT_BIN_VERSION=${GODOT_VERSION%-stable}
+          echo "Moving binary to /usr/local/bin/godot4"
+          sudo mv Godot_v${GODOT_VERSION}_stable_linux_headless/godot_linux_headless.${GODOT_BIN_VERSION} /usr/local/bin/godot4
           sudo chmod +x /usr/local/bin/godot4
+          echo "Verifying installation"
+          godot4 --version
 
       # Install gdtoolkit for linting Godot GDScript
       - name: Install gdtoolkit
