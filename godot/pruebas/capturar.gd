@@ -4,6 +4,9 @@
 ##
 ##     xvfb-run -a godot4 --path godot --script pruebas/capturar.gd -- salida.png [documento] [descubrir]
 ##
+## Con un destino que contenga "dia", el segundo argumento es la FASE, y para
+## la fase "sueño" el tercero es la sala que se quiere mirar.
+##
 ## [param documento] es el índice del documento a abrir y [param descubrir]
 ## a "1" descubre sus pistas antes de capturar, para poder comparar el antes y
 ## el después de notar una frase.
@@ -62,6 +65,12 @@ func _init() -> void:
 		# La fase a capturar llega como argumento: el día entero no cabe en una
 		# imagen y cada sitio hay que mirarlo por separado.
 		if argumentos.size() > 1:
+			# El sueño son tres escenas por noche y cuáles depende de lo leído
+			# ese día (#86), así que para MIRAR una sala concreta hay que
+			# poder pedirla por su nombre: si no, solo se ven las tres que
+			# toquen. La forma va como tercer argumento.
+			if argumentos[1] == "sueño" and argumentos.size() > 2:
+				escena.jornada["sueno_escenas"] = [argumentos[2]]
 			escena._entrar_en(argumentos[1])
 		# Unos cuantos fotogramas para que la física asiente al caminante en el
 		# suelo: capturar antes lo pilla cayendo.
