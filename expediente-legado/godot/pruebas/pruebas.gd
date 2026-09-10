@@ -26,6 +26,7 @@ func _init() -> void:
 	_jornada()
 	_procedencia()
 	_espacios()
+	_acciones_y_vuelta()
 
 	print("\n%d pasadas, %d fallos" % [pasadas, fallos])
 	quit(1 if fallos > 0 else 0)
@@ -942,3 +943,54 @@ func _espacios() -> void:
 		if absf(entrada.x) >= medidas.x / 2.0 or absf(entrada.z) >= medidas.y / 2.0:
 			mal_situadas.append(fase)
 	comprobar("se entra dentro de la sala", mal_situadas, [])
+
+
+# --- Las acciones del día y lo que sobrevive a un despido --------------------
+
+func _acciones_y_vuelta() -> void:
+	var dia := Jornada.nueva()
+	comprobar("el día empieza con sus acciones",
+		dia["acciones"], Jornada.ACCIONES_POR_DIA)
+	comprobar("y no está agotado", Jornada.jornada_agotada(dia), false)
+
+	for i in Jornada.ACCIONES_POR_DIA:
+		comprobar("queda acción %d" % (i + 1), Jornada.gastar_accion(dia), true)
+	comprobar("agotadas, no se puede hacer nada más",
+		Jornada.gastar_accion(dia), false)
+	comprobar("y la jornada se declara agotada", Jornada.jornada_agotada(dia), true)
+
+	# Fuera del archivo no se gastan acciones: andar a casa no es trabajar.
+	var fuera := Jornada.nueva()
+	fuera["fase"] = "trayecto"
+	comprobar("fuera del archivo no se gastan acciones",
+		Jornada.gastar_accion(fuera), false)
+	comprobar("y no se descuenta nada", fuera["acciones"], Jornada.ACCIONES_POR_DIA)
+
+	# El día siguiente devuelve las acciones.
+	dia["fase"] = "sueño"
+	Jornada.despertar(dia)
+	comprobar("el día nuevo trae acciones otra vez",
+		dia["acciones"], Jornada.ACCIONES_POR_DIA)
+
+	# --- El despido ---
+	var vida := Jornada.nueva()
+	vida["dia"] = 12
+	vida["dinero"] = 900
+	vida["cerrados_hoy"] = 2
+	vida["leido_hoy"] = ["MEMO-1999-088"]
+	vida["gato"]["dias_sin_comer"] = 2
+	Jornada.reiniciar_vuelta(vida)
+
+	comprobar("tras el despido se empieza otra vida laboral",
+		[vida["dia"], vida["cerrados_hoy"], vida["leido_hoy"]], [1, 0, []])
+	comprobar("con el dinero de partida", vida["dinero"], Jornada.nueva()["dinero"])
+	comprobar("pero el gato se queda como estaba",
+		[vida["gato"]["presente"], vida["gato"]["dias_sin_comer"]], [true, 2])
+
+	# Y si se había ido, no vuelve: es la única cosa que no da segundas
+	# oportunidades, precisamente porque no es del trabajo.
+	var sin_gato := Jornada.nueva()
+	sin_gato["gato"]["presente"] = false
+	Jornada.reiniciar_vuelta(sin_gato)
+	comprobar("un gato que se fue no vuelve con la vuelta nueva",
+		sin_gato["gato"]["presente"], false)

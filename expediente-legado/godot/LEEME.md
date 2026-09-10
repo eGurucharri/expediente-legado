@@ -75,7 +75,19 @@ deja de ser una regla rara para ser lo obvio.
 
 El ciclo es `archivo → trayecto → casa → sueño → archivo`, y cada tránsito es
 un acto: salir de la oficina **ficha y cobra**, meterse en la cama **paga el día
-y cuenta una noche más de gato**. La economía paga por CERRAR expedientes, no
+y cuenta una noche más de gato**.
+
+**El día tiene un tope de acciones** (`ACCIONES_POR_DIA`), y es lo que hace que
+la capa exista: sin él, lo óptimo sería no salir nunca de la oficina y cerrar
+los ocho expedientes el primer día. Abrir un documento que no habías mirado hoy
+gasta una; **releer es gratis**, porque cobrar por volver a un documento
+castigaría justo lo que el juego pide hacer. Lo que se decide con esto no es
+leer deprisa sino QUÉ leer.
+
+**El gato no es estado de la vuelta.** Sobrevive a que te reasignen, porque es
+tuyo y no del trabajo: si lo cuidaste sigue ahí en la vida laboral siguiente, y
+si se fue no vuelve. Acaba siendo lo único cálido del registro permanente, al
+lado de las cartas que recuerdas de vueltas anteriores (#46). La economía paga por CERRAR expedientes, no
 por acertar — el juego ya declara que no hay sospechoso correcto, y pagar por
 acertar desmontaría la sátira. El gato no se muere: si lo desatiendes, un día no
 está.

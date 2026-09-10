@@ -65,8 +65,11 @@ func _init() -> void:
 				escena.caso, escena.caso["registros"][indice]["id"]):
 			if pista.get("fraseGatillo") != null:
 				escena._al_pulsar_marca("pista:%s" % pista["id"])
+	# Por el selector, no llamando al pintor: abrir un documento gasta una
+	# acción de la jornada, y saltárselo enseñaría un estado que no se alcanza
+	# jugando. Es el mismo atajo que ya falseó una captura antes.
 	escena._lista.select(indice)
-	escena._mostrar_registro(escena.caso["registros"][indice])
+	escena._al_elegir_documento(indice)
 
 	# Dos fotogramas: uno para que los contenedores repartan el espacio y otro
 	# para que se dibuje con el reparto ya hecho.
