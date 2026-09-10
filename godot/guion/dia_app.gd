@@ -192,7 +192,9 @@ func _espacio_de(fase: String) -> Dictionary:
 		# esta vuelta encima la dejaría pegada para toda la partida.
 		var sitio := EspaciosCatalogo.de_fase(fase).duplicate(true)
 		sitio["figuras"] = _plantilla_en(sitio)
-		return sitio
+		# El tiempo del día, encima de lo que el sitio declara. Sale del número
+		# de día, así que no hay nada que guardar (#143).
+		return Clima.vestir(sitio, jornada["dia"])
 
 	if jornada["sueno_escenas"].is_empty():
 		jornada["sueno_escenas"] = Sueno.noche(
@@ -417,6 +419,9 @@ func _texto_de_rotulo(sitio: String) -> String:
 			jornada["dia"],
 			sitio,
 			jornada["dinero"],
-			"" if jornada["gato"]["presente"] else tr("DIA_SIN_GATO")
+			(
+				("  ·  " + tr(Clima.de_dia(jornada["dia"])["rotulo"]))
+				+ ("" if jornada["gato"]["presente"] else tr("DIA_SIN_GATO"))
+			)
 		]
 	)

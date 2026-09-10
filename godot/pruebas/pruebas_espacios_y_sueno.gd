@@ -460,27 +460,6 @@ static func _cinematicas(comprobar: Callable) -> void:
 		[]
 	)
 
-	# --- Planos rodados (#66) ---
-	#
-	# No hay ningún `.ogv` en el árbol todavía: esto comprueba las dos formas de
-	# declararlo MAL, que es lo que de verdad hace falta. Un plano de vídeo que
-	# falla se ve como unos segundos en negro, y eso no se distingue de un
-	# cuelgue — por eso se caza al construir el catálogo y no al llegar a él.
-	comprobar.call(
-		"un plano de vídeo sin fichero se caza",
-		"plano 0: video sin fichero" in Cinematica.validar([{"tipo": "video", "segundos": 1.0}]),
-		true
-	)
-	comprobar.call(
-		"y uno que apunta a un vídeo que no está, también",
-		(
-			"plano 0: no hay video nada.ogv"
-			in Cinematica.validar([{"tipo": "video", "segundos": 1.0, "fichero": "nada.ogv"}])
-		),
-		true
-	)
-	comprobar.call("el vídeo es un tipo de plano más", "video" in Cinematica.TIPOS, true)
-
 	# --- La entrada de una vida laboral (#68) ---
 
 	comprobar.call(

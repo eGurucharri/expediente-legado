@@ -40,6 +40,8 @@ func _init() -> void:
 	PruebasEspaciosYSueno._traducciones(comprobar_cb)
 	PruebasEspaciosYSueno._sueno_contenido(comprobar_cb)
 
+	PruebasClimaYVideo.todo(comprobar_cb)
+
 	PruebasSuenoFinal._compilan(comprobar_cb)
 	PruebasSuenoFinal._salida_del_sueno(comprobar_cb)
 	PruebasSuenoFinal._jornada_antigua(comprobar_cb)

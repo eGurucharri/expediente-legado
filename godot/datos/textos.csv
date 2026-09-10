@@ -93,6 +93,11 @@ CUNADO_PIERDE_5,Es que has ido de frente. Con estos nunca de frente.
 CUNADO_VICTORIA_1,"Bueno, bueno. Ya te vale, ya."
 CUNADO_VICTORIA_2,"Enhorabuena. Ahora te toca el papeleo, que es lo gordo."
 CUNADO_VICTORIA_3,"Yo lo habría cerrado el martes, pero oye, cada uno."
+CLIMA_DESPEJADO,Despejado
+CLIMA_LLUVIA,Lluvia
+CLIMA_NIEBLA,Niebla
+CLIMA_NIEVE,Nieve
+CLIMA_NUBLADO,Nublado
 DIA_DESPERTAR_DE_GOLPE,"Se despierta de golpe. Día %d, y de esta noche no queda nada."
 DIA_DICE,— %s
 DIA_EN_EL_PUESTO,Se sienta en su puesto.

@@ -14,6 +14,10 @@ class_name Espacio3D
 extends RefCounted
 
 const ALTURA_MURO := 2.8
+
+## Desde dónde cae lo que cae. Por encima del muro: la calle no tiene techo, y
+## que la lluvia salga justo del borde se ve como que sale de una repisa.
+const ALTURA_CIELO := 7.0
 const GROSOR_MURO := 0.2
 
 ## Todo lo que se construye aquí se pinta con el mismo shader: el temblor de
@@ -114,6 +118,13 @@ static func construir(raiz: Node3D, espacio: Dictionary) -> Array:
 		# ilumina nada, solo se ve encendido — lo que alumbra es una luz.
 		if bulto.get("emisivo", false):
 			_emisivo(pieza, bulto.get("color", Color(0.45, 0.44, 0.42)))
+
+	# Lo que cae del cielo, si es que cae algo (#143). El sitio no dice «llueve»
+	# sino qué precipita, y quién lo decide es `Clima` — este módulo sigue sin
+	# saber qué día es.
+	var precipitacion: String = espacio.get("precipitacion", "")
+	if not precipitacion.is_empty():
+		_precipitar(raiz, precipitacion, espacio.get("suelo", Vector2(10, 10)))
 
 	# Las pantallas encendidas del sitio (un escaparate de televisores, la tele
 	# de casa). Este módulo sigue sin saber qué se ve en ellas: `Pantalla` monta
@@ -487,3 +498,61 @@ static func _salida(raiz: Node3D, salida: Dictionary) -> Area3D:
 
 	raiz.add_child(zona)
 	return zona
+
+
+## Lluvia o nieve sobre todo el sitio.
+##
+## Son partículas y no un plano con textura: una cortina de lluvia pegada a la
+## cámara se mueve CON el jugador, y entonces la lluvia deja de caer sobre la
+## calle y pasa a caer sobre ti, que es un efecto de menú y no de sitio.
+##
+## Las dos usan el mismo emisor y se diferencian en tres números —lo que tardan
+## en bajar, cuánto se desvían y cómo de gordo es el copo—, porque la diferencia
+## entre lluvia y nieve es de VELOCIDAD antes que de forma: a la escala a la que
+## se ve, una gota es una raya rápida y un copo es un punto lento.
+static func _precipitar(raiz: Node3D, cual: String, suelo: Vector2) -> void:
+	var es_nieve := cual == "nieve"
+
+	var particulas := GPUParticles3D.new()
+	particulas.amount = 2200 if es_nieve else 1400
+	particulas.lifetime = 6.0 if es_nieve else 1.6
+	particulas.visibility_aabb = AABB(
+		Vector3(-suelo.x, -1.0, -suelo.y), Vector3(suelo.x * 2.0, ALTURA_CIELO + 2.0, suelo.y * 2.0)
+	)
+	# Se precalcula un ciclo entero: sin esto se entra en la calle y la lluvia
+	# EMPIEZA, que se ve como que ha empezado a llover justo al llegar.
+	particulas.preprocess = particulas.lifetime
+
+	var material := ParticleProcessMaterial.new()
+	material.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+	material.emission_box_extents = Vector3(suelo.x / 2.0, 0.2, suelo.y / 2.0)
+	material.direction = Vector3(0, -1, 0)
+	material.spread = 0.0
+	material.initial_velocity_min = 1.1 if es_nieve else 13.0
+	material.initial_velocity_max = 1.9 if es_nieve else 17.0
+	material.gravity = Vector3(0, -1.2 if es_nieve else -9.0, 0)
+	# El copo se va de lado y la gota no: es lo que hace que la nieve se lea como
+	# que flota en vez de como lluvia blanca.
+	if es_nieve:
+		material.turbulence_enabled = true
+		material.turbulence_noise_strength = 0.6
+		material.turbulence_noise_scale = 2.0
+	particulas.process_material = material
+
+	var forma := QuadMesh.new()
+	# El copo va PEQUEÑO. A 0,05 se leía como un cuadrado blanco flotando, que
+	# es el tamaño al que un billboard sin textura deja de parecer un copo y
+	# empieza a parecer un fallo de dibujo.
+	forma.size = Vector2(0.028, 0.028) if es_nieve else Vector2(0.012, 0.42)
+	var pintura := StandardMaterial3D.new()
+	pintura.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	pintura.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	pintura.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+	pintura.albedo_color = (
+		Color(0.92, 0.94, 0.97, 0.95) if es_nieve else Color(0.62, 0.70, 0.80, 0.45)
+	)
+	forma.material = pintura
+	particulas.draw_pass_1 = forma
+
+	particulas.position = Vector3(0, ALTURA_CIELO, 0)
+	raiz.add_child(particulas)

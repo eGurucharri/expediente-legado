@@ -300,6 +300,9 @@ const OFICINA := {
 
 const CALLE := {
 	"rotulo": "SITIO_CALLE",
+	# Al aire libre: es el único sitio del día donde se nota qué tiempo hace
+	# (#143). La oficina y la casa no lo declaran, así que el clima no las toca.
+	"exterior": true,
 	"suelo": Vector2(9, 34),
 	"color_suelo": Color(0.22, 0.22, 0.23),
 	"color_muro": Color(0.30, 0.29, 0.30),
