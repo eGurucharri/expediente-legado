@@ -24,9 +24,11 @@ Godot 4** (#54) para distribuirlo sin servidor. Las dos versiones conviven: el
 backend es la fuente del contenido y sigue siendo jugable; `godot/` es donde
 está el trabajo vivo.
 
-La última release publicada, [`v0.5.0-alpha.1`](https://github.com/EspacioKoop/expediente-legado/releases),
-es de julio de 2026 y empaqueta **la versión web**. El port a Godot todavía no
-tiene una release propia porque le falta la exportación automatizada (#112).
+La última release publicada es [`v0.6.0-alpha.1`](https://github.com/EspacioKoop/expediente-legado/releases),
+una instantánea del código: recoge los 90 commits que separan al proyecto de la
+`v0.5.0-alpha.1` de julio, que fue la última que llevó binarios. El port a Godot
+todavía no puede tener binarios propios porque le falta la exportación
+automatizada (#112).
 
 Lo que hay hoy en `main`, sin adornos: suite de **464 comprobaciones** y
 recorrido de **95**, ambos sin fallos, con `gdlint` y `gdformat` limpios. Eso es
