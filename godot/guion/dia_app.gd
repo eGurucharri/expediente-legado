@@ -67,12 +67,11 @@ func _ready() -> void:
 ## medias. Una entrada que se repita cada vez que se abre el juego dejaría de
 ## ser una entrada.
 ##
-## PENDIENTE: hoy esto solo puede ocurrir al arrancar el proceso, porque
-## `Jornada.reiniciar_vuelta` todavía no lo llama ninguna pantalla — el careo,
-## el despido y la reasignación existen como lógica probada (`Acusacion`) pero
-## no están cableados a ninguna escena. Cuando lo estén (#73), la reasignación
-## tendrá que volver a pasar por aquí, o la segunda vuelta empezará sin puerta
-## por la que entrar.
+## Ocurre al arrancar y también a media sesión: cuando firmar cuesta la última
+## vida, `_cerrar_expediente` vuelve a llamar aquí por `_reasignar`. Esa es la
+## razón de que la condición mire la jornada y no una bandera de "ya
+## arrancamos" — lo que abre una entrada es que la vida laboral esté por
+## estrenar, venga de donde venga.
 func _abrir_vuelta() -> void:
 	if jornada["fase"] != "archivo" or jornada["dia"] != 1:
 		return
@@ -411,16 +410,43 @@ func _cerrar_expediente() -> void:
 	_pantalla = null
 	_sonar("puerta_cierra")
 
+	# De qué vida laboral se levantó. Se apunta ANTES de releer, porque firmar
+	# puede haberla terminado y lo que vuelve del fichero sería ya la
+	# siguiente, indistinguible de la de antes.
+	var vuelta_antes := int(jornada.get("vuelta", 1))
+
 	partida.cargar()
 	jornada = Jornada.completar(partida.estado.get("jornada", Jornada.nueva(_raiz())), _raiz())
 	partida.estado["jornada"] = jornada
 
 	_caminante.set_physics_process(true)
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+	# Le han reasignado mientras firmaba: se levanta otra persona de esa silla.
+	if int(jornada.get("vuelta", 1)) != vuelta_antes:
+		_reasignar()
+		return
+
 	# Se sale del puesto ANDANDO hacia atrás: quedarse encima del disparador
 	# reabriría el expediente en cuanto se mueva un dedo.
 	_caminante.situar(Vector3(-4, 0, 3.2))
 	_refrescar_rotulos(EspaciosCatalogo.de_fase(jornada["fase"]))
+
+
+## Empezar la vida laboral siguiente sin salir del juego.
+##
+## `Acusacion.perder_vida` ya ha hecho lo suyo en los datos —día uno, dinero de
+## partida, otra plantilla— pero el mundo montado sigue siendo el de antes: los
+## compañeros de la vuelta anterior siguen sentados, porque las figuras se
+## construyen al entrar en el sitio y nadie ha vuelto a entrar.
+##
+## Así que se entra otra vez, con la fase que la jornada nueva ya trae puesta, y
+## se abre la vuelta por la puerta: la entrada (#68) se ve cada vida laboral, y
+## sin esto la segunda empezaría sin ella. Aquí no hay cinemática de despido
+## —eso es #73—, solo la garantía de que el ciclo no se queda a medias.
+func _reasignar() -> void:
+	_entrar_en(jornada["fase"])
+	_abrir_vuelta()
 
 
 func _refrescar_rotulos(espacio: Dictionary) -> void:

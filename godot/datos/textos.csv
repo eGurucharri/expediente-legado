@@ -166,6 +166,7 @@ VISOR_IMPUTAR,Imputar responsabilidad…
 VISOR_ITEM,%s  %s
 VISOR_PARTIDA_APARTADA,"PARTIDA ANTERIOR ILEGIBLE (%s), APARTADA EN %s"
 VISOR_PRECIPITADA,  ·  ACUSACIÓN PRECIPITADA: consta en su hoja de servicio.
+VISOR_REASIGNADO,"  ·  CESE POR ACUMULACIÓN: se le reasigna. Otra persona ocupará su puesto."
 VISOR_RESUELTO,   ·   EXPEDIENTE RESUELTO
 VISOR_SIN_FECHA,sin fecha de registro
 VISOR_SIN_JORNADA,SE ACABÓ LA JORNADA. Fiche la salida.
