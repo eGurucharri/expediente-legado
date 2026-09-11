@@ -66,41 +66,25 @@ static func _salida_del_sueno(comprobar: Callable) -> void:
 	# Una variante puede pedir menos escenas sin duplicar el generador.
 	var corta := Sueno.noche(3, ["MEMO-1999-088"], [], 17, {"cantidad": 1})
 	comprobar.call("se puede pedir una noche más corta", corta.size(), 1)
-	comprobar.call(
-		"y conserva el mismo primer destino que la noche normal", corta[0], normal[0]
-	)
+	comprobar.call("y conserva el mismo primer destino que la noche normal", corta[0], normal[0])
 
 	# La política degradada puede favorecer lo ya visto. Con tres salas en el
 	# mapa hay suficientes para llenar una noche corta solo con repetidas.
 	var mapa := normal.duplicate()
 	var repetida := Sueno.noche(
-		4,
-		["FAC-1998-014"],
-		mapa,
-		17,
-		{"cantidad": 2, "priorizar_vistas": true}
+		4, ["FAC-1998-014"], mapa, 17, {"cantidad": 2, "priorizar_vistas": true}
 	)
 	comprobar.call(
-		"se pueden priorizar salas vistas",
-		repetida.all(func(id): return mapa.has(id)),
-		true
+		"se pueden priorizar salas vistas", repetida.all(func(id): return mapa.has(id)), true
 	)
 	comprobar.call(
 		"la misma política sigue siendo determinista",
-		Sueno.noche(
-			4,
-			["FAC-1998-014"],
-			mapa,
-			17,
-			{"cantidad": 2, "priorizar_vistas": true}
-		),
+		Sueno.noche(4, ["FAC-1998-014"], mapa, 17, {"cantidad": 2, "priorizar_vistas": true}),
 		repetida
 	)
 	comprobar.call("pedir cero escenas es seguro", Sueno.noche(1, [], [], 0, {"cantidad": 0}), [])
 	comprobar.call(
-		"una cantidad negativa se limita a cero",
-		Sueno.noche(1, [], [], 0, {"cantidad": -5}),
-		[]
+		"una cantidad negativa se limita a cero", Sueno.noche(1, [], [], 0, {"cantidad": -5}), []
 	)
 	comprobar.call(
 		"una cantidad enorme se limita al catálogo",
