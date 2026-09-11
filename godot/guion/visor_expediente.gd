@@ -39,6 +39,9 @@ var jornada: Dictionary = {}
 var _aviso_partida := ""
 
 var _lista: ItemList
+var _archivo: ItemList
+var _titulo_ventana: Label
+var _imputar: Button
 var _documento: RichTextLabel
 var _cabecera: Label
 var _estado: Label
@@ -62,6 +65,7 @@ func _ready() -> void:
 	_documento.text = ""
 	_cabecera.text = tr("VISOR_ELIJA")
 	_refrescar_estado()
+	_archivo.grab_focus()
 
 
 func _draw() -> void:
@@ -90,10 +94,10 @@ func _construir() -> void:
 	columnas.add_child(_columna_indice())
 	columnas.add_child(_columna_documento())
 
-	var acusar := Button.new()
-	acusar.text = tr("VISOR_IMPUTAR")
-	acusar.pressed.connect(_abrir_formulario)
-	raiz.add_child(acusar)
+	_imputar = Button.new()
+	_imputar.text = tr("VISOR_IMPUTAR")
+	_imputar.pressed.connect(_abrir_formulario)
+	raiz.add_child(_imputar)
 
 	_estado = _etiqueta("", EstiloSiga.NEGRO)
 	var barra_estado := _hueco()
@@ -122,12 +126,24 @@ func _barra_titulo() -> Control:
 		EstiloSiga.BLANCO
 	)
 	barra.add_child(titulo)
+	_titulo_ventana = titulo
 	return barra
 
 
 func _columna_indice() -> Control:
 	var columna := VBoxContainer.new()
 	columna.add_theme_constant_override("separation", 4)
+	columna.custom_minimum_size.x = 300
+	columna.add_child(_etiqueta(tr("ARCHIVO_TITULO"), EstiloSiga.NEGRO))
+	_archivo = ItemList.new()
+	_archivo.custom_minimum_size.y = 220
+	_archivo.add_theme_stylebox_override("panel", _caja_hundida(EstiloSiga.BLANCO))
+	_archivo.add_theme_color_override("font_color", EstiloSiga.NEGRO)
+	_archivo.add_theme_color_override("font_selected_color", EstiloSiga.BLANCO)
+	_archivo.item_selected.connect(_al_elegir_caso)
+	columna.add_child(_archivo)
+	_refrescar_archivo()
+	_archivo.select(0)
 	columna.add_child(_etiqueta(tr("VISOR_DOCUMENTOS"), EstiloSiga.NEGRO))
 
 	_lista = ItemList.new()
@@ -142,11 +158,56 @@ func _columna_indice() -> Control:
 	seleccion.set_corner_radius_all(0)
 	_lista.add_theme_stylebox_override("selected", seleccion)
 	_lista.add_theme_stylebox_override("selected_focus", seleccion)
+	_archivo.add_theme_stylebox_override("selected", seleccion)
+	_archivo.add_theme_stylebox_override("selected_focus", seleccion)
 	for registro in caso["registros"]:
 		_lista.add_item(tr("VISOR_ITEM") % [_icono(registro["tipo"]), registro["folio"]])
 	_lista.item_selected.connect(_al_elegir_documento)
 	columna.add_child(_lista)
 	return columna
+
+
+func _refrescar_archivo() -> void:
+	var resumenes := Progreso.de_casos(contenido.casos, descubiertas)
+	_archivo.clear()
+	for i in contenido.casos.size():
+		var ficha: Dictionary = contenido.casos[i]
+		var progreso: Dictionary = resumenes[i]
+		var cerrado := Acusacion.esta_cerrado(partida.estado, ficha["id"])
+		var titulo: String = ficha["titulo"]
+		if ficha.get("confidencial", false):
+			titulo = tr("ARCHIVO_CONFIDENCIAL") + titulo
+		var nombre: String = (
+			tr("ARCHIVO_ITEM")
+			% [
+				tr("ARCHIVO_SELLADO") if cerrado else tr("ARCHIVO_ABIERTO"),
+				progreso["encontradas"],
+				progreso["total"],
+				titulo
+			]
+		)
+		_archivo.add_item(nombre)
+		_archivo.set_item_tooltip(i, nombre)
+		if cerrado:
+			_archivo.set_item_custom_bg_color(i, EstiloSiga.GRIS)
+		if ficha["id"] == caso["id"]:
+			_archivo.select(i)
+
+
+func _al_elegir_caso(indice: int) -> void:
+	caso = contenido.casos[indice]
+	registro_actual = {}
+	_aviso_partida = ""
+	_documento.text = ""
+	_cabecera.text = tr("VISOR_ELIJA")
+	_titulo_ventana.text = (
+		tr("VISOR_BARRA_TITULO")
+		% (int(caso["anioSuceso"]) if caso.get("anioSuceso") != null else tr("SIN_FECHA_CORTA"))
+	)
+	_lista.clear()
+	for registro in caso["registros"]:
+		_lista.add_item(tr("VISOR_ITEM") % [_icono(registro["tipo"]), registro["folio"]])
+	_refrescar_estado()
 
 
 func _columna_documento() -> Control:
@@ -183,7 +244,7 @@ func _al_elegir_documento(indice: int) -> void:
 	# el juego pide hacer; lo que cuesta es abrir uno nuevo, así que la decisión
 	# del día es QUÉ mirar y no cuánto.
 	var ya_visto: bool = jornada["leido_hoy"].has(registro["folio"])
-	if not ya_visto:
+	if not ya_visto and not Acusacion.esta_cerrado(partida.estado, caso["id"]):
 		if not Jornada.gastar_accion(jornada):
 			Sonido.sonar(self, "error")
 			_aviso_partida = tr("VISOR_SIN_JORNADA")
@@ -218,15 +279,18 @@ func _mostrar_registro(registro: Dictionary) -> void:
 
 
 func _al_pulsar_marca(meta: Variant) -> void:
+	if Acusacion.esta_cerrado(partida.estado, caso["id"]):
+		return
 	var partes := String(meta).split(":", true, 1)
 	match partes[0]:
 		"pista":
 			if not descubiertas.has(partes[1]):
 				descubiertas.append(partes[1])
+				_refrescar_archivo()
 				# Se guarda al descubrir y no al salir: este juego se cierra
 				# leyendo un documento, no desde un menú.
 				if not partida.guardar():
-					_aviso_partida = "NO SE PUDO GUARDAR LA PARTIDA"
+					_aviso_partida = tr("ARCHIVO_ERROR_GUARDAR")
 				_mostrar_registro(registro_actual)
 		"carta":
 			# El relato de la carta oculta vive en prometeo-ui.js y no está
@@ -240,7 +304,7 @@ func _al_pulsar_marca(meta: Variant) -> void:
 ## devuelve lo que  haya resuelto.
 func _abrir_formulario() -> void:
 	if Acusacion.esta_cerrado(partida.estado, caso["id"]):
-		_aviso_partida = "ESTE EXPEDIENTE YA TIENE VEREDICTO FIRME."
+		_aviso_partida = tr("ARCHIVO_YA_FIRMADO")
 		_refrescar_estado()
 		return
 
@@ -266,6 +330,8 @@ func _al_firmar(resultado: Dictionary, formulario: Control) -> void:
 
 
 func _refrescar_estado() -> void:
+	_imputar.disabled = Acusacion.esta_cerrado(partida.estado, caso["id"])
+	_refrescar_archivo()
 	if not _aviso_partida.is_empty():
 		_estado.text = _aviso_partida
 		return

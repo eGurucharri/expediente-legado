@@ -61,7 +61,7 @@ def ejecutar():
         etapas = [
             ("importación", ["--editor", "--import", "--quit"], 120, None),
             ("suite", ["--script", "pruebas/pruebas.gd"], 120, minimo),
-            ("recorrido", ["--script", "pruebas/recorrido.gd"], 60, 9),
+            ("recorrido", ["--script", "pruebas/recorrido.gd"], 60, 34),
             ("arranque", ["--quit-after", "90"], 30, None),
         ]
         for nombre, argumentos, limite, suelo in etapas:
