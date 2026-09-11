@@ -162,6 +162,7 @@ func _columna_indice() -> Control:
 	_lista.add_theme_color_override("font_selected_color", EstiloSiga.BLANCO)
 	var seleccion := StyleBoxFlat.new()
 	seleccion.bg_color = EstiloSiga.AZUL_TITULO
+	seleccion.set_corner_radius_all(0)
 	_lista.add_theme_stylebox_override("selected", seleccion)
 	_lista.add_theme_stylebox_override("selected_focus", seleccion)
 	_archivo.add_theme_stylebox_override("selected", seleccion)
