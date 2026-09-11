@@ -69,8 +69,23 @@ conserva las acciones gastadas, y volver a abrir la partida conserva el lugar,
 el día, el dinero, los compañeros, el gato y los veredictos firmados. Las partidas
 anteriores al ciclo diario reciben los campos nuevos sin borrar las pistas.
 
+Las lecturas gratuitas de expedientes firmados también se registran para el
+sueño, sin gastar acciones ni descubrir pistas nuevas. Una apertura rechazada
+no cuenta como lectura. El reloj nocturno conserva una duración total fija al
+cambiar de sala y al recargar: una noche agotada no recibe tiempo nuevo.
+Las partidas sin el campo `sueno_total` conservan sus segundos y salas pendientes;
+como no guardaban el itinerario completo, su referencia visual se fija una vez
+con lo que queda, sin inventar la duración original.
+
+El recorrido aislado exige al menos 72 comprobaciones, incluidas las regresiones
+de lecturas, reloj y migración. Su mínimo está en `scripts/verificar_godot.py`,
+separado del mínimo de la suite principal. Esto no sustituye el playtesting con
+teclado, mando físico ni una partida completa.
+
 El CI ejecuta esta validación en un job independiente del backend, además de
-`gdlint godot` y `gdformat --check godot` con `gdtoolkit==4.3.4`.
+`gdlint godot` y `gdformat --check --diff godot` con `gdtoolkit==4.3.4`.
+El formato sigue siendo obligatorio; `--diff` muestra los ajustes requeridos
+cuando falla, sin modificar los archivos ni omitir la comprobación.
 
 El `--import` no es solo por los `class_name`: también compila `datos/textos.csv`
 a la traducción que el juego carga. **Todo el texto vive en ese CSV** y el código
