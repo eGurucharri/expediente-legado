@@ -18,7 +18,13 @@ godot4 --headless --path godot --import          # solo la primera vez
 godot4 --headless --path godot --script pruebas/pruebas.gd
 ```
 
-Sale `0` si todo pasa. Los casos están portados uno a uno de `WikiLinkServiceTest`,
+Sale `0` si todo pasa. **Hace falta un Godot de la línea 4.7**, que es la que
+declara `project.godot`: con un binario más viejo la suite falla por cosas que
+no son del código —assets importados con un formato que no entiende, y guiones
+que usan API posterior— y ese ruido esconde los fallos de verdad. Lo que se
+mide contra un baseline sucio no se mide.
+
+Los casos están portados uno a uno de `WikiLinkServiceTest`,
 `HotspotServiceTest`, `CartaOcultaServiceTest` y `ProgresoServiceTest`, con el
 nombre del test Java en un comentario: si el port cambia una decisión del
 original, se ve cuál.
