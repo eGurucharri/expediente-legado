@@ -36,6 +36,7 @@ func _init() -> void:
 	PruebasEspaciosYSueno._acusacion(comprobar_cb)
 	PruebasEspaciosYSueno._careo(comprobar_cb)
 	PruebasEspaciosYSueno._cinematicas(comprobar_cb)
+	PruebasEspaciosYSueno._mando(comprobar_cb)
 	PruebasEspaciosYSueno._plantas(comprobar_cb)
 	PruebasEspaciosYSueno._sueno(comprobar_cb)
 	PruebasEspaciosYSueno._traducciones(comprobar_cb)
