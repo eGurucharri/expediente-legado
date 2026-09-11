@@ -58,6 +58,7 @@ func _init() -> void:
 
 	PruebasSemilla._semilla(comprobar_cb)
 	PruebasHistoria.catalogo(comprobar_cb)
+	_archivado(comprobar_cb)
 
 	print("\n%d pasadas, %d fallos" % [pasadas, fallos])
 	quit(1 if fallos > 0 else 0)
@@ -166,19 +167,9 @@ func _marcas_hotspot() -> void:
 
 
 func _marcas_cartas() -> void:
-	# aplicarResaltaLaFraseCuandoElFolioTieneUnaCartaAsignada
 	comprobar("folio con carta", CartasOcultas.en_folio("F-1996-00187")["carta"], "la-luna")
-	# aplicarDejaElHtmlSinCambiosCuandoElFolioNoTieneCartaAsignada
 	comprobar("folio sin carta", CartasOcultas.en_folio("EMP-0456"), {})
-	# aplicarToleraFolioONulos
 	comprobar("folio nulo", CartasOcultas.en_folio(null), {})
-
-	# aplicarResaltaFrasesConAcentosSobreHtmlYaEscapadoPorHotspotService:
-	# en Java esta prueba existía porque la frase se buscaba sobre HTML ya
-	# escapado y una tilde (é -> &eacute;) no coincidía. Aquí no hay escapado
-	# intermedio, así que la tilde es texto normal — pero la comprobación se
-	# conserva porque el fallo que cubría (una carta que no aparece nunca) es
-	# el mismo.
 	var fax := "Trazos que no corresponden a ningún alfabeto reconocido."
 	var carta := CartasOcultas.en_folio("FAX-1996-077")
 	comprobar(
@@ -186,8 +177,6 @@ func _marcas_cartas() -> void:
 		Marcas.frase(fax, carta["frase"], "carta", {}).is_empty(),
 		false
 	)
-
-	# aplicarDejaElHtmlSinCambiosCuandoLaFraseNoApareceEnElContenido
 	comprobar(
 		"carta cuya frase no está en el documento",
 		Marcas.frase("Otro contenido.", carta["frase"], "carta", {}),
@@ -200,30 +189,19 @@ func _marcas_cartas() -> void:
 
 func _marcas_referencias() -> void:
 	var texto := "Llegó a [[Empleado #427]] y después al [[Archivo Muerto]]."
-
-	# extraerReferenciasDevuelveLosNombresEnOrdenDeAparicion
 	var nombres := Marcas.referencias(texto, []).map(func(h): return h["meta"]["nombre"])
 	comprobar("referencias en orden", nombres, ["Empleado #427", "Archivo Muerto"])
-
-	# extraerReferenciasDevuelveListaVaciaSinReferenciasOTextoNulo
 	comprobar("texto sin referencias", Marcas.referencias("Sin corchetes.", []), [])
 	comprobar("texto vacío", Marcas.referencias("", []), [])
-
-	# extraerReferenciasPreservaAcentosSinPasarPorEscapadoHtml
 	var con_tilde := "Ver [[Carcosa Servicios Escénicos]]."
 	comprobar(
 		"referencia con tilde",
 		Marcas.referencias(con_tilde, [])[0]["meta"]["nombre"],
 		"Carcosa Servicios Escénicos"
 	)
-
-	# renderCreatesLinksForUnlockedConceptsAndLocksUnknownOnes
 	var mezcla := Marcas.referencias(texto, ["Empleado #427"])
 	comprobar("concepto desbloqueado", mezcla[0]["tipo"], "concepto")
 	comprobar("concepto sin desbloquear", mezcla[1]["tipo"], "concepto_pendiente")
-
-	# renderEscapesHtmlAndPreservesReferenceText: los corchetes desaparecen y
-	# lo que queda es el nombre.
 	var segmentos := Marcas.segmentar(texto, Marcas.referencias(texto, ["Empleado #427"]))
 	var visible := ""
 	for s in segmentos:
@@ -239,10 +217,6 @@ func _marcas_referencias() -> void:
 
 
 func _marcas_solapamiento() -> void:
-	# En Java, CartaOcultaService hacía indexOf sobre el HTML que ya había
-	# generado HotspotService: una frase de carta contenida en una frase de
-	# pista partía el marcado por la mitad. Aquí gana la que empieza antes y
-	# la otra se descarta entera.
 	var texto := "El sello no corresponde: es de color amarillo, sin duda."
 	var hallazgos := [
 		Marcas.frase(texto, "es de color amarillo, sin duda", "pista", {"pista": "p1"}),
@@ -265,21 +239,16 @@ func _bbcode() -> void:
 		BBCode.render([{"texto": "Sin marcas.", "tipo": "", "meta": {}}]),
 		"Sin marcas."
 	)
-
-	# El equivalente del escapado HTML del original: un corchete literal en un
-	# expediente abriría una etiqueta de RichTextLabel.
 	comprobar(
 		"un corchete del texto se escapa",
 		BBCode.render([{"texto": "Anexo [sic] al margen", "tipo": "", "meta": {}}]),
 		"Anexo [lb]sic] al margen"
 	)
-
 	comprobar(
 		"una pista es pulsable",
 		BBCode.render([{"texto": "sin revisión previa", "tipo": "pista", "meta": {"pista": "p1"}}]),
 		"[url=pista:p1][color=#0000aa][u]sin revisión previa[/u][/color][/url]"
 	)
-
 	comprobar(
 		"un concepto pendiente no lleva a ninguna parte",
 		BBCode.render([{"texto": "Archivo Muerto", "tipo": "concepto_pendiente", "meta": {}}]),
@@ -294,22 +263,14 @@ func _progreso() -> void:
 	var caso_a := {"id": "a", "pistas": [{"id": "p1"}, {"id": "p2"}]}
 	var caso_b := {"id": "b", "pistas": [{"id": "p3"}]}
 	var sin_pistas := {"id": "c", "pistas": []}
-
-	# casoResueltoReturnsTrueOnlyWhenAllPistasAreDiscovered
 	comprobar("caso a medias no está resuelto", Progreso.caso_resuelto(caso_a, ["p1"]), false)
 	comprobar("caso completo está resuelto", Progreso.caso_resuelto(caso_a, ["p1", "p2"]), true)
-	comprobar(
-		"un caso sin pistas nunca está resuelto", Progreso.caso_resuelto(sin_pistas, []), false
-	)
-
-	# todosResueltosRequiresNonEmptyCaseListAndAllCasesClosed
+	comprobar("un caso sin pistas nunca está resuelto", Progreso.caso_resuelto(sin_pistas, []), false)
 	comprobar("lista vacía de casos no es victoria", Progreso.todos_resueltos([], []), false)
 	comprobar(
 		"todos resueltos", Progreso.todos_resueltos([caso_a, caso_b], ["p1", "p2", "p3"]), true
 	)
 	comprobar("uno sin resolver", Progreso.todos_resueltos([caso_a, caso_b], ["p1", "p2"]), false)
-
-	# progresoBuildsCaseProgressSummary
 	var resumen := Progreso.de_casos([caso_a, caso_b], ["p1", "p3"])
 	comprobar(
 		"resumen del primer caso",
@@ -329,8 +290,6 @@ func _progreso() -> void:
 func _contenido() -> void:
 	var contenido := Contenido.new()
 	comprobar("casos.json carga", contenido.cargar(), true)
-
-	# Las mismas cifras que las llamadas .save() de DataSeeder.java.
 	comprobar("ocho casos", contenido.casos.size(), 8)
 	comprobar("dieciséis conceptos", contenido.conceptos.size(), 16)
 	var registros := 0
@@ -343,22 +302,11 @@ func _contenido() -> void:
 	comprobar("treinta y dos registros", registros, 32)
 	comprobar("treinta y cinco pistas", pistas, 35)
 	comprobar("veintisiete sospechosos", sospechosos, 27)
-	# Seis, no siete: el expediente de la herencia Karamázov y el del empleado
-	# #427 están marcados como no principales en el contenido original, así que
-	# el final principal no depende de ellos.
 	comprobar("seis casos principales", contenido.principales().size(), 6)
-
-	# Los años son enteros, no "1999.0". Es el fallo del float de JSON, que ya
-	# se coló dos veces en pantallas distintas antes de arreglarse por donde
-	# entra.
 	var anios_decimales := contenido.casos.filter(
 		func(c): return c.get("anioSuceso") != null and typeof(c["anioSuceso"]) != TYPE_INT
 	)
 	comprobar("los años son enteros", anios_decimales, [])
-
-	# Y ninguno se queda SIN año. La comprobación de arriba filtra por
-	# `!= null`, así que un caso sin la clave pasaba de largo: el caso 8 llevaba
-	# así desde el sembrado, y el A-7 le enseñaba "sin fecha" al jugador (#53).
 	var sin_campo := func(campo: String) -> Array:
 		return (
 			contenido
@@ -371,9 +319,6 @@ func _contenido() -> void:
 	comprobar("ningún caso se queda sin año", sin_campo.call("anioSuceso"), [])
 	comprobar("ni sin estado", sin_campo.call("estado"), [])
 	comprobar("ni sin título", sin_campo.call("titulo"), [])
-
-	# Toda referencia [[...]] de un concepto apunta a un concepto que existe:
-	# si no, el corcho tendría un enlace a un expediente inexistente.
 	var nombres := contenido.conceptos.map(func(c): return c["nombre"])
 	var rotas := []
 	for concepto in contenido.conceptos:
@@ -381,9 +326,6 @@ func _contenido() -> void:
 			if not nombres.has(hallazgo["meta"]["nombre"]):
 				rotas.append(hallazgo["meta"]["nombre"])
 	comprobar("ninguna referencia del corcho apunta al vacío", rotas, [])
-
-	# Las ocho cartas ocultas tienen que estar en un documento de verdad, y su
-	# frase tiene que aparecer en él: es lo único que las hace encontrables.
 	var perdidas := []
 	for folio in CartasOcultas.POR_FOLIO:
 		var encontrado := false
@@ -396,8 +338,6 @@ func _contenido() -> void:
 		if not encontrado:
 			perdidas.append(folio + " (folio inexistente)")
 	comprobar("las ocho cartas ocultas son alcanzables", perdidas, [])
-
-	# Toda pista con frase gatillo debe poder resaltarse en su documento.
 	var gatillos_rotos := []
 	for c in contenido.casos:
 		for p in c["pistas"]:
@@ -410,10 +350,6 @@ func _contenido() -> void:
 				):
 					gatillos_rotos.append(p["id"])
 	comprobar("toda frase gatillo está en su documento", gatillos_rotos, [])
-
-	# Dos cosas que el extractor perdió en silencio y que ninguna cuenta veía:
-	# los enlaces de un concepto a sus pistas (llegaban vacíos) y las réplicas
-	# de un sospechoso (llegaban como UNA cadena con las tres pegadas).
 	var enlaces_rotos := []
 	var ids_pista := {}
 	for c in contenido.casos:
@@ -429,7 +365,6 @@ func _contenido() -> void:
 		contenido.conceptos.filter(func(c): return not c.get("pistas", []).is_empty()).size(),
 		15
 	)
-
 	var replicas_mal := []
 	for c in contenido.casos:
 		for sospechoso in c["sospechosos"]:
@@ -439,9 +374,6 @@ func _contenido() -> void:
 			if typeof(ataques) != TYPE_ARRAY or ataques.size() != 3:
 				replicas_mal.append(sospechoso["nombre"])
 	comprobar("los cuatro rivales tienen sus tres réplicas sueltas", replicas_mal, [])
-
-	# La cadena entera sobre un documento de verdad, que es lo que el visor
-	# pinta: contenido -> marcas -> BBCode.
 	var memo := {}
 	for r in contenido.casos[0]["registros"]:
 		if r["folio"] == "MEMO-1999-088":
@@ -456,6 +388,44 @@ func _contenido() -> void:
 		_sin_etiquetas(sin_ver),
 		_sin_etiquetas(ya_visto)
 	)
+
+
+## Archivado manual (#169) ---------------------------------------------------
+
+
+func _archivado(comprobar: Callable) -> void:
+	var caso := {
+		"id": "archivo-prueba",
+		"anioSuceso": 1999,
+		"estado": "ABIERTO",
+		"confidencial": false,
+		"registros": [{"folio": "F-1999-001"}],
+	}
+	var destino := Archivado.destino_de(caso)
+	comprobar.call("archivado: destino deriva metadatos", destino, "1990-ABIERTO-GENERAL")
+	comprobar.call("archivado: folio no leído bloquea", Archivado.es_clasificable(caso, []), false)
+	comprobar.call(
+		"archivado: folio leído habilita", Archivado.es_clasificable(caso, ["F-1999-001"]), true
+	)
+	var acierto := Archivado.evaluar(
+		[{"caso": caso, "destino": destino, "folios_leidos": ["F-1999-001"]}]
+	)
+	comprobar.call("archivado: colocación correcta acierta", acierto["aciertos"], 1)
+	comprobar.call("archivado: bandeja perfecta tiene rango propio", acierto["rango"], "perfecta")
+	var error := Archivado.evaluar(
+		[{"caso": caso, "destino": "1980-CERRADO-GENERAL", "folios_leidos": ["F-1999-001"]}]
+	)
+	comprobar.call("archivado: colocación incorrecta falla", error["errores"], 1)
+	comprobar.call("archivado: error no desaparece", error["evaluadas"], 1)
+	comprobar.call("archivado: error cambia rango", error["rango"] == "perfecta", false)
+	var parcial := Archivado.evaluar(
+		[
+			{"caso": caso, "destino": destino, "folios_leidos": ["F-1999-001"]},
+			{"caso": caso, "destino": destino, "folios_leidos": []},
+		]
+	)
+	comprobar.call("archivado: abandono parcial devuelve pendientes", parcial["pendientes"], 1)
+	comprobar.call("archivado: abandono parcial conserva evaluadas", parcial["evaluadas"], 1)
 
 
 ## El texto visible, sin el marcado: lo que el jugador lee.
