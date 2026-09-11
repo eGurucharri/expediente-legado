@@ -299,10 +299,7 @@ static func _validar_jornada(jornada: Dictionary) -> Array:
 			errores.append("jornada.%s inválido" % clave)
 	if (
 		jornada.has("fase")
-		and (
-			typeof(jornada["fase"]) != TYPE_STRING
-			or not Jornada.FASES.has(jornada["fase"])
-		)
+		and (typeof(jornada["fase"]) != TYPE_STRING or not Jornada.FASES.has(jornada["fase"]))
 	):
 		errores.append("jornada.fase inválida")
 	return errores
