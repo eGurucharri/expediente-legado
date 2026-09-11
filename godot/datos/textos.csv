@@ -21,6 +21,17 @@ CAREO_SIN_CARGO,Cargo no consta en el expediente
 CAREO_SIN_FOLIO,SIN NÚMERO
 CAREO_VEREDICTO_JUGADOR,cede un punto
 CAREO_VEREDICTO_RIVAL,se le impone
+CASA_BORRADO,Expediente personal borrado. No consta que haya estado usted aquí.
+CASA_BORRAR,Empezar de cero
+CASA_BORRAR_SEGURO,"¿Seguro? Se pierde TODO: cartas, logros y rachas"
+CASO_1_TITULO,El cierre de caja de 1999
+CASO_2_TITULO,El trámite de la silla 4-B
+CASO_3_TITULO,Traspaso de personal: expediente de E. Montalvo
+CASO_4_TITULO,Contrato de fin de año con Carcosa Servicios Escénicos
+CASO_5_TITULO,"El expediente MEMO-1978-014 (y 1993, y 2007)"
+CASO_6_TITULO,Acta constitutiva de la empresa (versión no circulada)
+CASO_7_TITULO,El expediente de la herencia Karamázov
+CASO_8_TITULO,El expediente del empleado #427
 COMBATE_CRONICA,Usted: %s   ·   %s: %s   —   %s
 COMBATE_INSISTENCIA,Insistencia
 COMBATE_OBJECION,Objeción
@@ -105,6 +116,17 @@ DIA_ROTULO,Día %d  ·  %s  ·  %d en el bolsillo%s
 DIA_SIN_GATO,  ·  sin gato
 DIA_SIN_GATO_AVISO,  El gato no está.
 DIA_VIVIR,Vivir cuesta %d. Le quedan %d.%s
+ENTRADA_AUDITOR,AUDITOR EN TURNO: {usuario}
+ENTRADA_COPIA_INDICES,"Copia parcial. No se restauran los índices; el volumen se monta sin ellos."
+ENTRADA_COPIA_INTEGRA,Copia íntegra. Sin incidencias que reseñar.
+ENTRADA_COPIA_SECTORES,"Copia con sectores ilegibles. Se restaura lo legible y se continúa."
+ENTRADA_COPIA_SIN_CUENTA,"No consta cuántas veces se ha restaurado este volumen. El campo no admite ese número."
+ENTRADA_NADIE_MIRA,NINGÚN OTRO USUARIO CONSTA CON ACCESO A ESTE VOLUMEN
+ENTRADA_RESTAURANDO,RESTAURANDO COPIA DE SEGURIDAD
+ENTRADA_SISTEMA,SIGA-98 · SISTEMA INTEGRAL DE GESTIÓN DE ARCHIVO
+ENTRADA_VOZ_SOLO,"Lo que haga aquí no lo revisa nadie. Tampoco lo revisó nadie antes."
+ENTRADA_VOZ_TURNO,"Acreditación vigente. Fecha de alta anterior a la contratación; el sistema no señala el desajuste."
+ENTRADA_VOZ_VOLUMEN,"Volumen montado en modo lectura y escritura. Última salida limpia: no consta."
 FICHA_COMITE,COMITÉ
 FICHA_PERSONA,PERSONA
 FICHA_RECLAMANTE,[b]%s[/b]   ·   %s\n\n%s
@@ -140,6 +162,9 @@ SUENO_DUELO_SE_QUEDA,%s no se aparta.
 SUENO_DUELO_SIN_VIDA,"Ha descansado, aunque no le hacía falta."
 SUENO_DUELO_VIDA,"Ha descansado. Le quedan %d."
 SUENO_ROTULO,…
+TAROT_ROTULO,{carta}
+TAROT_SIN_NOMBRE,Una carta sin nombre
+TAROT_VOZ,"Estaba dentro del expediente, escrita como si nada."
 VENTANILLA_ADELANTA,La comisión adelanta que la próxima réplica será: %s.
 VENTANILLA_ATENDIDA,RECLAMACIÓN ATENDIDA. Racha: %d.
 VENTANILLA_HABILIDAD,%s (%d)
@@ -165,7 +190,20 @@ VISOR_IMPUTAR,Imputar responsabilidad…
 VISOR_ITEM,%s  %s
 VISOR_PARTIDA_APARTADA,"PARTIDA ANTERIOR ILEGIBLE (%s), APARTADA EN %s"
 VISOR_PRECIPITADA,  ·  ACUSACIÓN PRECIPITADA: consta en su hoja de servicio.
+VISOR_REASIGNADO,"  ·  CESE POR ACUMULACIÓN: se le reasigna. Otra persona ocupará su puesto."
 VISOR_RESUELTO,   ·   EXPEDIENTE RESUELTO
 VISOR_SIN_FECHA,sin fecha de registro
 VISOR_SIN_JORNADA,SE ACABÓ LA JORNADA. Fiche la salida.
 VOZ_CUNADO,— %s
+ARCHIVO_TITULO,EXPEDIENTES
+ARCHIVO_ITEM,%s %d/%d · %s
+ARCHIVO_SELLADO,■
+ARCHIVO_ABIERTO,□
+ARCHIVO_CONFIDENCIAL,"CONFIDENCIAL · "
+ARCHIVO_YA_FIRMADO,ESTE EXPEDIENTE YA TIENE VEREDICTO FIRME.
+ARCHIVO_ERROR_GUARDAR,NO SE PUDO GUARDAR LA PARTIDA
+HISTORIA_TITULO,La historia de la carta
+HISTORIA_REINTENTAR,Reintentar guardado
+HISTORIA_NO_DISPONIBLE,Esta carta no tiene historia disponible.
+HISTORIA_OPCION,%s — %s
+ARCHIVO_GUARDADO_HECHO,"PARTIDA GUARDADA. Puede seguir."

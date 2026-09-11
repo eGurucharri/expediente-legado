@@ -35,51 +35,138 @@ func _init() -> void:
 	# El lomo. Más ancho que alto (radio elíptico) y estrechándose por delante:
 	# ese perfil es la mitad de lo que se lee como un gato, y no cuesta un
 	# triángulo más que un cilindro.
-	MallaOrganica.pieza(_cuerpo, MallaOrganica.tubo([
-		{"c": Vector3(0, 0, 0.22), "r": Vector2(0.055, 0.050)},
-		{"c": Vector3(0, 0.01, 0.10), "r": Vector2(0.093, 0.082)},
-		{"c": Vector3(0, 0.01, -0.06), "r": Vector2(0.098, 0.086)},
-		{"c": Vector3(0, 0, -0.18), "r": Vector2(0.080, 0.072)},
-	]), Vector3(0, ALTO, 0), Vector3.ZERO, COLOR)
+	(
+		MallaOrganica
+		. pieza(
+			_cuerpo,
+			(
+				MallaOrganica
+				. tubo(
+					[
+						{"c": Vector3(0, 0, 0.22), "r": Vector2(0.055, 0.050)},
+						{"c": Vector3(0, 0.01, 0.10), "r": Vector2(0.093, 0.082)},
+						{"c": Vector3(0, 0.01, -0.06), "r": Vector2(0.098, 0.086)},
+						{"c": Vector3(0, 0, -0.18), "r": Vector2(0.080, 0.072)},
+					]
+				)
+			),
+			Vector3(0, ALTO, 0),
+			Vector3.ZERO,
+			COLOR
+		)
+	)
 
 	# La cabeza, corta y casi redonda, y el hocico más claro: es lo único que
 	# le da cara sin dibujar ojos.
-	MallaOrganica.pieza(_cuerpo, MallaOrganica.tubo([
-		{"c": Vector3(0, 0, 0.02), "r": Vector2(0.066, 0.062)},
-		{"c": Vector3(0, 0, -0.06), "r": Vector2(0.072, 0.068)},
-		{"c": Vector3(0, 0, -0.11), "r": Vector2(0.055, 0.050)},
-	]), Vector3(0, ALTO + 0.12, -0.24), Vector3.ZERO, COLOR)
-	MallaOrganica.pieza(_cuerpo, MallaOrganica.tubo([
-		{"c": Vector3(0, 0, 0), "r": 0.030},
-		{"c": Vector3(0, 0, -0.05), "r": 0.022},
-	]), Vector3(0, ALTO + 0.09, -0.32), Vector3.ZERO, COLOR_CLARO)
+	(
+		MallaOrganica
+		. pieza(
+			_cuerpo,
+			(
+				MallaOrganica
+				. tubo(
+					[
+						{"c": Vector3(0, 0, 0.02), "r": Vector2(0.066, 0.062)},
+						{"c": Vector3(0, 0, -0.06), "r": Vector2(0.072, 0.068)},
+						{"c": Vector3(0, 0, -0.11), "r": Vector2(0.055, 0.050)},
+					]
+				)
+			),
+			Vector3(0, ALTO + 0.12, -0.24),
+			Vector3.ZERO,
+			COLOR
+		)
+	)
+	(
+		MallaOrganica
+		. pieza(
+			_cuerpo,
+			(
+				MallaOrganica
+				. tubo(
+					[
+						{"c": Vector3(0, 0, 0), "r": 0.030},
+						{"c": Vector3(0, 0, -0.05), "r": 0.022},
+					]
+				)
+			),
+			Vector3(0, ALTO + 0.09, -0.32),
+			Vector3.ZERO,
+			COLOR_CLARO
+		)
+	)
 
 	# Las orejas: un tubo cuyo último radio es cero, que es como se hace una
 	# punta. Un triángulo de verdad no se vería distinto y sí sería otra clase.
 	for x in [-0.045, 0.045]:
-		MallaOrganica.pieza(_cuerpo, MallaOrganica.tubo([
-			{"c": Vector3(0, 0, 0), "r": Vector2(0.030, 0.014)},
-			{"c": Vector3(0, 0, -0.07), "r": 0.0},
-		], 5), Vector3(x, ALTO + 0.18, -0.25), Vector3(PI / 2.0, 0, 0), COLOR)
+		(
+			MallaOrganica
+			. pieza(
+				_cuerpo,
+				(
+					MallaOrganica
+					. tubo(
+						[
+							{"c": Vector3(0, 0, 0), "r": Vector2(0.030, 0.014)},
+							{"c": Vector3(0, 0, -0.07), "r": 0.0},
+						],
+						5
+					)
+				),
+				Vector3(x, ALTO + 0.18, -0.25),
+				Vector3(PI / 2.0, 0, 0),
+				COLOR
+			)
+		)
 
 	# Cuatro patas, tubos de pie. Las de delante algo más cortas: un gato no es
 	# una mesa, y ese centímetro es lo que le da la inclinación del lomo.
 	for x in [-0.055, 0.055]:
 		for z in [-0.13, 0.14]:
-			MallaOrganica.pieza(_cuerpo, MallaOrganica.tubo([
-				{"c": Vector3(0, 0, 0), "r": 0.026},
-				{"c": Vector3(0, 0, -ALTO + 0.02), "r": 0.020},
-			], 5), Vector3(x, ALTO - 0.02, z), Vector3(-PI / 2.0, 0, 0), COLOR)
+			(
+				MallaOrganica
+				. pieza(
+					_cuerpo,
+					(
+						MallaOrganica
+						. tubo(
+							[
+								{"c": Vector3(0, 0, 0), "r": 0.026},
+								{"c": Vector3(0, 0, -ALTO + 0.02), "r": 0.020},
+							],
+							5
+						)
+					),
+					Vector3(x, ALTO - 0.02, z),
+					Vector3(-PI / 2.0, 0, 0),
+					COLOR
+				)
+			)
 
 	# La cola cuelga de su propio nodo porque es lo único que se mueve.
 	_cola = Node3D.new()
 	_cola.position = Vector3(0, ALTO + 0.04, 0.20)
 	_cuerpo.add_child(_cola)
-	MallaOrganica.pieza(_cola, MallaOrganica.tubo([
-		{"c": Vector3(0, 0, 0), "r": 0.024},
-		{"c": Vector3(0, 0.03, 0.10), "r": 0.019},
-		{"c": Vector3(0, 0.05, 0.19), "r": 0.013},
-	], 5), Vector3.ZERO, Vector3.ZERO, COLOR)
+	(
+		MallaOrganica
+		. pieza(
+			_cola,
+			(
+				MallaOrganica
+				. tubo(
+					[
+						{"c": Vector3(0, 0, 0), "r": 0.024},
+						{"c": Vector3(0, 0.03, 0.10), "r": 0.019},
+						{"c": Vector3(0, 0.05, 0.19), "r": 0.013},
+					],
+					5
+				)
+			),
+			Vector3.ZERO,
+			Vector3.ZERO,
+			COLOR
+		)
+	)
 
 
 ## Lo pone en marcha. [param sitios] son los rincones por los que se mueve, y

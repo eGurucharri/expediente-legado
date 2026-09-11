@@ -79,13 +79,19 @@ static func segundos_de_noche(escenas: Array) -> float:
 ## El día entra para que dos noches con la misma lectura no sean la misma
 ## noche; lo leído entra para que la noche sea de su día. Sin lo leído, el
 ## sueño sería una función del calendario.
-static func semilla(dia: int, leido_hoy: Array) -> int:
+## [param raiz] es la semilla de la partida (#147): entra para que dos partidas
+## distintas con el mismo día y la misma lectura no sueñen lo mismo. Sin ella
+## el sueño sería una función del contenido y no de quien lo soñó.
+static func semilla(dia: int, leido_hoy: Array, raiz: int = 0) -> int:
 	var texto := str(dia)
 	var folios := leido_hoy.duplicate()
 	folios.sort()
 	for folio in folios:
 		texto += "|" + str(folio)
-	return abs(hash(texto))
+	# Por Azar y no por `hash()`: `hash()` puede cambiar de una versión de
+	# Godot a otra, y una noche que cambia al actualizar el motor no se puede
+	# volver a ver cuando alguien informa de que salió rara.
+	return Azar.derivar_texto(raiz, "sueno", texto, [dia])
 
 
 ## Las tres escenas de esta noche, en orden.
@@ -93,9 +99,9 @@ static func semilla(dia: int, leido_hoy: Array) -> int:
 ## Lo NUEVO va primero: mientras queden salas sin ver se ven salas sin ver, y
 ## solo cuando el mapa ya las tiene todas se empiezan a repetir. Es lo que hace
 ## que el mapa crezca de verdad en vez de crecer de casualidad.
-static func noche(dia: int, leido_hoy: Array, mapa: Array) -> Array:
+static func noche(dia: int, leido_hoy: Array, mapa: Array, raiz: int = 0) -> Array:
 	var rng := RandomNumberGenerator.new()
-	rng.seed = semilla(dia, leido_hoy)
+	rng.seed = semilla(dia, leido_hoy, raiz)
 
 	var nuevas := SuenoFormas.ids().filter(func(id): return not mapa.has(id))
 	var vistas := SuenoFormas.ids().filter(func(id): return mapa.has(id))
@@ -138,22 +144,28 @@ static func espacio(id: String, quedan: int, contenido: Dictionary = {}) -> Dict
 		# la sala. Todas lejos es lo mismo que ninguna en una nave de cuarenta
 		# metros — se llega, no se ve nada, y el sueño parece vacío.
 		celdas.append(Planta.a_la_vista(bloques, entrada, PASOS_PRIMERA_FIGURA))
-		celdas.append_array(Planta.repartidas(
-			bloques, quienes.size() - 1, [entrada, salida, celdas[0]]))
+		celdas.append_array(
+			Planta.repartidas(bloques, quienes.size() - 1, [entrada, salida, celdas[0]])
+		)
 	for i in quienes.size():
 		var quien: Dictionary = quienes[i]
-		figuras.append({
-			"pos": Planta.centro_en_metros(bloques, celdas[i]),
-			"color": COLOR_ACUSADO if quien.get("acusado", false) else COLOR_FIGURA,
-			"rotulo": quien.get("nombre", ""),
-			"color_rotulo": COLOR_ACUSADO_TEXTO if quien.get("acusado", false) \
-				else COLOR_TEXTO,
-			# Con el que firmaste se pelea (#88). Va como un dato de la figura
-			# —su id— y no como una bandera: quien lo pise tiene que saber
-			# CONTRA QUIÉN, porque ganar se apunta por persona.
-			"duelo": quien.get("id", "") if quien.get("acusado", false) else "",
-			"ataques": quien.get("ataques", []),
-		})
+		(
+			figuras
+			. append(
+				{
+					"pos": Planta.centro_en_metros(bloques, celdas[i]),
+					"color": COLOR_ACUSADO if quien.get("acusado", false) else COLOR_FIGURA,
+					"rotulo": quien.get("nombre", ""),
+					"color_rotulo":
+					# Con el que firmaste se pelea (#88). Va como un dato de la figura
+					# —su id— y no como una bandera: quien lo pise tiene que saber
+					COLOR_ACUSADO_TEXTO if quien.get("acusado", false) else COLOR_TEXTO,
+					# CONTRA QUIÉN, porque ganar se apunta por persona.
+					"duelo": quien.get("id", "") if quien.get("acusado", false) else "",
+					"ataques": quien.get("ataques", []),
+				}
+			)
+		)
 
 	# Las frases van a los paños más anchos, y solo caben las que caben: un
 	# muro por frase. Lo que sobra no se apila en el mismo sitio — se queda
@@ -163,12 +175,17 @@ static func espacio(id: String, quedan: int, contenido: Dictionary = {}) -> Dict
 	var frases: Array = contenido.get("frases", [])
 	for i in mini(frases.size(), paredes.size()):
 		var sitio := Planta.en_pared(bloques, paredes[i], SEPARACION_PARED)
-		carteles.append({
-			"texto": frases[i],
-			"pos": sitio["pos"],
-			"giro": sitio["giro"],
-			"color": COLOR_TEXTO,
-		})
+		(
+			carteles
+			. append(
+				{
+					"texto": frases[i],
+					"pos": sitio["pos"],
+					"giro": sitio["giro"],
+					"color": COLOR_TEXTO,
+				}
+			)
+		)
 
 	return {
 		"rotulo": forma["rotulo"],
@@ -186,19 +203,22 @@ static func espacio(id: String, quedan: int, contenido: Dictionary = {}) -> Dict
 		"entrada": Planta.centro_en_metros(bloques, entrada),
 		"figuras": figuras,
 		"carteles": carteles,
-		"salidas": [{
-			"pos": Planta.centro_en_metros(bloques, salida) + Vector3(0, 1.1, 0),
-			"destino": "sueño" if quedan > 0 else "archivo",
-			"rotulo": "SALIDA_DESPERTAR" if quedan == 0 else "SUENO_ROTULO",
-			# No se ve (#90): hay que dar con ella. Lo que impide que sea una
-			# lotería no es una marca sino el MAPA que crece (#86) — la segunda
-			# vez que te toca una sala, ya sabes por dónde se salía.
-			"visible": false,
-			# Y por eso es más ancha que una puerta: buscar a ciegas un cuadro
-			# de metro y medio en una nave de cuarenta es otro juego, y no uno
-			# mejor.
-			"tam": Vector3(3.2, 2.4, 3.2),
-		}],
+		"salidas":
+		[
+			{
+				"pos": Planta.centro_en_metros(bloques, salida) + Vector3(0, 1.1, 0),
+				"destino": "sueño" if quedan > 0 else "archivo",
+				"rotulo": "SALIDA_DESPERTAR" if quedan == 0 else "SUENO_ROTULO",
+				# No se ve (#90): hay que dar con ella. Lo que impide que sea una
+				# lotería no es una marca sino el MAPA que crece (#86) — la segunda
+				# vez que te toca una sala, ya sabes por dónde se salía.
+				"visible": false,
+				# Y por eso es más ancha que una puerta: buscar a ciegas un cuadro
+				# de metro y medio en una nave de cuarenta es otro juego, y no uno
+				# mejor.
+				"tam": Vector3(3.2, 2.4, 3.2),
+			}
+		],
 	}
 
 

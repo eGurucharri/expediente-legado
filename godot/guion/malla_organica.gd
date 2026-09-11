@@ -67,8 +67,9 @@ static func _anillo(punto: Dictionary, lados: int) -> Array:
 	return puntos
 
 
-static func _tapa(st: SurfaceTool, anillo: Array, centro: Vector3,
-		invertida: bool, lados: int) -> void:
+static func _tapa(
+	st: SurfaceTool, anillo: Array, centro: Vector3, invertida: bool, lados: int
+) -> void:
 	for j in lados:
 		var k := (j + 1) % lados
 		if invertida:
@@ -85,8 +86,9 @@ static func _triangulo(st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3) -> v
 
 ## Un tubo ya colocado y girado, que es como se pega una pata a un cuerpo sin
 ## rehacer la espina en coordenadas del mundo.
-static func pieza(raiz: Node3D, malla: ArrayMesh, pos: Vector3,
-		giro: Vector3, color: Color) -> MeshInstance3D:
+static func pieza(
+	raiz: Node3D, malla: ArrayMesh, pos: Vector3, giro: Vector3, color: Color
+) -> MeshInstance3D:
 	var nodo := MeshInstance3D.new()
 	nodo.mesh = malla
 	nodo.position = pos

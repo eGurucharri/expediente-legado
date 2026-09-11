@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Sin esto, un repositorio con LFS se descarga con PUNTEROS en
+          # vez de con los ficheros: la importación de Godot fallaría
+          # sobre texturas y mallas que en local se ven perfectamente.
+          lfs: true
+
+      # Set up Java (for Maven)
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: maven
+
+      # Set up Node.js (using Node 24 as Node 20 is deprecated)
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      # Test backend with Maven
+      - name: Test backend with Maven
+        run: |
+          cd backend
+          mvn -B test
+          mvn -B checkstyle:check pmd:check spotbugs:check
+
+      # Test frontend (Vitest) in backend/
+      - name: Test frontend with Vitest
+        run: |
+          cd backend
+          npm ci
+          npm test
+
+  godot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Sin esto, un repositorio con LFS se descarga con PUNTEROS en
+          # vez de con los ficheros: la importación de Godot fallaría
+          # sobre texturas y mallas que en local se ven perfectamente.
+          lfs: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Instalar el motor declarado por el proyecto
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(cat .godot-version)"
+          archivo="Godot_v${version}_linux.x86_64.zip"
+          base="https://github.com/godotengine/godot-builds/releases/download/${version}"
+          curl --fail --location --retry 3 "$base/$archivo" -o "$RUNNER_TEMP/$archivo"
+          curl --fail --location --retry 3 "$base/SHA512-SUMS.txt" -o "$RUNNER_TEMP/SHA512-SUMS.txt"
+          cd "$RUNNER_TEMP"
+          grep -F " $archivo" SHA512-SUMS.txt | sha512sum --check --strict
+          unzip -q "$archivo"
+          mkdir -p godot-bin
+          mv "Godot_v${version}_linux.x86_64" godot-bin/godot4
+          chmod +x godot-bin/godot4
+          echo "$RUNNER_TEMP/godot-bin" >> "$GITHUB_PATH"
+      - name: Instalar gdtoolkit
+        run: python -m pip install gdtoolkit==4.3.4
+      - name: Verificar el detector de falsos verdes
+        run: python -m unittest discover -s scripts -p 'test_*.py'
+      - name: Importar, ejecutar la suite y arrancar el juego
+        run: python scripts/verificar_godot.py
+      - name: Lint y formato GDScript
+        run: |
+          gdlint godot
+          gdformat --check --diff godot

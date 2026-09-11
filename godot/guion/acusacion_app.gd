@@ -49,12 +49,10 @@ func _construir() -> void:
 	add_child(raiz)
 
 	raiz.add_child(_titulo(tr("A7_TITULO")))
-	raiz.add_child(_linea(tr("A7_EXPEDIENTE") % caso.get("titulo", "")))
-	raiz.add_child(_linea(
-		tr("A7_EJERCICIO") % str(caso.get("anioSuceso", tr("A7_SIN_FECHA")))))
+	raiz.add_child(_linea(tr("A7_EXPEDIENTE") % tr(caso.get("titulo", ""))))
+	raiz.add_child(_linea(tr("A7_EJERCICIO") % str(caso.get("anioSuceso", tr("A7_SIN_FECHA")))))
 
-	raiz.add_child(_linea(
-		tr("A7_INSTRUCCION")))
+	raiz.add_child(_linea(tr("A7_INSTRUCCION")))
 
 	var lista := VBoxContainer.new()
 	lista.add_theme_constant_override("separation", 2)
@@ -78,9 +76,11 @@ func _construir() -> void:
 	var declaracion := CheckBox.new()
 	declaracion.text = tr("A7_DECLARACION")
 	declaracion.add_theme_color_override("font_color", EstiloSiga.NEGRO)
-	declaracion.toggled.connect(func(marcada: bool):
-		_declarado = marcada
-		_revisar())
+	declaracion.toggled.connect(
+		func(marcada: bool):
+			_declarado = marcada
+			_revisar()
+	)
 	raiz.add_child(declaracion)
 
 	_aviso = _linea("")
@@ -132,7 +132,8 @@ func _revisar() -> void:
 
 func _al_presentar() -> void:
 	var resultado := Acusacion.acusar(
-		estado, jornada, caso, caso["sospechosos"][_elegido], descubiertas)
+		estado, jornada, caso, caso["sospechosos"][_elegido], descubiertas
+	)
 
 	if resultado["resultado"] == "sin_acciones":
 		Sonido.sonar(self, "error")
@@ -150,6 +151,7 @@ func _al_presentar() -> void:
 
 
 # --- Cajas ------------------------------------------------------------------
+
 
 func _titulo(texto: String) -> Control:
 	var barra := PanelContainer.new()

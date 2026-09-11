@@ -23,7 +23,12 @@ shader_type spatial;
 render_mode vertex_lighting, diffuse_lambert, specular_disabled;
 
 uniform vec4 color_base : source_color = vec4(1.0);
-uniform sampler2D textura : source_color, filter_nearest, repeat_enable, hint_default_white;
+// Filtro lineal con mipmaps, no `filter_nearest`: estas texturas vienen de
+// fotografía a 1024 y con NEAREST sin mipmaps una pared lejana centellea a
+// cada paso. El aspecto de la máquina lo siguen dando el temblor de
+// vértices, la luz por vértice y el color cortado, que son de la geometría
+// y de la luz; el grano de la superficie es otra cosa.
+uniform sampler2D textura : source_color, filter_linear_mipmap_anisotropic, repeat_enable, hint_default_white;
 uniform bool con_textura = false;
 uniform float escala_textura = 1.0;
 uniform vec4 emision : source_color = vec4(0.0);

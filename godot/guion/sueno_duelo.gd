@@ -11,16 +11,16 @@
 class_name SuenoDuelo
 extends Control
 
+## Se emite al cerrar, con lo que devolvió `SuenoCombate.resolver`: quien abrió
+## la pantalla es quien sabe qué hacer con la jornada después.
+signal terminado(gano: bool)
+
 ## Contra quién, en el formato que deja `SuenoContenido.fuentes`: id, nombre,
 ## acusado y sus réplicas.
 var figura: Dictionary = {}
 
 ## Las cargas de habilidad de la partida (`Historias.cargas`).
 var cargas: Dictionary = {}
-
-## Se emite al cerrar, con lo que devolvió `SuenoCombate.resolver`: quien abrió
-## la pantalla es quien sabe qué hacer con la jornada después.
-signal terminado(gano: bool)
 
 var _combate: Dictionary = {}
 var _azar := RandomNumberGenerator.new()
@@ -50,13 +50,20 @@ func _al_jugar(tipo: String) -> void:
 	var ronda := Combate.jugar(_combate, tipo, _habilidad_eje, _tirada())
 	_habilidad_eje = ""
 
-	_cronica.text = tr("COMBATE_CRONICA") % [
-		Combate.etiqueta(ronda["tipo_jugador"]), figura.get("nombre", ""),
-		Combate.etiqueta(ronda["tipo_rival"]), _veredicto(ronda["veredicto"])]
+	_cronica.text = (
+		tr("COMBATE_CRONICA")
+		% [
+			Combate.etiqueta(ronda["tipo_jugador"]),
+			figura.get("nombre", ""),
+			Combate.etiqueta(ronda["tipo_rival"]),
+			_veredicto(ronda["veredicto"])
+		]
+	)
 	if not ronda["revelada"].is_empty():
 		_cronica.text += "\n" + tr("VENTANILLA_ADELANTA") % ronda["revelada"]
-	_replica.text = tr("CAREO_REPLICA") % ronda["replica"] \
-		if not ronda["replica"].is_empty() else ""
+	_replica.text = (
+		tr("CAREO_REPLICA") % ronda["replica"] if not ronda["replica"].is_empty() else ""
+	)
 
 	_pintar_habilidades()
 	_actualizar_marcador()
@@ -71,8 +78,7 @@ func _cerrar(gano: bool) -> void:
 	_gano = gano
 	_botones.visible = false
 	_habilidades.visible = false
-	_cronica.text += "\n\n" + tr(
-		"SUENO_DUELO_GANADO" if gano else "SUENO_DUELO_PERDIDO")
+	_cronica.text += "\n\n" + tr("SUENO_DUELO_GANADO" if gano else "SUENO_DUELO_PERDIDO")
 
 	var seguir := Button.new()
 	seguir.theme = EstiloSiga.tema()
@@ -83,9 +89,12 @@ func _cerrar(gano: bool) -> void:
 
 func _veredicto(cual: String) -> String:
 	match cual:
-		"gana_jugador": return tr("CAREO_VEREDICTO_JUGADOR")
-		"gana_rival": return tr("CAREO_VEREDICTO_RIVAL")
-		_: return tr("VEREDICTO_EMPATE")
+		"gana_jugador":
+			return tr("CAREO_VEREDICTO_JUGADOR")
+		"gana_rival":
+			return tr("CAREO_VEREDICTO_RIVAL")
+		_:
+			return tr("VEREDICTO_EMPATE")
 
 
 func _tirada() -> Callable:
@@ -93,10 +102,16 @@ func _tirada() -> Callable:
 
 
 func _actualizar_marcador() -> void:
-	_marcador.text = tr("COMBATE_VIDAS") % [
-		_barra(_combate["vida_jugador"]), _combate["vida_jugador"],
-		figura.get("nombre", ""),
-		_barra(_combate["vida_rival"]), _combate["vida_rival"]]
+	_marcador.text = (
+		tr("COMBATE_VIDAS")
+		% [
+			_barra(_combate["vida_jugador"]),
+			_combate["vida_jugador"],
+			figura.get("nombre", ""),
+			_barra(_combate["vida_rival"]),
+			_combate["vida_rival"]
+		]
+	)
 
 
 func _barra(vidas: int) -> String:
@@ -110,19 +125,21 @@ func _pintar_habilidades() -> void:
 		var habilidad: Dictionary = Historias.HABILIDADES[eje]
 		var boton := Button.new()
 		boton.theme = EstiloSiga.tema()
-		boton.text = tr("VENTANILLA_HABILIDAD") % [
-			tr(habilidad["nombre"]), _combate["cargas"][eje]]
+		boton.text = tr("VENTANILLA_HABILIDAD") % [tr(habilidad["nombre"]), _combate["cargas"][eje]]
 		boton.tooltip_text = tr(habilidad["efecto"])
 		boton.toggle_mode = true
-		boton.pressed.connect(func():
-			_habilidad_eje = eje if boton.button_pressed else ""
-			for otro in _habilidades.get_children():
-				if otro != boton:
-					otro.button_pressed = false)
+		boton.pressed.connect(
+			func():
+				_habilidad_eje = eje if boton.button_pressed else ""
+				for otro in _habilidades.get_children():
+					if otro != boton:
+						otro.button_pressed = false
+		)
 		_habilidades.add_child(boton)
 
 
 # --- Las cajas --------------------------------------------------------------
+
 
 func _construir() -> void:
 	var fondo := ColorRect.new()

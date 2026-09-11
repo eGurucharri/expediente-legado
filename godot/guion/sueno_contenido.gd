@@ -33,8 +33,13 @@ extends RefCounted
 ## [param vencidos], los que ya te peleaste y ganaste (#88), que **dejan de
 ## aparecer**. Es la consecuencia que se ve sin texto que la explique: la sala
 ## donde estaba está vacía la próxima vez.
-static func fuentes(leido_hoy: Array, casos: Array, descubiertas: Array,
-		veredictos: Dictionary, vencidos: Array = []) -> Dictionary:
+static func fuentes(
+	leido_hoy: Array,
+	casos: Array,
+	descubiertas: Array,
+	veredictos: Dictionary,
+	vencidos: Array = []
+) -> Dictionary:
 	var frases := []
 	var figuras := []
 	var casos_tocados := {}
@@ -64,15 +69,20 @@ static func fuentes(leido_hoy: Array, casos: Array, descubiertas: Array,
 			var id: String = sospechoso.get("id", "")
 			if vencidos.has(id):
 				continue
-			figuras.append({
-				"id": id,
-				"nombre": sospechoso.get("nombre", ""),
-				"acusado": id == acusado,
-				# Sus réplicas viajan con él porque el duelo es dentro del
-				# sueño: un rival sin nada escrito pelea igual y no dice nada,
-				# que es mejor que decir algo genérico.
-				"ataques": sospechoso.get("ataques", []),
-			})
+			(
+				figuras
+				. append(
+					{
+						"id": id,
+						"nombre": sospechoso.get("nombre", ""),
+						"acusado": id == acusado,
+						# Sus réplicas viajan con él porque el duelo es dentro del
+						# sueño: un rival sin nada escrito pelea igual y no dice nada,
+						# que es mejor que decir algo genérico.
+						"ataques": sospechoso.get("ataques", []),
+					}
+				)
+			)
 
 	return {"frases": frases, "figuras": figuras, "casos": casos_tocados.keys()}
 

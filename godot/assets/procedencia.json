@@ -96,6 +96,150 @@
       "licencia": "CC0-1.0",
       "fuente": "https://kenney.nl/assets/interface-sounds",
       "sha256": "6fc395be2ad1f99ce318a5d28f98fb76dbeb676d83a0b28239d8c1fb90736180"
+    },
+    {
+      "ruta": "modelos/bookcaseClosed.glb",
+      "titulo": "Bookcase closed (Furniture Kit)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/furniture-kit",
+      "sha256": "9d210448de5e1179541da895450bbc7a39f4cd673d677654cd6b134e4ea0e047"
+    },
+    {
+      "ruta": "modelos/cardboardBoxClosed.glb",
+      "titulo": "Cardboard box closed (Furniture Kit)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/furniture-kit",
+      "sha256": "4af079dca52960912764574950f0549ff2ae1224b3db1528718629473a2d5d81"
+    },
+    {
+      "ruta": "modelos/chairDesk.glb",
+      "titulo": "Chair desk (Furniture Kit)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/furniture-kit",
+      "sha256": "46406619186034cbe92b19b79a5f1a8e3f442a17a70a7524ef2c0ad0f35095c6"
+    },
+    {
+      "ruta": "modelos/computerScreen.glb",
+      "titulo": "Computer screen (Furniture Kit)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/furniture-kit",
+      "sha256": "5942cbad29a2d2b956619569926e81d50a4174403d592fece6556e57632dc643"
+    },
+    {
+      "ruta": "modelos/desk.glb",
+      "titulo": "Desk (Furniture Kit)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/furniture-kit",
+      "sha256": "0164fe828f028b321730fb8c74502e353583f751be74da1682d42fff7d3c5a42"
+    },
+    {
+      "ruta": "modelos/persona.fbx",
+      "titulo": "Animated Human (low poly, con esqueleto y animaciones)",
+      "autor": "Quaternius",
+      "licencia": "CC0-1.0",
+      "fuente": "https://opengameart.org/content/animated-human-low-poly",
+      "sha256": "edd4fde3a73afe2a22ddb5a10a215373a0880d9a4ee32a0815879a260b8e8445"
+    },
+    {
+      "ruta": "modelos/televisionVintage.glb",
+      "titulo": "Television vintage (Furniture Kit)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/furniture-kit",
+      "sha256": "eb144cc8fb1e7f761e3665226e4266c8868679421d21d6548f24d2abad7c67cf"
+    },
+    {
+      "ruta": "modelos/trashcan.glb",
+      "titulo": "Trashcan (Furniture Kit)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/furniture-kit",
+      "sha256": "e0ccc1fe50cbd05386477fdff527171d1cf7c0de2ba7ff3233f8d9561feb2561"
+    },
+    {
+      "ruta": "retratos/aduanero_ny.jpg",
+      "titulo": "Herman Melville, hacia 1846",
+      "autor": "Desconocido / dominio público",
+      "licencia": "Public domain",
+      "fuente": "https://commons.wikimedia.org/wiki/File:Herman_Melville,_ca._1846-1847.jpg",
+      "sha256": "9e67de4432c04ecdb87bf381cd7ad7f0675a7a1e17d19dc12697af0df98fdd6f"
+    },
+    {
+      "ruta": "retratos/correspondencia.jpg",
+      "titulo": "Fernando Pessoa, 1912",
+      "autor": "Desconocido / dominio público",
+      "licencia": "Public domain",
+      "fuente": "https://commons.wikimedia.org/wiki/File:Fernando_Pessoa_1912.jpg",
+      "sha256": "4f40814d081ca18fcb21acaf01c6295dd95437bf4d8ed2bd5c4497266161ce08"
+    },
+    {
+      "ruta": "retratos/emperador.jpg",
+      "titulo": "Puyi, último emperador de China",
+      "autor": "Desconocido / dominio público",
+      "licencia": "Public domain",
+      "fuente": "https://commons.wikimedia.org/wiki/File:Colorised_Puyi_portrait.png",
+      "sha256": "a4f54eb122d754dc98025b1068182c0259de80d73a31c115bd275c13fc856ad8"
+    },
+    {
+      "ruta": "retratos/fielato.jpg",
+      "titulo": "Henri Rousseau, autorretrato",
+      "autor": "Desconocido / dominio público",
+      "licencia": "Public domain",
+      "fuente": "https://commons.wikimedia.org/wiki/File:Brooklyn_Museum_-_Self-Portrait_-_Henri-Julien-F%C3%A9lix_Rousseau_called_Le_Douanier_Rousseau.jpg",
+      "sha256": "d3ae857e5868d9637f73beed98acbf8a3c9ee299e0bf8b2fa9257886ceaa3d9f"
+    },
+    {
+      "ruta": "retratos/riegos.jpg",
+      "titulo": "Constantino Cavafis, hacia 1900",
+      "autor": "Desconocido / dominio público",
+      "licencia": "Public domain",
+      "fuente": "https://commons.wikimedia.org/wiki/File:Constantine_Cavafy,_ca_1900.jpg",
+      "sha256": "e9a3a4e357efd9d43ea848d0942b013b49d8be8bd6c07ab0f490e2b8af3e9c62"
+    },
+    {
+      "ruta": "texturas/asfalto.jpg",
+      "titulo": "Asphalt 012 (mapa de color, 1K)",
+      "autor": "ambientCG",
+      "licencia": "CC0-1.0",
+      "fuente": "https://ambientcg.com/view?id=Asphalt012",
+      "sha256": "c7a142a1c12f517024d1b4c92472c700af86cfe3bfc12263c4260e414d4c2c59"
+    },
+    {
+      "ruta": "texturas/gotele.jpg",
+      "titulo": "Plaster 001 (mapa de color, 1K)",
+      "autor": "ambientCG",
+      "licencia": "CC0-1.0",
+      "fuente": "https://ambientcg.com/view?id=Plaster001",
+      "sha256": "d3fe43282859ab7293ad41f2fa3c29f02df077e5bc326cf90a65cc588a4ac5a4"
+    },
+    {
+      "ruta": "texturas/linoleo.jpg",
+      "titulo": "Carpet 012 (mapa de color, 1K)",
+      "autor": "ambientCG",
+      "licencia": "CC0-1.0",
+      "fuente": "https://ambientcg.com/view?id=Carpet012",
+      "sha256": "3c4af04d67ad6803be57c82ba4ee2939c24b437dae903061ec3dd1082d0563c5"
+    },
+    {
+      "ruta": "texturas/moqueta.jpg",
+      "titulo": "Carpet 013 (mapa de color, 1K)",
+      "autor": "ambientCG",
+      "licencia": "CC0-1.0",
+      "fuente": "https://ambientcg.com/view?id=Carpet013",
+      "sha256": "dfbdb1f88da8d46449826b81002bf1e613e2c1498dcfc539df3325c75de875f6"
+    },
+    {
+      "ruta": "texturas/techo.jpg",
+      "titulo": "Office Ceiling 001 (mapa de color, 1K)",
+      "autor": "ambientCG",
+      "licencia": "CC0-1.0",
+      "fuente": "https://ambientcg.com/view?id=OfficeCeiling001",
+      "sha256": "1a34c9db312a12c49365875630136e421d77e729f275ef93529ad20c0b336208"
     }
   ]
 }

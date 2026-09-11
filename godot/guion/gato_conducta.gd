@@ -38,8 +38,9 @@ static func nuevo(donde: Vector3) -> Dictionary:
 ## [param hambre] son los días que lleva sin comer y [param jugador] dónde
 ## estás tú. Con hambre se queda junto al cuenco, que es el primer sitio de la
 ## lista, y no se acerca a nadie.
-static func avanzar(gato: Dictionary, sitios: Array, hambre: int,
-		jugador: Vector3, delta: float) -> Dictionary:
+static func avanzar(
+	gato: Dictionary, sitios: Array, hambre: int, jugador: Vector3, delta: float
+) -> Dictionary:
 	if sitios.is_empty():
 		return gato
 
@@ -51,8 +52,7 @@ static func avanzar(gato: Dictionary, sitios: Array, hambre: int,
 	if desconfia:
 		gato["destino"] = sitios[0]
 		gato["estado"] = "hambriento"
-	elif gato["estado"] != "viene" and pos.distance_to(jugador) < CERCA * 2.0 \
-			and hambre == 0:
+	elif gato["estado"] != "viene" and pos.distance_to(jugador) < CERCA * 2.0 and hambre == 0:
 		# Bien comido, se acerca. Es la única recompensa que da el juego por
 		# cuidarlo, y no lleva ningún número.
 		gato["destino"] = jugador

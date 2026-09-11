@@ -16,21 +16,6 @@
 class_name Cunado
 extends RefCounted
 
-## Nombrar una jugada = estar diciéndote qué hacer. La prueba usa esta lista
-## para recorrer todo lo que puede decir.
-##
-## Se DERIVA de las jugadas que existen, no se copia al lado: una lista escrita
-## a mano no falla, se desincroniza — el día que el combate estrene una cuarta
-## jugada, el cuñado podría nombrarla sin que saltara nada. Es la misma regla
-## del cartel de reglas que se deriva de las constantes del motor.
-static func palabras_prohibidas() -> Array:
-	var palabras := []
-	for tipo in Combate.ETIQUETAS:
-		var nombre := Combate.etiqueta(tipo)
-		palabras.append(nombre)
-		palabras.append(nombre.to_lower())
-	return palabras
-
 const AL_LLEGAR := [
 	"CUNADO_LLEGADA_1",
 	"CUNADO_LLEGADA_2",
@@ -88,6 +73,22 @@ const POR_MOMENTO := {
 	"victoria": AL_VENCER,
 	"derrota": AL_CAER,
 }
+
+
+## Nombrar una jugada = estar diciéndote qué hacer. La prueba usa esta lista
+## para recorrer todo lo que puede decir.
+##
+## Se DERIVA de las jugadas que existen, no se copia al lado: una lista escrita
+## a mano no falla, se desincroniza — el día que el combate estrene una cuarta
+## jugada, el cuñado podría nombrarla sin que saltara nada. Es la misma regla
+## del cartel de reglas que se deriva de las constantes del motor.
+static func palabras_prohibidas() -> Array:
+	var palabras := []
+	for tipo in Combate.ETIQUETAS:
+		var nombre := Combate.etiqueta(tipo)
+		palabras.append(nombre)
+		palabras.append(nombre.to_lower())
+	return palabras
 
 
 ## Lo que dice en un momento dado. [param azar] es el mismo generador del

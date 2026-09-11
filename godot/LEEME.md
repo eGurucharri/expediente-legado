@@ -54,6 +54,32 @@ de `prometeo-ui.js` con `datos/extraer-prometeo.mjs` por el mismo motivo que
 los casos: es contenido, y teclearlo introduce erratas que nadie compara con el
 original.
 
+## El azar de una partida (#147)
+
+`guion/azar.gd`. Una partida tiene **una semilla** (`estado["semilla"]`) y todo
+lo jugable que se sortea sale de ella por derivación, no de `randi()` global.
+Eso es lo que permite volver a ver un fallo del que alguien informa: misma
+semilla y mismas acciones, misma partida.
+
+- `Azar.derivar(raiz, dominio, indices)` — función pura, mismo resultado en
+  cualquier máquina. Los dominios son una lista cerrada en `Azar.DOMINIOS`:
+  uno nuevo se declara ahí.
+- `Azar.derivar_guardable(...)` — **para todo número que acabe en el fichero de
+  partida**. JSON no tiene enteros: un entero de 63 bits vuelve redondeado y la
+  partida recargada sortea otra cosa. Pasó con la plantilla de compañeros —
+  recargar te cambiaba media oficina— y por eso lo persistido cabe en 32 bits.
+- `Azar.manifiesto(estado)` / `manifiesto_en_texto(estado)` — semilla, vuelta,
+  día, versión del guardado y huella de los catálogos, para pegar en un informe
+  de bug. **No se enseña al jugador**: va en las herramientas de depuración.
+
+Cada dominio deriva por su lado a propósito, para que el sueño de la noche 3 no
+cambie porque el combate haya tirado una vez más.
+
+Lo que **sí** puede seguir usando el azar global es la presentación —el tono de
+una pisada, hacia dónde mira el gato, el grano de una textura—: no decide nada.
+La suite tiene una guarda que recorre `guion/*.gd` y falla si aparece un
+`randi()`/`randf()`/`randomize()` suelto fuera de esa lista corta.
+
 ## La Ventanilla de Reclamaciones
 
 `escenas/ventanilla.tscn`. Piedra-papel-tijera burocrático —Objeción vence a

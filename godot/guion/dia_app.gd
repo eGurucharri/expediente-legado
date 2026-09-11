@@ -21,7 +21,21 @@ var _caminante: CharacterBody3D
 var _mundo: Node3D
 var _rotulo: Label
 var _nomina: Label
+
+## El destino al que no se llegó a entrar porque no se pudo guardar. Mientras
+## haya uno, pisar cualquier salida REINTENTA el guardado en vez de volver a
+## fichar: la nómina y la noche ya están cobradas en memoria, y cobrarlas dos
+## veces sería peor que no haberlas escrito.
+var _transito_pendiente := ""
+var _borrar: Button
+var _borrar_confirmando := false
 var _pantalla: CanvasLayer
+## Los rótulos del día. Se guarda para poder apagarlos mientras se pone la
+## entrada de la vuelta.
+var _hud: CanvasLayer
+## La entrada de la vuelta mientras se está poniendo (#68). Fuera de ella es
+## nula: el reproductor se descarta al terminar en vez de quedarse escuchando.
+var _entrada: Node3D
 var _ambiente: Environment
 var _sol: DirectionalLight3D
 var _voz: AudioStreamPlayer
@@ -38,16 +52,79 @@ var _gato: Gato
 var _rivales: Dictionary = {}
 
 
+## La raíz del azar de esta partida (#147). Se lee de la partida y no se guarda
+## aparte: un segundo sitio donde viviera la semilla sería un segundo sitio
+## donde pudiera estar desfasada.
+func _raiz() -> int:
+	return int(partida.estado.get("semilla", 0))
+
+
 func _ready() -> void:
 	partida.cargar()
 	contenido.cargar()
 	historias.cargar()
-	jornada = Jornada.completar(partida.estado.get("jornada", Jornada.nueva()))
+	jornada = Jornada.completar(partida.estado.get("jornada", Jornada.nueva(_raiz())), _raiz())
 	partida.estado["jornada"] = jornada
 
 	_montar_entorno()
 	_montar_interfaz()
 	_entrar_en(jornada["fase"])
+	# Conserva la plantilla inicial y las migraciones antes de abrir el visor,
+	# que lee su propia instancia de Partida.
+	_abrir_vuelta()
+
+
+## La entrada de una vida laboral (#68).
+##
+## Se pone ENCIMA de la oficina ya montada y no antes de montarla: así al
+## terminar no hay ningún fotograma en negro esperando a que se construya el
+## archivo, y saltarla deja al jugador exactamente donde estaría.
+##
+## Solo abre una vuelta —día uno, en el archivo y con la jornada entera por
+## delante—, que es lo que distingue empezar de volver a cargar una partida a
+## medias. Una entrada que se repita cada vez que se abre el juego dejaría de
+## ser una entrada.
+##
+## Ocurre al arrancar y también a media sesión: cuando firmar cuesta la última
+## vida, `_cerrar_expediente` vuelve a llamar aquí por `_reasignar`. Esa es la
+## razón de que la condición mire la jornada y no una bandera de "ya
+## arrancamos" — lo que abre una entrada es que la vida laboral esté por
+## estrenar, venga de donde venga.
+func _abrir_vuelta() -> void:
+	if jornada["fase"] != "archivo" or jornada["dia"] != 1:
+		return
+	if jornada["acciones"] != Jornada.ACCIONES_POR_DIA:
+		return
+
+	# El cuerpo se queda quieto mientras dura: la cinemática se salta con
+	# cualquier tecla, y sin esto esa misma tecla sería también un paso.
+	_caminante.set_physics_process(false)
+
+	# Y los rótulos del día se apagan. No es limpieza: la oficina ya está
+	# montada detrás, así que sin esto la frase de un compañero se lee ENCIMA de
+	# la pantalla de arranque —alguien te habla antes de que hayas entrado, en la
+	# cinemática cuyo remate es que no hay nadie más—.
+	_hud.visible = false
+
+	_entrada = load("res://escenas/cinematica.tscn").instantiate()
+	add_child(_entrada)
+	_entrada.terminada.connect(_cerrar_vuelta)
+	var vistas := Cinematica.vistas_de(partida.estado, EntradaCinematica.ID)
+	_entrada.reproducir(EntradaCinematica.planos_de(vistas), EntradaCinematica.ID, partida.estado)
+
+
+## Al acabar la entrada se guarda, y no por costumbre: lo que hay que conservar
+## es que se ha visto. Sin este guardado la cuenta se pierde al cerrar el juego
+## y la entrada volvería a durar lo mismo para siempre, que es justo lo que el
+## acortado de #67 vino a evitar.
+func _cerrar_vuelta() -> void:
+	if _entrada == null:
+		return
+	_entrada.queue_free()
+	_entrada = null
+	_caminante.set_physics_process(true)
+	_hud.visible = true
+	_guardar_o_avisar("")
 
 
 ## Luz y ambiente. Una sola direccional y bastante ambiente: en un sitio de
@@ -85,6 +162,7 @@ func _montar_entorno() -> void:
 func _montar_interfaz() -> void:
 	var capa := CanvasLayer.new()
 	add_child(capa)
+	_hud = capa
 
 	var caja := VBoxContainer.new()
 	caja.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
@@ -105,12 +183,27 @@ func _montar_interfaz() -> void:
 	_nomina.add_theme_constant_override("outline_size", 4)
 	caja.add_child(_nomina)
 
+	# Empezar de cero se pide en CASA y no en la oficina: el sistema no te
+	# ofrece borrarte a ti mismo desde dentro. Dos pulsaciones, porque esto se
+	# lleva la memoria de todas las vueltas y no hay deshacer dentro del juego.
+	_borrar = Button.new()
+	_borrar.text = tr("CASA_BORRAR")
+	_borrar.visible = false
+	_borrar.pressed.connect(_al_pulsar_borrar)
+	caja.add_child(_borrar)
+
 
 func _entrar_en(fase: String) -> void:
 	if _hablando:
 		_nomina.text = ""
 		_hablando = false
 	jornada["fase"] = fase
+	if _borrar != null:
+		# Solo en casa, y la confirmación no sobrevive a salir de la habitación:
+		# volver a entrar tiene que volver a pedirla.
+		_borrar.visible = fase == "casa"
+		_borrar_confirmando = false
+		_borrar.text = tr("CASA_BORRAR")
 	if _mundo != null:
 		_mundo.queue_free()
 	_mundo = Node3D.new()
@@ -152,7 +245,8 @@ func _espacio_de(fase: String) -> Dictionary:
 
 	if jornada["sueno_escenas"].is_empty():
 		jornada["sueno_escenas"] = Sueno.noche(
-			jornada["dia"], jornada["leido_hoy"], jornada["mapa"])
+			jornada["dia"], jornada["leido_hoy"], jornada["mapa"], _raiz()
+		)
 	var id: String = jornada["sueno_escenas"][0]
 	# Se apunta al ENTRAR y no al salir: el mapa es lo que has pisado, y
 	# despertarse de golpe en mitad de una sala no la borra de haber estado.
@@ -161,15 +255,29 @@ func _espacio_de(fase: String) -> Dictionary:
 	# De qué está hecha esta escena (#87). El reparto es de la NOCHE y no de la
 	# sala: se calcula con la lista entera de escenas y se coge el trozo que le
 	# toca a esta, o las tres saldrían amuebladas con lo mismo.
-	var fuentes := SuenoContenido.fuentes(
-		jornada["leido_hoy"], contenido.casos,
-		partida.estado["pistas_descubiertas"], partida.estado.get("veredictos", {}),
-		SuenoCombate.vencidos(partida.estado))
-	var reparto := SuenoContenido.repartir(
-		fuentes, Sueno.ESCENAS_POR_NOCHE,
-		Sueno.semilla(jornada["dia"], jornada["leido_hoy"]))
+	var fuentes := (
+		SuenoContenido
+		. fuentes(
+			jornada["leido_hoy"],
+			contenido.casos,
+			partida.estado["pistas_descubiertas"],
+			partida.estado.get("veredictos", {}),
+			SuenoCombate.vencidos(partida.estado),
+		)
+	)
+	var reparto := (
+		SuenoContenido
+		. repartir(
+			fuentes,
+			Sueno.ESCENAS_POR_NOCHE,
+			Sueno.semilla(jornada["dia"], jornada["leido_hoy"], _raiz()),
+		)
+	)
 	var cual: int = Sueno.ESCENAS_POR_NOCHE - jornada["sueno_escenas"].size()
 	var trozo: Dictionary = reparto[clampi(cual, 0, reparto.size() - 1)]
+	# Quién se deja pelear en ESTA escena (#88). Se calcula al montarla y no al
+	# pisarla: la zona de reto solo lleva un id, y quien la pise tiene que poder
+	# saber contra quién sin volver a repartir el sueño.
 	_rivales = {}
 	for quien in trozo["figuras"]:
 		if SuenoCombate.se_pelea(quien, partida.estado):
@@ -190,14 +298,47 @@ func _process(delta: float) -> void:
 		var dia := Jornada.despertar_de_golpe(jornada)
 		_hablando = false
 		_nomina.text = tr("DIA_DESPERTAR_DE_GOLPE") % dia
-		partida.guardar()
+		if not _guardar_o_avisar("archivo"):
+			return
 		_entrar_en("archivo")
 		return
-	_rotulo.text = _texto_de_rotulo(Sueno.senal_de_noche(
-		Jornada.noche_restante(jornada)))
+	_rotulo.text = _texto_de_rotulo(Sueno.senal_de_noche(Jornada.noche_restante(jornada)))
+
+
+## Escribe la partida y dice si pudo. Si no pudo, apunta el tránsito que se
+## queda esperando y lo cuenta: nada de esto deshace lo ya aplicado a la
+## jornada, que sigue siendo lo vigente aunque el disco no se haya enterado.
+func _guardar_o_avisar(destino: String) -> bool:
+	if partida.guardar():
+		return true
+	_transito_pendiente = destino
+	_hablando = false
+	_nomina.text = tr("ARCHIVO_ERROR_GUARDAR")
+	return false
+
+
+## El reintento. Solo vuelve a escribir el mismo estado —ni ficha, ni paga, ni
+## gasta una acción— y, si esta vez sale, termina el tránsito que quedó a
+## medias.
+func _reintentar_guardado() -> void:
+	var destino := _transito_pendiente
+	if not _guardar_o_avisar(destino):
+		return
+	_transito_pendiente = ""
+	_nomina.text = tr("ARCHIVO_GUARDADO_HECHO")
+	if destino.is_empty():
+		return
+	if jornada["fase"] != "sueño":
+		_sonar("puerta_abre")
+	_entrar_en(destino)
 
 
 func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
+	# Con un guardado a medias no se empieza nada nuevo: cada pisada es el
+	# reintento, y no vuelve a aplicar la jugada que ya está hecha.
+	if partida.guardado_pendiente and cuerpo == _caminante:
+		_reintentar_guardado()
+		return
 	if cuerpo != _caminante or _pantalla != null:
 		return
 	# Alguien que dice algo al pasar. No lleva a ninguna parte, así que se
@@ -210,7 +351,10 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 
 	# Pelearse con lo que firmaste (#88). Va antes que los destinos por el
 	# mismo motivo que la frase: no lleva a otra sala, abre una pantalla.
-	var duelo: String = salida.get_meta("duelo")
+	# Con valor por defecto: la meta solo la pone `espacio_3d` en las zonas de
+	# reto, y una salida corriente —la de una sala sin acusados, o la que monta
+	# a mano el recorrido— no tiene por qué traerla.
+	var duelo: String = salida.get_meta("duelo", "")
 	if not duelo.is_empty() and _rivales.has(duelo):
 		_abrir_duelo(_rivales[duelo], salida)
 		return
@@ -240,15 +384,28 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 			var paga := Jornada.fichar_salida(jornada)
 			_sonar("nomina")
 			_hablando = false
-			_nomina.text = tr("DIA_NOMINA") % [
-				jornada["dia"], paga["bruto"], paga["base"], paga["por_expedientes"],
-				paga["expedientes"], paga["dinero"]]
+			_nomina.text = (
+				tr("DIA_NOMINA")
+				% [
+					jornada["dia"],
+					paga["bruto"],
+					paga["base"],
+					paga["por_expedientes"],
+					paga["expedientes"],
+					paga["dinero"]
+				]
+			)
 		"casa":
 			var noche := Jornada.dormir(jornada)
 			_hablando = false
-			_nomina.text = tr("DIA_VIVIR") % [
-				noche["coste"], noche["dinero"],
-				tr("DIA_SIN_GATO_AVISO") if noche["gato_se_fue"] else ""]
+			_nomina.text = (
+				tr("DIA_VIVIR")
+				% [
+					noche["coste"],
+					noche["dinero"],
+					tr("DIA_SIN_GATO_AVISO") if noche["gato_se_fue"] else ""
+				]
+			)
 		"sueño":
 			# Se sale de la escena que se acaba de recorrer. Si quedan más, la
 			# noche sigue en la siguiente y no se despierta: el destino de la
@@ -261,10 +418,14 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 		_:
 			pass
 
-	partida.guardar()
 	if jornada["fase"] != "sueño":
 		_sonar("puerta_abre")
 	_entrar_en(destino)
+	# El destino y el mapa ya tienen que estar asentados al escribir: en el
+	# trayecto no hay otra regla que cambie la fase a casa. Por eso aquí el
+	# tránsito pendiente se queda vacío: ya se ha entrado, y lo único que falta
+	# por hacer es escribirlo.
+	_guardar_o_avisar("")
 
 
 ## Darle de comer. Se paga, así que puede no poder hacerse: ahí está la
@@ -285,7 +446,11 @@ func _dar_de_comer() -> void:
 		_nomina.text = tr("DIA_GATO_SIN_DINERO") % Jornada.PRECIO_COMIDA_GATO
 		return
 	_sonar("nomina")
-	partida.guardar()
+	# La lata ya está cobrada: si no se puede escribir, se dice y se calla el
+	# mensaje de que ha comido (#191). Pisar el cuenco otra vez reintenta el
+	# guardado sin volver a cobrarla.
+	if not _guardar_o_avisar(""):
+		return
 	_nomina.text = tr("DIA_GATO_COME") % [Jornada.PRECIO_COMIDA_GATO, jornada["dinero"]]
 
 
@@ -302,12 +467,19 @@ func _plantilla_en(sitio: Dictionary) -> Array:
 	var quienes := Companeros.plantilla(jornada["plantilla"])
 	for i in mini(quienes.size(), sitios.size()):
 		var quien: Dictionary = quienes[i]
-		figuras.append({
-			"pos": sitios[i],
-			"color": quien["color"],
-			"rotulo": tr(quien["nombre"]),
-			"frase": Companeros.frase_de(quien, jornada["dia"]),
-		})
+		(
+			figuras
+			. append(
+				{
+					"pos": sitios[i],
+					"color": quien["color"],
+					"rotulo": tr(quien["nombre"]),
+					"frase": Companeros.frase_de(quien, jornada["dia"]),
+					"modelo": Companeros.cuerpo_de(quien),
+					"retrato": quien.get("retrato", ""),
+				}
+			)
+		)
 	return figuras
 
 
@@ -340,7 +512,36 @@ func _sonar(nombre: String) -> void:
 ## abierta manda ella, y al cerrarse el día vuelve a LEER el fichero en vez de
 ## confiar en la copia que tenía. Es la costura entre los dos, y va en un solo
 ## sitio: dos dueños del mismo estado a la vez es como se pierden partidas.
+## Empezar de cero, en dos pulsaciones.
+##
+## La primera avisa de lo que se lleva por delante; la segunda lo hace. Es el
+## mismo gesto de dos tiempos que el canje de una carta por una vida, y por el
+## mismo motivo: lo que no se puede deshacer no se dispara con un clic suelto.
+func _al_pulsar_borrar() -> void:
+	if not _borrar_confirmando:
+		_borrar_confirmando = true
+		_borrar.text = tr("CASA_BORRAR_SEGURO")
+		return
+
+	_borrar_confirmando = false
+	_borrar.text = tr("CASA_BORRAR")
+	if not partida.borrar():
+		_nomina.text = tr("ARCHIVO_ERROR_GUARDAR")
+		return
+
+	jornada = Jornada.completar(partida.estado.get("jornada", Jornada.nueva(_raiz())), _raiz())
+	partida.estado["jornada"] = jornada
+	_nomina.text = tr("CASA_BORRADO")
+	_sonar("puerta_cierra")
+	_entrar_en(jornada["fase"])
+
+
 func _abrir_expediente() -> void:
+	if partida.guardado_pendiente:
+		_reintentar_guardado()
+		return
+	if not _guardar_o_avisar(""):
+		return
 	_caminante.set_physics_process(false)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
@@ -392,7 +593,10 @@ func _cerrar_duelo(gano: bool, quien: Dictionary, zona: Area3D) -> void:
 	_pantalla = null
 
 	var final := SuenoCombate.resolver(partida.estado, jornada, quien, gano)
-	partida.guardar()
+	# El duelo ya está resuelto en memoria, así que se devuelve el control pase
+	# lo que pase: encerrar al jugador en una pantalla muerta no salva nada. Si
+	# no se pudo escribir, el aviso queda puesto y pisar una salida reintenta.
+	_guardar_o_avisar("")
 
 	_caminante.set_physics_process(true)
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
@@ -412,8 +616,11 @@ func _cerrar_duelo(gano: bool, quien: Dictionary, zona: Area3D) -> void:
 		if is_instance_valid(cuerpo):
 			cuerpo.queue_free()
 	zona.queue_free()
-	_nomina.text = tr("SUENO_DUELO_VIDA") % final["vida"] \
-		if final["recuperada"] else tr("SUENO_DUELO_SIN_VIDA")
+	_nomina.text = (
+		tr("SUENO_DUELO_VIDA") % final["vida"]
+		if final["recuperada"]
+		else tr("SUENO_DUELO_SIN_VIDA")
+	)
 
 
 func _cerrar_expediente() -> void:
@@ -423,16 +630,43 @@ func _cerrar_expediente() -> void:
 	_pantalla = null
 	_sonar("puerta_cierra")
 
+	# De qué vida laboral se levantó. Se apunta ANTES de releer, porque firmar
+	# puede haberla terminado y lo que vuelve del fichero sería ya la
+	# siguiente, indistinguible de la de antes.
+	var vuelta_antes := int(jornada.get("vuelta", 1))
+
 	partida.cargar()
-	jornada = Jornada.completar(partida.estado.get("jornada", Jornada.nueva()))
+	jornada = Jornada.completar(partida.estado.get("jornada", Jornada.nueva(_raiz())), _raiz())
 	partida.estado["jornada"] = jornada
 
 	_caminante.set_physics_process(true)
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+	# Le han reasignado mientras firmaba: se levanta otra persona de esa silla.
+	if int(jornada.get("vuelta", 1)) != vuelta_antes:
+		_reasignar()
+		return
+
 	# Se sale del puesto ANDANDO hacia atrás: quedarse encima del disparador
 	# reabriría el expediente en cuanto se mueva un dedo.
 	_caminante.situar(Vector3(-4, 0, 3.2))
 	_refrescar_rotulos(EspaciosCatalogo.de_fase(jornada["fase"]))
+
+
+## Empezar la vida laboral siguiente sin salir del juego.
+##
+## `Acusacion.perder_vida` ya ha hecho lo suyo en los datos —día uno, dinero de
+## partida, otra plantilla— pero el mundo montado sigue siendo el de antes: los
+## compañeros de la vuelta anterior siguen sentados, porque las figuras se
+## construyen al entrar en el sitio y nadie ha vuelto a entrar.
+##
+## Así que se entra otra vez, con la fase que la jornada nueva ya trae puesta, y
+## se abre la vuelta por la puerta: la entrada (#68) se ve cada vida laboral, y
+## sin esto la segunda empezaría sin ella. Aquí no hay cinemática de despido
+## —eso es #73—, solo la garantía de que el ciclo no se queda a medias.
+func _reasignar() -> void:
+	_entrar_en(jornada["fase"])
+	_abrir_vuelta()
 
 
 func _refrescar_rotulos(espacio: Dictionary) -> void:
@@ -440,6 +674,12 @@ func _refrescar_rotulos(espacio: Dictionary) -> void:
 
 
 func _texto_de_rotulo(sitio: String) -> String:
-	return tr("DIA_ROTULO") % [
-		jornada["dia"], sitio, jornada["dinero"],
-		"" if jornada["gato"]["presente"] else tr("DIA_SIN_GATO")]
+	return (
+		tr("DIA_ROTULO")
+		% [
+			jornada["dia"],
+			sitio,
+			jornada["dinero"],
+			"" if jornada["gato"]["presente"] else tr("DIA_SIN_GATO")
+		]
+	)

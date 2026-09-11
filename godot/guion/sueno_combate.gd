@@ -58,10 +58,17 @@ static func se_pelea(figura: Dictionary, estado: Dictionary) -> bool:
 ## de la partida valen aquí igual que en la Ventanilla. El careo no las ofrece
 ## porque es una escena; esto se juega.
 static func nuevo(figura: Dictionary, cargas: Dictionary = {}) -> Dictionary:
-	return Combate.nuevo(MODO, {
-		"nombre": figura.get("nombre", ""),
-		"ataques": figura.get("ataques", []),
-	}, cargas)
+	return (
+		Combate
+		. nuevo(
+			MODO,
+			{
+				"nombre": figura.get("nombre", ""),
+				"ataques": figura.get("ataques", []),
+			},
+			cargas
+		)
+	)
 
 
 ## Cierra el combate y cobra sus consecuencias. Devuelve qué ha pasado, que es
@@ -69,8 +76,9 @@ static func nuevo(figura: Dictionary, cargas: Dictionary = {}) -> Dictionary:
 ##
 ## Muta el estado y la jornada: es el único sitio donde un sueño cambia algo
 ## fuera del sueño, y por eso está entero aquí y no repartido por la pantalla.
-static func resolver(estado: Dictionary, jornada: Dictionary,
-		figura: Dictionary, gano: bool) -> Dictionary:
+static func resolver(
+	estado: Dictionary, jornada: Dictionary, figura: Dictionary, gano: bool
+) -> Dictionary:
 	if not gano:
 		# Perder no cuesta una vida: ya te costó una firmarlo mal, y cobrar dos
 		# veces por el mismo acusado convertiría dormir en un riesgo que se

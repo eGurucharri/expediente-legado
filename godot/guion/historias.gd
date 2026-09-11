@@ -29,19 +29,23 @@ const TOPE_CARGAS := 2
 ## `nombre` y `efecto` son CLAVES de traducción: el texto vive en
 ## `datos/textos.csv` y lo resuelve quien pinta el botón.
 const HABILIDADES := {
-	"comunismo": {
+	"comunismo":
+	{
 		"nombre": "HABILIDAD_ASAMBLEA",
 		"efecto": "HABILIDAD_ASAMBLEA_EFECTO",
 	},
-	"centrista": {
+	"centrista":
+	{
 		"nombre": "HABILIDAD_MESA",
 		"efecto": "HABILIDAD_MESA_EFECTO",
 	},
-	"socialdemocrata": {
+	"socialdemocrata":
+	{
 		"nombre": "HABILIDAD_COMISION",
 		"efecto": "HABILIDAD_COMISION_EFECTO",
 	},
-	"neoliberal": {
+	"neoliberal":
+	{
 		"nombre": "HABILIDAD_EXTERNALIZAR",
 		"efecto": "HABILIDAD_EXTERNALIZAR_EFECTO",
 	},
@@ -113,8 +117,7 @@ func resolver(estado: Dictionary, carta_id: String, eje: String) -> Dictionary:
 
 ## Las cargas de habilidad disponibles, por eje.
 func cargas(estado: Dictionary) -> Dictionary:
-	var puntos := Prometeo.puntos_por_eje(
-		estado.get("historias_cartas", {}), catalogo.keys())
+	var puntos := Prometeo.puntos_por_eje(estado.get("historias_cartas", {}), catalogo.keys())
 	var disponibles := {}
 	for eje in Prometeo.EJES:
 		disponibles[eje] = mini(TOPE_CARGAS, puntos[eje])
@@ -133,6 +136,8 @@ func pendientes(estado: Dictionary) -> int:
 
 
 func _secuela(historia: Dictionary, carta_id: String, eje: String) -> String:
-	return historia["secuelaUtil"] \
-		if Prometeo.clasificar_eleccion(carta_id, eje) == "pista" \
+	return (
+		historia["secuelaUtil"]
+		if Prometeo.clasificar_eleccion(carta_id, eje) == "pista"
 		else historia["secuelaConfusion"]
+	)

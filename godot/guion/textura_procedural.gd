@@ -15,6 +15,10 @@ extends RefCounted
 ## no las mejora, las saca de época.
 const LADO := 64
 
+## Dónde viven las texturas TRAÍDAS, frente a las calculadas. El nombre de la
+## superficie es el nombre del fichero: añadir un material es dejarlo aquí.
+const CARPETA := "res://assets/texturas/%s.jpg"
+
 
 ## Linóleo de oficina: un tono plano con motas. Es el suelo de cualquier
 ## edificio público de los 90 y lo que lo identifica son las manchas, no el
@@ -26,8 +30,11 @@ static func linoleo(base: Color, semilla: int) -> ImageTexture:
 	imagen.fill(base)
 	for i in LADO * LADO / 6:
 		var claro := rng.randf() < 0.5
-		imagen.set_pixel(rng.randi() % LADO, rng.randi() % LADO,
-			base.lightened(0.10) if claro else base.darkened(0.10))
+		imagen.set_pixel(
+			rng.randi() % LADO,
+			rng.randi() % LADO,
+			base.lightened(0.10) if claro else base.darkened(0.10)
+		)
 	return ImageTexture.create_from_image(imagen)
 
 
@@ -97,13 +104,34 @@ static func moqueta(base: Color, semilla: int) -> ImageTexture:
 	return ImageTexture.create_from_image(imagen)
 
 
-## Cómo se llama cada una, para que un espacio la pida por nombre y no importe
-## este módulo. Añadir una textura es una entrada más aquí.
-static func por_nombre(nombre: String, base: Color, semilla: int) -> ImageTexture:
+## La textura de una superficie: la traída si existe, y si no la calculada.
+##
+## Cada espacio la pide por NOMBRE y no importa este módulo, así que cambiar de
+## dónde sale una superficie no toca a quien la usa.
+##
+## Las calculadas siguen aquí y siguen sirviendo: son la red para una superficie
+## que todavía no tiene material, y lo que hace que el juego arranque sin
+## depender de que los binarios de LFS hayan bajado. Pero donde hay material de
+## verdad manda el material: un tono plano con motas dice "caja", por bonita que
+## sea la mota.
+static func por_nombre(nombre: String, base: Color, semilla: int) -> Texture2D:
+	var traida := ResourceLoader.load(CARPETA % nombre, "Texture2D")
+	if traida != null:
+		return traida
+	return calculada(nombre, base, semilla)
+
+
+static func calculada(nombre: String, base: Color, semilla: int) -> ImageTexture:
 	match nombre:
-		"linoleo": return linoleo(base, semilla)
-		"gotele": return gotele(base, semilla)
-		"techo": return plancha_techo(base, semilla)
-		"asfalto": return asfalto(base, semilla)
-		"moqueta": return moqueta(base, semilla)
-		_: return null
+		"linoleo":
+			return linoleo(base, semilla)
+		"gotele":
+			return gotele(base, semilla)
+		"techo":
+			return plancha_techo(base, semilla)
+		"asfalto":
+			return asfalto(base, semilla)
+		"moqueta":
+			return moqueta(base, semilla)
+		_:
+			return null

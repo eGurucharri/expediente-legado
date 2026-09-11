@@ -9,6 +9,8 @@
 ## está firmada — el careo es una escena con una vida en juego, no un examen.
 extends Node3D
 
+signal terminado(gano: bool)
+
 ## Cada cuánto habla el compañero, como mucho. Sin tope comentaría cada ronda y
 ## dejaría de tener gracia: un cuñado que no calla nunca es ruido, y uno que
 ## habla de vez en cuando es un cuñado.
@@ -25,7 +27,11 @@ var cargas: Dictionary = {}
 ## ella el careo funciona igual, solo que siempre a duración completa.
 var estado: Dictionary = {}
 
-signal terminado(gano: bool)
+## La semilla de las tiradas de este careo (#147). La pone quien abre la escena
+## —derivada de la partida— para que el careo se pueda volver a ver igual. En
+## cero se cae al reloj: es el modo de abrir la escena suelta desde el editor o
+## desde la herramienta de capturas, donde no hay partida de la que derivar.
+var semilla_tiradas := 0
 
 var _reproductor: Node3D
 var _en_cinematica := true
@@ -42,7 +48,10 @@ var _camara_duelo: Camera3D
 
 
 func _ready() -> void:
-	_azar.randomize()
+	if semilla_tiradas != 0:
+		_azar.seed = semilla_tiradas
+	else:
+		_azar.randomize()
 	if acusado.is_empty():
 		acusado = {"nombre": "El acusado", "ataques": []}
 
@@ -59,7 +68,8 @@ func _ready() -> void:
 	_reproductor.plano_entrado.connect(_al_entrar_plano)
 	var vistas := Cinematica.vistas_de(estado, ID_CINEMATICA)
 	_reproductor.reproducir(
-		CareoCinematica.planos_de(acusado, folio, vistas), ID_CINEMATICA, estado)
+		CareoCinematica.planos_de(acusado, folio, vistas), ID_CINEMATICA, estado
+	)
 
 
 ## El compañero llega en el segundo plano: justo cuando la cosa se está
@@ -88,9 +98,15 @@ func _al_jugar(tipo: String) -> void:
 		return
 	var ronda := Combate.jugar(_combate, tipo, "", _tirada())
 
-	_cronica.text = tr("COMBATE_CRONICA") % [
-		Combate.etiqueta(ronda["tipo_jugador"]), acusado["nombre"],
-		Combate.etiqueta(ronda["tipo_rival"]), _veredicto(ronda["veredicto"])]
+	_cronica.text = (
+		tr("COMBATE_CRONICA")
+		% [
+			Combate.etiqueta(ronda["tipo_jugador"]),
+			acusado["nombre"],
+			Combate.etiqueta(ronda["tipo_rival"]),
+			_veredicto(ronda["veredicto"])
+		]
+	)
 	if not ronda["replica"].is_empty():
 		_cronica.text += "\n" + tr("CAREO_REPLICA") % ronda["replica"]
 
@@ -114,9 +130,12 @@ func _decir(frase: String) -> void:
 
 func _veredicto(cual: String) -> String:
 	match cual:
-		"gana_jugador": return tr("CAREO_VEREDICTO_JUGADOR")
-		"gana_rival": return tr("CAREO_VEREDICTO_RIVAL")
-		_: return tr("VEREDICTO_EMPATE")
+		"gana_jugador":
+			return tr("CAREO_VEREDICTO_JUGADOR")
+		"gana_rival":
+			return tr("CAREO_VEREDICTO_RIVAL")
+		_:
+			return tr("VEREDICTO_EMPATE")
 
 
 func _tirada() -> Callable:
@@ -124,13 +143,18 @@ func _tirada() -> Callable:
 
 
 func _actualizar_marcador() -> void:
-	_marcador.text = tr("CAREO_MARCADOR") % [
-		"█".repeat(maxi(0, _combate["vida_jugador"])),
-		acusado["nombre"],
-		"█".repeat(maxi(0, _combate["vida_rival"]))]
+	_marcador.text = (
+		tr("CAREO_MARCADOR")
+		% [
+			"█".repeat(maxi(0, _combate["vida_jugador"])),
+			acusado["nombre"],
+			"█".repeat(maxi(0, _combate["vida_rival"]))
+		]
+	)
 
 
 # --- La sala ----------------------------------------------------------------
+
 
 func _montar_sala() -> void:
 	var entorno := WorldEnvironment.new()
@@ -164,12 +188,18 @@ func _montar_sala() -> void:
 	relleno.omni_range = 9.0
 	add_child(relleno)
 
-	Espacio3D.construir(self, {
-		"suelo": Vector2(12, 12),
-		"color_suelo": Color(0.14, 0.14, 0.15),
-		"color_muro": Color(0.10, 0.10, 0.12),
-		"color_techo": Color(0.06, 0.06, 0.07),
-	})
+	(
+		Espacio3D
+		. construir(
+			self,
+			{
+				"suelo": Vector2(12, 12),
+				"color_suelo": Color(0.14, 0.14, 0.15),
+				"color_muro": Color(0.10, 0.10, 0.12),
+				"color_techo": Color(0.06, 0.06, 0.07),
+			}
+		)
+	)
 
 	_figura(self, Vector3(0, 0, 0), Color(0.52, 0.51, 0.48))
 	# Apartado de las cuatro posiciones de cámara. En la primera versión estaba

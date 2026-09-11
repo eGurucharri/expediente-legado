@@ -103,8 +103,7 @@ func _siguiente() -> void:
 	_voz.text = String(plano.get("voz", ""))
 	# Un rótulo largo es una frase y quiere cuerpo menor; uno corto es un
 	# nombre y quiere presencia.
-	_rotulo.add_theme_font_size_override(
-		"font_size", 34 if _rotulo.text.length() > 28 else 48)
+	_rotulo.add_theme_font_size_override("font_size", 34 if _rotulo.text.length() > 28 else 48)
 
 	plano_entrado.emit(_plano, plano)
 
@@ -159,11 +158,12 @@ func _dibujar_figuras() -> void:
 	for pieza in plano["figura"]:
 		var rect: Rect2 = pieza["rect"]
 		_figuras.draw_rect(
-			Rect2(centro + rect.position + deriva, rect.size),
-			pieza.get("color", EstiloSiga.BLANCO))
+			Rect2(centro + rect.position + deriva, rect.size), pieza.get("color", EstiloSiga.BLANCO)
+		)
 
 
 # --- Cajas ------------------------------------------------------------------
+
 
 func _montar() -> void:
 	_camara = Camera3D.new()
