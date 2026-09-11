@@ -2,7 +2,7 @@
 
 import unittest
 
-from verificar_godot import validar
+from verificar_godot import validar, version_admitida
 
 
 class ValidacionGodotTest(unittest.TestCase):
@@ -45,3 +45,29 @@ class ValidacionGodotTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class VersionMotorTest(unittest.TestCase):
+    """La línea declarada, no la versión exacta: un parche nuevo sirve igual."""
+
+    def test_admite_la_version_declarada(self):
+        self.assertTrue(
+            version_admitida("4.7-stable", "4.7.stable.official.abc1234")
+        )
+
+    def test_admite_un_parche_de_la_misma_linea(self):
+        self.assertTrue(
+            version_admitida("4.7-stable", "4.7.2.stable.official.ed1daf0bf")
+        )
+
+    def test_rechaza_otra_linea(self):
+        # Es el caso que hace ruido: assets y API de otra línea.
+        for otra in ("4.2.2.stable.official.15073afe3", "4.8.stable.official.abc"):
+            self.assertFalse(version_admitida("4.7-stable", otra))
+
+    def test_rechaza_otro_canal(self):
+        self.assertFalse(version_admitida("4.7-stable", "4.7.rc1.official.abc"))
+
+    def test_rechaza_un_fichero_mal_escrito(self):
+        with self.assertRaises(ValueError):
+            version_admitida("4.7", "4.7.stable.official.abc")

@@ -39,14 +39,31 @@ def validar(salida, codigo, minimo=None, importando=False):
             raise ValueError(f"Suite incompleta: {pasadas} pasadas, {fallos} fallos; mínimo {minimo}")
 
 
+def version_admitida(declarada, actual):
+    """Si un motor sirve para correr la suite.
+
+    Se compara la LÍNEA y el canal, no la versión exacta: `.godot-version` dice
+    `4.7-stable` porque el CI descarga ese build concreto, pero un 4.7.2 corre
+    el proyecto igual de bien —es la misma línea que declara `project.godot`— y
+    rechazarlo dejaba sin forma de correr la suite en local a cualquiera que
+    tuviera un parche más nuevo. Lo que hace ruido es un motor de OTRA línea,
+    que es lo que esto sigue cazando.
+    """
+    linea, _, canal = declarada.strip().partition("-")
+    if not linea or not canal:
+        raise ValueError(f".godot-version mal escrito: {declarada!r}")
+    patron = rf"^{re.escape(linea)}(\.\d+)*\.{re.escape(canal)}\b"
+    return re.match(patron, actual.strip()) is not None
+
+
 def ejecutar():
     motor = os.environ.get("GODOT_BIN", "godot4")
-    version = (RAIZ / ".godot-version").read_text().strip().replace("-", ".")
+    declarada = (RAIZ / ".godot-version").read_text().strip()
     actual = subprocess.run(
         [motor, "--version"], text=True, capture_output=True, check=True, timeout=15
     ).stdout.strip()
-    if not actual.startswith(version + "."):
-        raise ValueError(f"Se requiere Godot {version}; encontrado {actual}")
+    if not version_admitida(declarada, actual):
+        raise ValueError(f"Se requiere Godot de la línea {declarada}; encontrado {actual}")
     minimo = int((RAIZ / "godot/pruebas/minimo.txt").read_text())
     if minimo <= 0:
         raise ValueError("El mínimo de comprobaciones debe ser positivo")
