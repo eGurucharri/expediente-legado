@@ -105,11 +105,7 @@ static func semilla(dia: int, leido_hoy: Array, raiz: int = 0) -> int:
 ## La semilla y el barajado no cambian: misma entrada + misma política produce
 ## siempre el mismo itinerario, también al recargar.
 static func noche(
-	dia: int,
-	leido_hoy: Array,
-	mapa: Array,
-	raiz: int = 0,
-	opciones: Dictionary = {}
+	dia: int, leido_hoy: Array, mapa: Array, raiz: int = 0, opciones: Dictionary = {}
 ) -> Array:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = semilla(dia, leido_hoy, raiz)
