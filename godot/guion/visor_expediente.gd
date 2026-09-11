@@ -460,9 +460,11 @@ func _al_terminar_careo(gano: bool, careo: Node3D, acusacion: Dictionary) -> voi
 
 
 func _mostrar_cierre(acusacion: Dictionary, duelo: Dictionary = {}) -> void:
-	var reasignado: String = tr("VISOR_REASIGNADO") if (
-		acusacion.get("despido", false) or duelo.get("despido", false)
-	) else ""
+	var reasignado: String = (
+		tr("VISOR_REASIGNADO")
+		if (acusacion.get("despido", false) or duelo.get("despido", false))
+		else ""
+	)
 	_aviso_partida = (
 		tr("VISOR_CERRADO")
 		% [
