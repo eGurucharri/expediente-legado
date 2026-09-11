@@ -18,10 +18,9 @@
 class_name Sueno
 extends RefCounted
 
-## Cuántas escenas tiene una noche. Ni una sala grande ni un recorrido largo:
-## tres. Acota lo que dura una noche cuando se sueña diez o catorce veces por
-## partida, y le da al mapa que crece una unidad de medida — crece de tres en
-## tres, y por eso se nota cuál se repite.
+## Cuántas escenas tiene una noche NORMAL. Ni una sala grande ni un recorrido
+## largo: tres. #210 permite que otra variante pida menos sin cambiar este
+## valor ni duplicar la selección; la noche corriente sigue usando tres.
 const ESCENAS_POR_NOCHE := 3
 
 ## Cómo se ve un sospechoso, y cómo se ve el que firmaste. La diferencia es
@@ -94,12 +93,20 @@ static func semilla(dia: int, leido_hoy: Array, raiz: int = 0) -> int:
 	return Azar.derivar_texto(raiz, "sueno", texto, [dia])
 
 
-## Las tres escenas de esta noche, en orden.
+## Las escenas de esta noche, en orden.
 ##
-## Lo NUEVO va primero: mientras queden salas sin ver se ven salas sin ver, y
-## solo cuando el mapa ya las tiene todas se empiezan a repetir. Es lo que hace
-## que el mapa crezca de verdad en vez de crecer de casualidad.
-static func noche(dia: int, leido_hoy: Array, mapa: Array, raiz: int = 0) -> Array:
+## Por defecto conserva la regla de #86: tres escenas y lo NUEVO primero.
+## `opciones` existe para que #84 pueda pedir una variante degradada sin copiar
+## este algoritmo ni decidir aquí cuál será esa política. Dos claves bastan:
+##
+## - `cantidad`: cuántas escenas pedir; se limita de 0 al catálogo disponible.
+## - `priorizar_vistas`: si es `true`, las salas ya conocidas van antes.
+##
+## La semilla y el barajado no cambian: misma entrada + misma política produce
+## siempre el mismo itinerario, también al recargar.
+static func noche(
+	dia: int, leido_hoy: Array, mapa: Array, raiz: int = 0, opciones: Dictionary = {}
+) -> Array:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = semilla(dia, leido_hoy, raiz)
 
@@ -108,8 +115,10 @@ static func noche(dia: int, leido_hoy: Array, mapa: Array, raiz: int = 0) -> Arr
 	_barajar(nuevas, rng)
 	_barajar(vistas, rng)
 
-	var escenas := nuevas + vistas
-	return escenas.slice(0, mini(ESCENAS_POR_NOCHE, escenas.size()))
+	var priorizar_vistas := bool(opciones.get("priorizar_vistas", false))
+	var escenas := vistas + nuevas if priorizar_vistas else nuevas + vistas
+	var cantidad := clampi(int(opciones.get("cantidad", ESCENAS_POR_NOCHE)), 0, escenas.size())
+	return escenas.slice(0, cantidad)
 
 
 ## Anota una sala en el mapa. El mapa es lo que se ha visto, así que una sala
