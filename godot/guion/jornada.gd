@@ -77,6 +77,9 @@ static func nueva(raiz: int = 0, vuelta: int = 1) -> Dictionary:
 		# (#90), así que hace falta algo que corte: un sitio del que no se sale
 		# es un juego colgado.
 		"sueno_resto": 0.0,
+		# Referencia fija para el indicador: las salas pendientes se consumen,
+		# pero salir de una sala no hace que la noche vuelva a empezar (#163).
+		"sueno_total": 0.0,
 		# El mapa tal y como estaba al dormirse. Si la noche se acaba sin haber
 		# salido, se vuelve a él: **el mapa no crece esa noche**, que es un
 		# castigo que es exactamente lo que perdiste — no llegaste.
@@ -92,14 +95,13 @@ static func nueva(raiz: int = 0, vuelta: int = 1) -> Dictionary:
 ## Rellena lo que le falte a una jornada guardada.
 ##
 ## Una partida escrita por una versión anterior no trae las claves que esa
-## versión no tenía —el mapa del sueño, el reloj de la noche—, y el juego se
-## las encuentra a cero o directamente no están. No es teórico: la primera
-## partida que entró en el sueño con el reloj nuevo despertó de golpe nada más
-## dormirse, porque su noche valía cero segundos.
-##
-## Se completa con lo que trae `nueva()` y NO se pisa lo que ya hay: esto
-## rellena huecos, no reinicia días.
+## versión no tenía —el mapa del sueño, el reloj de la noche—. Se completa
+## con `nueva()` sin pisar lo que ya estaba: esto no reinicia días ni relojes.
 static func completar(jornada: Dictionary, raiz: int = 0) -> Dictionary:
+	# Hay que distinguir un reloj ausente de uno agotado ANTES de completar
+	# el molde. Cargar cero segundos no debe conceder otra noche entera.
+	var sin_reloj := not jornada.has("sueno_resto")
+	var sin_total := not jornada.has("sueno_total")
 	var molde := nueva(raiz)
 	for clave in molde:
 		if not jornada.has(clave):
@@ -114,15 +116,22 @@ static func completar(jornada: Dictionary, raiz: int = 0) -> Dictionary:
 	# vaciarle la oficina a quien va por el día quince.
 	if int(jornada.get("raiz", 0)) == 0 and raiz != 0:
 		jornada["raiz"] = raiz
-	# Y si se cargó dentro del sueño sin noche que gastar, se le da una: un
-	# sueño de cero segundos es despertarse en el mismo fotograma.
-	if jornada["fase"] == "sueño" and jornada["sueno_resto"] <= 0.0:
-		if jornada["sueno_escenas"].is_empty():
-			jornada["sueno_escenas"] = Sueno.noche(
-				jornada["dia"], jornada["leido_hoy"], jornada["mapa"], int(jornada.get("raiz", 0))
+	if jornada["fase"] == "sueño":
+		# Solo las partidas anteriores al reloj necesitan recibir tiempo.
+		if sin_reloj:
+			if jornada["sueno_escenas"].is_empty():
+				jornada["sueno_escenas"] = Sueno.noche(
+					jornada["dia"], jornada["leido_hoy"], jornada["mapa"], int(jornada.get("raiz", 0))
+				)
+			jornada["sueno_resto"] = Sueno.segundos_de_noche(jornada["sueno_escenas"])
+			jornada["mapa_anoche"] = jornada["mapa"].duplicate()
+		if sin_total:
+			# El formato antiguo no conserva el itinerario completo. Se fija
+			# una referencia con lo que queda sin inventar el total original
+			# ni cambiar segundos, salas, semilla o mapa. Solo se hace una vez.
+			jornada["sueno_total"] = maxf(
+				jornada["sueno_resto"], Sueno.segundos_de_noche(jornada["sueno_escenas"])
 			)
-		jornada["sueno_resto"] = Sueno.segundos_de_noche(jornada["sueno_escenas"])
-		jornada["mapa_anoche"] = jornada["mapa"].duplicate()
 	return jornada
 
 
@@ -205,7 +214,8 @@ static func dormir(jornada: Dictionary) -> Dictionary:
 	jornada["sueno_escenas"] = Sueno.noche(
 		jornada["dia"], jornada["leido_hoy"], jornada["mapa"], int(jornada.get("raiz", 0))
 	)
-	jornada["sueno_resto"] = Sueno.segundos_de_noche(jornada["sueno_escenas"])
+	jornada["sueno_total"] = Sueno.segundos_de_noche(jornada["sueno_escenas"])
+	jornada["sueno_resto"] = jornada["sueno_total"]
 	jornada["mapa_anoche"] = jornada["mapa"].duplicate()
 	return {"coste": COSTE_DIARIO, "dinero": jornada["dinero"], "gato_se_fue": se_fue}
 
@@ -223,6 +233,7 @@ static func despertar(jornada: Dictionary) -> int:
 	# puede dejar media noche esperando a la siguiente.
 	jornada["sueno_escenas"] = []
 	jornada["sueno_resto"] = 0.0
+	jornada["sueno_total"] = 0.0
 	jornada["mapa_anoche"] = []
 	return jornada["dia"]
 
@@ -243,7 +254,7 @@ static func gastar_sueno(jornada: Dictionary, segundos: float) -> bool:
 ## cifras dentro de un sueño es una interfaz de videojuego dentro de la parte
 ## del juego que menos tiene que parecerlo.
 static func noche_restante(jornada: Dictionary) -> float:
-	var total: float = Sueno.segundos_de_noche(jornada["sueno_escenas"])
+	var total: float = jornada.get("sueno_total", 0.0)
 	if total <= 0.0:
 		return 0.0
 	return clampf(jornada["sueno_resto"] / total, 0.0, 1.0)
