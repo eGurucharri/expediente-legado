@@ -21,32 +21,35 @@ const GATO := Color("5c5147")
 ## `gato_presente` solo decide si aparece la pequeña silueta que recuerda que
 ## sigue siendo tuyo; si ya se había ido, la escena no lo resucita visualmente.
 static func planos_de(gato_presente: bool, vistas: int = 0) -> Array:
-	return Cinematica.resolver(
-		[
-			{
-				"tipo": "2d",
-				"segundos": 1.15,
-				"figura": _puesto_que_queda(),
-				"desde": Vector2.ZERO,
-				"hasta": Vector2.ZERO,
-			},
-			{
-				"tipo": "2d",
-				"segundos": 1.25,
-				"figura": _salida_acompanada(),
-				"desde": Vector2.ZERO,
-				"hasta": Vector2.ZERO,
-			},
-			{
-				"tipo": "2d",
-				"segundos": 1.1,
-				"figura": _nuevo_dia(gato_presente),
-				"desde": Vector2.ZERO,
-				"hasta": Vector2.ZERO,
-			},
-		],
-		{},
-		vistas
+	return (
+		Cinematica
+		. resolver(
+			[
+				{
+					"tipo": "2d",
+					"segundos": 1.15,
+					"figura": _puesto_que_queda(),
+					"desde": Vector2.ZERO,
+					"hasta": Vector2.ZERO,
+				},
+				{
+					"tipo": "2d",
+					"segundos": 1.25,
+					"figura": _salida_acompanada(),
+					"desde": Vector2.ZERO,
+					"hasta": Vector2.ZERO,
+				},
+				{
+					"tipo": "2d",
+					"segundos": 1.1,
+					"figura": _nuevo_dia(gato_presente),
+					"desde": Vector2.ZERO,
+					"hasta": Vector2.ZERO,
+				},
+			],
+			{},
+			vistas
+		)
 	)
 
 
@@ -82,12 +85,15 @@ static func _nuevo_dia(gato_presente: bool) -> Array:
 		{"rect": Rect2(-68, 18, 72, 8), "color": TINTA},
 	]
 	if gato_presente:
-		figura.append_array(
-			[
-				{"rect": Rect2(116, 18, 48, 28), "color": GATO},
-				{"rect": Rect2(126, -2, 24, 24), "color": GATO},
-				{"rect": Rect2(112, -8, 12, 14), "color": GATO},
-				{"rect": Rect2(150, -8, 12, 14), "color": GATO},
-			]
+		(
+			figura
+			. append_array(
+				[
+					{"rect": Rect2(116, 18, 48, 28), "color": GATO},
+					{"rect": Rect2(126, -2, 24, 24), "color": GATO},
+					{"rect": Rect2(112, -8, 12, 14), "color": GATO},
+					{"rect": Rect2(150, -8, 12, 14), "color": GATO},
+				]
+			)
 		)
 	return figura
