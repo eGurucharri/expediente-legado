@@ -73,18 +73,12 @@ func _partida_validacion(comprobar: Callable) -> void:
 
 	var jornada_nula := valida.duplicate(true)
 	jornada_nula["jornada"] = null
-	comprobar.call(
-		"jornada nula se rechaza",
-		Partida.validar(jornada_nula).is_empty(),
-		false
-	)
+	comprobar.call("jornada nula se rechaza", Partida.validar(jornada_nula).is_empty(), false)
 
 	var gato_incompleto := valida.duplicate(true)
 	gato_incompleto["jornada"]["gato"] = []
 	comprobar.call(
-		"gato con tipo incorrecto se rechaza",
-		Partida.validar(gato_incompleto).is_empty(),
-		false
+		"gato con tipo incorrecto se rechaza", Partida.validar(gato_incompleto).is_empty(), false
 	)
 
 	var lista_como_objeto := valida.duplicate(true)
@@ -113,11 +107,7 @@ func _partida_validacion(comprobar: Callable) -> void:
 
 	var futura := valida.duplicate(true)
 	futura["version"] = Partida.VERSION + 1
-	comprobar.call(
-		"versión futura se rechaza",
-		Partida.validar(futura).is_empty(),
-		false
-	)
+	comprobar.call("versión futura se rechaza", Partida.validar(futura).is_empty(), false)
 
 	var fase_invalida := valida.duplicate(true)
 	fase_invalida["jornada"]["fase"] = "inventada"
