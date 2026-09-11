@@ -62,8 +62,7 @@ func _dormir_con_entrada() -> void:
 	_entrada_sueno.terminada.connect(_cerrar_entrada_sueno)
 	_entrada_sueno.reproducir(
 		EntradaSuenoCinematica.planos_de(
-			jornada["leido_hoy"],
-			Cinematica.vistas_de(partida.estado, EntradaSuenoCinematica.ID)
+			jornada["leido_hoy"], Cinematica.vistas_de(partida.estado, EntradaSuenoCinematica.ID)
 		),
 		EntradaSuenoCinematica.ID,
 		partida.estado
