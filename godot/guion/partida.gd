@@ -127,10 +127,11 @@ func cargar(ruta: String = RUTA) -> Dictionary:
 	if typeof(crudo) != TYPE_DICTIONARY:
 		return _apartar(ruta, "corrupta")
 
-	var version := int(crudo.get("version", 0))
-	if version > VERSION:
-		return _apartar(ruta, "de una versión posterior")
+	var errores := validar(crudo)
+	if not errores.is_empty():
+		return _apartar(ruta, "corrupta: " + "; ".join(errores))
 
+	var version := int(crudo.get("version", 0))
 	estado = _fusionar(crudo)
 	return {"resultado": "cargada", "version": version}
 
@@ -223,6 +224,94 @@ static func _solo_estado(entradas: Array, campos: Array) -> Array:
 				minima[campo] = entrada[campo]
 		reducidas.append(minima)
 	return reducidas
+
+
+## Valida la forma del guardado antes de entregarlo a los consumidores.
+##
+## La sintaxis JSON no basta: `{"jornada": null}` es JSON válido, pero no es
+## una partida. Se permite que falten claves que una versión antigua todavía no
+## conocía — `_fusionar` las migra desde `nueva()` —, pero las estructuras
+## presentes deben conservar su tipo y sus límites.
+static func validar(guardado) -> Array:
+	var errores := []
+	if typeof(guardado) != TYPE_DICTIONARY:
+		return ["la raíz no es un objeto"]
+
+	var version = guardado.get("version", 0)
+	if not _entero_valido(version, 0, VERSION):
+		errores.append("versión inválida")
+	elif int(version) > VERSION:
+		errores.append("versión futura")
+
+	# Las partidas anteriores a la jornada se migran desde nueva(). Si la
+	# clave aparece, en cambio, su forma debe ser válida.
+	if guardado.has("jornada"):
+		if typeof(guardado["jornada"]) != TYPE_DICTIONARY:
+			errores.append("jornada no es un objeto")
+		else:
+			errores.append_array(_validar_jornada(guardado["jornada"]))
+
+	if guardado.has("vida") and not _entero_valido(guardado["vida"], 0, VIDA_MAXIMA):
+		errores.append("vida inválida")
+	for clave in ["pistas_descubiertas", "cartas_conocidas", "sueno_vencidos"]:
+		if guardado.has(clave) and typeof(guardado[clave]) != TYPE_ARRAY:
+			errores.append("%s no es una lista" % clave)
+	for clave in ["logros", "tarot"]:
+		if guardado.has(clave) and typeof(guardado[clave]) != TYPE_ARRAY:
+			errores.append("%s no es una lista" % clave)
+	for clave in ["veredictos", "historias_cartas", "cinematicas_vistas"]:
+		if guardado.has(clave) and typeof(guardado[clave]) != TYPE_DICTIONARY:
+			errores.append("%s no es un objeto" % clave)
+	for clave in CAMPOS_ENTEROS:
+		if guardado.has(clave) and not _entero_valido(guardado[clave], 0, 9223372036854775807):
+			errores.append("%s inválido" % clave)
+	return errores
+
+
+static func _validar_jornada(jornada: Dictionary) -> Array:
+	var errores := []
+	if jornada.has("gato") and typeof(jornada["gato"]) != TYPE_DICTIONARY:
+		errores.append("gato no es un objeto")
+	elif jornada.has("gato"):
+		var gato: Dictionary = jornada["gato"]
+		if gato.has("presente") and typeof(gato["presente"]) != TYPE_BOOL:
+			errores.append("gato.presente inválido")
+		if (
+			gato.has("dias_sin_comer")
+			and not _entero_valido(gato["dias_sin_comer"], 0, Jornada.PACIENCIA_GATO + 1)
+		):
+			errores.append("gato.dias_sin_comer inválido")
+	for clave in ["leido_hoy", "mapa", "sueno_escenas", "mapa_anoche"]:
+		if jornada.has(clave) and typeof(jornada[clave]) != TYPE_ARRAY:
+			errores.append("jornada.%s no es una lista" % clave)
+	for clave in ["dia", "raiz", "vuelta", "dinero", "cerrados_hoy", "acciones"]:
+		var maximo := 9223372036854775807 if clave == "raiz" else 2147483647
+		if jornada.has(clave) and not _entero_valido(jornada[clave], 0, maximo):
+			errores.append("jornada.%s inválido" % clave)
+	for clave in ["sueno_resto", "sueno_total"]:
+		if (
+			jornada.has(clave)
+			and (
+				typeof(jornada[clave]) not in [TYPE_INT, TYPE_FLOAT]
+				or not is_finite(float(jornada[clave]))
+				or float(jornada[clave]) < 0.0
+			)
+		):
+			errores.append("jornada.%s inválido" % clave)
+	if (
+		jornada.has("fase")
+		and (typeof(jornada["fase"]) != TYPE_STRING or not Jornada.FASES.has(jornada["fase"]))
+	):
+		errores.append("jornada.fase inválida")
+	return errores
+
+
+static func _entero_valido(valor, minimo: int, maximo: int) -> bool:
+	if typeof(valor) == TYPE_INT:
+		return valor >= minimo and valor <= maximo
+	if typeof(valor) != TYPE_FLOAT or not is_finite(valor):
+		return false
+	return floor(valor) == valor and valor >= minimo and valor <= maximo
 
 
 ## Combina lo guardado con los catálogos vigentes: conserva lo conseguido y

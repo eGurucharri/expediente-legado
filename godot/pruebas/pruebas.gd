@@ -24,6 +24,7 @@ func _init() -> void:
 
 	PruebasPrometeoYCombate._prometeo(comprobar_cb)
 	PruebasPrometeoYCombate._partida(comprobar_cb)
+	_partida_validacion(comprobar_cb)
 	PruebasPrometeoYCombate._guardado_seguro(comprobar_cb)
 	PruebasPrometeoYCombate._borrar_el_avance(comprobar_cb)
 	PruebasPrometeoYCombate._historias(comprobar_cb)
@@ -59,6 +60,59 @@ func _init() -> void:
 
 	print("\n%d pasadas, %d fallos" % [pasadas, fallos])
 	quit(1 if fallos > 0 else 0)
+
+
+## Validación de partidas (#190) ----------------------------------------------
+
+
+func _partida_validacion(comprobar: Callable) -> void:
+	var valida := Partida.nueva()
+	comprobar.call("partida nueva válida", Partida.validar(valida), [])
+
+	var antigua := {"jornada": Jornada.nueva()}
+	comprobar.call("partida antigua migrable", Partida.validar(antigua), [])
+
+	var jornada_nula := valida.duplicate(true)
+	jornada_nula["jornada"] = null
+	comprobar.call("jornada nula se rechaza", Partida.validar(jornada_nula).is_empty(), false)
+
+	var gato_incompleto := valida.duplicate(true)
+	gato_incompleto["jornada"]["gato"] = []
+	comprobar.call(
+		"gato con tipo incorrecto se rechaza", Partida.validar(gato_incompleto).is_empty(), false
+	)
+
+	var lista_como_objeto := valida.duplicate(true)
+	lista_como_objeto["jornada"]["leido_hoy"] = {}
+	comprobar.call(
+		"lista sustituida por objeto se rechaza",
+		Partida.validar(lista_como_objeto).is_empty(),
+		false
+	)
+
+	var contador_invalido := valida.duplicate(true)
+	contador_invalido["vida"] = "tres"
+	comprobar.call(
+		"contador con tipo inválido se rechaza",
+		Partida.validar(contador_invalido).is_empty(),
+		false
+	)
+
+	var contador_fuera_de_rango := valida.duplicate(true)
+	contador_fuera_de_rango["vida"] = Partida.VIDA_MAXIMA + 1
+	comprobar.call(
+		"contador fuera de rango se rechaza",
+		Partida.validar(contador_fuera_de_rango).is_empty(),
+		false
+	)
+
+	var futura := valida.duplicate(true)
+	futura["version"] = Partida.VERSION + 1
+	comprobar.call("versión futura se rechaza", Partida.validar(futura).is_empty(), false)
+
+	var fase_invalida := valida.duplicate(true)
+	fase_invalida["jornada"]["fase"] = "inventada"
+	comprobar.call("fase desconocida se rechaza", Partida.validar(fase_invalida).is_empty(), false)
 
 
 func comprobar(nombre: String, obtenido, esperado) -> void:
