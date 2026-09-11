@@ -106,6 +106,12 @@ static func construir(raiz: Node3D, espacio: Dictionary) -> Array:
 		if bulto.get("emisivo", false):
 			_emisivo(pieza, bulto.get("color", Color(0.45, 0.44, 0.42)))
 
+
+	# Las pantallas son una superficie de contenido, no un bulto: no tienen
+	# colisión ni alteran la geometría de la calle. Sin fichero muestran nieve.
+	for pantalla in espacio.get("pantallas", []):
+		Pantalla.montar(raiz, pantalla)
+
 	# Una ventana no es un bulto con otro color: no se atraviesa pero se ve a
 	# través, y de noche lo que se ve es que fuera está oscuro. Va emisiva
 	# porque desde dentro, con la luz encendida, un cristal de noche es una
