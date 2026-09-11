@@ -262,9 +262,7 @@ func _remates_duelo() -> void:
 	var derrota := DueloRemateCinematica.planos_de(false)
 	_comprobar("el remate de victoria es válido", Cinematica.validar(victoria), [])
 	_comprobar("el remate de derrota es válido", Cinematica.validar(derrota), [])
-	var ids_distintos := (
-		DueloRemateCinematica.id_de(true) != DueloRemateCinematica.id_de(false)
-	)
+	var ids_distintos := DueloRemateCinematica.id_de(true) != DueloRemateCinematica.id_de(false)
 	_comprobar("victoria y derrota tienen id distinto", ids_distintos, true)
 	_comprobar(
 		"ambos terminan en el mismo expediente", victoria[-1]["figura"], derrota[-1]["figura"]
@@ -277,9 +275,7 @@ func _remates_duelo() -> void:
 	)
 	_comprobar("el remate de victoria es estático", victoria_estatica, true)
 	_comprobar("el remate de derrota es estático", derrota_estatica, true)
-	_comprobar(
-		"los dos remates se distinguen", victoria[0]["figura"] != derrota[0]["figura"], true
-	)
+	_comprobar("los dos remates se distinguen", victoria[0]["figura"] != derrota[0]["figura"], true)
 
 	var visor = load("res://escenas/visor.tscn").instantiate()
 	root.add_child(visor)
@@ -287,9 +283,7 @@ func _remates_duelo() -> void:
 	visor.partida.estado = Partida.nueva()
 	visor.jornada = visor.partida.estado["jornada"]
 	visor.partida.estado["vida"] = 3
-	var acusacion := {
-		"desenlace": "CIERRE-PRUEBA", "precipitada": false, "despido": false
-	}
+	var acusacion := {"desenlace": "CIERRE-PRUEBA", "precipitada": false, "despido": false}
 	var vida_antes: int = visor.partida.estado["vida"]
 	var careo := Node3D.new()
 	visor.add_child(careo)
@@ -307,16 +301,12 @@ func _remates_duelo() -> void:
 			reproductor = hijo
 			break
 	_comprobar("la derrota abre su remate", reproductor != null, true)
-	_comprobar(
-		"el cierre espera al remate", visor._aviso_partida.contains("CIERRE-PRUEBA"), false
-	)
+	_comprobar("el cierre espera al remate", visor._aviso_partida.contains("CIERRE-PRUEBA"), false)
 	if reproductor != null:
 		reproductor.saltar()
 		await process_frame
 	_comprobar(
-		"saltar el remate llega al cierre",
-		visor._aviso_partida.contains("CIERRE-PRUEBA"),
-		true
+		"saltar el remate llega al cierre", visor._aviso_partida.contains("CIERRE-PRUEBA"), true
 	)
 
 	visor.queue_free()
