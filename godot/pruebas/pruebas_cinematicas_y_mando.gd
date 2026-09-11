@@ -50,7 +50,12 @@ static func _cinematicas(comprobar: Callable) -> void:
 		3.0
 	)
 	var segunda := Cinematica.duracion(Cinematica.resolver(planos, {}, 1))
-	comprobar.call("y la quinta menos que la segunda", Cinematica.duracion(Cinematica.resolver(planos, {}, 4)) < segunda, true)
+	comprobar.call("la segunda dura menos", segunda < 3.0, true)
+	comprobar.call(
+		"y la quinta menos que la segunda",
+		Cinematica.duracion(Cinematica.resolver(planos, {}, 4)) < segunda,
+		true
+	)
 
 	# El suelo: por muy vista que esté, no desaparece sin avisar. Y el REMATE
 	# tiene su propio suelo, más alto que el de los demás planos.
