@@ -121,7 +121,10 @@ static func completar(jornada: Dictionary, raiz: int = 0) -> Dictionary:
 		if sin_reloj:
 			if jornada["sueno_escenas"].is_empty():
 				jornada["sueno_escenas"] = Sueno.noche(
-					jornada["dia"], jornada["leido_hoy"], jornada["mapa"], int(jornada.get("raiz", 0))
+					jornada["dia"],
+					jornada["leido_hoy"],
+					jornada["mapa"],
+					int(jornada.get("raiz", 0))
 				)
 			jornada["sueno_resto"] = Sueno.segundos_de_noche(jornada["sueno_escenas"])
 			jornada["mapa_anoche"] = jornada["mapa"].duplicate()
