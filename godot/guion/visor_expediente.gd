@@ -24,6 +24,7 @@ const ICONOS_POR_TIPO := {
 }
 
 var contenido := Contenido.new()
+var historias := Historias.new()
 var partida := Partida.new()
 var caso: Dictionary = {}
 var descubiertas: Array = []
@@ -56,7 +57,7 @@ func _raiz() -> int:
 
 func _ready() -> void:
 	theme = EstiloSiga.tema()
-	if not contenido.cargar():
+	if not contenido.cargar() or not historias.cargar():
 		return
 
 	var carga := partida.cargar()
@@ -433,12 +434,42 @@ func _al_firmar(resultado: Dictionary, formulario: Control) -> void:
 	if not _guardar_o_avisar():
 		return
 
-	var reasignado: String = tr("VISOR_REASIGNADO") if resultado.get("despido", false) else ""
+	# La firma ya está hecha; el careo es su consecuencia visual y mecánica.
+	# No se abre hasta que el guardado de la firma haya salido bien.
+	if not resultado.get("duelo", {}).is_empty():
+		_imputar.disabled = true
+		var careo: Node3D = load("res://escenas/careo.tscn").instantiate()
+		careo.acusado = resultado["duelo"]
+		careo.folio = registro_actual.get("folio", caso.get("titulo", ""))
+		careo.cargas = historias.cargas(partida.estado)
+		careo.estado = partida.estado
+		careo.semilla_tiradas = _raiz()
+		careo.terminado.connect(_al_terminar_careo.bind(careo, resultado))
+		add_child(careo)
+		return
+
+	_mostrar_cierre(resultado)
+
+
+func _al_terminar_careo(gano: bool, careo: Node3D, acusacion: Dictionary) -> void:
+	careo.queue_free()
+	var duelo := Acusacion.resolver_duelo(partida.estado, jornada, gano)
+	if not _guardar_o_avisar():
+		return
+	_mostrar_cierre(acusacion, duelo)
+
+
+func _mostrar_cierre(acusacion: Dictionary, duelo: Dictionary = {}) -> void:
+	var reasignado: String = (
+		tr("VISOR_REASIGNADO")
+		if (acusacion.get("despido", false) or duelo.get("despido", false))
+		else ""
+	)
 	_aviso_partida = (
 		tr("VISOR_CERRADO")
 		% [
-			resultado["desenlace"],
-			(tr("VISOR_PRECIPITADA") if resultado["precipitada"] else "") + reasignado
+			acusacion["desenlace"],
+			(tr("VISOR_PRECIPITADA") if acusacion["precipitada"] else "") + reasignado
 		]
 	)
 	_refrescar_estado()
