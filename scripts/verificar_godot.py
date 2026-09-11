@@ -52,6 +52,7 @@ def ejecutar():
         raise ValueError("El mínimo de comprobaciones debe ser positivo")
     with tempfile.TemporaryDirectory(prefix="legado-qa-") as temporal:
         entorno = os.environ.copy()
+        entorno["LEGADO_PRUEBAS_AISLADAS"] = "1"
         # Las pruebas y el arranque nunca usan la partida real de quien verifica.
         for variable, carpeta in [("XDG_DATA_HOME", "datos"),
                                   ("XDG_CONFIG_HOME", "config"),
@@ -60,6 +61,7 @@ def ejecutar():
         etapas = [
             ("importación", ["--editor", "--import", "--quit"], 120, None),
             ("suite", ["--script", "pruebas/pruebas.gd"], 120, minimo),
+            ("recorrido", ["--script", "pruebas/recorrido.gd"], 60, 9),
             ("arranque", ["--quit-after", "90"], 30, None),
         ]
         for nombre, argumentos, limite, suelo in etapas:
