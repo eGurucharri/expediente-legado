@@ -636,6 +636,7 @@
       "id": "caso8@8",
       "titulo": "El expediente del empleado #427",
       "descripcion": "El registro de nómina identifica a este empleado únicamente como '#427'. Su descripción de funciones, íntegra, dice: 'Presionar el botón cuando el sistema lo requiera.' Existen al menos tres actas de cierre para este expediente, cada una con un desenlace distinto e incompatible con las demás, las tres fechadas el mismo día.",
+      "anioSuceso": 1998,
       "estado": "ABIERTO",
       "confidencial": false,
       "principal": false,

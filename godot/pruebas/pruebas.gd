@@ -24,6 +24,7 @@ func _init() -> void:
 
 	PruebasPrometeoYCombate._prometeo(comprobar_cb)
 	PruebasPrometeoYCombate._partida(comprobar_cb)
+	PruebasPrometeoYCombate._borrar_el_avance(comprobar_cb)
 	PruebasPrometeoYCombate._historias(comprobar_cb)
 	PruebasPrometeoYCombate._combate(comprobar_cb)
 	PruebasPrometeoYCombate._ventanilla(comprobar_cb)
@@ -291,6 +292,22 @@ func _contenido() -> void:
 		func(c): return c.get("anioSuceso") != null and typeof(c["anioSuceso"]) != TYPE_INT
 	)
 	comprobar("los años son enteros", anios_decimales, [])
+
+	# Y ninguno se queda SIN año. La comprobación de arriba filtra por
+	# `!= null`, así que un caso sin la clave pasaba de largo: el caso 8 llevaba
+	# así desde el sembrado, y el A-7 le enseñaba "sin fecha" al jugador (#53).
+	var sin_campo := func(campo: String) -> Array:
+		return (
+			contenido
+			. casos
+			. filter(
+				func(c): return c.get(campo) == null or str(c.get(campo)).strip_edges().is_empty()
+			)
+			. map(func(c): return c["id"])
+		)
+	comprobar("ningún caso se queda sin año", sin_campo.call("anioSuceso"), [])
+	comprobar("ni sin estado", sin_campo.call("estado"), [])
+	comprobar("ni sin título", sin_campo.call("titulo"), [])
 
 	# Toda referencia [[...]] de un concepto apunta a un concepto que existe:
 	# si no, el corcho tendría un enlace a un expediente inexistente.
