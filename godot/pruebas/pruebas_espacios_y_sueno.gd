@@ -584,6 +584,34 @@ static func _cinematicas(comprobar: Callable) -> void:
 # --- Plantas que no son una caja (#86) ---------------------------------------
 
 
+## Mirar con el stick derecho: que las acciones EXISTAN y estén en el eje que
+## toca. Una acción mal escrita en `project.godot` no rompe nada al arrancar —
+## `Input.get_vector` devuelve cero—, así que el mando simplemente no movería la
+## cámara y no habría forma de distinguirlo de un mando desconectado.
+static func _mando(comprobar: Callable) -> void:
+	for accion in ["mirar_izquierda", "mirar_derecha", "mirar_arriba", "mirar_abajo"]:
+		comprobar.call("existe la acción %s" % accion, InputMap.has_action(accion), true)
+
+	var eje_de := func(accion: String) -> int:
+		for evento in InputMap.action_get_events(accion):
+			if evento is InputEventJoypadMotion:
+				return evento.axis
+		return -1
+
+	# Eje 2 y 3 son el stick DERECHO. El izquierdo (0 y 1) ya anda, y mirar con
+	# él sería mirar mientras se camina.
+	comprobar.call("mirar a los lados va en el eje derecho X", eje_de.call("mirar_izquierda"), 2)
+	comprobar.call("y a la derecha también", eje_de.call("mirar_derecha"), 2)
+	comprobar.call("mirar arriba va en el eje derecho Y", eje_de.call("mirar_arriba"), 3)
+	comprobar.call("y abajo también", eje_de.call("mirar_abajo"), 3)
+
+	# Sin zona muerta, un mando gastado gira la cámara solo.
+	for accion in ["mirar_izquierda", "mirar_derecha", "mirar_arriba", "mirar_abajo"]:
+		comprobar.call(
+			"%s tiene zona muerta" % accion, InputMap.action_get_deadzone(accion) > 0.0, true
+		)
+
+
 static func _plantas(comprobar: Callable) -> void:
 	# El caso fácil sigue saliendo igual: una sala rectangular tiene cuatro
 	# muros, ni uno más. Si la generalización rompiera esto, habría cambiado
