@@ -115,8 +115,6 @@ func _partida_validacion(comprobar: Callable) -> void:
 	comprobar.call("fase desconocida se rechaza", Partida.validar(fase_invalida).is_empty(), false)
 
 
-
-
 func comprobar(nombre: String, obtenido, esperado) -> void:
 	if obtenido == esperado:
 		pasadas += 1
