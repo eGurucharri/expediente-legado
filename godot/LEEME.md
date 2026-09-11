@@ -263,6 +263,35 @@ Mirar la captura ya ha pagado su coste: encontró que el año salía como
 documento abierto quedaba en blanco sobre blanco en la lista. Ninguna prueba de
 las 44 veía ninguno de los dos.
 
+## Estado del port: lógica, interfaz y evidencia (#163)
+
+Esta matriz separa tres cosas que no deben confundirse: que una regla exista,
+que la pantalla la use y que haya una prueba que lo demuestre. El estado se
+refiere a `main`; los PR abiertos se indican como pendientes y no como trabajo
+integrado.
+
+| Área | Lógica implementada | Interfaz conectada | Evidencia disponible | Pendiente |
+| --- | --- | --- | --- | --- |
+| Casos y visor | Sí: contenido, marcas, progreso y lecturas | Sí: visor SIGA | Suite Godot y capturas headless | Playtesting humano completo |
+| Formulario A-7 | Sí: acusación, veredicto y coste de acciones | Sí: formulario de firma | Suite Godot | Careo desde la firma (#75) |
+| Persistencia | Sí: escritura atómica, versión y migración básica | Parcial: algunas pantallas aún deben bloquear el avance ante un fallo | Suite Godot; validación estructural en #190 | Integrar H1 (#203) y H5 (#190) |
+| Jornada y día | Sí: acciones, tránsito, casa, sueño y gato | Sí: escenas del ciclo | Suite y recorrido headless | Playthrough completo y pruebas con hardware |
+| Sueño | Sí: salas, semilla, lecturas y reloj | Sí: entrada y salida de la noche | Suite y recorrido; H2/H3 en #166 | Integrar #166 y validar experiencia visual |
+| Careo | Sí: cinemática, combate y consecuencias | Parcial en `main`: escena disponible, conexión A-7 en #75 | Suite aislada del combate | Integrar #75 y probar victoria/derrota |
+
+### Qué significa “evidencia”
+
+- **Suite** demuestra reglas y estados límite; no demuestra que una pantalla sea
+  legible ni que el flujo sea cómodo.
+- **Recorrido** demuestra que varias escenas pueden encadenarse en headless; no
+  sustituye una partida completa con teclado, mando y ratón.
+- **Capturas** sirven para inspección visual puntual; no demuestran persistencia.
+- Un PR abierto no cuenta como integrado hasta que su CI esté verde, se revise y
+  llegue a `main`.
+
+La matriz debe actualizarse cuando un PR cambie de estado. No es una promesa de
+cobertura ni un sustituto del playtesting de #9.
+
 ## Lo que este corte NO incluye
 
 - La **interfaz** de Prometeo. Sus reglas sí están portadas (`guion/prometeo.gd`,
