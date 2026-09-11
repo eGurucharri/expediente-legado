@@ -52,7 +52,8 @@ contarse como trabajo pendiente:
   implementó el determinismo de #147.
 - **Arte y controles:** #123 avanzó #115/#120; #193 cerró #120; #196 entregó
   la mitad de #141; #187 avanzó el control con stick; #185 cerró #53 y dejó
-  #171 como endurecimiento/regresión.
+  #171 como endurecimiento/regresión. #199 integró las figuras humanas de #194;
+  #141 sigue abierto para completar su alcance.
 
 PR cerrados sin merge no cuentan como integración: #136, #145, #178, #188,
 #197 y #201 fueron sustituidos, abandonados o rebasados por entregas posteriores.
