@@ -131,21 +131,16 @@ func comprobar(nombre: String, obtenido, esperado) -> void:
 func _marcas_hotspot() -> void:
 	var texto := "El pago se autorizó sin revisión previa por orden directa."
 
-	# renderReturnsEscapedContentWhenNoTriggerPhraseIsProvided
 	comprobar(
 		"sin frase gatillo: un solo segmento plano",
 		Marcas.segmentar(texto, [Marcas.frase(texto, "", "pista", {})]),
 		[{"texto": texto, "tipo": "", "meta": {}}]
 	)
-
-	# renderLeavesContentUnchangedWhenTriggerPhraseIsNotFound
 	comprobar(
 		"frase ausente: un solo segmento plano",
 		Marcas.segmentar(texto, [Marcas.frase(texto, "no está aquí", "pista", {})]).size(),
 		1
 	)
-
-	# renderHighlightsPhraseAsButtonWhenNotDiscovered
 	var sin_descubrir := Marcas.segmentar(
 		texto, [Marcas.frase(texto, "sin revisión previa", "pista", {"pista": "p1"})]
 	)
@@ -155,8 +150,6 @@ func _marcas_hotspot() -> void:
 		sin_descubrir[1],
 		{"texto": "sin revisión previa", "tipo": "pista", "meta": {"pista": "p1"}}
 	)
-
-	# renderHighlightsPhraseAsReadMarkerWhenAlreadyDiscovered
 	var descubierta := Marcas.segmentar(
 		texto, [Marcas.frase(texto, "sin revisión previa", "pista_vista", {"pista": "p1"})]
 	)
