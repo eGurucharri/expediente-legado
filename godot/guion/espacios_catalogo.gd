@@ -330,12 +330,42 @@ const CALLE := {
 	],
 	"pantallas":
 	[
-		{"pos": Vector3(-3.75, 1.75, -8.0), "tam": Vector2(1.15, 0.72), "giro": 90.0, "semilla": 1.0},
-		{"pos": Vector3(-3.75, 1.75, -2.8), "tam": Vector2(1.15, 0.72), "giro": 90.0, "semilla": 2.0},
-		{"pos": Vector3(-3.75, 1.75, 2.4), "tam": Vector2(1.15, 0.72), "giro": 90.0, "semilla": 3.0},
-		{"pos": Vector3(3.75, 1.75, -5.4), "tam": Vector2(1.15, 0.72), "giro": -90.0, "semilla": 4.0},
-		{"pos": Vector3(3.75, 1.75, -0.2), "tam": Vector2(1.15, 0.72), "giro": -90.0, "semilla": 5.0},
-		{"pos": Vector3(3.75, 1.75, 5.0), "tam": Vector2(1.15, 0.72), "giro": -90.0, "semilla": 6.0},
+		{
+			"pos": Vector3(-3.75, 1.75, -8.0),
+			"tam": Vector2(1.15, 0.72),
+			"giro": 90.0,
+			"semilla": 1.0
+		},
+		{
+			"pos": Vector3(-3.75, 1.75, -2.8),
+			"tam": Vector2(1.15, 0.72),
+			"giro": 90.0,
+			"semilla": 2.0
+		},
+		{
+			"pos": Vector3(-3.75, 1.75, 2.4),
+			"tam": Vector2(1.15, 0.72),
+			"giro": 90.0,
+			"semilla": 3.0
+		},
+		{
+			"pos": Vector3(3.75, 1.75, -5.4),
+			"tam": Vector2(1.15, 0.72),
+			"giro": -90.0,
+			"semilla": 4.0
+		},
+		{
+			"pos": Vector3(3.75, 1.75, -0.2),
+			"tam": Vector2(1.15, 0.72),
+			"giro": -90.0,
+			"semilla": 5.0
+		},
+		{
+			"pos": Vector3(3.75, 1.75, 5.0),
+			"tam": Vector2(1.15, 0.72),
+			"giro": -90.0,
+			"semilla": 6.0
+		},
 	],
 	"ambiente": Color(0.16, 0.17, 0.22),
 	"ambiente_energia": 0.35,
