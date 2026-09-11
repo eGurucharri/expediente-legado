@@ -101,6 +101,7 @@ func _recorrer() -> void:
 
 	await _vuelta_entera()
 	await _reasignacion()
+	await PruebasHistoria.recorrer(self, Callable(self, "_comprobar"))
 	# El mezclador libera las voces de las puertas en su propio hilo.
 	await create_timer(0.25).timeout
 	print("%d pasadas, %d fallos" % [pasadas, fallos])
