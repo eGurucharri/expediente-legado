@@ -148,7 +148,8 @@ static func construir(raiz: Node3D, espacio: Dictionary) -> Array:
 				modelo,
 				Vector3(ANCHO_FIGURA, FiguraSilueta.altura(), ANCHO_FIGURA),
 				color_figura,
-				true
+				true,
+				String(figura.get("retrato", ""))
 			):
 				cuerpo.queue_free()
 				cuerpo = null

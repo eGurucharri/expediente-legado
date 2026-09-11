@@ -138,92 +138,12 @@
       "sha256": "0164fe828f028b321730fb8c74502e353583f751be74da1682d42fff7d3c5a42"
     },
     {
-      "ruta": "modelos/persona-a.glb",
-      "titulo": "Character A (Blocky Characters 2.0)",
-      "autor": "Kenney",
+      "ruta": "modelos/persona.fbx",
+      "titulo": "Animated Human (low poly, con esqueleto y animaciones)",
+      "autor": "Quaternius",
       "licencia": "CC0-1.0",
-      "fuente": "https://kenney.nl/assets/blocky-characters",
-      "sha256": "8ee5dae167ec589863f6bba222467eb90ace8be357a4c5abfcab289290181616"
-    },
-    {
-      "ruta": "modelos/persona-b.glb",
-      "titulo": "Character B (Blocky Characters 2.0)",
-      "autor": "Kenney",
-      "licencia": "CC0-1.0",
-      "fuente": "https://kenney.nl/assets/blocky-characters",
-      "sha256": "30ed390a741a1b285f587544819aa8a02c8f7f270e552ed742eb84785034f62a"
-    },
-    {
-      "ruta": "modelos/persona-c.glb",
-      "titulo": "Character C (Blocky Characters 2.0)",
-      "autor": "Kenney",
-      "licencia": "CC0-1.0",
-      "fuente": "https://kenney.nl/assets/blocky-characters",
-      "sha256": "ad2425ba0da5d9adff791b949bd62389ddcb09963ff89265930eab0d6484398c"
-    },
-    {
-      "ruta": "modelos/persona-d.glb",
-      "titulo": "Character D (Blocky Characters 2.0)",
-      "autor": "Kenney",
-      "licencia": "CC0-1.0",
-      "fuente": "https://kenney.nl/assets/blocky-characters",
-      "sha256": "bd7cbf0d45e58f6809e3249a84502ce629ac53bfa13bc39fb0a83d171faf84bf"
-    },
-    {
-      "ruta": "modelos/persona-e.glb",
-      "titulo": "Character E (Blocky Characters 2.0)",
-      "autor": "Kenney",
-      "licencia": "CC0-1.0",
-      "fuente": "https://kenney.nl/assets/blocky-characters",
-      "sha256": "9a12684981bc7763aebeceaffed82abfcc458d27b1ed3e169b92bebcc4870675"
-    },
-    {
-      "ruta": "modelos/persona-f.glb",
-      "titulo": "Character F (Blocky Characters 2.0)",
-      "autor": "Kenney",
-      "licencia": "CC0-1.0",
-      "fuente": "https://kenney.nl/assets/blocky-characters",
-      "sha256": "04223c1c6cdce5da6fe9c9729a24e1aa9c765dec93af952379112f7da24a828a"
-    },
-    {
-      "ruta": "modelos/persona-g.glb",
-      "titulo": "Character G (Blocky Characters 2.0)",
-      "autor": "Kenney",
-      "licencia": "CC0-1.0",
-      "fuente": "https://kenney.nl/assets/blocky-characters",
-      "sha256": "e3249ffc0aaa55eba973696ba4b36a204b35a10574b373e9945b56d918e8c9fd"
-    },
-    {
-      "ruta": "modelos/persona-h.glb",
-      "titulo": "Character H (Blocky Characters 2.0)",
-      "autor": "Kenney",
-      "licencia": "CC0-1.0",
-      "fuente": "https://kenney.nl/assets/blocky-characters",
-      "sha256": "f62fcf774dc6d61d64a3616803bc3a71176e1aee252020dd3ef680ef0a95d588"
-    },
-    {
-      "ruta": "modelos/persona-i.glb",
-      "titulo": "Character I (Blocky Characters 2.0)",
-      "autor": "Kenney",
-      "licencia": "CC0-1.0",
-      "fuente": "https://kenney.nl/assets/blocky-characters",
-      "sha256": "2b566d3b6261faa3e151b352396d823a285834f039ff6476db248ec6da902fe8"
-    },
-    {
-      "ruta": "modelos/persona-j.glb",
-      "titulo": "Character J (Blocky Characters 2.0)",
-      "autor": "Kenney",
-      "licencia": "CC0-1.0",
-      "fuente": "https://kenney.nl/assets/blocky-characters",
-      "sha256": "5bae1cabb44a719fba8e18a8c519f45c92531bc02a2a1324cd316ffa5903e311"
-    },
-    {
-      "ruta": "modelos/persona-k.glb",
-      "titulo": "Character K (Blocky Characters 2.0)",
-      "autor": "Kenney",
-      "licencia": "CC0-1.0",
-      "fuente": "https://kenney.nl/assets/blocky-characters",
-      "sha256": "1b0f9b218eda8444e68e988b1b87786ca058928a6c091bc3e44986363fefbc3b"
+      "fuente": "https://opengameart.org/content/animated-human-low-poly",
+      "sha256": "edd4fde3a73afe2a22ddb5a10a215373a0880d9a4ee32a0815879a260b8e8445"
     },
     {
       "ruta": "modelos/televisionVintage.glb",
@@ -240,6 +160,46 @@
       "licencia": "CC0-1.0",
       "fuente": "https://kenney.nl/assets/furniture-kit",
       "sha256": "e0ccc1fe50cbd05386477fdff527171d1cf7c0de2ba7ff3233f8d9561feb2561"
+    },
+    {
+      "ruta": "retratos/aduanero_ny.jpg",
+      "titulo": "Herman Melville, hacia 1846",
+      "autor": "Desconocido / dominio público",
+      "licencia": "Public domain",
+      "fuente": "https://commons.wikimedia.org/wiki/File:Herman_Melville,_ca._1846-1847.jpg",
+      "sha256": "9e67de4432c04ecdb87bf381cd7ad7f0675a7a1e17d19dc12697af0df98fdd6f"
+    },
+    {
+      "ruta": "retratos/correspondencia.jpg",
+      "titulo": "Fernando Pessoa, 1912",
+      "autor": "Desconocido / dominio público",
+      "licencia": "Public domain",
+      "fuente": "https://commons.wikimedia.org/wiki/File:Fernando_Pessoa_1912.jpg",
+      "sha256": "4f40814d081ca18fcb21acaf01c6295dd95437bf4d8ed2bd5c4497266161ce08"
+    },
+    {
+      "ruta": "retratos/emperador.jpg",
+      "titulo": "Puyi, último emperador de China",
+      "autor": "Desconocido / dominio público",
+      "licencia": "Public domain",
+      "fuente": "https://commons.wikimedia.org/wiki/File:Colorised_Puyi_portrait.png",
+      "sha256": "a4f54eb122d754dc98025b1068182c0259de80d73a31c115bd275c13fc856ad8"
+    },
+    {
+      "ruta": "retratos/fielato.jpg",
+      "titulo": "Henri Rousseau, autorretrato",
+      "autor": "Desconocido / dominio público",
+      "licencia": "Public domain",
+      "fuente": "https://commons.wikimedia.org/wiki/File:Brooklyn_Museum_-_Self-Portrait_-_Henri-Julien-F%C3%A9lix_Rousseau_called_Le_Douanier_Rousseau.jpg",
+      "sha256": "d3ae857e5868d9637f73beed98acbf8a3c9ee299e0bf8b2fa9257886ceaa3d9f"
+    },
+    {
+      "ruta": "retratos/riegos.jpg",
+      "titulo": "Constantino Cavafis, hacia 1900",
+      "autor": "Desconocido / dominio público",
+      "licencia": "Public domain",
+      "fuente": "https://commons.wikimedia.org/wiki/File:Constantine_Cavafy,_ca_1900.jpg",
+      "sha256": "e9a3a4e357efd9d43ea848d0942b013b49d8be8bd6c07ab0f490e2b8af3e9c62"
     },
     {
       "ruta": "texturas/asfalto.jpg",

@@ -361,6 +361,7 @@ func _plantilla_en(sitio: Dictionary) -> Array:
 					"rotulo": tr(quien["nombre"]),
 					"frase": Companeros.frase_de(quien, jornada["dia"]),
 					"modelo": Companeros.cuerpo_de(quien),
+					"retrato": quien.get("retrato", ""),
 				}
 			)
 		)
