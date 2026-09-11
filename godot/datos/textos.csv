@@ -196,3 +196,4 @@ HISTORIA_TITULO,La historia de la carta
 HISTORIA_REINTENTAR,Reintentar guardado
 HISTORIA_NO_DISPONIBLE,Esta carta no tiene historia disponible.
 HISTORIA_OPCION,%s — %s
+ARCHIVO_GUARDADO_HECHO,"PARTIDA GUARDADA. Puede seguir."

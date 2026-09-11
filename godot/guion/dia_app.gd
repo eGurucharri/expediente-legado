@@ -17,6 +17,12 @@ var _caminante: CharacterBody3D
 var _mundo: Node3D
 var _rotulo: Label
 var _nomina: Label
+
+## El destino al que no se llegó a entrar porque no se pudo guardar. Mientras
+## haya uno, pisar cualquier salida REINTENTA el guardado en vez de volver a
+## fichar: la nómina y la noche ya están cobradas en memoria, y cobrarlas dos
+## veces sería peor que no haberlas escrito.
+var _transito_pendiente := ""
 var _borrar: Button
 var _borrar_confirmando := false
 var _pantalla: CanvasLayer
@@ -108,7 +114,7 @@ func _cerrar_vuelta() -> void:
 	_entrada = null
 	_caminante.set_physics_process(true)
 	_hud.visible = true
-	partida.guardar()
+	_guardar_o_avisar("")
 
 
 ## Luz y ambiente. Una sola direccional y bastante ambiente: en un sitio de
@@ -262,13 +268,47 @@ func _process(delta: float) -> void:
 		var dia := Jornada.despertar_de_golpe(jornada)
 		_hablando = false
 		_nomina.text = tr("DIA_DESPERTAR_DE_GOLPE") % dia
-		partida.guardar()
+		if not _guardar_o_avisar("archivo"):
+			return
 		_entrar_en("archivo")
 		return
 	_rotulo.text = _texto_de_rotulo(Sueno.senal_de_noche(Jornada.noche_restante(jornada)))
 
 
+## Escribe la partida y dice si pudo. Si no pudo, apunta el tránsito que se
+## queda esperando y lo cuenta: nada de esto deshace lo ya aplicado a la
+## jornada, que sigue siendo lo vigente aunque el disco no se haya enterado.
+func _guardar_o_avisar(destino: String) -> bool:
+	if partida.guardar():
+		return true
+	_transito_pendiente = destino
+	_hablando = false
+	_nomina.text = tr("ARCHIVO_ERROR_GUARDAR")
+	return false
+
+
+## El reintento. Solo vuelve a escribir el mismo estado —ni ficha, ni paga, ni
+## gasta una acción— y, si esta vez sale, termina el tránsito que quedó a
+## medias.
+func _reintentar_guardado() -> void:
+	var destino := _transito_pendiente
+	if not _guardar_o_avisar(destino):
+		return
+	_transito_pendiente = ""
+	_nomina.text = tr("ARCHIVO_GUARDADO_HECHO")
+	if destino.is_empty():
+		return
+	if jornada["fase"] != "sueño":
+		_sonar("puerta_abre")
+	_entrar_en(destino)
+
+
 func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
+	# Con un guardado a medias no se empieza nada nuevo: cada pisada es el
+	# reintento, y no vuelve a aplicar la jugada que ya está hecha.
+	if partida.guardado_pendiente and cuerpo == _caminante:
+		_reintentar_guardado()
+		return
 	if cuerpo != _caminante or _pantalla != null:
 		return
 	# Alguien que dice algo al pasar. No lleva a ninguna parte, así que se
@@ -335,8 +375,10 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 		_sonar("puerta_abre")
 	_entrar_en(destino)
 	# El destino y el mapa ya tienen que estar asentados al escribir: en el
-	# trayecto no hay otra regla que cambie la fase a casa.
-	partida.guardar()
+	# trayecto no hay otra regla que cambie la fase a casa. Por eso aquí el
+	# tránsito pendiente se queda vacío: ya se ha entrado, y lo único que falta
+	# por hacer es escribirlo.
+	_guardar_o_avisar("")
 
 
 ## Los compañeros de esta vida laboral, sentados donde el sitio diga.
@@ -422,7 +464,11 @@ func _al_pulsar_borrar() -> void:
 
 
 func _abrir_expediente() -> void:
-	partida.guardar()
+	if partida.guardado_pendiente:
+		_reintentar_guardado()
+		return
+	if not _guardar_o_avisar(""):
+		return
 	_caminante.set_physics_process(false)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 

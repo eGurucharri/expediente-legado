@@ -24,6 +24,7 @@ func _init() -> void:
 
 	PruebasPrometeoYCombate._prometeo(comprobar_cb)
 	PruebasPrometeoYCombate._partida(comprobar_cb)
+	PruebasPrometeoYCombate._guardado_seguro(comprobar_cb)
 	PruebasPrometeoYCombate._borrar_el_avance(comprobar_cb)
 	PruebasPrometeoYCombate._historias(comprobar_cb)
 	PruebasPrometeoYCombate._combate(comprobar_cb)

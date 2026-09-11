@@ -57,6 +57,16 @@ const ESTADO_CARTA := ["recogida", "gastada"]
 
 var estado: Dictionary = {}
 
+## Cierto desde que un guardado falla hasta que otro sale bien. Lo que hay en
+## memoria SIGUE siendo la partida buena —lo que se quedó atrás es el disco—,
+## así que la pantalla que lo mire puede avisar y ofrecer reintentar en vez de
+## tirar el día del jugador.
+var guardado_pendiente := false
+
+## Lo último que impidió guardar, para poder decir qué pasó y no solo que algo
+## pasó. Vacío mientras no haya nada pendiente.
+var fallo_de_guardado := ""
+
 
 ## Una partida recién empezada, con los catálogos en su estado de serie.
 static func nueva() -> Dictionary:
@@ -123,14 +133,17 @@ func cargar(ruta: String = RUTA) -> Dictionary:
 
 ## Guarda el estado actual. Devuelve true solo si la partida quedó escrita de
 ## verdad: quien llame puede avisar, en vez de dar por hecho que se guardó.
+##
+## Volver a llamar es la forma de reintentar, y no cuesta nada: esto no aplica
+## ningún cambio, solo copia a disco el estado que ya está en memoria. Por eso
+## un reintento no duplica una firma, ni un pago, ni una acción gastada — el
+## trabajo de no repetirlos es de quien llama, que debe reintentar el GUARDADO
+## en vez de rehacer la jugada.
 func guardar(ruta: String = RUTA) -> bool:
-	estado["version"] = VERSION
-
 	var temporal := ruta + ".nuevo"
 	var fichero := FileAccess.open(temporal, FileAccess.WRITE)
 	if fichero == null:
-		push_error("No se pudo escribir %s" % temporal)
-		return false
+		return _no_se_guardo("No se pudo escribir %s" % temporal, temporal)
 	fichero.store_string(JSON.stringify(_para_guardar(), "\t"))
 	fichero.close()
 
@@ -140,9 +153,27 @@ func guardar(ruta: String = RUTA) -> bool:
 		ProjectSettings.globalize_path(temporal), ProjectSettings.globalize_path(ruta)
 	)
 	if error != OK:
-		push_error("No se pudo reemplazar %s (error %d)" % [ruta, error])
-		return false
+		return _no_se_guardo("No se pudo reemplazar %s (error %d)" % [ruta, error], temporal)
+
+	# La versión se sella AQUÍ, con el fichero ya en su sitio. Marcarla antes
+	# dejaba el estado en memoria diciendo que era de una versión que nunca
+	# llegó a escribirse.
+	estado["version"] = VERSION
+	guardado_pendiente = false
+	fallo_de_guardado = ""
 	return true
+
+
+## Un guardado que no salió. Se apunta el motivo, se deja el fichero bueno como
+## estaba y se barre el temporal: un `.nuevo` a medias no es una partida, y
+## dejarlo ahí solo confunde a quien vaya a mirar la carpeta.
+func _no_se_guardo(motivo: String, temporal: String) -> bool:
+	push_error(motivo)
+	guardado_pendiente = true
+	fallo_de_guardado = motivo
+	if FileAccess.file_exists(temporal):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(temporal))
+	return false
 
 
 ## Borra el avance PERMANENTE y empieza de cero.
@@ -173,6 +204,7 @@ func borrar(ruta: String = RUTA) -> bool:
 ## ids y sus banderas.
 func _para_guardar() -> Dictionary:
 	var reducido := estado.duplicate()
+	reducido["version"] = VERSION
 	reducido["logros"] = _solo_estado(estado.get("logros", []), ESTADO_LOGRO)
 	reducido["tarot"] = _solo_estado(estado.get("tarot", []), ESTADO_CARTA)
 	return reducido

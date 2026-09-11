@@ -13,6 +13,20 @@ RESUMEN = re.compile(r"^(\d+) pasadas, (\d+) fallos$", re.MULTILINE)
 ERROR_GUION = re.compile(r"^(?:SCRIPT ERROR:|.*Parse Error:)", re.MULTILINE)
 ERROR_MOTOR = re.compile(r"^ERROR:", re.MULTILINE)
 
+# Los ÚNICOS diagnósticos que la suite tiene derecho a imprimir, porque los
+# provoca a propósito para comprobar que el juego los sobrevive: una partida
+# corrupta al recuperarla, y un guardado que no puede escribir ni renombrar
+# (#191). Se listan uno a uno y no por prefijo: la gracia de este detector es
+# que un error NUEVO no se cuele entre los de siempre. Nunca en el arranque.
+ERRORES_PROVOCADOS = (
+    r"Parse JSON failed\.",
+    r"No se pudo escribir ",
+    r"No se pudo reemplazar ",
+)
+ESPERADO_EN_SUITE = re.compile(
+    r"^ERROR: (?:%s)[^\n]*$" % "|".join(ERRORES_PROVOCADOS), re.MULTILINE
+)
+
 
 def validar(salida, codigo, minimo=None, importando=False):
     """Godot puede imprimir errores y terminar con código cero."""
@@ -23,10 +37,10 @@ def validar(salida, codigo, minimo=None, importando=False):
     # La primera importación puede avisar de traducciones todavía no generadas.
     # En la suite y el arranque ya deben existir TODOS los recursos.
     errores = ERROR_MOTOR.findall(salida)
-    # La prueba de recuperación escribe JSON corrupto deliberadamente. Es el
-    # único diagnóstico esperado en la suite, nunca en el arranque del juego.
+    # Las pruebas de recuperación y de guardado provocan sus diagnósticos a
+    # propósito. Son los únicos esperados en la suite, nunca en el arranque.
     if minimo is not None:
-        salida = re.sub(r"^ERROR: Parse JSON failed\.[^\n]*$", "", salida, flags=re.MULTILINE)
+        salida = ESPERADO_EN_SUITE.sub("", salida)
         errores = ERROR_MOTOR.findall(salida)
     if not importando and errores:
         raise ValueError("Godot registró un error de motor o recurso")

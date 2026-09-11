@@ -157,7 +157,10 @@ func _cerrar(gano: bool) -> void:
 	racha = cierre["racha"]
 	for id in cierre["logros"]:
 		Prometeo.desbloquear_carta(partida.estado["tarot"], id)
-	partida.guardar()
+	# La racha y las cartas ya están dadas en memoria. Si no se pudo escribir,
+	# se dice en la crónica y el botón de llamar al siguiente pasa a ser el
+	# reintento: vuelve a guardar lo mismo, no vuelve a cerrar este turno.
+	var se_guardo := partida.guardar()
 
 	_botones.visible = false
 	_habilidades.visible = false
@@ -165,6 +168,8 @@ func _cerrar(gano: bool) -> void:
 		"\n\n%s" % (tr("VENTANILLA_ATENDIDA") % racha if gano else tr("VENTANILLA_NO_ATENDIDA"))
 	)
 	_actualizar_marcador()
+	if not se_guardo:
+		_cronica.text += "\n\n%s" % tr("ARCHIVO_ERROR_GUARDAR")
 
 	# Un botón para volver a la cola, en vez de saltar solo: el jugador decide
 	# cuándo llama al siguiente.
@@ -172,6 +177,17 @@ func _cerrar(gano: bool) -> void:
 	siguiente.text = tr("VENTANILLA_SIGUIENTE")
 	siguiente.pressed.connect(
 		func():
+			if partida.guardado_pendiente:
+				_cronica.text += (
+					"\n\n%s"
+					% (
+						tr("ARCHIVO_GUARDADO_HECHO")
+						if partida.guardar()
+						else tr("ARCHIVO_ERROR_GUARDAR")
+					)
+				)
+				if partida.guardado_pendiente:
+					return
 			siguiente.queue_free()
 			_llenar_turno()
 	)
