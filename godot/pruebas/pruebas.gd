@@ -1547,7 +1547,10 @@ func _traducciones() -> void:
 	while not csv.eof_reached():
 		var linea := csv.get_csv_line()
 		if primera:
-			comprobar("la cabecera declara clave e idioma", linea, ["clave", "es"])
+			# `get_csv_line` devuelve un PackedStringArray, y comparar eso con
+			# un Array reventaba el `==` de dentro de comprobar(): la guarda
+			# llevaba ahí sin comprobar nada, ni pasar ni fallar.
+			comprobar("la cabecera declara clave e idioma", Array(linea), ["clave", "es"])
 			primera = false
 			continue
 		if linea.size() < 2 or linea[0].is_empty():
