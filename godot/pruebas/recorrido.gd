@@ -91,8 +91,10 @@ func _recorrer() -> void:
 	var antes: Array = archivo.descubiertas.duplicate()
 	archivo._al_pulsar_marca("pista:" + archivo.caso["pistas"][0]["id"])
 	_comprobar("no se modifica un expediente firmado", archivo.descubiertas, antes)
+	PruebasLecturasYReloj.lecturas(archivo, Callable(self, "_comprobar"))
 	vuelta.queue_free()
 	await process_frame
+	PruebasLecturasYReloj.reloj(Callable(self, "_comprobar"))
 	# El mezclador libera las voces de las puertas en su propio hilo.
 	await create_timer(0.25).timeout
 	print("%d pasadas, %d fallos" % [pasadas, fallos])
