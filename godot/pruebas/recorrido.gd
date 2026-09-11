@@ -211,6 +211,23 @@ func _reasignacion() -> void:
 	_comprobar("quedarse sin vidas es un despido", resultado["despido"], true)
 	visor._al_firmar(resultado, Control.new())
 	await process_frame
+
+	# #70: el expediente ya está firmado ANTES de que el sello termine. La
+	# cinemática es presentación, no la autoridad del veredicto.
+	_comprobar(
+		"la firma existe antes de terminar el sello",
+		Acusacion.esta_cerrado(visor.partida.estado, visor.caso["id"]),
+		true
+	)
+	var reproductor: Node = null
+	for hijo in visor.get_children():
+		if hijo.has_method("saltar"):
+			reproductor = hijo
+			break
+	_comprobar("el cierre pasa por la cinemática del sello", reproductor != null, true)
+	if reproductor != null:
+		reproductor.saltar()
+		await process_frame
 	_comprobar("y el expediente lo dice", visor._estado.text.contains(tr("VISOR_REASIGNADO")), true)
 
 	# El id se guarda ANTES de cerrar: al cerrar se libera el visor, y
