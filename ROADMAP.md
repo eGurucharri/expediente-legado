@@ -51,9 +51,14 @@ contarse como trabajo pendiente:
   #107; #144/#137 dejaron la CI y el verificador en una base coherente; #164
   implementó el determinismo de #147.
 - **Arte y controles:** #123 avanzó #115/#120; #193 cerró #120; #196 entregó
-  la mitad de #141; #187 avanzó el control con stick; #185 cerró #53 y dejó
-  #171 como endurecimiento/regresión. #199 integró las figuras humanas de #194;
-  #141 sigue abierto para completar su alcance.
+  los muebles de malla CC0 de #141; #187 avanzó el control con stick; #185
+  cerró #53 y dejó #171 como endurecimiento/regresión. #199 integró las figuras
+  humanas de #194.
+- **Pendiente de integración:** #141 ya no debe contarse como trabajo de muebles:
+  esa parte está cubierta por #196. Sigue abierto únicamente por el alcance
+  restante de vídeo/captura, que debe separarse o rebasarse con cuidado por sus
+  conflictos y por la dependencia de binarios de FFmpeg/LFS (#192), antes de
+  intentar integrarlo.
 
 PR cerrados sin merge no cuentan como integración: #136, #145, #178, #188,
 #197 y #201 fueron sustituidos, abandonados o rebasados por entregas posteriores.
