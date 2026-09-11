@@ -1,8 +1,8 @@
-## Costura de #70 y #72 sobre el visor existente.
+## Costura de #70, #72 y #73 sobre el visor existente.
 ##
 ## El visor base conserva toda la lógica de lectura, firma y persistencia. Esta
-## capa inserta las cinemáticas de sello y remate alrededor del careo sin dejar
-## que ninguna de ellas decida el veredicto ni aplique consecuencias.
+## capa inserta las cinemáticas de sello, remate y reasignación sin dejar que
+## ninguna de ellas decida el veredicto ni aplique consecuencias.
 extends "res://guion/visor_expediente.gd"
 
 const ESCENA_CINEMATICA := preload("res://escenas/cinematica.tscn")
@@ -36,6 +36,12 @@ func _reproducir_sello(resultado: Dictionary) -> void:
 ## nada: la firma ya estaba guardada antes de entrar aquí.
 func _al_terminar_sello(reproductor: Node, resultado: Dictionary) -> void:
 	reproductor.queue_free()
+	# Una acusación precipitada puede gastar la última vida. La reasignación ya
+	# está aplicada en la lógica, así que no se abre un careo perteneciente a la
+	# vida laboral anterior: primero se representa el despido.
+	if bool(resultado.get("despido", false)):
+		_reproducir_despido(resultado)
+		return
 	if not resultado.get("duelo", {}).is_empty():
 		_abrir_careo_firmado(resultado)
 		return
@@ -82,5 +88,35 @@ func _reproducir_remate(gano: bool, acusacion: Dictionary, duelo: Dictionary) ->
 
 
 func _al_terminar_remate(reproductor: Node, acusacion: Dictionary, duelo: Dictionary) -> void:
+	reproductor.queue_free()
+	if bool(duelo.get("despido", false)):
+		_reproducir_despido(acusacion, duelo)
+		return
+	_mostrar_cierre(acusacion, duelo)
+
+
+## La lógica ya ha empezado otra vuelta antes de llegar aquí. Este método solo
+## fotografía ese hecho: expediente en el puesto, salida acompañada y nueva
+## credencial. El gato se consulta del estado ya reiniciado porque Jornada lo
+## conserva exactamente como estaba.
+func _reproducir_despido(acusacion: Dictionary, duelo: Dictionary = {}) -> void:
+	# El cierre textual se fija antes de la escena para que el estado sea legible
+	# incluso si el reproductor se interrumpe. La cinemática se superpone, pero
+	# no es la autoridad de la reasignación ni del mensaje.
+	_mostrar_cierre(acusacion, duelo)
+	var reproductor: Node = ESCENA_CINEMATICA.instantiate()
+	add_child(reproductor)
+	reproductor.terminada.connect(_al_terminar_despido.bind(reproductor, acusacion, duelo))
+	var gato_presente := bool(jornada.get("gato", {}).get("presente", false))
+	reproductor.reproducir(
+		DespidoCinematica.planos_de(
+			gato_presente, Cinematica.vistas_de(partida.estado, DespidoCinematica.ID)
+		),
+		DespidoCinematica.ID,
+		partida.estado
+	)
+
+
+func _al_terminar_despido(reproductor: Node, acusacion: Dictionary, duelo: Dictionary = {}) -> void:
 	reproductor.queue_free()
 	_mostrar_cierre(acusacion, duelo)
