@@ -24,6 +24,7 @@ const ICONOS_POR_TIPO := {
 }
 
 var contenido := Contenido.new()
+var historias := Historias.new()
 var partida := Partida.new()
 var caso: Dictionary = {}
 var descubiertas: Array = []
@@ -56,7 +57,7 @@ func _raiz() -> int:
 
 func _ready() -> void:
 	theme = EstiloSiga.tema()
-	if not contenido.cargar():
+	if not contenido.cargar() or not historias.cargar():
 		return
 
 	var carga := partida.cargar()
@@ -440,7 +441,7 @@ func _al_firmar(resultado: Dictionary, formulario: Control) -> void:
 		var careo: Node3D = load("res://escenas/careo.tscn").instantiate()
 		careo.acusado = resultado["duelo"]
 		careo.folio = registro_actual.get("folio", caso.get("titulo", ""))
-		careo.cargas = Historias.cargas(partida.estado)
+		careo.cargas = historias.cargas(partida.estado)
 		careo.estado = partida.estado
 		careo.semilla_tiradas = _raiz()
 		careo.terminado.connect(_al_terminar_careo.bind(careo, resultado))
