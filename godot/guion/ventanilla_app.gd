@@ -52,10 +52,10 @@ var _habilidad_elegida_eje := ""
 
 func _ready() -> void:
 	theme = EstiloSiga.tema()
-	_azar.randomize()
 	contenido.cargar()
 	historias.cargar()
 	partida.cargar()
+	_sembrar_tiradas()
 	_construir()
 	_llenar_turno()
 
@@ -207,6 +207,22 @@ func _veredicto(cual: String) -> String:
 			return tr("VEREDICTO_RIVAL")
 		_:
 			return tr("VEREDICTO_EMPATE")
+
+
+## De dónde salen las tiradas de este combate (#147).
+##
+## Antes era `randomize()`, o sea el reloj: el mismo combate salía distinto cada
+## vez y un careo que se torcía no se podía volver a ver. Ahora se deriva de la
+## semilla de la partida, la vuelta y el día, así que el combate de un día es
+## SIEMPRE el mismo combate — recargar la partida no vuelve a tirar los dados,
+## que es justo lo que permitía repetir un turno hasta que saliera bien.
+func _sembrar_tiradas() -> void:
+	var jornada: Dictionary = partida.estado.get("jornada", {})
+	_azar.seed = Azar.derivar(
+		int(partida.estado.get("semilla", 0)),
+		"combate",
+		[int(jornada.get("vuelta", 1)), int(jornada.get("dia", 1))]
+	)
 
 
 ## Las tiradas del combate salen de aquí, no de `randf` suelto: un solo sitio

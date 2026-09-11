@@ -47,7 +47,7 @@ const ALIAS := {}
 ## deja de ser igual a 4 en cualquier comparación. Es el mismo fallo que puso
 ## "Expediente 1999.0" en la barra de título, y por eso no se arregla en el
 ## sitio donde se ve sino aquí, que es por donde entra.
-const CAMPOS_ENTEROS := ["vida", "coliseo_racha_mejor"]
+const CAMPOS_ENTEROS := ["vida", "coliseo_racha_mejor", "semilla"]
 
 ## Los campos de estado de cada catálogo: lo único suyo que la partida guarda.
 ## Todo lo demás (título, descripción, requisito) es contenido y se vuelve a
@@ -63,6 +63,12 @@ static func nueva() -> Dictionary:
 	var catalogos := _leer_json(CATALOGOS)
 	return {
 		"version": VERSION,
+		# La raíz del azar de esta partida (#147). Va en el guardado porque lo
+		# que define una partida no es solo lo que has hecho, sino con qué
+		# sorteo te tocó hacerlo: sin esto, recargar sería volver a sortear.
+		# Una partida vieja que no la traiga recibe una aquí al cargarse, y a
+		# partir de ese momento ya es reproducible.
+		"semilla": Azar.raiz_nueva(),
 		"pistas_descubiertas": [],
 		# La fusión solo recupera claves del molde. Si faltan aquí, guardar
 		# escribe el día y las firmas, pero cargar los descarta silenciosamente.

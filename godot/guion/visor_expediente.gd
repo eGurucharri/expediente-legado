@@ -47,6 +47,13 @@ var _cabecera: Label
 var _estado: Label
 
 
+## La raíz del azar de esta partida (#147). Se lee de la partida y no se guarda
+## aparte: un segundo sitio donde viviera la semilla sería un segundo sitio
+## donde pudiera estar desfasada.
+func _raiz() -> int:
+	return int(partida.estado.get("semilla", 0))
+
+
 func _ready() -> void:
 	theme = EstiloSiga.tema()
 	if not contenido.cargar():
@@ -54,7 +61,7 @@ func _ready() -> void:
 
 	var carga := partida.cargar()
 	descubiertas = partida.estado["pistas_descubiertas"]
-	jornada = Jornada.completar(partida.estado.get("jornada", Jornada.nueva()))
+	jornada = Jornada.completar(partida.estado.get("jornada", Jornada.nueva(_raiz())), _raiz())
 	partida.estado["jornada"] = jornada
 	if carga["resultado"] == "apartada":
 		_aviso_partida = tr("VISOR_PARTIDA_APARTADA") % [carga["motivo"], carga["copia"]]

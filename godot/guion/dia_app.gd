@@ -35,10 +35,17 @@ var _desde_paso := 0.0
 var _hablando := false
 
 
+## La raíz del azar de esta partida (#147). Se lee de la partida y no se guarda
+## aparte: un segundo sitio donde viviera la semilla sería un segundo sitio
+## donde pudiera estar desfasada.
+func _raiz() -> int:
+	return int(partida.estado.get("semilla", 0))
+
+
 func _ready() -> void:
 	partida.cargar()
 	contenido.cargar()
-	jornada = Jornada.completar(partida.estado.get("jornada", Jornada.nueva()))
+	jornada = Jornada.completar(partida.estado.get("jornada", Jornada.nueva(_raiz())), _raiz())
 	partida.estado["jornada"] = jornada
 
 	_montar_entorno()
@@ -198,7 +205,7 @@ func _espacio_de(fase: String) -> Dictionary:
 
 	if jornada["sueno_escenas"].is_empty():
 		jornada["sueno_escenas"] = Sueno.noche(
-			jornada["dia"], jornada["leido_hoy"], jornada["mapa"]
+			jornada["dia"], jornada["leido_hoy"], jornada["mapa"], _raiz()
 		)
 	var id: String = jornada["sueno_escenas"][0]
 	# Se apunta al ENTRAR y no al salir: el mapa es lo que has pisado, y
@@ -214,8 +221,13 @@ func _espacio_de(fase: String) -> Dictionary:
 		partida.estado["pistas_descubiertas"],
 		partida.estado.get("veredictos", {})
 	)
-	var reparto := SuenoContenido.repartir(
-		fuentes, Sueno.ESCENAS_POR_NOCHE, Sueno.semilla(jornada["dia"], jornada["leido_hoy"])
+	var reparto := (
+		SuenoContenido
+		. repartir(
+			fuentes,
+			Sueno.ESCENAS_POR_NOCHE,
+			Sueno.semilla(jornada["dia"], jornada["leido_hoy"], _raiz()),
+		)
 	)
 	var cual: int = Sueno.ESCENAS_POR_NOCHE - jornada["sueno_escenas"].size()
 	return Sueno.espacio(
@@ -400,7 +412,7 @@ func _cerrar_expediente() -> void:
 	_sonar("puerta_cierra")
 
 	partida.cargar()
-	jornada = Jornada.completar(partida.estado.get("jornada", Jornada.nueva()))
+	jornada = Jornada.completar(partida.estado.get("jornada", Jornada.nueva(_raiz())), _raiz())
 	partida.estado["jornada"] = jornada
 
 	_caminante.set_physics_process(true)
