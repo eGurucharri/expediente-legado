@@ -121,6 +121,8 @@ static func completar(jornada: Dictionary, raiz: int = 0) -> Dictionary:
 		elif typeof(molde[clave]) == TYPE_INT:
 			jornada[clave] = int(jornada[clave])
 	jornada["gato"]["dias_sin_comer"] = int(jornada["gato"].get("dias_sin_comer", 0))
+	for clave in ["ultimo_resuelto", "pagados", "impagos"]:
+		jornada["alquiler"][clave] = int(jornada["alquiler"].get(clave, 0))
 	# Una jornada guardada antes de que existiera la semilla (#147) trae un
 	# cero: se le pone la de la partida, y de ahí en adelante ya es
 	# reproducible. Lo que NO se toca es su plantilla — los compañeros de esa
