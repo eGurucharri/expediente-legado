@@ -262,7 +262,7 @@ static func validar(guardado) -> Array:
 		if guardado.has(clave) and typeof(guardado[clave]) != TYPE_DICTIONARY:
 			errores.append("%s no es un objeto" % clave)
 	for clave in CAMPOS_ENTEROS:
-		if guardado.has(clave) and not _entero_valido(guardado[clave], 0, 2147483647):
+		if guardado.has(clave) and not _entero_valido(guardado[clave], 0, 9223372036854775807):
 			errores.append("%s inválido" % clave)
 	return errores
 
@@ -292,10 +292,11 @@ static func _validar_jornada(jornada: Dictionary) -> Array:
 
 
 static func _entero_valido(valor, minimo: int, maximo: int) -> bool:
-	if typeof(valor) not in [TYPE_INT, TYPE_FLOAT]:
+	if typeof(valor) == TYPE_INT:
+		return valor >= minimo and valor <= maximo
+	if typeof(valor) != TYPE_FLOAT or not is_finite(valor):
 		return false
-	var numero := float(valor)
-	return is_finite(numero) and floor(numero) == numero and numero >= minimo and numero <= maximo
+	return floor(valor) == valor and valor >= minimo and valor <= maximo
 
 
 ## Combina lo guardado con los catálogos vigentes: conserva lo conseguido y
