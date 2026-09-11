@@ -5,7 +5,7 @@
 class_name Pantalla
 extends RefCounted
 
-const SHADER_NIEVE := "res://godot/arte/nieve.gdshader"
+const SHADER_NIEVE := "res://arte/nieve.gdshader"
 const RESOLUCION := Vector2i(256, 192)
 
 
