@@ -64,6 +64,7 @@ func _init() -> void:
 
 ## Validación de partidas (#190) ----------------------------------------------
 
+
 func _partida_validacion(comprobar: Callable) -> void:
 	var valida := Partida.nueva()
 	comprobar.call("partida nueva válida", Partida.validar(valida), [])
@@ -111,11 +112,7 @@ func _partida_validacion(comprobar: Callable) -> void:
 
 	var fase_invalida := valida.duplicate(true)
 	fase_invalida["jornada"]["fase"] = "inventada"
-	comprobar.call(
-		"fase desconocida se rechaza",
-		Partida.validar(fase_invalida).is_empty(),
-		false
-	)
+	comprobar.call("fase desconocida se rechaza", Partida.validar(fase_invalida).is_empty(), false)
 
 
 
