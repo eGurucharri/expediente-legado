@@ -36,6 +36,12 @@ const FORMATOS: Array[String] = [".glb", ".fbx"]
 ## son un modelo: son una cara puesta sobre uno.
 const RETRATOS := "res://assets/retratos/%s.jpg"
 
+## Lo que mide una persona, en metros. No lo decide este módulo: lo fija
+## `nodes/root_scale` en el `.import` de la figura, y aquí se declara para que
+## quien le cuelgue el nombre encima no tenga que medirlo a ojo. Si cambia allí,
+## cambia aquí.
+const ALTO_PERSONA := 1.75
+
 ## Lo que se carga una vez y se reusa. Las salas repiten mueble —seis
 ## archivadores, cuatro puestos— y volver a leer el `.glb` por cada uno es leer
 ## el mismo fichero seis veces para obtener seis cosas idénticas.
@@ -51,7 +57,7 @@ static func mueble(cuerpo: Node3D, nombre: String, tam: Vector3, color: Color) -
 	var pieza := _instanciar(cuerpo, nombre)
 	if pieza == null:
 		return false
-	_encajar(pieza, tam, false)
+	_encajar(pieza, tam)
 	_pintar(pieza, color)
 	return true
 
@@ -61,9 +67,12 @@ static func mueble(cuerpo: Node3D, nombre: String, tam: Vector3, color: Color) -
 ## Va por otro lado que un mueble a propósito, y la diferencia no es de
 ## comodidad:
 ##
-## - **Se mide por lo alta que es**, no por el sitio que ocupa. Una figura con
-##   los brazos separados mide más de ancho que de alto, y encajarla por el eje
-##   peor la deja del tamaño de una papelera.
+## - **Llega ya con su estatura.** No se encaja en ninguna caja: la escala la
+##   fija `nodes/root_scale` en su `.import`, que es donde Godot la espera. Antes
+##   se calculaba aquí y salía mal, porque el AABB de una malla con esqueleto
+##   describe la pose de reposo y no dónde acaban los vértices — este modelo
+##   además trae el esqueleto con una escala de 69, así que las dos medidas ni
+##   estaban en la misma escala y la figura se hundía 36 cm bajo la moqueta.
 ## - **Se tiñe de SU color**, el que declara cada compañero, no del de un bulto.
 ##   Este modelo viene sin ropa, así que el color es su ropa: dejarle el material
 ##   crudo lo deja blanco de maniquí. Si algún día hay figuras vestidas, es aquí
@@ -71,13 +80,10 @@ static func mueble(cuerpo: Node3D, nombre: String, tam: Vector3, color: Color) -
 ## - **Respira.** Un esqueleto sin animación no se queda de pie: se queda en la
 ##   pose con la que se modeló.
 ## - **Puede tener cara**, y cinco de estos la tienen de verdad.
-static func persona(
-	cuerpo: Node3D, nombre: String, alto: float, color: Color, retrato: String = ""
-) -> bool:
+static func persona(cuerpo: Node3D, nombre: String, color: Color, retrato: String = "") -> bool:
 	var pieza := _instanciar(cuerpo, nombre)
 	if pieza == null:
 		return false
-	_encajar(pieza, Vector3(alto, alto, alto), true)
 	_pintar(pieza, color)
 	_animar(pieza)
 	if not retrato.is_empty():
@@ -265,29 +271,23 @@ static func _esqueleto(nodo: Node) -> Skeleton3D:
 	return null
 
 
-## Escala el modelo para que quepa en [param tam] y lo APOYA en el suelo del
-## bulto.
+## Escala el modelo para que quepa en [param tam] y lo APOYA en el suelo.
+##
+## Se apoya en vez de centrarse porque las cosas descansan en el suelo: centrado
+## por su caja, una silla más baja de lo declarado flotaría.
 ##
 ## La escala es **uniforme** y sale del eje que peor va: estirar una silla para
 ## llenar una caja que no tiene sus proporciones da una silla derretida, y la
-## caja de un bulto es una medida de sitio ocupado, no un molde. Y se apoya en
-## vez de centrarse porque un mueble descansa en el suelo — centrado por su caja,
-## una silla más baja de lo declarado flotaría.
-static func _encajar(pieza: Node3D, tam: Vector3, por_alto: bool = false) -> void:
+## caja de un bulto es una medida de sitio ocupado, no un molde.
+##
+## Esto es para MUEBLES. Una persona no se encaja en nada: llega ya con su
+## estatura desde la importación.
+static func _encajar(pieza: Node3D, tam: Vector3) -> void:
 	var caja := _limites(pieza)
 	if caja.size.x <= 0.0 or caja.size.y <= 0.0 or caja.size.z <= 0.0:
 		return
 
-	# Un mueble se mide por el SITIO que ocupa, y por eso manda el eje peor. Una
-	# persona se mide por lo ALTA que es: una figura con los brazos abiertos mide
-	# más de ancho que de alto, así que encajarla por el eje peor la encogía
-	# hasta dejarla del tamaño de una papelera. Se vio en una captura: los
-	# rótulos con los nombres flotaban sobre mesas vacías.
-	var escala := (
-		tam.y / caja.size.y
-		if por_alto
-		else minf(minf(tam.x / caja.size.x, tam.y / caja.size.y), tam.z / caja.size.z)
-	)
+	var escala := minf(minf(tam.x / caja.size.x, tam.y / caja.size.y), tam.z / caja.size.z)
 	pieza.scale = Vector3.ONE * escala
 
 	# El centro del modelo no tiene por qué ser el de su malla, así que se

@@ -131,20 +131,11 @@ static func construir(raiz: Node3D, espacio: Dictionary) -> Array:
 		var modelo := String(figura.get("modelo", ""))
 		if not modelo.is_empty():
 			cuerpo = Node3D.new()
-			# A media altura y no en el suelo: `Modelos` encaja dentro de un
-			# bulto, y el origen de un bulto es su CENTRO. La posición de una
-			# figura, en cambio, es la de sus pies. Sin subirla aquí, el modelo
-			# se hunde media persona bajo la moqueta — que es exactamente lo que
-			# pasó, y se vio en una captura antes que en ninguna prueba.
-			cuerpo.position = figura["pos"] + Vector3(0, FiguraSilueta.altura() / 2.0, 0)
+			# En el suelo: una figura llega con los pies en su origen, así que
+			# su sitio es su sitio y no hay cuentas que hacer.
+			cuerpo.position = figura["pos"]
 			raiz.add_child(cuerpo)
-			if not Modelos.persona(
-				cuerpo,
-				modelo,
-				FiguraSilueta.altura(),
-				color_figura,
-				String(figura.get("retrato", ""))
-			):
+			if not Modelos.persona(cuerpo, modelo, color_figura, String(figura.get("retrato", ""))):
 				cuerpo.queue_free()
 				cuerpo = null
 		if cuerpo == null:
@@ -154,7 +145,11 @@ static func construir(raiz: Node3D, espacio: Dictionary) -> Array:
 			# dónde tenga el nodo su origen: en los pies si es silueta, a media
 			# altura si es un modelo encajado en un bulto. Sin esta cuenta el
 			# rótulo se iba al techo y los compañeros aparecían anónimos.
-			var alto_rotulo := FiguraSilueta.altura() + 0.35
+			# Sobre la cabeza, y la cabeza está más alta o más baja según se sea
+			# una silueta o una persona de verdad.
+			var alto_rotulo := (
+				(Modelos.ALTO_PERSONA if not modelo.is_empty() else FiguraSilueta.altura()) + 0.35
+			)
 			if not modelo.is_empty():
 				alto_rotulo -= FiguraSilueta.altura() / 2.0
 			var nombre := _cartel(
