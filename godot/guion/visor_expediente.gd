@@ -325,13 +325,27 @@ func _abrir_formulario() -> void:
 	add_child(formulario)
 
 
+## Cierra el papel y cuenta lo que ha pasado.
+##
+## Una firma precipitada puede ser la última: `Acusacion.acusar` ya ha
+## reiniciado la vida laboral por dentro cuando se acaban las vidas, y esta
+## pantalla es el único sitio donde el jugador está mirando en ese momento. Sin
+## decirlo aquí, la reasignación pasaría en silencio y el día de fuera
+## empezaría de nuevo sin que nadie haya dicho por qué.
+##
+## No se cuenta con una cinemática —eso es #73—: se dice, que es lo mínimo que
+## el esqueleto del día (#61) tiene que garantizar.
 func _al_firmar(resultado: Dictionary, formulario: Control) -> void:
 	formulario.queue_free()
 	partida.guardar()
 
+	var reasignado: String = tr("VISOR_REASIGNADO") if resultado.get("despido", false) else ""
 	_aviso_partida = (
 		tr("VISOR_CERRADO")
-		% [resultado["desenlace"], tr("VISOR_PRECIPITADA") if resultado["precipitada"] else ""]
+		% [
+			resultado["desenlace"],
+			(tr("VISOR_PRECIPITADA") if resultado["precipitada"] else "") + reasignado
+		]
 	)
 	_refrescar_estado()
 
