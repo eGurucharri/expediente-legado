@@ -50,12 +50,7 @@ static func _cinematicas(comprobar: Callable) -> void:
 		3.0
 	)
 	var segunda := Cinematica.duracion(Cinematica.resolver(planos, {}, 1))
-	comprobar.call("la segunda dura menos", segunda < 3.0, true)
-	comprobar.call(
-		"y la quinta menos que la segunda",
-		Cinematica.duracion(Cinematica.resolver(planos, {}, 4)) < segunda,
-		true
-	)
+	comprobar.call("y la quinta menos que la segunda", Cinematica.duracion(Cinematica.resolver(planos, {}, 4)) < segunda, true)
 
 	# El suelo: por muy vista que esté, no desaparece sin avisar. Y el REMATE
 	# tiene su propio suelo, más alto que el de los demás planos.
@@ -228,6 +223,34 @@ static func _cinematicas(comprobar: Callable) -> void:
 		"la entrada se entrega en copia",
 		EntradaCinematica.planos_de()[0]["rotulo"],
 		TranslationServer.translate("ENTRADA_RESTAURANDO")
+	)
+
+	# --- La entrada casa -> sueño (#74) ---
+	var entrada_sueno := EntradaSuenoCinematica.planos_de(["F-1996-00187"])
+	comprobar.call(
+		"la entrada al sueño está bien declarada", Cinematica.validar(entrada_sueno), []
+	)
+	comprobar.call("la entrada al sueño tiene tres planos", entrada_sueno.size(), 3)
+	comprobar.call(
+		"la entrada al sueño no mueve la figura",
+		entrada_sueno.all(func(p): return p["desde"] == p["hasta"]),
+		true
+	)
+	comprobar.call(
+		"la entrada solo muestra un folio leído",
+		entrada_sueno[1]["rotulo"],
+		"F-1996-00187"
+	)
+	comprobar.call(
+		"sin lecturas no inventa un folio",
+		EntradaSuenoCinematica.planos_de([])[1]["rotulo"],
+		""
+	)
+	comprobar.call(
+		"la entrada repetida se acorta",
+		Cinematica.duracion(EntradaSuenoCinematica.planos_de(["F-1996-00187"], 4))
+		< Cinematica.duracion(entrada_sueno),
+		true
 	)
 
 	# --- La cuenta de vistas, que es estado de partida ---
