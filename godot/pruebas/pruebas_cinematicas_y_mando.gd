@@ -230,6 +230,30 @@ static func _cinematicas(comprobar: Callable) -> void:
 		TranslationServer.translate("ENTRADA_RESTAURANDO")
 	)
 
+	# --- La entrada casa -> sueño (#74) ---
+	var entrada_sueno := EntradaSuenoCinematica.planos_de(["F-1996-00187"])
+	comprobar.call("la entrada al sueño está bien declarada", Cinematica.validar(entrada_sueno), [])
+	comprobar.call("la entrada al sueño tiene tres planos", entrada_sueno.size(), 3)
+	comprobar.call(
+		"la entrada al sueño no mueve la figura",
+		entrada_sueno.all(func(p): return p["desde"] == p["hasta"]),
+		true
+	)
+	comprobar.call(
+		"la entrada solo muestra un folio leído", entrada_sueno[1]["rotulo"], "F-1996-00187"
+	)
+	comprobar.call(
+		"sin lecturas no inventa un folio", EntradaSuenoCinematica.planos_de([])[1]["rotulo"], ""
+	)
+	comprobar.call(
+		"la entrada repetida se acorta",
+		(
+			Cinematica.duracion(EntradaSuenoCinematica.planos_de(["F-1996-00187"], 4))
+			< Cinematica.duracion(entrada_sueno)
+		),
+		true
+	)
+
 	# --- La cuenta de vistas, que es estado de partida ---
 	var estado := {}
 	comprobar.call(
