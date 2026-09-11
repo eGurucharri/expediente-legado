@@ -27,41 +27,83 @@ const OFICINA := {
 	# Cuatro puestos idénticos: la planta es la misma para todos, que es
 	[
 		# parte de lo que cuenta.
-		{"pos": Vector3(-4, 0.37, -2), "tam": Vector3(2.0, 0.75, 1.0)},
-		{"pos": Vector3(-4, 0.37, 1), "tam": Vector3(2.0, 0.75, 1.0)},
-		{"pos": Vector3(1, 0.37, -2), "tam": Vector3(2.0, 0.75, 1.0)},
-		{"pos": Vector3(1, 0.37, 1), "tam": Vector3(2.0, 0.75, 1.0)},
+		{"pos": Vector3(-4, 0.37, -2), "tam": Vector3(2.0, 0.75, 1.0), "modelo": "desk"},
+		{"pos": Vector3(-4, 0.37, 1), "tam": Vector3(2.0, 0.75, 1.0), "modelo": "desk"},
+		{"pos": Vector3(1, 0.37, -2), "tam": Vector3(2.0, 0.75, 1.0), "modelo": "desk"},
+		{"pos": Vector3(1, 0.37, 1), "tam": Vector3(2.0, 0.75, 1.0), "modelo": "desk"},
+		# La silla 4-B y las otras tres. Es el objeto que el sueño agranda
+		# (#87), así que tiene que ser una silla reconocible antes de que se
+		# deforme: una caja agrandada es una caja mayor.
+		{
+			"pos": Vector3(-4, 0.45, -0.9),
+			"tam": Vector3(0.62, 0.95, 0.62),
+			"color": Color(0.34, 0.36, 0.38),
+			"modelo": "chairDesk"
+		},
+		{
+			"pos": Vector3(-4, 0.45, 2.1),
+			"tam": Vector3(0.62, 0.95, 0.62),
+			"color": Color(0.34, 0.36, 0.38),
+			"modelo": "chairDesk"
+		},
+		{
+			"pos": Vector3(1, 0.45, -0.9),
+			"tam": Vector3(0.62, 0.95, 0.62),
+			"color": Color(0.34, 0.36, 0.38),
+			"modelo": "chairDesk"
+		},
+		{
+			"pos": Vector3(1, 0.45, 2.1),
+			"tam": Vector3(0.62, 0.95, 0.62),
+			"color": Color(0.34, 0.36, 0.38),
+			"modelo": "chairDesk"
+		},
+		# El terminal de SIGA-98 en el puesto propio. Va encendido y vacío: un
+		# monitor iluminado no afirma nada, uno con datos afirma una lectura que
+		# nadie ha calculado.
+		{
+			"pos": Vector3(-4.3, 0.98, -2.1),
+			"tam": Vector3(0.5, 0.45, 0.4),
+			"color": Color(0.52, 0.54, 0.50),
+			"modelo": "computerScreen"
+		},
 		# Archivadores contra el muro del fondo. Son seis y no dos: un archivo
 		# con dos archivadores es un despacho.
 		{
 			"pos": Vector3(5.5, 0.9, -4),
 			"tam": Vector3(1.0, 1.8, 0.6),
-			"color": Color(0.40, 0.39, 0.36)
+			"color": Color(0.40, 0.39, 0.36),
+			"modelo": "bookcaseClosed"
 		},
 		{
 			"pos": Vector3(5.5, 0.9, -2.5),
 			"tam": Vector3(1.0, 1.8, 0.6),
-			"color": Color(0.40, 0.39, 0.36)
+			"color": Color(0.40, 0.39, 0.36),
+			"modelo": "bookcaseClosed"
 		},
 		{
 			"pos": Vector3(5.5, 0.9, -1.0),
 			"tam": Vector3(1.0, 1.8, 0.6),
-			"color": Color(0.40, 0.39, 0.36)
+			"color": Color(0.40, 0.39, 0.36),
+			"modelo": "bookcaseClosed"
 		},
 		{
 			"pos": Vector3(5.5, 0.9, 0.5),
 			"tam": Vector3(1.0, 1.8, 0.6),
-			"color": Color(0.38, 0.37, 0.35)
+			"color": Color(0.38, 0.37, 0.35),
+			"modelo": "bookcaseClosed"
 		},
 		{
 			"pos": Vector3(5.5, 0.9, 2.0),
 			"tam": Vector3(1.0, 1.8, 0.6),
-			"color": Color(0.40, 0.39, 0.36)
+			"color": Color(0.40, 0.39, 0.36),
+			"modelo": "bookcaseClosed"
 		},
 		{
 			"pos": Vector3(5.5, 0.9, 3.5),
 			"tam": Vector3(1.0, 1.8, 0.6),
-			"color": Color(0.38, 0.37, 0.35)
+			"color": Color(0.38, 0.37, 0.35),
+			"modelo": "bookcaseClosed"
 		},
 		# Papel. Un archivo con las mesas despejadas no es un archivo: hay
 		# torres encima de cada puesto, cajas contra la pared y una pila en el
@@ -90,27 +132,32 @@ const OFICINA := {
 		{
 			"pos": Vector3(-6.2, 0.20, -3.4),
 			"tam": Vector3(0.5, 0.40, 0.7),
-			"color": Color(0.62, 0.56, 0.44)
+			"color": Color(0.62, 0.56, 0.44),
+			"modelo": "cardboardBoxClosed"
 		},
 		{
 			"pos": Vector3(-6.2, 0.61, -3.4),
 			"tam": Vector3(0.5, 0.40, 0.7),
-			"color": Color(0.60, 0.54, 0.42)
+			"color": Color(0.60, 0.54, 0.42),
+			"modelo": "cardboardBoxClosed"
 		},
 		{
 			"pos": Vector3(-6.2, 1.02, -3.4),
 			"tam": Vector3(0.5, 0.40, 0.7),
-			"color": Color(0.62, 0.56, 0.44)
+			"color": Color(0.62, 0.56, 0.44),
+			"modelo": "cardboardBoxClosed"
 		},
 		{
 			"pos": Vector3(-6.2, 0.20, -2.5),
 			"tam": Vector3(0.5, 0.40, 0.7),
-			"color": Color(0.60, 0.54, 0.42)
+			"color": Color(0.60, 0.54, 0.42),
+			"modelo": "cardboardBoxClosed"
 		},
 		{
 			"pos": Vector3(-6.2, 0.61, -2.5),
 			"tam": Vector3(0.5, 0.40, 0.7),
-			"color": Color(0.62, 0.56, 0.44)
+			"color": Color(0.62, 0.56, 0.44),
+			"modelo": "cardboardBoxClosed"
 		},
 		# La pila del suelo, la que nadie va a mirar nunca.
 		{
@@ -122,6 +169,12 @@ const OFICINA := {
 			"pos": Vector3(4.1, 0.10, 4.3),
 			"tam": Vector3(0.40, 0.20, 0.30),
 			"color": Color(0.72, 0.70, 0.62)
+		},
+		{
+			"pos": Vector3(3.0, 0.22, 4.2),
+			"tam": Vector3(0.34, 0.45, 0.34),
+			"color": Color(0.42, 0.41, 0.38),
+			"modelo": "trashcan"
 		},
 		# La máquina de café, junto a la puerta. En una oficina, el sitio donde
 		# se cuentan las cosas.
@@ -338,6 +391,21 @@ const CASA := {
 			"pos": Vector3(2.8, 0.05, 1.5),
 			"tam": Vector3(0.3, 0.1, 0.3),
 			"color": Color(0.55, 0.50, 0.20)
+		},
+		# La televisión, apagada. Es el mismo aparato en el que #140 quiere
+		# proyectar una cinta ante un jurado, y aquí está en casa sin encender:
+		# que sea el MISMO modelo es lo que hará que esa escena se reconozca.
+		{
+			"pos": Vector3(-3.4, 0.42, 1.6),
+			"tam": Vector3(0.85, 0.75, 0.6),
+			"color": Color(0.38, 0.34, 0.30),
+			"modelo": "televisionVintage"
+		},
+		{
+			"pos": Vector3(3.4, 0.22, 2.6),
+			"tam": Vector3(0.34, 0.45, 0.34),
+			"color": Color(0.40, 0.38, 0.34),
+			"modelo": "trashcan"
 		},
 	],
 	"ambiente": Color(0.30, 0.26, 0.22),

@@ -80,6 +80,27 @@ static func construir(raiz: Node3D, espacio: Dictionary) -> Array:
 			bulto.get("color", Color(0.45, 0.44, 0.42)),
 			bulto.get("textura", "")
 		)
+		# Un mueble que es malla y no caja. La caja sigue estando —es la
+		# colisión— y lo que se ve pasa a ser el modelo, encajado en el `tam`
+		# que declara el catálogo. Sin `modelo`, nada cambia.
+		#
+		# La malla de la caja se apaga ANTES de meter el modelo, y no después
+		# recorriendo los hijos: hecho después, un `.glb` cuya raíz sea ella
+		# misma una malla se apagaría a sí mismo y el bulto quedaría invisible.
+		var modelo: String = bulto.get("modelo", "")
+		if not modelo.is_empty():
+			var caja_visible := _malla_de(pieza)
+			if caja_visible != null:
+				caja_visible.visible = false
+			if not Modelos.vestir(
+				pieza, modelo, bulto["tam"], bulto.get("color", Color(0.45, 0.44, 0.42))
+			):
+				# Sin modelo se vuelve a la caja: un archivador cúbico es peor
+				# que uno de verdad, pero un bulto invisible es un agujero con
+				# el que te chocas.
+				if caja_visible != null:
+					caja_visible.visible = true
+
 		# Un bulto que se enciende: la pantalla de un ordenador, un piloto. No
 		# ilumina nada, solo se ve encendido — lo que alumbra es una luz.
 		if bulto.get("emisivo", false):
@@ -308,8 +329,20 @@ static func _techo(raiz: Node3D, medidas: Vector2, color: Color, textura: String
 	_emisivo(cuerpo, color)
 
 
+## La malla de la caja de un bulto. Es su primer hijo por construcción, pero se
+## busca por TIPO: desde que un bulto puede llevar modelo encima, «el primer
+## hijo» dejó de ser una descripción fiable de dónde está.
+static func _malla_de(cuerpo: Node3D) -> MeshInstance3D:
+	for hijo in cuerpo.get_children():
+		if hijo is MeshInstance3D:
+			return hijo
+	return null
+
+
 static func _emisivo(cuerpo: StaticBody3D, color: Color) -> void:
-	var malla: MeshInstance3D = cuerpo.get_child(0)
+	var malla := _malla_de(cuerpo)
+	if malla == null:
+		return
 	var material: ShaderMaterial = malla.material_override
 	material.set_shader_parameter("emision", color)
 	material.set_shader_parameter("emision_fuerza", 0.9)
