@@ -31,6 +31,7 @@ var _desde_paso := 0.0
 ## compañero es de la oficina y del momento: llevárselo a la calle o al sueño
 ## lo convierte en una voz que te sigue.
 var _hablando := false
+var _gato: Gato
 ## Contra quién se puede pelear en la sala que se está pisando (#88), por id.
 ## Se llena al montar la escena del sueño: la zona que se pisa solo lleva el
 ## id, y el combate necesita el nombre y las réplicas.
@@ -119,6 +120,14 @@ func _entrar_en(fase: String) -> void:
 	for salida in Espacio3D.construir(_mundo, espacio):
 		salida.body_entered.connect(_al_pisar_salida.bind(salida))
 
+	# El gato vive donde vive. No se le lleva de sitio en sitio: está en casa o
+	# no está, y cuando se va (#61) la casa se monta igual y él no.
+	_gato = null
+	if espacio.has("sitios_gato") and jornada["gato"]["presente"]:
+		_gato = Gato.new()
+		_mundo.add_child(_gato)
+		_gato.empezar(espacio["sitios_gato"][0], espacio["sitios_gato"])
+
 	# Cada sitio trae su luz general. El archivo no se ilumina como la calle, y
 	# con un solo ambiente para todo el día uno de los dos está siempre mal.
 	_ambiente.ambient_light_color = espacio.get("ambiente", Color(0.55, 0.55, 0.58))
@@ -172,6 +181,8 @@ func _espacio_de(fase: String) -> Dictionary:
 ## el sueño sí, que es media parte de la diferencia entre los dos.
 func _process(delta: float) -> void:
 	_andar(delta)
+	if _gato != null and _pantalla == null:
+		_gato.avanzar(jornada["gato"]["dias_sin_comer"], _caminante.position, delta)
 
 	if jornada.get("fase", "") != "sueño" or _pantalla != null:
 		return
@@ -214,6 +225,13 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 		_abrir_expediente()
 		return
 
+	# El cuenco tampoco lleva a ninguna parte: se sigue estando en casa. Es la
+	# otra mitad del gato — sin un sitio donde darle de comer, el bicho se va
+	# siempre y cuidarlo no es una decisión, es una cuenta atrás.
+	if destino == "cuenco":
+		_dar_de_comer()
+		return
+
 	# Cada tránsito es un acto de la jornada, no solo un cambio de sala: al
 	# salir de la oficina se ficha y se cobra; al meterse en la cama se paga el
 	# día y el gato cuenta una noche más.
@@ -247,6 +265,28 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 	if jornada["fase"] != "sueño":
 		_sonar("puerta_abre")
 	_entrar_en(destino)
+
+
+## Darle de comer. Se paga, así que puede no poder hacerse: ahí está la
+## decisión, y por eso el mensaje distingue los tres casos en vez de callar.
+##
+## Y un cuenco ya lleno no cobra dos veces: pasar por delante del gato recién
+## comido no puede costar una lata.
+func _dar_de_comer() -> void:
+	_hablando = false
+	var gato: Dictionary = jornada["gato"]
+	if not gato["presente"]:
+		_nomina.text = tr("DIA_SIN_GATO_AVISO")
+		return
+	if gato["dias_sin_comer"] == 0:
+		_nomina.text = tr("DIA_GATO_LLENO")
+		return
+	if not Jornada.alimentar_gato(jornada, Jornada.PRECIO_COMIDA_GATO):
+		_nomina.text = tr("DIA_GATO_SIN_DINERO") % Jornada.PRECIO_COMIDA_GATO
+		return
+	_sonar("nomina")
+	partida.guardar()
+	_nomina.text = tr("DIA_GATO_COME") % [Jornada.PRECIO_COMIDA_GATO, jornada["dinero"]]
 
 
 ## Los compañeros de esta vida laboral, sentados donde el sitio diga.

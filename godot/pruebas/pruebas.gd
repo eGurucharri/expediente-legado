@@ -40,6 +40,7 @@ func _init() -> void:
 	_jornada_antigua()
 	_companeros()
 	_sonido()
+	_gato()
 
 	print("\n%d pasadas, %d fallos" % [pasadas, fallos])
 	quit(1 if fallos > 0 else 0)
@@ -947,7 +948,7 @@ func _espacios() -> void:
 			# pantallas se declaran aquí: si aparece un destino que no es ni
 			# una cosa ni la otra, es un sitio al que no se puede ir.
 			if not EspaciosCatalogo.POR_FASE.has(salida["destino"]) \
-					and not salida["destino"] in ["sueño", "expediente"]:
+					and not salida["destino"] in ["sueño", "expediente", "cuenco"]:
 				rotos.append("%s -> %s" % [fase, salida["destino"]])
 	comprobar("ningún espacio es un callejón sin salida", sin_salida, [])
 	comprobar("ninguna salida lleva a un sitio que no existe", rotos, [])
@@ -971,7 +972,12 @@ func _espacios() -> void:
 			func(s): return Jornada.FASES.has(s["destino"]))
 		comprobar("de %s se sale por un solo sitio" % fase, hacia_el_dia.size(), 1)
 
-	comprobar("el puesto de trabajo abre el expediente", pantallas, ["expediente"])
+	# Los dos sitios que se pisan y NO llevan a otra fase: el puesto, donde se
+	# lee, y el cuenco, donde se le da de comer al gato. Los dos dejan al
+	# jugador donde estaba, que es lo que los hace distintos de una salida.
+	pantallas.sort()
+	comprobar("se pisan el puesto y el cuenco sin salir del sitio",
+		pantallas, ["cuenco", "expediente"])
 
 	# Se entra pisando suelo, no dentro de un muro ni fuera de la sala.
 	var mal_situadas := []
@@ -1690,6 +1696,127 @@ func _sueno_combate() -> void:
 	# vieja entraría al sueño con `vencidos` a nulo.
 	comprobar("una partida nueva no ha vencido a nadie",
 		Partida.nueva()[SuenoCombate.CLAVE_VENCIDOS], [])
+
+
+# --- El gato (#92) ----------------------------------------------------------
+
+func _gato() -> void:
+	var sitios := [Vector3(2.8, 0, 1.5), Vector3(-2.4, 0, -0.6), Vector3(0.6, 0, 2.1)]
+	var lejos := Vector3(-8, 0, -8)
+
+	# La señal llega ANTES de que se vaya, o no es una señal: es un aviso de
+	# algo que ya ha pasado. Quien lo note a tiempo puede arreglarlo.
+	comprobar("deja de venir antes de irse",
+		GatoConducta.DIAS_PARA_DESCONFIAR < Jornada.PACIENCIA_GATO, true)
+
+	# Y no corre más que tú: un gato al que no se puede alcanzar no se deja
+	# cuidar.
+	comprobar("anda menos que una persona",
+		GatoConducta.VELOCIDAD < Sueno.VELOCIDAD, true)
+
+	# Con hambre, el cuenco, que es el primer sitio de la lista. Es lo que se ve
+	# desde la puerta sin que nadie lo diga.
+	var hambriento := GatoConducta.nuevo(sitios[2])
+	GatoConducta.avanzar(hambriento, sitios, Jornada.PACIENCIA_GATO, lejos, 0.1)
+	comprobar("con hambre se queda en el cuenco",
+		[hambriento["destino"], hambriento["estado"]], [sitios[0], "hambriento"])
+
+	# Recién comido y con alguien cerca, se acerca. Es la única recompensa que
+	# da el juego por cuidarlo, y no lleva ningún número.
+	var contento := GatoConducta.nuevo(sitios[1])
+	GatoConducta.avanzar(contento, sitios, 0, sitios[1] + Vector3(1.5, 0, 0), 0.1)
+	comprobar("bien comido, se acerca", contento["estado"], "viene")
+
+	# Un día sin comer todavía no es desconfianza: hay margen para arreglarlo.
+	var dudoso := GatoConducta.nuevo(sitios[1])
+	GatoConducta.avanzar(dudoso, sitios, GatoConducta.DIAS_PARA_DESCONFIAR, lejos, 0.1)
+	comprobar("un día sin comer aún no le hace desconfiar",
+		dudoso["estado"] != "hambriento", true)
+
+	# Andar es moverse: el bicho llega, no se teletransporta ni se queda
+	# clavado.
+	var andante := GatoConducta.nuevo(sitios[1])
+	andante["destino"] = sitios[0]
+	GatoConducta.avanzar(andante, sitios, 0, lejos, 0.2)
+	comprobar("anda hacia donde va",
+		andante["pos"].distance_to(sitios[0]) < sitios[1].distance_to(sitios[0]), true)
+
+	comprobar("se le alcanza de cerca y no de lejos",
+		[GatoConducta.al_alcance(andante, andante["pos"] + Vector3(1.0, 0, 0)),
+			GatoConducta.al_alcance(andante, lejos)], [true, false])
+
+	# Sin sitios declarados no revienta: una casa que no diga por dónde anda el
+	# gato se monta igual y él se queda quieto.
+	var sin_sitios := GatoConducta.nuevo(Vector3.ZERO)
+	GatoConducta.avanzar(sin_sitios, [], 0, lejos, 0.1)
+	comprobar("sin sitios se queda donde está", sin_sitios["pos"], Vector3.ZERO)
+
+	# --- Darle de comer ---
+
+	# La lata se paga, y por eso es una decisión. Que cueste menos que vivir un
+	# día es lo que la hace posible en una racha mala y no gratis en ninguna.
+	comprobar("la lata cuesta menos que vivir un día",
+		Jornada.PRECIO_COMIDA_GATO < Jornada.COSTE_DIARIO, true)
+
+	var casa := Jornada.nueva()
+	casa["gato"]["dias_sin_comer"] = 2
+	var antes: int = casa["dinero"]
+	comprobar("darle de comer cobra la lata",
+		[Jornada.alimentar_gato(casa, Jornada.PRECIO_COMIDA_GATO),
+			casa["dinero"], casa["gato"]["dias_sin_comer"]],
+		[true, antes - Jornada.PRECIO_COMIDA_GATO, 0])
+
+	var pobre := Jornada.nueva()
+	pobre["dinero"] = Jornada.PRECIO_COMIDA_GATO - 1
+	pobre["gato"]["dias_sin_comer"] = 2
+	comprobar("sin dinero no come, y no se le queda a deber",
+		[Jornada.alimentar_gato(pobre, Jornada.PRECIO_COMIDA_GATO),
+			pobre["dinero"], pobre["gato"]["dias_sin_comer"]],
+		[false, Jornada.PRECIO_COMIDA_GATO - 1, 2])
+
+	# El cuenco está donde anda el gato: un sitio para darle de comer al que él
+	# no va nunca sería un botón en la pared.
+	var cuenco: Array = EspaciosCatalogo.CASA["salidas"].filter(
+		func(s): return s["destino"] == "cuenco")
+	comprobar("la casa tiene cuenco", cuenco.size(), 1)
+	var sitio_cuenco: Vector3 = EspaciosCatalogo.CASA["sitios_gato"][0]
+	comprobar("y el gato hambriento se planta en él",
+		Vector2(cuenco[0]["pos"].x - sitio_cuenco.x,
+			cuenco[0]["pos"].z - sitio_cuenco.z).length() < 0.5, true)
+
+	# --- Que el bicho tenga malla ---
+
+	# Un tubo de N anillos y L lados: dos triángulos por cara y una tapa por
+	# punta. Si esto cambia, ha cambiado la geometría y no un detalle.
+	var espina := [
+		{"c": Vector3(0, 0, 0), "r": 0.1},
+		{"c": Vector3(0, 0, -0.2), "r": 0.08},
+		{"c": Vector3(0, 0, -0.4), "r": 0.05},
+	]
+	var malla := MallaOrganica.tubo(espina, 6)
+	comprobar("el tubo sale con una superficie", malla.get_surface_count(), 1)
+	var caras: PackedVector3Array = malla.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
+	comprobar("con dos triángulos por cara y sus dos tapas",
+		caras.size(), (3 - 1) * 6 * 6 + 2 * 6 * 3)
+
+	# El radio elíptico es lo que hace un lomo y no un cilindro: más ancho que
+	# alto. Sin él, el gato es un tubo con orejas.
+	var lomo := MallaOrganica.tubo(
+		[{"c": Vector3.ZERO, "r": Vector2(0.1, 0.05)},
+			{"c": Vector3(0, 0, -0.2), "r": Vector2(0.1, 0.05)}], 4)
+	var puntos: PackedVector3Array = lomo.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
+	var ancho := 0.0
+	var alto := 0.0
+	for punto in puntos:
+		ancho = maxf(ancho, absf(punto.x))
+		alto = maxf(alto, absf(punto.y))
+	comprobar("un radio elíptico da un lomo más ancho que alto", ancho > alto, true)
+
+	# Y una punta es un anillo de radio cero: así se hace una oreja sin otra
+	# clase que sepa hacer conos.
+	var punta := MallaOrganica.tubo(
+		[{"c": Vector3.ZERO, "r": 0.03}, {"c": Vector3(0, 0, -0.07), "r": 0.0}], 5)
+	comprobar("una punta sigue siendo una malla", punta.get_surface_count(), 1)
 
 
 ## En qué celda cae un punto del mundo. Solo para las pruebas: es el camino de

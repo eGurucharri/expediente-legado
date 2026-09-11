@@ -84,6 +84,26 @@ gasta una; **releer es gratis**, porque cobrar por volver a un documento
 castigaría justo lo que el juego pide hacer. Lo que se decide con esto no es
 leer deprisa sino QUÉ leer.
 
+### El gato
+
+Es **el único ser vivo del juego**, y por eso es lo único que no está hecho de
+cajas: `guion/malla_organica.gd` construye tubos a lo largo de una espina —un
+lomo que se estrecha, cuatro patas, dos orejas de punta (un tubo cuyo último
+radio es cero) y una cola que se curva—, con siete lados por anillo, que es la
+misma decisión que las texturas de 64 píxeles. Una oficina de cajas es una
+oficina de 1998; un gato de cajas es un gato de cajas.
+
+**Se comporta, y de ahí se deduce cómo le has tratado** (`gato_conducta.gd`).
+No hay barra ni aviso: bien comido se acerca a ti —la única recompensa que da
+el juego por cuidarlo—, y con hambre se queda junto al cuenco con la cola
+tensa. Deja de venir **un día antes** del límite de paciencia, así que la señal
+llega a tiempo de arreglarla en vez de anunciar algo que ya ha pasado. Hay
+prueba de esa desigualdad, que es la que hace que sea una señal.
+
+Se le da de comer **acercándose al cuenco**, como todo lo demás en este juego:
+no hay menú ni inventario. La lata se paga (`PRECIO_COMIDA_GATO`), cuesta menos
+que vivir un día y un cuenco ya lleno no cobra dos veces.
+
 **El gato no es estado de la vuelta.** Sobrevive a que te reasignen, porque es
 tuyo y no del trabajo: si lo cuidaste sigue ahí en la vida laboral siguiente, y
 si se fue no vuelve. Acaba siendo lo único cálido del registro permanente, al

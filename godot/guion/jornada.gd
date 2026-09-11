@@ -40,6 +40,11 @@ const ACCIONES_POR_DIA := 6
 ## traspapelan.
 const PACIENCIA_GATO := 3
 
+## Lo que cuesta una lata. Casi la mitad de lo que cuesta vivir un día, y por
+## eso es una decisión y no un botón: en una racha mala, darle de comer se nota
+## en lo que te queda.
+const PRECIO_COMIDA_GATO := 10
+
 
 static func nueva() -> Dictionary:
 	return {

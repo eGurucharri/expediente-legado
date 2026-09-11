@@ -218,11 +218,26 @@ const CASA := {
 		{"pos": Vector3(0, 2.5, 0), "color": Color(1.0, 0.84, 0.62), "energia": 2.6,
 			"alcance": 9.0, "tam": Vector3(0.22, 0.22, 0.22)},
 	],
+	# Por dónde anda el gato. El PRIMERO es el cuenco: es donde se queda cuando
+	# lleva días sin comer, y verlo ahí desde la puerta es toda la señal que da
+	# el juego (#92) — no hay barra ni aviso.
+	"sitios_gato": [
+		Vector3(2.8, 0, 1.5),
+		Vector3(-2.4, 0, -0.6),
+		Vector3(0.6, 0, 2.1),
+		Vector3(2.9, 0, -2.9),
+		Vector3(-3.2, 0, 2.4),
+	],
 	# El de casa está en la mesa, encendido y solo. Nadie lo ha apagado.
 	"cigarros": [Vector3(2.6, 0.91, -2.4)],
 	"salidas": [
 		{"pos": Vector3(-2.4, 0.9, -2), "destino": "sueño", "rotulo": "SALIDA_DORMIR",
 			"tam": Vector3(1.6, 1.2, 2.4)},
+		# El cuenco es de los sitios que se pisan y NO llevan a otra parte: se
+		# sigue estando en casa. Darle de comer es acercarse, como todo lo
+		# demás en este juego — no hay menú ni inventario.
+		{"pos": Vector3(2.8, 0.6, 1.5), "destino": "cuenco", "rotulo": "SALIDA_CUENCO",
+			"tam": Vector3(1.2, 1.2, 1.2)},
 	],
 }
 
