@@ -42,3 +42,7 @@ CLAUDE.md
 
 # Traducciones compiladas: se regeneran con `godot4 --import` desde el .csv
 *.translation
+
+# Python
+__pycache__/
+*.pyc
