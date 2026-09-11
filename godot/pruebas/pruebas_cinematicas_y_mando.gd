@@ -232,9 +232,7 @@ static func _cinematicas(comprobar: Callable) -> void:
 
 	# --- La entrada casa -> sueño (#74) ---
 	var entrada_sueno := EntradaSuenoCinematica.planos_de(["F-1996-00187"])
-	comprobar.call(
-		"la entrada al sueño está bien declarada", Cinematica.validar(entrada_sueno), []
-	)
+	comprobar.call("la entrada al sueño está bien declarada", Cinematica.validar(entrada_sueno), [])
 	comprobar.call("la entrada al sueño tiene tres planos", entrada_sueno.size(), 3)
 	comprobar.call(
 		"la entrada al sueño no mueve la figura",
@@ -242,19 +240,17 @@ static func _cinematicas(comprobar: Callable) -> void:
 		true
 	)
 	comprobar.call(
-		"la entrada solo muestra un folio leído",
-		entrada_sueno[1]["rotulo"],
-		"F-1996-00187"
+		"la entrada solo muestra un folio leído", entrada_sueno[1]["rotulo"], "F-1996-00187"
 	)
 	comprobar.call(
-		"sin lecturas no inventa un folio",
-		EntradaSuenoCinematica.planos_de([])[1]["rotulo"],
-		""
+		"sin lecturas no inventa un folio", EntradaSuenoCinematica.planos_de([])[1]["rotulo"], ""
 	)
 	comprobar.call(
 		"la entrada repetida se acorta",
-		Cinematica.duracion(EntradaSuenoCinematica.planos_de(["F-1996-00187"], 4))
-		< Cinematica.duracion(entrada_sueno),
+		(
+			Cinematica.duracion(EntradaSuenoCinematica.planos_de(["F-1996-00187"], 4))
+			< Cinematica.duracion(entrada_sueno)
+		),
 		true
 	)
 
