@@ -100,6 +100,10 @@ func _al_terminar_remate(reproductor: Node, acusacion: Dictionary, duelo: Dictio
 ## credencial. El gato se consulta del estado ya reiniciado porque Jornada lo
 ## conserva exactamente como estaba.
 func _reproducir_despido(acusacion: Dictionary, duelo: Dictionary = {}) -> void:
+	# El cierre textual se fija antes de la escena para que el estado sea legible
+	# incluso si el reproductor se interrumpe. La cinemática se superpone, pero
+	# no es la autoridad de la reasignación ni del mensaje.
+	_mostrar_cierre(acusacion, duelo)
 	var reproductor: Node = ESCENA_CINEMATICA.instantiate()
 	add_child(reproductor)
 	reproductor.terminada.connect(_al_terminar_despido.bind(reproductor, acusacion, duelo))
