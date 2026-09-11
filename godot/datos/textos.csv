@@ -129,6 +129,12 @@ SIN_FECHA_CORTA,s/f
 SITIO_CALLE,De vuelta a casa
 SITIO_CASA,Casa
 SITIO_OFICINA,"SIGA — Archivo, planta 4"
+SUENO_DUELO_GANADO,"Se apaga. Esta vez no vuelve."
+SUENO_DUELO_PERDIDO,"Se le impone. La noche se acaba aquí."
+SUENO_DUELO_SEGUIR,Seguir
+SUENO_DUELO_SE_QUEDA,%s no se aparta.
+SUENO_DUELO_SIN_VIDA,"Ha descansado, aunque no le hacía falta."
+SUENO_DUELO_VIDA,"Ha descansado. Le quedan %d."
 SUENO_ROTULO,…
 VENTANILLA_ADELANTA,La comisión adelanta que la próxima réplica será: %s.
 VENTANILLA_ATENDIDA,RECLAMACIÓN ATENDIDA. Racha: %d.

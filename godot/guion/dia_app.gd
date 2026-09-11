@@ -11,6 +11,10 @@ const METROS_POR_ZANCADA := 0.72
 
 var partida := Partida.new()
 var contenido := Contenido.new()
+## Las decisiones políticas de la partida, que son las cargas de habilidad de
+## los combates oníricos (#88). Sin cargarlas, `cargas()` no sabe cuántas
+## historias hay y las devuelve todas a cero.
+var historias := Historias.new()
 var jornada: Dictionary = {}
 
 var _caminante: CharacterBody3D
@@ -27,11 +31,16 @@ var _desde_paso := 0.0
 ## compañero es de la oficina y del momento: llevárselo a la calle o al sueño
 ## lo convierte en una voz que te sigue.
 var _hablando := false
+## Contra quién se puede pelear en la sala que se está pisando (#88), por id.
+## Se llena al montar la escena del sueño: la zona que se pisa solo lleva el
+## id, y el combate necesita el nombre y las réplicas.
+var _rivales: Dictionary = {}
 
 
 func _ready() -> void:
 	partida.cargar()
 	contenido.cargar()
+	historias.cargar()
 	jornada = Jornada.completar(partida.estado.get("jornada", Jornada.nueva()))
 	partida.estado["jornada"] = jornada
 
@@ -145,13 +154,18 @@ func _espacio_de(fase: String) -> Dictionary:
 	# toca a esta, o las tres saldrían amuebladas con lo mismo.
 	var fuentes := SuenoContenido.fuentes(
 		jornada["leido_hoy"], contenido.casos,
-		partida.estado["pistas_descubiertas"], partida.estado.get("veredictos", {}))
+		partida.estado["pistas_descubiertas"], partida.estado.get("veredictos", {}),
+		SuenoCombate.vencidos(partida.estado))
 	var reparto := SuenoContenido.repartir(
 		fuentes, Sueno.ESCENAS_POR_NOCHE,
 		Sueno.semilla(jornada["dia"], jornada["leido_hoy"]))
 	var cual: int = Sueno.ESCENAS_POR_NOCHE - jornada["sueno_escenas"].size()
-	return Sueno.espacio(id, jornada["sueno_escenas"].size() - 1,
-		reparto[clampi(cual, 0, reparto.size() - 1)])
+	var trozo: Dictionary = reparto[clampi(cual, 0, reparto.size() - 1)]
+	_rivales = {}
+	for quien in trozo["figuras"]:
+		if SuenoCombate.se_pelea(quien, partida.estado):
+			_rivales[quien["id"]] = quien
+	return Sueno.espacio(id, jornada["sueno_escenas"].size() - 1, trozo)
 
 
 ## El reloj de la noche. Solo corre dentro del sueño: el día no tiene prisa y
@@ -159,7 +173,7 @@ func _espacio_de(fase: String) -> Dictionary:
 func _process(delta: float) -> void:
 	_andar(delta)
 
-	if jornada.get("fase", "") != "sueño":
+	if jornada.get("fase", "") != "sueño" or _pantalla != null:
 		return
 	if Jornada.gastar_sueno(jornada, delta):
 		var dia := Jornada.despertar_de_golpe(jornada)
@@ -181,6 +195,13 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 	if not frase.is_empty():
 		_nomina.text = tr("DIA_DICE") % tr(frase)
 		_hablando = true
+		return
+
+	# Pelearse con lo que firmaste (#88). Va antes que los destinos por el
+	# mismo motivo que la frase: no lleva a otra sala, abre una pantalla.
+	var duelo: String = salida.get_meta("duelo")
+	if not duelo.is_empty() and _rivales.has(duelo):
+		_abrir_duelo(_rivales[duelo], salida)
 		return
 
 	var destino: String = salida.get_meta("destino")
@@ -301,6 +322,58 @@ func _abrir_expediente() -> void:
 
 	_hablando = false
 	_nomina.text = tr("DIA_EN_EL_PUESTO")
+
+
+## El duelo onírico, encima de la sala y sin salir de ella.
+##
+## Mientras está abierto el reloj de la noche se para: perder la noche dentro
+## de un menú no sería una decisión del jugador, sería un descuido de quien
+## montó la pantalla.
+func _abrir_duelo(quien: Dictionary, zona: Area3D) -> void:
+	_caminante.set_physics_process(false)
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+	_pantalla = CanvasLayer.new()
+	add_child(_pantalla)
+	var duelo := SuenoDuelo.new()
+	duelo.figura = quien
+	duelo.cargas = historias.cargas(partida.estado)
+	duelo.terminado.connect(_cerrar_duelo.bind(quien, zona))
+	_pantalla.add_child(duelo)
+
+	_hablando = false
+	_nomina.text = ""
+
+
+func _cerrar_duelo(gano: bool, quien: Dictionary, zona: Area3D) -> void:
+	if _pantalla == null:
+		return
+	_pantalla.queue_free()
+	_pantalla = null
+
+	var final := SuenoCombate.resolver(partida.estado, jornada, quien, gano)
+	partida.guardar()
+
+	_caminante.set_physics_process(true)
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+	if not final["gano"]:
+		# Perder corta la noche: se despierta de golpe, con lo que eso cuesta
+		# —el mapa no crece— y ni un castigo más.
+		_nomina.text = tr("DIA_DESPERTAR_DE_GOLPE") % final["dia"]
+		_entrar_en("archivo")
+		return
+
+	# Ganar: deja de estar ahí, y se ha dormido. La vida solo se dice cuando
+	# de verdad se ha recuperado alguna; al tope, decirlo sería mentir.
+	_rivales.erase(quien.get("id", ""))
+	if zona.has_meta("cuerpo"):
+		var cuerpo = zona.get_meta("cuerpo")
+		if is_instance_valid(cuerpo):
+			cuerpo.queue_free()
+	zona.queue_free()
+	_nomina.text = tr("SUENO_DUELO_VIDA") % final["vida"] \
+		if final["recuperada"] else tr("SUENO_DUELO_SIN_VIDA")
 
 
 func _cerrar_expediente() -> void:

@@ -75,6 +75,10 @@ static func nueva() -> Dictionary:
 		# veces la entrada de un careo no necesita verla entera porque le hayan
 		# reasignado.
 		"cinematicas_vistas": {},
+		# A quién has vencido en un combate onírico (#88). Va con los
+		# veredictos y no con la vuelta: es de lo que firmaste, y a quien ya
+		# callaste no lo devuelve un despido.
+		"sueno_vencidos": [],
 	}
 
 

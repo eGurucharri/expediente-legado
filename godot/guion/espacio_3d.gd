@@ -99,6 +99,22 @@ static func construir(raiz: Node3D, espacio: Dictionary) -> Array:
 				"tam": Vector3(2.2, 2.0, 2.2),
 				"visible": false,
 			}))
+		# Y quien se deja pelear (#88) se pelea igual: acercándose. Es la misma
+		# zona que se pisa, con otro dato dentro — este módulo sigue sin saber
+		# qué es un combate.
+		if not figura.get("duelo", "").is_empty():
+			var reto := _salida(raiz, {
+				"pos": figura["pos"] + Vector3(0, 1.0, 0),
+				"destino": "",
+				"duelo": figura["duelo"],
+				"tam": Vector3(2.2, 2.0, 2.2),
+				"visible": false,
+			})
+			# La zona se lleva puesto su cuerpo. A quien ganas deja de estar
+			# ahí, y quien lo borra necesita poder borrar los dos: una silueta
+			# muda a la que ya no se puede retar es peor que ninguna.
+			reto.set_meta("cuerpo", cuerpo)
+			zonas.append(reto)
 
 	for cartel in espacio.get("carteles", []):
 		_cartel(raiz, cartel["texto"], cartel["pos"] + Vector3(0, ALTURA_CARTEL, 0),
@@ -302,6 +318,7 @@ static func _salida(raiz: Node3D, salida: Dictionary) -> Area3D:
 	zona.set_meta("destino", salida["destino"])
 	zona.set_meta("rotulo", salida.get("rotulo", ""))
 	zona.set_meta("frase", salida.get("frase", ""))
+	zona.set_meta("duelo", salida.get("duelo", ""))
 
 	var forma := CollisionShape3D.new()
 	var caja := BoxShape3D.new()

@@ -102,9 +102,48 @@ argumento que la tipografía sin suavizar. Y los techos van **emisivos** porque
 la luz del motor viene de arriba, así que la cara inferior de un techo está
 siempre en el mínimo y salía negra por construcción.
 
-El **sueño** todavía no existe: hay una habitación de paso que devuelve al
-archivo. La tercera parte (salas oníricas procedurales alimentadas por lo leído
-ese día) va después.
+## El sueño
+
+La tercera parte del ciclo. **No es aleatorio: es el archivo devuelto deforme**
+(#79). La semilla sale del día y de lo leído ESE día (`jornada.leido_hoy`), así
+que dos días distintos sueñan distinto y el mismo día repetido sueña lo mismo —
+un sueño que cambiara al recargar la partida sería un generador de ruido con
+otro nombre.
+
+Tres escenas por noche (`Sueno.noche`), lo nuevo primero, y el mapa crece con lo
+que se pisa. La salida **no se ve** (#90): lo que impide que sea una lotería no
+es una marca, es el mapa, que la segunda vez que te toca una sala ya sabes por
+dónde se salía. La noche tiene reloj, y si se acaba se despierta de golpe: el
+único castigo es que las salas de esa noche no quedan en el mapa.
+
+Lo que amuebla las salas (#87) sale de lo leído: las frases gatillo que **sí**
+notaste escritas en las paredes —escribir la que se te pasó sería decirte dónde
+mirar, y dormir pasaría a ser lo óptimo— y los sospechosos de esos expedientes
+como figuras, con **el que firmaste de otro color**.
+
+### Los combates oníricos (#88)
+
+Y con el que firmaste se puede pelear, acercándose a él. El motor es el mismo
+`Combate` de siempre en modo `reactiva` —contesta a tu última jugada, se puede
+cebar, que es lo que es discutir con uno mismo—, con las cargas de habilidad de
+la partida política.
+
+**Solo contra los que acusaste.** El sueño como conciencia: te persigue lo que
+hiciste, no lo que había. Una partida donde no has firmado a nadie no tiene
+combates oníricos, y eso está bien.
+
+Y a diferencia del careo —donde el veredicto ya está firmado y el duelo no lo
+cambia—, aquí **sí hay consecuencias**, que es su razón de existir:
+
+- **Ganar devuelve una vida**, con el tope de la dificultad, y al vencido no se
+  le vuelve a ver: la sala donde estaba está vacía la próxima vez. Es la
+  consecuencia que se ve sin texto que la explique.
+- **Perder corta la noche** — se despierta de golpe, con lo que eso cuesta. No
+  cuesta además una vida: ya te costó una firmarlo mal, y cobrar dos veces por
+  el mismo acusado convertiría dormir en un riesgo que se esquiva no durmiendo.
+
+`guion/sueno_combate.gd` es quién y qué pasa (puro), `guion/sueno_duelo.gd` la
+pantalla. El motor no se tocó.
 
 ## Assets
 
