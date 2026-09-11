@@ -1095,9 +1095,12 @@
             // El arte visible (revelada o archivada) se envuelve en un botón
             // para poder abrirlo en grande en el visor; la carta sellada no
             // tiene arte que ampliar.
+            // El aria-label se pone luego con setAttribute: el nombre de la
+            // carta puede llevar apóstrofos y rompería el atributo si se
+            // interpolara aquí dentro.
             var arte = (carta.collected || fantasma)
                 ? "<button type='button' class='prometeo-tarot-ampliar' data-ampliar-carta='" + carta.id
-                    + "' aria-label='Ver " + carta.nombre + " en grande'>" + pixelArtSvg(carta.id) + "</button>"
+                    + "'>" + pixelArtSvg(carta.id) + "</button>"
                 : "";
             // Issue #44: el canje es un último recurso, no una recarga —
             // solo se ofrece con la vida a cero (protege la colección del
@@ -1128,20 +1131,22 @@
         });
 
         tarotLista.querySelectorAll("[data-ampliar-carta]").forEach(function (boton) {
+            var idCarta = boton.getAttribute("data-ampliar-carta");
+            var cartaBoton = cartaPorId(idCarta);
+            boton.setAttribute("aria-label", "Ver " + (cartaBoton ? cartaBoton.nombre : "la carta") + " en grande");
             boton.addEventListener("click", function () {
-                abrirVisorTarot(boton.getAttribute("data-ampliar-carta"));
+                abrirVisorTarot(idCarta);
             });
         });
     }
 
     function cartaPorId(id) {
-        var encontrada = null;
-        state.tarot.forEach(function (carta) {
-            if (carta.id === id) {
-                encontrada = carta;
+        for (var i = 0; i < state.tarot.length; i += 1) {
+            if (state.tarot[i].id === id) {
+                return state.tarot[i];
             }
-        });
-        return encontrada;
+        }
+        return null;
     }
 
     /**
@@ -3081,17 +3086,28 @@
                 tic(520);
             });
         });
-        // Clic en el fondo (fuera de la tarjeta) cierra el visor.
-        tarotVisor.addEventListener("click", function (evento) {
-            if (evento.target === tarotVisor) {
-                cerrarVisorTarot();
-            }
+        // Clic en el fondo (fuera de la tarjeta) cierra el visor. Se exige
+        // que el gesto empiece y acabe en el fondo: si no, arrastrar para
+        // seleccionar la descripción y soltar fuera cerraría el visor.
+        var gestoEmpezadoEnElFondo = false;
+        tarotVisor.addEventListener("mousedown", function (evento) {
+            gestoEmpezadoEnElFondo = evento.target === tarotVisor;
         });
-        // Escape cierra el visor sin salir del menú que hay detrás.
+        tarotVisor.addEventListener("click", function (evento) {
+            if (evento.target === tarotVisor && gestoEmpezadoEnElFondo) {
+                cerrarVisorTarot();
+                tic(520);
+            }
+            gestoEmpezadoEnElFondo = false;
+        });
+        // Escape cierra el visor sin salir del menú que hay detrás: se corta
+        // la propagación a cualquier otro oyente, incluidos los de document.
         document.addEventListener("keydown", function (evento) {
             if (evento.key === "Escape" && !tarotVisor.hidden) {
-                evento.stopPropagation();
+                evento.stopImmediatePropagation();
+                evento.preventDefault();
                 cerrarVisorTarot();
+                tic(520);
             }
         });
     }

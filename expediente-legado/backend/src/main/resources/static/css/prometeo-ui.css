@@ -803,7 +803,9 @@
 .prometeo-tarot-visor {
     position: fixed;
     inset: 0;
-    z-index: 2150;
+    /* Por debajo de la historia de la carta (2150): si la historia se abre
+       con el visor delante, debe verse encima y no quedar tapada. */
+    z-index: 2140;
     display: grid;
     place-items: center;
     padding: 1rem;
