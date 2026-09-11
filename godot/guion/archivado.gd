@@ -12,9 +12,9 @@ extends RefCounted
 static func destino_de(caso: Dictionary) -> String:
 	var anio := int(caso.get("anioSuceso", 0))
 	var decada := (anio / 10) * 10 if anio > 0 else 0
-	var estado := str(caso.get("estado", "SIN_ESTADO")).to_upper()
+	var estado := str(caso.get("estado", "desconocido")).to_upper()
 	var acceso := "CONFIDENCIAL" if bool(caso.get("confidencial", false)) else "GENERAL"
-	return "%s-%s-%s" % [str(decada) if decada > 0 else "SIN_FECHA", estado, acceso]
+	return "%s-%s-%s" % [str(decada) if decada > 0 else "sin-fecha", estado, acceso]
 
 
 ## Una carpeta solo se puede clasificar si el jugador conoce al menos uno de sus
