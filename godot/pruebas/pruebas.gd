@@ -265,7 +265,9 @@ func _progreso() -> void:
 	var sin_pistas := {"id": "c", "pistas": []}
 	comprobar("caso a medias no está resuelto", Progreso.caso_resuelto(caso_a, ["p1"]), false)
 	comprobar("caso completo está resuelto", Progreso.caso_resuelto(caso_a, ["p1", "p2"]), true)
-	comprobar("un caso sin pistas nunca está resuelto", Progreso.caso_resuelto(sin_pistas, []), false)
+	comprobar(
+		"un caso sin pistas nunca está resuelto", Progreso.caso_resuelto(sin_pistas, []), false
+	)
 	comprobar("lista vacía de casos no es victoria", Progreso.todos_resueltos([], []), false)
 	comprobar(
 		"todos resueltos", Progreso.todos_resueltos([caso_a, caso_b], ["p1", "p2", "p3"]), true
@@ -418,11 +420,14 @@ func _archivado(comprobar: Callable) -> void:
 	comprobar.call("archivado: colocación incorrecta falla", error["errores"], 1)
 	comprobar.call("archivado: error no desaparece", error["evaluadas"], 1)
 	comprobar.call("archivado: error cambia rango", error["rango"] == "perfecta", false)
-	var parcial := Archivado.evaluar(
-		[
-			{"caso": caso, "destino": destino, "folios_leidos": ["F-1999-001"]},
-			{"caso": caso, "destino": destino, "folios_leidos": []},
-		]
+	var parcial := (
+		Archivado
+		. evaluar(
+			[
+				{"caso": caso, "destino": destino, "folios_leidos": ["F-1999-001"]},
+				{"caso": caso, "destino": destino, "folios_leidos": []},
+			]
+		)
 	)
 	comprobar.call("archivado: abandono parcial devuelve pendientes", parcial["pendientes"], 1)
 	comprobar.call("archivado: abandono parcial conserva evaluadas", parcial["evaluadas"], 1)
