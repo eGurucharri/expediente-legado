@@ -28,7 +28,9 @@ static func lecturas(archivo, comprobar: Callable) -> void:
 	comprobar.call(
 		"recargar conserva la lectura gratuita", guardada.estado["jornada"]["leido_hoy"], [folio]
 	)
-	comprobar.call("releer conserva la firma", guardada.estado["veredictos"].get(caso_id, ""), firma)
+	comprobar.call(
+		"releer conserva la firma", guardada.estado["veredictos"].get(caso_id, ""), firma
+	)
 	comprobar.call("releer no descubre pistas", archivo.descubiertas, pistas)
 	var fuentes := SuenoContenido.fuentes(
 		archivo.jornada["leido_hoy"],
@@ -157,8 +159,12 @@ static func _migracion(comprobar: Callable) -> void:
 	sin_reloj.erase("sueno_total")
 	sin_reloj.erase("sueno_resto")
 	Jornada.completar(sin_reloj)
-	comprobar.call("una partida anterior al reloj recibe tiempo", sin_reloj["sueno_resto"] > 0.0, true)
-	comprobar.call("la primera noche migrada comienza entera", Jornada.noche_restante(sin_reloj), 1.0)
+	comprobar.call(
+		"una partida anterior al reloj recibe tiempo", sin_reloj["sueno_resto"] > 0.0, true
+	)
+	comprobar.call(
+		"la primera noche migrada comienza entera", Jornada.noche_restante(sin_reloj), 1.0
+	)
 	Jornada.despertar_de_golpe(sin_reloj)
 	comprobar.call(
 		"despertar de golpe también limpia el total", sin_reloj.get("sueno_total", -1.0), 0.0
