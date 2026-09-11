@@ -78,13 +78,19 @@ static func segundos_de_noche(escenas: Array) -> float:
 ## El día entra para que dos noches con la misma lectura no sean la misma
 ## noche; lo leído entra para que la noche sea de su día. Sin lo leído, el
 ## sueño sería una función del calendario.
-static func semilla(dia: int, leido_hoy: Array) -> int:
+## [param raiz] es la semilla de la partida (#147): entra para que dos partidas
+## distintas con el mismo día y la misma lectura no sueñen lo mismo. Sin ella
+## el sueño sería una función del contenido y no de quien lo soñó.
+static func semilla(dia: int, leido_hoy: Array, raiz: int = 0) -> int:
 	var texto := str(dia)
 	var folios := leido_hoy.duplicate()
 	folios.sort()
 	for folio in folios:
 		texto += "|" + str(folio)
-	return abs(hash(texto))
+	# Por Azar y no por `hash()`: `hash()` puede cambiar de una versión de
+	# Godot a otra, y una noche que cambia al actualizar el motor no se puede
+	# volver a ver cuando alguien informa de que salió rara.
+	return Azar.derivar_texto(raiz, "sueno", texto, [dia])
 
 
 ## Las tres escenas de esta noche, en orden.
@@ -92,9 +98,9 @@ static func semilla(dia: int, leido_hoy: Array) -> int:
 ## Lo NUEVO va primero: mientras queden salas sin ver se ven salas sin ver, y
 ## solo cuando el mapa ya las tiene todas se empiezan a repetir. Es lo que hace
 ## que el mapa crezca de verdad en vez de crecer de casualidad.
-static func noche(dia: int, leido_hoy: Array, mapa: Array) -> Array:
+static func noche(dia: int, leido_hoy: Array, mapa: Array, raiz: int = 0) -> Array:
 	var rng := RandomNumberGenerator.new()
-	rng.seed = semilla(dia, leido_hoy)
+	rng.seed = semilla(dia, leido_hoy, raiz)
 
 	var nuevas := SuenoFormas.ids().filter(func(id): return not mapa.has(id))
 	var vistas := SuenoFormas.ids().filter(func(id): return mapa.has(id))

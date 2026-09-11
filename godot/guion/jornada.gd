@@ -41,9 +41,18 @@ const ACCIONES_POR_DIA := 6
 const PACIENCIA_GATO := 3
 
 
-static func nueva() -> Dictionary:
+## [param raiz] es la semilla de la partida (#147) y [param vuelta] el número
+## de vida laboral. Juntas deciden lo que esta vuelta trae sorteado: la misma
+## semilla da siempre la misma primera vuelta, y la segunda no se parece a la
+## primera porque el índice cambia, no porque se haya vuelto a tirar.
+static func nueva(raiz: int = 0, vuelta: int = 1) -> Dictionary:
 	return {
 		"dia": 1,
+		# De dónde sale lo que se sortea en esta vida laboral. Viaja dentro de
+		# la jornada para que nada de aquí tenga que ir a preguntarle a la
+		# partida cada vez que quiere sortear algo.
+		"raiz": raiz,
+		"vuelta": vuelta,
 		"fase": "archivo",
 		"dinero": 120,
 		"cerrados_hoy": 0,
@@ -72,10 +81,11 @@ static func nueva() -> Dictionary:
 		# salido, se vuelve a él: **el mapa no crece esa noche**, que es un
 		# castigo que es exactamente lo que perdiste — no llegaste.
 		"mapa_anoche": [],
-		# Con quién te toca compartir planta esta vida laboral. Se sortea una
-		# vez y se guarda: los compañeros cambian cuando te reasignan, no
-		# cuando recargas la partida.
-		"plantilla": randi(),
+		# Con quién te toca compartir planta esta vida laboral. Ya no se sortea
+		# con el azar global: se DERIVA de la semilla y de la vuelta, así que
+		# los compañeros cambian cuando te reasignan y solo entonces — ni al
+		# recargar, ni al reinstalar, ni en otra máquina.
+		"plantilla": Azar.derivar_guardable(raiz, "companeros", [vuelta]),
 	}
 
 
@@ -89,20 +99,27 @@ static func nueva() -> Dictionary:
 ##
 ## Se completa con lo que trae `nueva()` y NO se pisa lo que ya hay: esto
 ## rellena huecos, no reinicia días.
-static func completar(jornada: Dictionary) -> Dictionary:
-	var molde := nueva()
+static func completar(jornada: Dictionary, raiz: int = 0) -> Dictionary:
+	var molde := nueva(raiz)
 	for clave in molde:
 		if not jornada.has(clave):
 			jornada[clave] = molde[clave]
 		elif typeof(molde[clave]) == TYPE_INT:
 			jornada[clave] = int(jornada[clave])
 	jornada["gato"]["dias_sin_comer"] = int(jornada["gato"].get("dias_sin_comer", 0))
+	# Una jornada guardada antes de que existiera la semilla (#147) trae un
+	# cero: se le pone la de la partida, y de ahí en adelante ya es
+	# reproducible. Lo que NO se toca es su plantilla — los compañeros de esa
+	# vuelta ya están puestos, y cambiarlos al actualizar el juego sería
+	# vaciarle la oficina a quien va por el día quince.
+	if int(jornada.get("raiz", 0)) == 0 and raiz != 0:
+		jornada["raiz"] = raiz
 	# Y si se cargó dentro del sueño sin noche que gastar, se le da una: un
 	# sueño de cero segundos es despertarse en el mismo fotograma.
 	if jornada["fase"] == "sueño" and jornada["sueno_resto"] <= 0.0:
 		if jornada["sueno_escenas"].is_empty():
 			jornada["sueno_escenas"] = Sueno.noche(
-				jornada["dia"], jornada["leido_hoy"], jornada["mapa"]
+				jornada["dia"], jornada["leido_hoy"], jornada["mapa"], int(jornada.get("raiz", 0))
 			)
 		jornada["sueno_resto"] = Sueno.segundos_de_noche(jornada["sueno_escenas"])
 		jornada["mapa_anoche"] = jornada["mapa"].duplicate()
@@ -185,7 +202,9 @@ static func dormir(jornada: Dictionary) -> Dictionary:
 			se_fue = true
 
 	jornada["fase"] = "sueño"
-	jornada["sueno_escenas"] = Sueno.noche(jornada["dia"], jornada["leido_hoy"], jornada["mapa"])
+	jornada["sueno_escenas"] = Sueno.noche(
+		jornada["dia"], jornada["leido_hoy"], jornada["mapa"], int(jornada.get("raiz", 0))
+	)
 	jornada["sueno_resto"] = Sueno.segundos_de_noche(jornada["sueno_escenas"])
 	jornada["mapa_anoche"] = jornada["mapa"].duplicate()
 	return {"coste": COSTE_DIARIO, "dinero": jornada["dinero"], "gato_se_fue": se_fue}
@@ -269,7 +288,9 @@ static func siguiente_fase(fase: String) -> String:
 ## la que más dice de cómo llevaste la vuelta anterior.
 static func reiniciar_vuelta(jornada: Dictionary) -> Dictionary:
 	var gato: Dictionary = jornada["gato"]
-	var nueva_vida := nueva()
+	# La raíz es de la PARTIDA y sobrevive al despido; el contador de vuelta
+	# avanza, que es lo que hace que la planta 4 se llene de otra gente.
+	var nueva_vida := nueva(int(jornada.get("raiz", 0)), int(jornada.get("vuelta", 1)) + 1)
 	nueva_vida["gato"] = gato
 	for clave in nueva_vida:
 		jornada[clave] = nueva_vida[clave]

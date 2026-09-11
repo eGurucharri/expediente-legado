@@ -27,6 +27,12 @@ var cargas: Dictionary = {}
 ## ella el careo funciona igual, solo que siempre a duración completa.
 var estado: Dictionary = {}
 
+## La semilla de las tiradas de este careo (#147). La pone quien abre la escena
+## —derivada de la partida— para que el careo se pueda volver a ver igual. En
+## cero se cae al reloj: es el modo de abrir la escena suelta desde el editor o
+## desde la herramienta de capturas, donde no hay partida de la que derivar.
+var semilla_tiradas := 0
+
 var _reproductor: Node3D
 var _en_cinematica := true
 var _combate: Dictionary = {}
@@ -42,7 +48,10 @@ var _camara_duelo: Camera3D
 
 
 func _ready() -> void:
-	_azar.randomize()
+	if semilla_tiradas != 0:
+		_azar.seed = semilla_tiradas
+	else:
+		_azar.randomize()
 	if acusado.is_empty():
 		acusado = {"nombre": "El acusado", "ataques": []}
 
