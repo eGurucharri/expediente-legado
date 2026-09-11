@@ -104,6 +104,12 @@ Cosas que ya han roto la suite. Léelas antes de tocar esos ficheros.
   el formato de `Cinematica` y resuélvelos con `Cinematica.resolver`, que además
   acorta por repetición y copia en profundidad. Un módulo que se salte el
   reproductor común dará su propio ritmo, su propio rótulo y su propio salto.
+- **Los binarios van por Git LFS.** `.gitattributes` manda texturas, mallas,
+  tipografías, sonido y vídeo a LFS. Antes de clonar o de añadir assets, corre
+  `git lfs install` una vez: sin él, `git` te deja **punteros de texto** donde
+  esperabas un PNG, y Godot falla al importar con un error que no menciona LFS
+  por ningún lado. Los `.ogg` que ya estaban se quedan en git normal: pasarlos
+  a LFS obligaría a reescribir el historial entero.
 - **`.uid`**: el repo versiona el `.uid` de cada guion. Si creas un `.gd`,
   commitea también su `.uid`.
 - **Guardar antes de una cinemática, no después.** Toda cinemática se puede

@@ -11,6 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Sin esto, un repositorio con LFS se descarga con PUNTEROS en
+          # vez de con los ficheros: la importación de Godot fallaría
+          # sobre texturas y mallas que en local se ven perfectamente.
+          lfs: true
 
       # Set up Java (for Maven)
       - name: Set up JDK 25
@@ -49,6 +54,11 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Sin esto, un repositorio con LFS se descarga con PUNTEROS en
+          # vez de con los ficheros: la importación de Godot fallaría
+          # sobre texturas y mallas que en local se ven perfectamente.
+          lfs: true
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
