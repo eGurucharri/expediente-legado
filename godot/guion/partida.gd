@@ -285,7 +285,8 @@ static func _validar_jornada(jornada: Dictionary) -> Array:
 		if jornada.has(clave) and typeof(jornada[clave]) != TYPE_ARRAY:
 			errores.append("jornada.%s no es una lista" % clave)
 	for clave in ["dia", "raiz", "vuelta", "dinero", "cerrados_hoy", "acciones"]:
-		if jornada.has(clave) and not _entero_valido(jornada[clave], 0, 2147483647):
+		var maximo := 9223372036854775807 if clave == "raiz" else 2147483647
+		if jornada.has(clave) and not _entero_valido(jornada[clave], 0, maximo):
 			errores.append("jornada.%s inválido" % clave)
 	for clave in ["sueno_resto", "sueno_total"]:
 		if (
