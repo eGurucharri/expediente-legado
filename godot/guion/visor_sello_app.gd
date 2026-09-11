@@ -1,9 +1,11 @@
-## Costura de #70 sobre el visor existente.
+## Costura de #70 y #72 sobre el visor existente.
 ##
 ## El visor base conserva toda la lógica de lectura, firma y persistencia. Esta
-## capa solo inserta la cinemática declarativa del sello entre una firma ya
-## guardada y su consecuencia posterior (careo o cierre textual).
+## capa inserta las cinemáticas de sello y remate alrededor del careo sin dejar
+## que ninguna de ellas decida el veredicto ni aplique consecuencias.
 extends "res://guion/visor_expediente.gd"
+
+var _duelo_resuelto := false
 
 
 func _al_firmar(resultado: Dictionary, formulario: Control) -> void:
@@ -39,6 +41,7 @@ func _al_terminar_sello(reproductor: Node, resultado: Dictionary) -> void:
 
 
 func _abrir_careo_firmado(resultado: Dictionary) -> void:
+	_duelo_resuelto = false
 	var careo: Node3D = load("res://escenas/careo.tscn").instantiate()
 	careo.acusado = resultado["duelo"]
 	careo.folio = registro_actual.get("folio", caso.get("titulo", ""))
@@ -47,3 +50,37 @@ func _abrir_careo_firmado(resultado: Dictionary) -> void:
 	careo.semilla_tiradas = _raiz()
 	careo.terminado.connect(_al_terminar_careo.bind(careo, resultado))
 	add_child(careo)
+
+
+## El duelo se resuelve una sola vez aunque una señal se emita dos veces. La
+## consecuencia se aplica y se guarda ANTES del remate: la cinemática solo la
+## representa, por lo que verla entera o saltarla deja exactamente el mismo
+## estado.
+func _al_terminar_careo(gano: bool, careo: Node3D, acusacion: Dictionary) -> void:
+	if _duelo_resuelto:
+		return
+	_duelo_resuelto = true
+	careo.queue_free()
+	var duelo := Acusacion.resolver_duelo(partida.estado, jornada, gano)
+	if not _guardar_o_avisar():
+		return
+	_reproducir_remate(gano, acusacion, duelo)
+
+
+func _reproducir_remate(gano: bool, acusacion: Dictionary, duelo: Dictionary) -> void:
+	var id := DueloRemateCinematica.id_de(gano)
+	var reproductor: Node = load("res://escenas/cinematica.tscn").instantiate()
+	add_child(reproductor)
+	reproductor.terminada.connect(_al_terminar_remate.bind(reproductor, acusacion, duelo))
+	reproductor.reproducir(
+		DueloRemateCinematica.planos_de(gano, Cinematica.vistas_de(partida.estado, id)),
+		id,
+		partida.estado
+	)
+
+
+func _al_terminar_remate(
+	reproductor: Node, acusacion: Dictionary, duelo: Dictionary
+) -> void:
+	reproductor.queue_free()
+	_mostrar_cierre(acusacion, duelo)
