@@ -319,7 +319,7 @@ func _al_encontrar_carta(carta_id: String) -> void:
 	var tarot: Array = partida.estado.get("tarot", [])
 	# Una carta ya encontrada no se vuelve a revelar: el momento es uno.
 	if not Prometeo.desbloquear_carta(tarot, carta_id):
-		_estado.text = tr("VISOR_CARTA") % carta_id
+		_abrir_historia(carta_id)
 		return
 
 	if not partida.guardar():
@@ -345,16 +345,24 @@ func _carta_de(tarot: Array, carta_id: String) -> Dictionary:
 	return {}
 
 
-## La carta encadena con su historia política sin un clic de por medio.
-##
-## Esa pantalla todavía no está portada a Godot —vive en `prometeo-ui.js`—, así
-## que de momento esto solo retira el reproductor. El enganche está aquí, en un
-## sitio, para que portarla sea sustituir esta línea y no buscar por dónde
-## entraba.
-func _al_terminar_cinematica_carta(reproductor: Node, _carta_id: String) -> void:
+## Terminar y saltar comparten salida: nunca hay un clic entre carta e historia.
+func _al_terminar_cinematica_carta(reproductor: Node, carta_id: String) -> void:
 	reproductor.queue_free()
-	# El hallazgo se anotó al descubrir, así que no hay nada que guardar aquí.
-	_refrescar_estado()
+	_abrir_historia(carta_id)
+
+
+func _abrir_historia(carta_id: String) -> void:
+	var historia: Window = load("res://escenas/historia.tscn").instantiate()
+	historia.partida = partida
+	historia.carta_id = carta_id
+	historia.cerrada.connect(
+		func():
+			historia.queue_free()
+			_refrescar_estado()
+			_lista.grab_focus()
+	)
+	add_child(historia)
+	historia.popup_centered_clamped(Vector2i(900, 600), 0.9)
 
 
 ## Abre el formulario A-7. La ventana no decide nada: rellena un papel y

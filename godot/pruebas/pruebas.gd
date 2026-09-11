@@ -49,6 +49,7 @@ func _init() -> void:
 	PruebasSuenoFinal._sonido(comprobar_cb)
 
 	PruebasSemilla._semilla(comprobar_cb)
+	PruebasHistoria.catalogo(comprobar_cb)
 
 	print("\n%d pasadas, %d fallos" % [pasadas, fallos])
 	quit(1 if fallos > 0 else 0)
