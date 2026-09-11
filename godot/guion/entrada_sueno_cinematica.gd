@@ -65,12 +65,15 @@ static func _habitacion() -> Array:
 ## y procede de `leido_hoy`.
 static func _habitacion_alterada() -> Array:
 	var figura := _habitacion()
-	figura.append_array(
-		[
-			{"rect": Rect2(-42, -108, 116, 78), "color": PAPEL},
-			{"rect": Rect2(-28, -88, 82, 7), "color": TINTA},
-			{"rect": Rect2(-28, -66, 58, 7), "color": TINTA},
-		]
+	(
+		figura
+		. append_array(
+			[
+				{"rect": Rect2(-42, -108, 116, 78), "color": PAPEL},
+				{"rect": Rect2(-28, -88, 82, 7), "color": TINTA},
+				{"rect": Rect2(-28, -66, 58, 7), "color": TINTA},
+			]
+		)
 	)
 	return figura
 
