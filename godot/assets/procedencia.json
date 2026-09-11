@@ -96,6 +96,46 @@
       "licencia": "CC0-1.0",
       "fuente": "https://kenney.nl/assets/interface-sounds",
       "sha256": "6fc395be2ad1f99ce318a5d28f98fb76dbeb676d83a0b28239d8c1fb90736180"
+    },
+    {
+      "ruta": "texturas/asfalto.jpg",
+      "titulo": "Asphalt 012 (mapa de color, 1K)",
+      "autor": "ambientCG",
+      "licencia": "CC0-1.0",
+      "fuente": "https://ambientcg.com/view?id=Asphalt012",
+      "sha256": "c7a142a1c12f517024d1b4c92472c700af86cfe3bfc12263c4260e414d4c2c59"
+    },
+    {
+      "ruta": "texturas/gotele.jpg",
+      "titulo": "Plaster 001 (mapa de color, 1K)",
+      "autor": "ambientCG",
+      "licencia": "CC0-1.0",
+      "fuente": "https://ambientcg.com/view?id=Plaster001",
+      "sha256": "d3fe43282859ab7293ad41f2fa3c29f02df077e5bc326cf90a65cc588a4ac5a4"
+    },
+    {
+      "ruta": "texturas/linoleo.jpg",
+      "titulo": "Carpet 012 (mapa de color, 1K)",
+      "autor": "ambientCG",
+      "licencia": "CC0-1.0",
+      "fuente": "https://ambientcg.com/view?id=Carpet012",
+      "sha256": "3c4af04d67ad6803be57c82ba4ee2939c24b437dae903061ec3dd1082d0563c5"
+    },
+    {
+      "ruta": "texturas/moqueta.jpg",
+      "titulo": "Carpet 013 (mapa de color, 1K)",
+      "autor": "ambientCG",
+      "licencia": "CC0-1.0",
+      "fuente": "https://ambientcg.com/view?id=Carpet013",
+      "sha256": "dfbdb1f88da8d46449826b81002bf1e613e2c1498dcfc539df3325c75de875f6"
+    },
+    {
+      "ruta": "texturas/techo.jpg",
+      "titulo": "Office Ceiling 001 (mapa de color, 1K)",
+      "autor": "ambientCG",
+      "licencia": "CC0-1.0",
+      "fuente": "https://ambientcg.com/view?id=OfficeCeiling001",
+      "sha256": "1a34c9db312a12c49365875630136e421d77e729f275ef93529ad20c0b336208"
     }
   ]
 }
