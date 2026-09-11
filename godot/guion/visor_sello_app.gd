@@ -30,9 +30,7 @@ func _reproducir_sello(resultado: Dictionary) -> void:
 
 ## Terminar y saltar comparten exactamente esta salida. La animación no decide
 ## nada: la firma ya estaba guardada antes de entrar aquí.
-func _al_terminar_sello(
-	reproductor: Node, resultado: Dictionary
-) -> void:
+func _al_terminar_sello(reproductor: Node, resultado: Dictionary) -> void:
 	reproductor.queue_free()
 	if not resultado.get("duelo", {}).is_empty():
 		_abrir_careo_firmado(resultado)
