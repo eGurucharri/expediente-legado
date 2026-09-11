@@ -5,6 +5,15 @@
 ##     xvfb-run -a godot4 --path godot --script pruebas/capturar.gd \
 ##         -- salida.png [documento] [descubrir]
 ##
+## Apunta XDG_DATA_HOME, XDG_CONFIG_HOME y XDG_CACHE_HOME a un temporal, como
+## hace `scripts/verificar_godot.py`: sin eso se captura TU partida, y basta con
+## que tengas un expediente firmado para que la captura enseñe otra cosa.
+##
+## Con un destino que contenga "tarot", el segundo argumento es el folio que
+## esconde la carta y el tercero el plano. Ojo: una carta se revela **una sola
+## vez**, así que cada plano necesita su propio temporal; reutilizarlo hace que
+## a partir del segundo no se abra ninguna cinemática.
+##
 ## Con un destino que contenga "dia", el segundo argumento es la FASE, y para
 ## la fase "sueño" el tercero es la sala que se quiere mirar.
 ##
@@ -33,6 +42,8 @@ func _init() -> void:
 		ruta = "res://escenas/dia.tscn"
 	elif destino.contains("careo"):
 		ruta = "res://escenas/careo.tscn"
+	# La cinemática del tarot (#71) ocurre DENTRO del visor: la escena es la
+	# misma y lo que cambia es que aquí se pulsa la marca de la carta.
 	var escena: Node = load(ruta).instantiate()
 	if ruta.contains("careo"):
 		# El acusado se le pasa ANTES de añadirlo: la escena lo lee en _ready.
@@ -143,6 +154,10 @@ func _init() -> void:
 		quit(0)
 		return
 
+	if destino.contains("tarot"):
+		quit(await _capturar_tarot(escena, destino, argumentos))
+		return
+
 	var indice := int(argumentos[1]) if argumentos.size() > 1 else 0
 	if argumentos.size() > 2 and argumentos[2] == "1":
 		# Por el mismo camino que un clic, no tocando el estado por detrás: si
@@ -174,3 +189,65 @@ func _init() -> void:
 	else:
 		print("captura en %s (%dx%d)" % [destino, imagen.get_width(), imagen.get_height()])
 	quit(0 if error == OK else 1)
+
+
+## La cinemática de encontrar una carta (#71), plano a plano.
+##
+## Se entra por donde se entra jugando: se abre el documento que esconde la
+## carta y se pulsa su marca. Tocar el estado por detrás enseñaría una
+## cinemática que no se alcanza jugando, que es el fallo que estas capturas
+## existen para no cometer.
+func _capturar_tarot(escena: Node, destino: String, argumentos: PackedStringArray) -> int:
+	var folio_carta := String(argumentos[1]) if argumentos.size() > 1 else "ACTA-1999-014"
+	var oculta := CartasOcultas.en_folio(folio_carta)
+	if oculta.is_empty():
+		printerr("El folio %s no esconde ninguna carta" % folio_carta)
+		return 1
+
+	var registros: Array = escena.caso["registros"]
+	var cual := -1
+	for i in registros.size():
+		if registros[i]["folio"] == folio_carta:
+			cual = i
+			break
+	if cual < 0:
+		printerr("El folio %s no está en el expediente abierto" % folio_carta)
+		return 1
+
+	escena._lista.select(cual)
+	escena._al_elegir_documento(cual)
+	await process_frame
+	escena._al_pulsar_marca("carta:%s" % oculta["carta"])
+	await process_frame
+
+	# El reproductor lo crea el visor y no lo guarda en ningún campo: aquí se
+	# busca entre sus hijos, que es lo único que este capturador puede saber sin
+	# obligar al visor a exponerlo solo para las capturas.
+	var reproductor: Node = null
+	for hijo in escena.get_children():
+		if hijo.has_method("reproducir"):
+			reproductor = hijo
+	if reproductor == null:
+		printerr("La marca no abrió ninguna cinemática: ¿el expediente ya está cerrado?")
+		return 1
+
+	# Los planos se miran de uno en uno, como los del careo y los de la entrada:
+	# los cuatro juntos en una imagen no son mirables.
+	var plano := int(argumentos[2]) if argumentos.size() > 2 else 0
+	for i in 3:
+		await process_frame
+	if plano < 0:
+		reproductor.saltar()
+	else:
+		for i in plano:
+			reproductor._siguiente()
+	# Solo dos fotogramas, y no seis como en el careo: el canto dura 0,22 s y
+	# con xvfb un fotograma puede costar más que eso, así que esperar de más
+	# capturaba el plano SIGUIENTE. El síntoma era que el canto no aparecía
+	# nunca y las capturas del giro salían idénticas a la del frontal.
+	for i in 2:
+		await process_frame
+
+	root.get_texture().get_image().save_png(destino)
+	print("captura en %s" % destino)
+	return 0

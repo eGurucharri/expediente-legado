@@ -25,6 +25,10 @@ const ID := "tarot-hallazgo"
 const ANCHO := 180.0
 const ALTO := 260.0
 
+## Y subida, porque el rótulo del reproductor ocupa la banda inferior: centrada
+## a secas, el nombre de la carta se montaba sobre su borde de abajo.
+const ALZADA := 56.0
+
 ## El dorso es del gris de sistema: todavía no ha pasado nada.
 const DORSO := Color("606070")
 const DORSO_MARCA := Color("484858")
@@ -126,12 +130,12 @@ static func _carta(ancho: float, fondo: Color, marca: Color) -> Array:
 	## frontal serían dos rectángulos planos y el volteo no se leería.
 	var margen := minf(14.0, ancho / 4.0)
 	return [
-		{"rect": Rect2(-ancho / 2.0, -ALTO / 2.0, ancho, ALTO), "color": fondo},
+		{"rect": Rect2(-ancho / 2.0, -ALTO / 2.0 - ALZADA, ancho, ALTO), "color": fondo},
 		{
 			"rect":
 			Rect2(
 				-ancho / 2.0 + margen,
-				-ALTO / 2.0 + margen,
+				-ALTO / 2.0 - ALZADA + margen,
 				ancho - margen * 2.0,
 				ALTO - margen * 2.0
 			),
