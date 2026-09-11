@@ -45,7 +45,11 @@ static func todo(comprobar: Callable) -> void:
 	siguiente["fase"] = "trayecto"
 	siguiente["dinero"] = Jornada.PRECIO_ALQUILER + 100
 	siguiente["alquiler"]["ultimo_resuelto"] = 10
-	comprobar.call("el segundo vencimiento cae en el día veinte", Jornada.alquiler_vencimiento(20), 20)
+	comprobar.call(
+		"el segundo vencimiento cae en el día veinte",
+		Jornada.alquiler_vencimiento(20),
+		20
+	)
 	comprobar.call("el siguiente vencimiento sigue pendiente", Jornada.alquiler_pendiente(siguiente), true)
 	comprobar.call(
 		"el segundo pago también funciona",
