@@ -427,6 +427,56 @@ static func _cinematicas(comprobar: Callable) -> void:
 		[]
 	)
 
+	# --- Encontrar una carta de tarot (#71) ---
+
+	# La del tarot se valida ya RESUELTA: sus planos declaran el ancho y la
+	# cara, y la figura en el formato del reproductor se construye al resolver.
+	var carta := {"id": "la-luna", "nombre": "La Luna"}
+	var tarot := TarotCinematica.planos_de(carta)
+	comprobar.call("la cinemática del tarot está bien declarada", Cinematica.validar(tarot), [])
+	comprobar.call("tiene los cuatro planos", tarot.size(), 4)
+	comprobar.call("todos son 2d", tarot.all(func(p): return p["tipo"] == "2d"), true)
+
+	# El volteo es un estrechamiento: el reproductor no sabe escalar, así que
+	# si el canto dejara de ser más estrecho, la carta no se voltearía.
+	var anchos := tarot.map(func(p): return p["figura"][0]["rect"].size.x)
+	comprobar.call("el canto es el plano más estrecho", anchos[1], anchos.min())
+	comprobar.call("y el dorso y el frontal miden igual", anchos[0], anchos[2])
+
+	# El frontal es el único momento de color del juego: si se quedara del gris
+	# del dorso, encontrar una carta no se distinguiría de no encontrarla.
+	comprobar.call(
+		"el frontal no tiene el color del dorso",
+		tarot[2]["figura"][0]["color"] != tarot[0]["figura"][0]["color"],
+		true
+	)
+
+	# El rótulo lleva el nombre de la carta, que es lo único que cambia entre
+	# las ocho: el rodaje es el mismo.
+	comprobar.call("el rótulo nombra la carta", tarot[2]["rotulo"], "La Luna")
+	comprobar.call(
+		"una carta sin nombre no deja el hueco a la vista",
+		"{carta}" in TarotCinematica.planos_de({})[2]["rotulo"],
+		false
+	)
+
+	# Se acorta como las demás: la octava carta no puede durar lo que la
+	# primera.
+	comprobar.call(
+		"la octava vez dura menos que la primera",
+		Cinematica.duracion(TarotCinematica.planos_de(carta, 7)) < Cinematica.duracion(tarot),
+		true
+	)
+
+	# Y no se estropea entre reproducciones: la figura es un valor anidado, que
+	# es justo lo que una copia superficial compartiría.
+	tarot[0]["figura"][0]["color"] = Color.RED
+	comprobar.call(
+		"la figura se entrega en copia profunda",
+		TarotCinematica.planos_de(carta)[0]["figura"][0]["color"] != Color.RED,
+		true
+	)
+
 	# --- La entrada de una vida laboral (#68) ---
 
 	comprobar.call(

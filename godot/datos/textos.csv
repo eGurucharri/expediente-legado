@@ -141,6 +141,9 @@ SITIO_CALLE,De vuelta a casa
 SITIO_CASA,Casa
 SITIO_OFICINA,"SIGA — Archivo, planta 4"
 SUENO_ROTULO,…
+TAROT_ROTULO,{carta}
+TAROT_SIN_NOMBRE,Una carta sin nombre
+TAROT_VOZ,"Estaba dentro del expediente, escrita como si nada."
 VENTANILLA_ADELANTA,La comisión adelanta que la próxima réplica será: %s.
 VENTANILLA_ATENDIDA,RECLAMACIÓN ATENDIDA. Racha: %d.
 VENTANILLA_HABILIDAD,%s (%d)
