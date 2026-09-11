@@ -77,10 +77,11 @@ Las partidas sin el campo `sueno_total` conservan sus segundos y salas pendiente
 como no guardaban el itinerario completo, su referencia visual se fija una vez
 con lo que queda, sin inventar la duración original.
 
-El recorrido aislado exige al menos 72 comprobaciones, incluidas las regresiones
-de lecturas, reloj y migración. Su mínimo está en `scripts/verificar_godot.py`,
-separado del mínimo de la suite principal. Esto no sustituye el playtesting con
-teclado, mando físico ni una partida completa.
+El recorrido aislado exige al menos 95 comprobaciones: conserva las pruebas del
+ciclo completo y la reasignación (#167) y añade 38 regresiones de lecturas, reloj
+y migración (#166). Su mínimo está en `scripts/verificar_godot.py`, separado del
+mínimo de la suite principal. Esto no sustituye el playtesting con teclado,
+mando físico ni una partida completa.
 
 El CI ejecuta esta validación en un job independiente del backend, además de
 `gdlint godot` y `gdformat --check --diff godot` con `gdtoolkit==4.3.4`.
