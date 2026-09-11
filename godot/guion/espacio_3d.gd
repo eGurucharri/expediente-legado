@@ -92,7 +92,7 @@ static func construir(raiz: Node3D, espacio: Dictionary) -> Array:
 			var caja_visible := _malla_de(pieza)
 			if caja_visible != null:
 				caja_visible.visible = false
-			if not Modelos.vestir(
+			if not Modelos.mueble(
 				pieza, modelo, bulto["tam"], bulto.get("color", Color(0.45, 0.44, 0.42))
 			):
 				# Sin modelo se vuelve a la caja: un archivador cúbico es peor
@@ -120,14 +120,42 @@ static func construir(raiz: Node3D, espacio: Dictionary) -> Array:
 	# saberlo: aquí solo hay una silueta en un sitio y un texto contra un muro.
 	var zonas := []
 	for figura in espacio.get("figuras", []):
-		var cuerpo := FiguraSilueta.construir(
-			raiz, figura["pos"], figura.get("color", Color(0.30, 0.28, 0.34))
-		)
+		var color_figura: Color = figura.get("color", Color(0.30, 0.28, 0.34))
+		# Quien tiene cuerpo lo tiene; quien no, sigue siendo la silueta. Y eso
+		# NO es una carencia pendiente de rellenar: la silueta sin cara es del
+		# acusado y del sueño a propósito —«a quien acusas nunca le ves la cara,
+		# porque es un comité, una empresa o un cargo»—, mientras que a un
+		# compañero de mesa sí se la ves todos los días. Dar cuerpo a los dos
+		# borraría esa diferencia justo cuando acaba de hacerse visible.
+		var cuerpo: Node3D = null
+		var modelo := String(figura.get("modelo", ""))
+		if not modelo.is_empty():
+			cuerpo = Node3D.new()
+			# En el suelo: una figura llega con los pies en su origen, así que
+			# su sitio es su sitio y no hay cuentas que hacer.
+			cuerpo.position = figura["pos"]
+			raiz.add_child(cuerpo)
+			if not Modelos.persona(cuerpo, modelo, color_figura, String(figura.get("retrato", ""))):
+				cuerpo.queue_free()
+				cuerpo = null
+		if cuerpo == null:
+			cuerpo = FiguraSilueta.construir(raiz, figura["pos"], color_figura)
 		if not figura.get("rotulo", "").is_empty():
+			# El nombre va sobre la cabeza, y dónde está la cabeza depende de
+			# dónde tenga el nodo su origen: en los pies si es silueta, a media
+			# altura si es un modelo encajado en un bulto. Sin esta cuenta el
+			# rótulo se iba al techo y los compañeros aparecían anónimos.
+			# Sobre la cabeza, y la cabeza está más alta o más baja según se sea
+			# una silueta o una persona de verdad.
+			var alto_rotulo := (
+				(Modelos.ALTO_PERSONA if not modelo.is_empty() else FiguraSilueta.altura()) + 0.35
+			)
+			if not modelo.is_empty():
+				alto_rotulo -= FiguraSilueta.altura() / 2.0
 			var nombre := _cartel(
 				cuerpo,
 				figura["rotulo"],
-				Vector3(0, FiguraSilueta.altura() + 0.35, 0),
+				Vector3(0, alto_rotulo, 0),
 				0.0,
 				figura.get("color_rotulo", Color(0.75, 0.74, 0.78)),
 				true
