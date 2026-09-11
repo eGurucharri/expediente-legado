@@ -21,6 +21,12 @@ var _caminante: CharacterBody3D
 var _mundo: Node3D
 var _rotulo: Label
 var _nomina: Label
+
+## El destino al que no se llegó a entrar porque no se pudo guardar. Mientras
+## haya uno, pisar cualquier salida REINTENTA el guardado en vez de volver a
+## fichar: la nómina, la noche y la lata del gato ya están cobradas en memoria,
+## y cobrarlas dos veces sería peor que no haberlas escrito.
+var _transito_pendiente := ""
 var _pantalla: CanvasLayer
 var _ambiente: Environment
 var _sol: DirectionalLight3D
@@ -190,16 +196,51 @@ func _process(delta: float) -> void:
 		var dia := Jornada.despertar_de_golpe(jornada)
 		_hablando = false
 		_nomina.text = tr("DIA_DESPERTAR_DE_GOLPE") % dia
-		partida.guardar()
+		if not _guardar_o_avisar("archivo"):
+			return
 		_entrar_en("archivo")
 		return
 	_rotulo.text = _texto_de_rotulo(Sueno.senal_de_noche(
 		Jornada.noche_restante(jornada)))
 
 
+## Escribe la partida y dice si pudo. Si no pudo, apunta el tránsito que se
+## queda esperando y lo cuenta: nada de esto deshace lo ya aplicado a la
+## jornada, que sigue siendo lo vigente aunque el disco no se haya enterado.
+func _guardar_o_avisar(destino: String) -> bool:
+	if partida.guardar():
+		return true
+	_transito_pendiente = destino
+	_hablando = false
+	_nomina.text = tr("GUARDADO_FALLO")
+	return false
+
+
+## El reintento. Solo vuelve a escribir el mismo estado —ni ficha, ni paga, ni
+## gasta una lata— y, si esta vez sale, termina el tránsito que quedó a medias.
+func _reintentar_guardado() -> void:
+	var destino := _transito_pendiente
+	if not _guardar_o_avisar(destino):
+		return
+	_transito_pendiente = ""
+	_nomina.text = tr("GUARDADO_HECHO")
+	if destino.is_empty():
+		return
+	if jornada["fase"] != "sueño":
+		_sonar("puerta_abre")
+	_entrar_en(destino)
+
+
 func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 	if cuerpo != _caminante or _pantalla != null:
 		return
+
+	# Con un guardado a medias no se empieza nada nuevo: cada pisada es el
+	# reintento, y no vuelve a aplicar la jugada que ya está hecha.
+	if partida.guardado_pendiente:
+		_reintentar_guardado()
+		return
+
 	# Alguien que dice algo al pasar. No lleva a ninguna parte, así que se
 	# atiende antes de mirar destinos.
 	var frase: String = salida.get_meta("frase")
@@ -261,7 +302,8 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 		_:
 			pass
 
-	partida.guardar()
+	if not _guardar_o_avisar(destino):
+		return
 	if jornada["fase"] != "sueño":
 		_sonar("puerta_abre")
 	_entrar_en(destino)
@@ -285,7 +327,8 @@ func _dar_de_comer() -> void:
 		_nomina.text = tr("DIA_GATO_SIN_DINERO") % Jornada.PRECIO_COMIDA_GATO
 		return
 	_sonar("nomina")
-	partida.guardar()
+	if not _guardar_o_avisar(""):
+		return
 	_nomina.text = tr("DIA_GATO_COME") % [Jornada.PRECIO_COMIDA_GATO, jornada["dinero"]]
 
 
@@ -392,7 +435,10 @@ func _cerrar_duelo(gano: bool, quien: Dictionary, zona: Area3D) -> void:
 	_pantalla = null
 
 	var final := SuenoCombate.resolver(partida.estado, jornada, quien, gano)
-	partida.guardar()
+	# El duelo ya está resuelto en memoria: se devuelve el control pase lo que
+	# pase, porque encerrar al jugador en una pantalla muerta no salva nada. Lo
+	# que se le dice es que pise una salida para reintentar.
+	_guardar_o_avisar("")
 
 	_caminante.set_physics_process(true)
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED

@@ -108,6 +108,8 @@ DIA_VIVIR,Vivir cuesta %d. Le quedan %d.%s
 FICHA_COMITE,COMITÉ
 FICHA_PERSONA,PERSONA
 FICHA_RECLAMANTE,[b]%s[/b]   ·   %s\n\n%s
+GUARDADO_FALLO,"NO SE PUDO GUARDAR. Lo hecho sigue en pantalla, pero no en el disco. Vuelva a intentarlo antes de seguir."
+GUARDADO_HECHO,"PARTIDA GUARDADA. Puede seguir."
 HABILIDAD_ASAMBLEA,Asamblea
 HABILIDAD_ASAMBLEA_EFECTO,"Esta ronda, el empate también golpea al rival."
 HABILIDAD_COMISION,Comisión de seguimiento
