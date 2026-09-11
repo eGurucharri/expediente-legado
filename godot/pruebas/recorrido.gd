@@ -101,6 +101,7 @@ func _recorrer() -> void:
 
 	await _vuelta_entera()
 	await _reasignacion()
+	await _remates_duelo()
 	await PruebasHistoria.recorrer(self, Callable(self, "_comprobar"))
 	# El mezclador libera las voces de las puertas en su propio hilo.
 	await create_timer(0.25).timeout
@@ -250,6 +251,65 @@ func _reasignacion() -> void:
 	)
 
 	dia.queue_free()
+	await process_frame
+
+
+## #72: el resultado del careo se aplica antes de la cinemática y solo una vez.
+## Los dos remates comparten el expediente, no escriben "victoria" ni cambian
+## el veredicto, y terminar o saltar desemboca en el mismo cierre.
+func _remates_duelo() -> void:
+	var victoria := DueloRemateCinematica.planos_de(true)
+	var derrota := DueloRemateCinematica.planos_de(false)
+	_comprobar("el remate de victoria es válido", Cinematica.validar(victoria), [])
+	_comprobar("el remate de derrota es válido", Cinematica.validar(derrota), [])
+	var ids_distintos := DueloRemateCinematica.id_de(true) != DueloRemateCinematica.id_de(false)
+	_comprobar("victoria y derrota tienen id distinto", ids_distintos, true)
+	_comprobar(
+		"ambos terminan en el mismo expediente", victoria[-1]["figura"], derrota[-1]["figura"]
+	)
+	var victoria_estatica := victoria.all(
+		func(p): return p.get("desde", Vector2.ZERO) == p.get("hasta", Vector2.ZERO)
+	)
+	var derrota_estatica := derrota.all(
+		func(p): return p.get("desde", Vector2.ZERO) == p.get("hasta", Vector2.ZERO)
+	)
+	_comprobar("el remate de victoria es estático", victoria_estatica, true)
+	_comprobar("el remate de derrota es estático", derrota_estatica, true)
+	_comprobar("los dos remates se distinguen", victoria[0]["figura"] != derrota[0]["figura"], true)
+
+	var visor = load("res://escenas/visor.tscn").instantiate()
+	root.add_child(visor)
+	await process_frame
+	visor.partida.estado = Partida.nueva()
+	visor.jornada = visor.partida.estado["jornada"]
+	visor.partida.estado["vida"] = 3
+	var acusacion := {"desenlace": "CIERRE-PRUEBA", "precipitada": false, "despido": false}
+	var vida_antes: int = visor.partida.estado["vida"]
+	var careo := Node3D.new()
+	visor.add_child(careo)
+	visor._duelo_resuelto = false
+	visor._al_terminar_careo(false, careo, acusacion)
+	_comprobar("perder el duelo quita una vida", visor.partida.estado["vida"], vida_antes - 1)
+	visor._al_terminar_careo(false, careo, acusacion)
+	_comprobar(
+		"una señal repetida no quita otra vida", visor.partida.estado["vida"], vida_antes - 1
+	)
+	await process_frame
+	var reproductor: Node = null
+	for hijo in visor.get_children():
+		if hijo.has_method("saltar"):
+			reproductor = hijo
+			break
+	_comprobar("la derrota abre su remate", reproductor != null, true)
+	_comprobar("el cierre espera al remate", visor._aviso_partida.contains("CIERRE-PRUEBA"), false)
+	if reproductor != null:
+		reproductor.saltar()
+		await process_frame
+	_comprobar(
+		"saltar el remate llega al cierre", visor._aviso_partida.contains("CIERRE-PRUEBA"), true
+	)
+
+	visor.queue_free()
 	await process_frame
 
 
