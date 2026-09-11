@@ -263,6 +263,36 @@ Mirar la captura ya ha pagado su coste: encontró que el año salía como
 documento abierto quedaba en blanco sobre blanco en la lista. Ninguna prueba de
 las 44 veía ninguno de los dos.
 
+## Estado del port: lógica, interfaz y evidencia (#163)
+
+Esta matriz separa tres cosas que no deben confundirse: que una regla exista,
+que la pantalla la use y que haya una prueba que lo demuestre. El estado se
+refiere a `main`; los PR abiertos se indican como pendientes y no como trabajo
+integrado.
+
+| Área | Lógica implementada | Interfaz conectada | Evidencia disponible | Pendiente |
+| --- | --- | --- | --- | --- |
+| Casos y visor | Sí: contenido, marcas, progreso y lecturas | Sí: visor SIGA | Suite Godot y capturas headless | Playtesting humano completo |
+| Formulario A-7 | Sí: acusación, veredicto y coste de acciones | Sí: formulario de firma | Suite Godot | Careo desde la firma (#75) |
+| Persistencia | Sí: escritura atómica, versión y reintentos; H1 integrado por #203 | Parcial: la validación estructural de H5 sigue en #190 | Suite Godot y regresiones de guardado | Integrar H5 (#190) y completar playtesting |
+| Jornada y día | Sí: acciones, tránsito, casa, sueño y gato | Sí: escenas del ciclo | Suite y recorrido headless | Playthrough completo y pruebas con hardware |
+| Sueño | Sí: salas, semilla, lecturas y reloj; H2/H3 integrados por #166 | Sí: entrada y salida de la noche | Suite y recorrido | Validar experiencia visual con playtesting |
+| Careo | Sí: cinemática, combate y consecuencias | Parcial en `main`: escena disponible, conexión A-7 en #75 | Suite aislada del combate | Integrar #75 y probar victoria/derrota |
+
+### Qué significa “evidencia”
+
+- **Suite** demuestra reglas y estados límite; no demuestra que una pantalla sea
+  legible ni que el flujo sea cómodo.
+- **Recorrido** demuestra que varias escenas pueden encadenarse en headless; no
+  sustituye una partida completa con teclado, mando y ratón.
+- **Capturas** sirven para inspección visual puntual; no demuestran persistencia.
+- Un PR abierto no cuenta como integrado hasta que su CI esté verde, se revise y
+  llegue a `main`.
+
+La matriz debe actualizarse cuando un PR cambie de estado. En la revisión actual de #163,
+H1, H2 y H3 están integrados; H4 continúa en #75 y H5 en #190. No es una promesa
+de cobertura ni un sustituto del playtesting de #9.
+
 ## Lo que este corte NO incluye
 
 - La **interfaz** de Prometeo. Sus reglas sí están portadas (`guion/prometeo.gd`,
