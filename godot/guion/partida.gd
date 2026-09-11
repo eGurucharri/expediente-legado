@@ -243,12 +243,13 @@ static func validar(guardado) -> Array:
 	elif int(version) > VERSION:
 		errores.append("versión futura")
 
-	if not guardado.has("jornada"):
-		errores.append("falta jornada")
-	elif typeof(guardado["jornada"]) != TYPE_DICTIONARY:
-		errores.append("jornada no es un objeto")
-	else:
-		errores.append_array(_validar_jornada(guardado["jornada"]))
+	# Las partidas anteriores a la jornada se migran desde nueva(). Si la
+	# clave aparece, en cambio, su forma debe ser válida.
+	if guardado.has("jornada"):
+		if typeof(guardado["jornada"]) != TYPE_DICTIONARY:
+			errores.append("jornada no es un objeto")
+		else:
+			errores.append_array(_validar_jornada(guardado["jornada"]))
 
 	if guardado.has("vida") and not _entero_valido(guardado["vida"], 0, VIDA_MAXIMA):
 		errores.append("vida inválida")
