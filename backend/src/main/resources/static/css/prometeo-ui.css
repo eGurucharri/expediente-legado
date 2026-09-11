@@ -8,6 +8,13 @@
  * (#d4d0c8, #808080, el bisel inset -1px -1px #404040 / 1px 1px #fff)
  * en vez de definir una paleta propia.
  */
+@font-face {
+    font-family: 'Press Start 2P';
+    src: url('../../../../assets/fonts/press-start-2p/PressStart2P-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
 
 .prometeo-menu-trigger {
     display: inline-flex;
@@ -19,7 +26,7 @@
     box-shadow: inset -1px -1px #404040, inset 1px 1px #ffffff;
     border-radius: 0;
     padding: 0.3rem 0.7rem;
-    font-family: "Tahoma", "Segoe UI", sans-serif;
+    font-family: 'Press Start 2P',  "Tahoma", "Segoe UI", sans-serif;
     font-size: 0.82rem;
     font-weight: normal;
     cursor: pointer;
@@ -63,7 +70,7 @@
     overflow-y: auto;
     color: #000;
     background: #d4d0c8;
-    font-family: "Tahoma", "Segoe UI", sans-serif;
+    font-family: 'Press Start 2P',  "Tahoma", "Segoe UI", sans-serif;
 }
 
 .prometeo-dialog::backdrop {
@@ -154,7 +161,7 @@
     border-radius: 0;
     padding: 0.55rem 0.8rem;
     font-size: 0.86rem;
-    font-family: "Tahoma", "Segoe UI", sans-serif;
+    font-family: 'Press Start 2P',  "Tahoma", "Segoe UI", sans-serif;
     text-decoration: none;
     cursor: pointer;
     min-height: 40px;
@@ -219,7 +226,7 @@
     color: #3a3a3a;
     font-size: 0.75rem;
     font-weight: normal;
-    font-family: "Courier New", monospace;
+    font-family: 'Press Start 2P',  "Courier New", monospace;
 }
 
 .prometeo-tarot-resumen {
@@ -291,7 +298,7 @@
     background: #d4d0c8;
     border: 2px solid #808080;
     box-shadow: inset -1px -1px #404040, inset 1px 1px #ffffff, 4px 4px 14px rgba(0, 0, 0, 0.4);
-    font-family: "Tahoma", "Segoe UI", sans-serif;
+    font-family: 'Press Start 2P',  "Tahoma", "Segoe UI", sans-serif;
 }
 
 .prometeo-captcha-card h3 {
@@ -352,7 +359,7 @@
     border-radius: 16px;
     background: #0b0f0b;
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
-    font-family: "Courier New", monospace;
+    font-family: 'Press Start 2P',  "Courier New", monospace;
     font-size: 0.62rem;
     line-height: 1.15;
     color: #6fffa0;
@@ -806,7 +813,7 @@
     border-radius: 0;
     padding: 0.55rem 0.9rem;
     font-size: 0.85rem;
-    font-family: "Tahoma", "Segoe UI", sans-serif;
+    font-family: 'Press Start 2P',  "Tahoma", "Segoe UI", sans-serif;
     cursor: pointer;
     min-height: 40px;
     border: 2px solid #808080;
@@ -927,7 +934,7 @@
 .prometeo-grafo-nodo text {
     fill: #ece6f5;
     font-size: 11px;
-    font-family: "Segoe UI", system-ui, sans-serif;
+    font-family: 'Press Start 2P',  "Segoe UI", system-ui, sans-serif;
     pointer-events: none;
 }
 
