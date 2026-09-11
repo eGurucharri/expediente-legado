@@ -117,8 +117,6 @@ func _reproducir_despido(acusacion: Dictionary, duelo: Dictionary = {}) -> void:
 	)
 
 
-func _al_terminar_despido(
-	reproductor: Node, acusacion: Dictionary, duelo: Dictionary = {}
-) -> void:
+func _al_terminar_despido(reproductor: Node, acusacion: Dictionary, duelo: Dictionary = {}) -> void:
 	reproductor.queue_free()
 	_mostrar_cierre(acusacion, duelo)
