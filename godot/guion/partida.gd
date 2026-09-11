@@ -276,7 +276,9 @@ static func _validar_jornada(jornada: Dictionary) -> Array:
 		var gato: Dictionary = jornada["gato"]
 		if gato.has("presente") and typeof(gato["presente"]) != TYPE_BOOL:
 			errores.append("gato.presente inválido")
-		if gato.has("dias_sin_comer") and not _entero_valido(gato["dias_sin_comer"], 0, Jornada.PACIENCIA_GATO + 1):
+		if gato.has("dias_sin_comer") and not _entero_valido(
+			gato["dias_sin_comer"], 0, Jornada.PACIENCIA_GATO + 1
+		):
 			errores.append("gato.dias_sin_comer inválido")
 	for clave in ["leido_hoy", "mapa", "sueno_escenas", "mapa_anoche"]:
 		if jornada.has(clave) and typeof(jornada[clave]) != TYPE_ARRAY:
@@ -285,9 +287,16 @@ static func _validar_jornada(jornada: Dictionary) -> Array:
 		if jornada.has(clave) and not _entero_valido(jornada[clave], 0, 2147483647):
 			errores.append("jornada.%s inválido" % clave)
 	for clave in ["sueno_resto", "sueno_total"]:
-		if jornada.has(clave) and (typeof(jornada[clave]) not in [TYPE_INT, TYPE_FLOAT] or not is_finite(float(jornada[clave])) or float(jornada[clave]) < 0.0):
+		if jornada.has(clave) and (
+			typeof(jornada[clave]) not in [TYPE_INT, TYPE_FLOAT]
+			or not is_finite(float(jornada[clave]))
+			or float(jornada[clave]) < 0.0
+		):
 			errores.append("jornada.%s inválido" % clave)
-	if jornada.has("fase") and (typeof(jornada["fase"]) != TYPE_STRING or not Jornada.FASES.has(jornada["fase"])):
+	if jornada.has("fase") and (
+		typeof(jornada["fase"]) != TYPE_STRING
+		or not Jornada.FASES.has(jornada["fase"])
+	):
 		errores.append("jornada.fase inválida")
 	return errores
 
