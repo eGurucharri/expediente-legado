@@ -19,25 +19,28 @@ const COLOR_FIGURA := Color(0.48, 0.47, 0.44)
 ## su lectura también con reducción de movimiento.
 static func planos_de(gano: bool, vistas: int = 0) -> Array:
 	var figura := _figura_victoria() if gano else _figura_derrota()
-	return Cinematica.resolver(
-		[
-			{
-				"tipo": "2d",
-				"segundos": 1.2,
-				"figura": figura,
-				"desde": Vector2.ZERO,
-				"hasta": Vector2.ZERO,
-			},
-			{
-				"tipo": "2d",
-				"segundos": 1.0,
-				"figura": _expediente(),
-				"desde": Vector2.ZERO,
-				"hasta": Vector2.ZERO,
-			},
-		],
-		{},
-		vistas
+	return (
+		Cinematica
+		. resolver(
+			[
+				{
+					"tipo": "2d",
+					"segundos": 1.2,
+					"figura": figura,
+					"desde": Vector2.ZERO,
+					"hasta": Vector2.ZERO,
+				},
+				{
+					"tipo": "2d",
+					"segundos": 1.0,
+					"figura": _expediente(),
+					"desde": Vector2.ZERO,
+					"hasta": Vector2.ZERO,
+				},
+			],
+			{},
+			vistas
+		)
 	)
 
 
@@ -56,21 +59,27 @@ static func _expediente() -> Array:
 
 static func _figura_victoria() -> Array:
 	var piezas := _expediente()
-	piezas.append_array(
-		[
-			{"rect": Rect2(-18, -135, 36, 52), "color": COLOR_FIGURA},
-			{"rect": Rect2(-32, -83, 64, 105), "color": COLOR_FIGURA},
-		]
+	(
+		piezas
+		. append_array(
+			[
+				{"rect": Rect2(-18, -135, 36, 52), "color": COLOR_FIGURA},
+				{"rect": Rect2(-32, -83, 64, 105), "color": COLOR_FIGURA},
+			]
+		)
 	)
 	return piezas
 
 
 static func _figura_derrota() -> Array:
 	var piezas := _expediente()
-	piezas.append_array(
-		[
-			{"rect": Rect2(-92, 82, 52, 36), "color": COLOR_FIGURA},
-			{"rect": Rect2(-40, 91, 112, 58), "color": COLOR_FIGURA},
-		]
+	(
+		piezas
+		. append_array(
+			[
+				{"rect": Rect2(-92, 82, 52, 36), "color": COLOR_FIGURA},
+				{"rect": Rect2(-40, 91, 112, 58), "color": COLOR_FIGURA},
+			]
+		)
 	)
 	return piezas
