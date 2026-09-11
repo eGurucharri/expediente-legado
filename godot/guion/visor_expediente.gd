@@ -300,11 +300,57 @@ func _al_pulsar_marca(meta: Variant) -> void:
 					_aviso_partida = tr("ARCHIVO_ERROR_GUARDAR")
 				_mostrar_registro(registro_actual)
 		"carta":
-			# El relato de la carta oculta vive en prometeo-ui.js y no está
-			# portado todavía; de momento solo se acusa el hallazgo.
-			_estado.text = tr("VISOR_CARTA") % partes[1]
+			_al_encontrar_carta(partes[1])
 		"concepto":
 			_estado.text = tr("VISOR_CONCEPTO") % partes[1]
+
+
+## Encontrar una carta escondida: se descubre, se guarda y se ve voltearse.
+##
+## El hallazgo se guarda ANTES de la cinemática y no después: una cinemática se
+## puede saltar, y si el guardado colgara de su final, saltarla perdería la
+## carta. Es el mismo criterio que con las pistas —se guarda al descubrir— y
+## por el mismo motivo: aquí se cierra el juego leyendo un documento.
+func _al_encontrar_carta(carta_id: String) -> void:
+	var tarot: Array = partida.estado.get("tarot", [])
+	# Una carta ya encontrada no se vuelve a revelar: el momento es uno.
+	if not Prometeo.desbloquear_carta(tarot, carta_id):
+		_estado.text = tr("VISOR_CARTA") % carta_id
+		return
+
+	if not partida.guardar():
+		_aviso_partida = tr("ARCHIVO_ERROR_GUARDAR")
+	_estado.text = tr("VISOR_CARTA") % carta_id
+	_refrescar_estado()
+
+	var carta := _carta_de(tarot, carta_id)
+	var reproductor: Node = load("res://escenas/cinematica.tscn").instantiate()
+	add_child(reproductor)
+	reproductor.terminada.connect(_al_terminar_cinematica_carta.bind(reproductor, carta_id))
+	reproductor.reproducir(
+		TarotCinematica.planos_de(carta, Cinematica.vistas_de(partida.estado, TarotCinematica.ID)),
+		TarotCinematica.ID,
+		partida.estado
+	)
+
+
+func _carta_de(tarot: Array, carta_id: String) -> Dictionary:
+	for carta in tarot:
+		if carta.get("id") == carta_id:
+			return carta
+	return {}
+
+
+## La carta encadena con su historia política sin un clic de por medio.
+##
+## Esa pantalla todavía no está portada a Godot —vive en `prometeo-ui.js`—, así
+## que de momento esto solo retira el reproductor. El enganche está aquí, en un
+## sitio, para que portarla sea sustituir esta línea y no buscar por dónde
+## entraba.
+func _al_terminar_cinematica_carta(reproductor: Node, _carta_id: String) -> void:
+	reproductor.queue_free()
+	# El hallazgo se anotó al descubrir, así que no hay nada que guardar aquí.
+	_refrescar_estado()
 
 
 ## Abre el formulario A-7. La ventana no decide nada: rellena un papel y
