@@ -49,7 +49,7 @@ func _construir() -> void:
 	add_child(raiz)
 
 	raiz.add_child(_titulo(tr("A7_TITULO")))
-	raiz.add_child(_linea(tr("A7_EXPEDIENTE") % caso.get("titulo", "")))
+	raiz.add_child(_linea(tr("A7_EXPEDIENTE") % tr(caso.get("titulo", ""))))
 	raiz.add_child(_linea(tr("A7_EJERCICIO") % str(caso.get("anioSuceso", tr("A7_SIN_FECHA")))))
 
 	raiz.add_child(_linea(tr("A7_INSTRUCCION")))

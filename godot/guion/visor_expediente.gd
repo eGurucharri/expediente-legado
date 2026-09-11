@@ -181,7 +181,10 @@ func _refrescar_archivo() -> void:
 		var ficha: Dictionary = contenido.casos[i]
 		var progreso: Dictionary = resumenes[i]
 		var cerrado := Acusacion.esta_cerrado(partida.estado, ficha["id"])
-		var titulo: String = ficha["titulo"]
+		# El título del caso es una CLAVE desde que el catálogo se traduce
+		# (#173): sin `tr()` la pantalla enseñaría CASO_1_TITULO en mayúsculas,
+		# y Godot no avisa — devuelve la clave tal cual.
+		var titulo: String = tr(ficha["titulo"])
 		if ficha.get("confidencial", false):
 			titulo = tr("ARCHIVO_CONFIDENCIAL") + titulo
 		var nombre: String = (
@@ -418,7 +421,7 @@ func _refrescar_estado() -> void:
 	_estado.text = (
 		tr("VISOR_ESTADO")
 		% [
-			caso["titulo"],
+			tr(caso["titulo"]),
 			resumen["encontradas"],
 			resumen["total"],
 			jornada.get("dia", 1),

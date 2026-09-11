@@ -2,7 +2,7 @@
   "casos": [
     {
       "id": "caso@1",
-      "titulo": "El cierre de caja de 1999",
+      "titulo": "CASO_1_TITULO",
       "descripcion": "Un descuadre nunca explicado en el cierre contable de fin de año quedó enterrado en el sistema SIGA. La empresa quiere saber qué ocurrió realmente.",
       "anioSuceso": 1999,
       "estado": "ABIERTO",
@@ -87,7 +87,7 @@
     },
     {
       "id": "caso2@2",
-      "titulo": "El trámite de la silla 4-B",
+      "titulo": "CASO_2_TITULO",
       "descripcion": "En 1990, un empleado de Almacén solicitó una silla ergonómica tras una lesión de espalda certificada por el médico de la empresa. La solicitud pasó por catorce oficinas distintas a lo largo de seis años, cada una exigiendo un nuevo formulario que citaba al anterior, hasta que el empleado se jubiló sin haber recibido la silla ni una negativa por escrito. El expediente nunca se aprobó, nunca se rechazó, y en sentido estricto tampoco llegó a cerrarse.",
       "anioSuceso": 1996,
       "estado": "CERRADO",
@@ -172,7 +172,7 @@
     },
     {
       "id": "caso3@3",
-      "titulo": "Traspaso de personal: expediente de E. Montalvo",
+      "titulo": "CASO_3_TITULO",
       "descripcion": "En 1993 se registró el traslado del empleado E. Montalvo al 'Departamento de Enlace Especial', ubicado según el memo en el piso 13. El edificio, de acuerdo con todos los planos y actas de mantenimiento, tiene solo doce pisos. A partir de la fecha del traslado no existe ningún otro registro de Montalvo: ni recibos de nómina, ni renuncia, ni baja. El memo de traslado, sin embargo, aparece debidamente sellado de recibido.",
       "anioSuceso": 1993,
       "estado": "ABIERTO",
@@ -257,7 +257,7 @@
     },
     {
       "id": "caso4@4",
-      "titulo": "Contrato de fin de año con Carcosa Servicios Escénicos",
+      "titulo": "CASO_4_TITULO",
       "descripcion": "Para la fiesta de aniversario de 1996, Recursos Humanos contrató a 'Carcosa Servicios Escénicos' para montar una obra de teatro. Las facturas detallan un cobro adicional específicamente por NO representar el segundo acto. En la semana siguiente al evento, varios empleados que asistieron solicitaron cambio de área o renunciaron, citando motivos que ninguno quiso poner por escrito.",
       "anioSuceso": 1996,
       "estado": "ABIERTO",
@@ -342,7 +342,7 @@
     },
     {
       "id": "caso5@5",
-      "titulo": "El expediente MEMO-1978-014 (y 1993, y 2007)",
+      "titulo": "CASO_5_TITULO",
       "descripcion": "Un memorándum con el mismo folio, la misma fecha de redacción y el mismo texto letra por letra —incluida una falta de ortografía— aparece archivado por separado en 1978, 1993 y 2007. La copia de 2007 incluye además una nota manuscrita que se dirige, literalmente, 'al auditor que lo esté leyendo ahora'. Determinar cuál copia es la original, si alguna lo es.",
       "anioSuceso": 1978,
       "estado": "ABIERTO",
@@ -420,7 +420,7 @@
     },
     {
       "id": "caso6@6",
-      "titulo": "Acta constitutiva de la empresa (versión no circulada)",
+      "titulo": "CASO_6_TITULO",
       "descripcion": "En el fondo del Archivo Muerto hay una versión del acta constitutiva de la empresa que nunca se hizo pública. En ella, el órgano fundador no es un consejo de accionistas sino un 'Comité Ad Honorem' cuyo único objeto declarado es 'la administración perpetua del expediente'. No lleva sello notarial: lleva el mismo sello amarillo visto en la factura de Carcosa Servicios Escénicos de 1996. La última página lista firmantes autorizados vigentes, y entre ellos ya aparece, con fecha muy anterior a su contratación, el usuario del auditor que revisa este expediente.",
       "anioSuceso": 1958,
       "estado": "ABIERTO",
@@ -537,7 +537,7 @@
     },
     {
       "id": "caso7@7",
-      "titulo": "El expediente de la herencia Karamázov",
+      "titulo": "CASO_7_TITULO",
       "descripcion": "Tras la muerte repentina de F. P. Karamázov, fundador y accionista mayoritario, sus tres hijos reclamaron una herencia de $3,000,000 en acciones que nunca se formalizó en ningún testamento. Uno de ellos fue despedido y señalado por Recursos Humanos como responsable de la desaparición de los fondos; el expediente de su defensa nunca llegó a revisarse.",
       "anioSuceso": 1998,
       "estado": "CERRADO",
@@ -634,7 +634,7 @@
     },
     {
       "id": "caso8@8",
-      "titulo": "El expediente del empleado #427",
+      "titulo": "CASO_8_TITULO",
       "descripcion": "El registro de nómina identifica a este empleado únicamente como '#427'. Su descripción de funciones, íntegra, dice: 'Presionar el botón cuando el sistema lo requiera.' Existen al menos tres actas de cierre para este expediente, cada una con un desenlace distinto e incompatible con las demás, las tres fechadas el mismo día.",
       "anioSuceso": 1998,
       "estado": "ABIERTO",

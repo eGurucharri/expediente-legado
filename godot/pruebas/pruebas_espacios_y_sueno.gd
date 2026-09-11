@@ -8,6 +8,9 @@
 class_name PruebasEspaciosYSueno
 extends RefCounted
 
+## Los ficheros de datos que pueden nombrar una clave de traducción.
+const CATALOGOS := ["res://datos/casos.json", "res://datos/prometeo.json"]
+
 # --- Los espacios del día ----------------------------------------------------
 
 
@@ -557,6 +560,14 @@ static func _traducciones(comprobar: Callable) -> void:
 	for nombre in DirAccess.get_files_at("res://guion"):
 		if nombre.ends_with(".gd"):
 			fuentes.append(FileAccess.get_file_as_string("res://guion/" + nombre))
+	# Los CATÁLOGOS también piden claves, no solo el código. El texto de los
+	# casos vive en `casos.json`, así que un título traducido es una clave que
+	# nadie nombra en un `.gd` — y sin esto se contaba como huérfana y se
+	# borraba. Vale en las dos direcciones: una clave mal escrita en el catálogo
+	# se caza igual que si estuviera en un guion, porque lo que se busca es la
+	# FORMA de una clave.
+	for catalogo in CATALOGOS:
+		fuentes.append(FileAccess.get_file_as_string(catalogo))
 	var codigo := "\n".join(fuentes)
 
 	# 1. Toda clave que el código nombra existe. Godot devuelve la clave tal
