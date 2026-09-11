@@ -274,7 +274,7 @@ func _remates_duelo() -> void:
 	visor.partida.estado = Partida.nueva()
 	visor.jornada = visor.partida.estado["jornada"]
 	visor.partida.estado["vida"] = 3
-	var acusacion := {"desenlace": "", "precipitada": false, "despido": false}
+	var acusacion := {"desenlace": "CIERRE-PRUEBA", "precipitada": false, "despido": false}
 	var vida_antes: int = visor.partida.estado["vida"]
 	var careo := Node3D.new()
 	visor.add_child(careo)
@@ -290,11 +290,11 @@ func _remates_duelo() -> void:
 			reproductor = hijo
 			break
 	_comprobar("la derrota abre su remate", reproductor != null, true)
-	_comprobar("el cierre espera al remate", visor._estado.text.contains(tr("VISOR_CERRADO")), false)
+	_comprobar("el cierre espera al remate", visor._aviso_partida.contains("CIERRE-PRUEBA"), false)
 	if reproductor != null:
 		reproductor.saltar()
 		await process_frame
-	_comprobar("saltar el remate llega al cierre", visor._estado.text.contains(tr("VISOR_CERRADO")), true)
+	_comprobar("saltar el remate llega al cierre", visor._aviso_partida.contains("CIERRE-PRUEBA"), true)
 
 	visor.queue_free()
 	await process_frame
