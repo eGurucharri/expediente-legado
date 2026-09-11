@@ -311,3 +311,118 @@ static func _sonido(comprobar: Callable) -> void:
 		if con_ficha.has(fichero) and con_ficha[fichero]["licencia"] != "CC0-1.0":
 			mal_licenciados.append(fichero)
 	comprobar.call("y todos son CC0", mal_licenciados, [])
+
+
+# --- Combates oníricos (#88) -------------------------------------------------
+
+
+## Contra quién se pelea en el sueño y qué pasa después. El motor de combate es
+## el de siempre y no se prueba aquí: lo que esto fija son las dos decisiones
+## propias de #88 —solo contra los que acusaste, y ganar tiene consecuencia—,
+## que es lo que distingue esto del careo, donde el duelo no cambia nada.
+static func _sueno_combate(comprobar: Callable) -> void:
+	var casos := [
+		{
+			"id": "caso1",
+			"registros": [{"id": "memo1", "folio": "MEMO-1"}],
+			"pistas": [],
+			"sospechosos":
+			[
+				{"id": "s1", "nombre": "J. Ibarra", "ataques": ["Yo firmé lo que me dieron."]},
+				{"id": "s2", "nombre": "Comité de Adquisiciones"},
+			],
+		}
+	]
+
+	# Contra quién: solo contra los que acusaste. Sin firma no hay con quién
+	# pelear, y una partida entera sin acusar a nadie no tiene combates.
+	var sin_firmar := SuenoContenido.fuentes(["MEMO-1"], casos, [], {})
+	comprobar.call(
+		"sin haber firmado, nadie se deja pelear",
+		sin_firmar["figuras"].filter(func(f): return SuenoCombate.se_pelea(f, {})).size(),
+		0
+	)
+
+	var firmado := SuenoContenido.fuentes(["MEMO-1"], casos, [], {"caso1": "s1"})
+	comprobar.call(
+		"se pelea con el que firmaste, y solo con él",
+		(
+			firmado["figuras"]
+			. filter(func(f): return SuenoCombate.se_pelea(f, {}))
+			. map(func(f): return f["id"])
+		),
+		["s1"]
+	)
+
+	# La figura viaja con lo que el duelo necesita: contra quién y qué dice.
+	comprobar.call("la figura lleva su id", firmado["figuras"][0]["id"], "s1")
+	comprobar.call(
+		"y sus réplicas",
+		SuenoCombate.nuevo(firmado["figuras"][0])["rival"],
+		{"nombre": "J. Ibarra", "ataques": ["Yo firmé lo que me dieron."]}
+	)
+	comprobar.call(
+		"el sueño contesta a lo último que hiciste",
+		SuenoCombate.nuevo(firmado["figuras"][0])["modo"],
+		"reactiva"
+	)
+
+	# Y la sala lo planta con su reto puesto: lo que se ve distinto es lo que
+	# se puede tocar.
+	var escena := Sueno.espacio("patio", 1, {"frases": [], "figuras": firmado["figuras"]})
+	comprobar.call(
+		"solo el acusado trae duelo", escena["figuras"].map(func(f): return f["duelo"]), ["s1", ""]
+	)
+
+	# Ganar: se apunta, devuelve una vida y deja de aparecer.
+	var estado := {"vida": 2, "dificultad": "normal"}
+	var jornada := Jornada.nueva()
+	jornada["fase"] = "sueño"
+	var ganado := SuenoCombate.resolver(estado, jornada, firmado["figuras"][0], true)
+	comprobar.call("ganar devuelve una vida", [ganado["vida"], ganado["recuperada"]], [3, true])
+	comprobar.call("y se apunta a quién callaste", SuenoCombate.vencidos(estado), ["s1"])
+	comprobar.call(
+		"al que ya venciste no se le vuelve a retar",
+		SuenoCombate.se_pelea(firmado["figuras"][0], estado),
+		false
+	)
+	var tras_ganar := SuenoContenido.fuentes(
+		["MEMO-1"], casos, [], {"caso1": "s1"}, SuenoCombate.vencidos(estado)
+	)
+	comprobar.call(
+		"y deja de aparecer en el sueño", tras_ganar["figuras"].map(func(f): return f["id"]), ["s2"]
+	)
+
+	# La vida no es una fuente infinita: el tope es el de la dificultad, así
+	# que la única forma de tener más es firmar más.
+	var lleno := {"vida": 3, "dificultad": "normal", "sueno_vencidos": []}
+	var otro := SuenoCombate.resolver(
+		lleno, jornada, {"id": "s9", "nombre": "Otro", "acusado": true}, true
+	)
+	comprobar.call("ganar al tope no sube de tres", [lleno["vida"], otro["recuperada"]], [3, false])
+	comprobar.call(
+		"en difícil el tope son dos",
+		(SuenoCombate.resolver(
+			{"vida": 1, "dificultad": "dificil"}, jornada, firmado["figuras"][0], true
+		))["vida"],
+		2
+	)
+
+	# Perder: no cuesta vida —eso ya lo cobró la firma— y corta la noche. El
+	# mapa de esta noche no queda, que es lo que de verdad pasó.
+	var perdedor := {"vida": 2, "dificultad": "normal"}
+	var noche := Jornada.nueva()
+	noche["fase"] = "casa"
+	Jornada.dormir(noche)
+	noche["mapa"] = ["patio"]
+	var perdido := SuenoCombate.resolver(perdedor, noche, firmado["figuras"][0], false)
+	comprobar.call("perder no cuesta una vida", perdedor["vida"], 2)
+	comprobar.call("perder despierta de golpe", [noche["fase"], perdido["dia"]], ["archivo", 2])
+	comprobar.call("y la noche no deja mapa", noche["mapa"], [])
+	comprobar.call("ni deja a nadie por vencido", SuenoCombate.vencidos(perdedor), [])
+
+	# La partida nueva trae el sitio donde apuntarlo: sin la clave, una partida
+	# vieja entraría al sueño con `vencidos` a nulo.
+	comprobar.call(
+		"una partida nueva no ha vencido a nadie", Partida.nueva()[SuenoCombate.CLAVE_VENCIDOS], []
+	)

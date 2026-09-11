@@ -48,6 +48,11 @@ func _init() -> void:
 	PruebasSuenoFinal._jornada_antigua(comprobar_cb)
 	PruebasSuenoFinal._companeros(comprobar_cb)
 	PruebasSuenoFinal._sonido(comprobar_cb)
+	PruebasSuenoFinal._sueno_combate(comprobar_cb)
+
+	PruebasGato._gato(comprobar_cb)
+	PruebasGato._cuenco(comprobar_cb)
+	PruebasGato._malla(comprobar_cb)
 
 	PruebasSemilla._semilla(comprobar_cb)
 	PruebasHistoria.catalogo(comprobar_cb)

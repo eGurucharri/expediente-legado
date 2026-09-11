@@ -67,12 +67,16 @@ static func _espacios(comprobar: Callable) -> void:
 		if salidas.is_empty():
 			sin_salida.append(fase)
 		for salida in salidas:
-			# Una salida lleva a otra fase del día o abre una PANTALLA. Las
-			# pantallas se declaran aquí: si aparece un destino que no es ni
-			# una cosa ni la otra, es un sitio al que no se puede ir.
+			# Una salida lleva a otra fase del día, abre una PANTALLA o se
+			# queda donde está. Las tres se declaran aquí: si aparece un
+			# destino que no es ninguna, es un sitio al que no se puede ir.
+			#
+			# El cuenco es de los terceros (#92): se pisa, se le da de comer al
+			# gato y se sigue estando en casa. No es una fase ni una pantalla,
+			# y por eso hay que nombrarlo para que esta guarda no lo cante.
 			if (
 				not EspaciosCatalogo.POR_FASE.has(salida["destino"])
-				and not salida["destino"] in ["sueño", "expediente"]
+				and not salida["destino"] in ["sueño", "expediente", "cuenco"]
 			):
 				rotos.append("%s -> %s" % [fase, salida["destino"]])
 	comprobar.call("ningún espacio es un callejón sin salida", sin_salida, [])
@@ -98,7 +102,14 @@ static func _espacios(comprobar: Callable) -> void:
 		)
 		comprobar.call("de %s se sale por un solo sitio" % fase, hacia_el_dia.size(), 1)
 
-	comprobar.call("el puesto de trabajo abre el expediente", pantallas, ["expediente"])
+	# Los dos sitios que se pisan y NO llevan a otra fase: el puesto de trabajo,
+	# que abre el expediente, y el cuenco del gato (#92), donde se sigue estando
+	# en casa. Se listan para que añadir un tercero tenga que decirse aquí.
+	comprobar.call(
+		"los sitios que se pisan sin cambiar de fase son el puesto y el cuenco",
+		pantallas,
+		["expediente", "cuenco"]
+	)
 
 	# Se entra pisando suelo, no dentro de un muro ni fuera de la sala.
 	var mal_situadas := []

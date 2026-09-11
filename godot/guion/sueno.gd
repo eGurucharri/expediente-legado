@@ -26,7 +26,8 @@ const ESCENAS_POR_NOCHE := 3
 
 ## Cómo se ve un sospechoso, y cómo se ve el que firmaste. La diferencia es
 ## todo lo que hace falta: aparecen todos los del expediente que tocaste, pero
-## haberle puesto el nombre a uno se nota (#87).
+## haberle puesto el nombre a uno se nota (#87). Y es el mismo que se deja
+## pelear (#88): lo que se ve distinto es lo que se puede tocar.
 const COLOR_FIGURA := Color(0.30, 0.28, 0.34)
 const COLOR_ACUSADO := Color(0.46, 0.20, 0.20)
 const COLOR_TEXTO := Color(0.78, 0.77, 0.80)
@@ -156,7 +157,12 @@ static func espacio(id: String, quedan: int, contenido: Dictionary = {}) -> Dict
 					"color": COLOR_ACUSADO if quien.get("acusado", false) else COLOR_FIGURA,
 					"rotulo": quien.get("nombre", ""),
 					"color_rotulo":
+					# Con el que firmaste se pelea (#88). Va como un dato de la figura
+					# —su id— y no como una bandera: quien lo pise tiene que saber
 					COLOR_ACUSADO_TEXTO if quien.get("acusado", false) else COLOR_TEXTO,
+					# CONTRA QUIÉN, porque ganar se apunta por persona.
+					"duelo": quien.get("id", "") if quien.get("acusado", false) else "",
+					"ataques": quien.get("ataques", []),
 				}
 			)
 		)

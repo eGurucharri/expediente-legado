@@ -107,6 +107,9 @@ CUNADO_VICTORIA_3,"Yo lo habría cerrado el martes, pero oye, cada uno."
 DIA_DESPERTAR_DE_GOLPE,"Se despierta de golpe. Día %d, y de esta noche no queda nada."
 DIA_DICE,— %s
 DIA_EN_EL_PUESTO,Se sienta en su puesto.
+DIA_GATO_COME,"Le pone una lata: %d. Le quedan %d."
+DIA_GATO_LLENO,"El cuenco está lleno. No le hace ni caso."
+DIA_GATO_SIN_DINERO,"Una lata cuesta %d, y no lo tiene."
 DIA_NOMINA,Nómina del día %d: %d (base %d + %d por %d expediente(s)).  Tiene %d.
 DIA_NUEVO,Día %d.
 DIA_ROTULO,Día %d  ·  %s  ·  %d en el bolsillo%s
@@ -142,6 +145,7 @@ OFICIO_ATAQUE_4,¿Es esta la ventanilla?
 OFICIO_NOMBRE,Reclamante sin expediente asignado
 OFICIO_RESUMEN,Se presenta cada mañana. No consta quién es ni qué reclama; el sistema le asigna un turno igualmente.
 PUESTO_LEVANTARSE,Levantarse del puesto
+SALIDA_CUENCO,El cuenco
 SALIDA_DESPERTAR,Despertar
 SALIDA_DORMIR,Dormir
 SALIDA_OFICINA,Salida
@@ -151,6 +155,12 @@ SIN_FECHA_CORTA,s/f
 SITIO_CALLE,De vuelta a casa
 SITIO_CASA,Casa
 SITIO_OFICINA,"SIGA — Archivo, planta 4"
+SUENO_DUELO_GANADO,"Se apaga. Esta vez no vuelve."
+SUENO_DUELO_PERDIDO,"Se le impone. La noche se acaba aquí."
+SUENO_DUELO_SEGUIR,Seguir
+SUENO_DUELO_SE_QUEDA,%s no se aparta.
+SUENO_DUELO_SIN_VIDA,"Ha descansado, aunque no le hacía falta."
+SUENO_DUELO_VIDA,"Ha descansado. Le quedan %d."
 SUENO_ROTULO,…
 TAROT_ROTULO,{carta}
 TAROT_SIN_NOMBRE,Una carta sin nombre

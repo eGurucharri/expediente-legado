@@ -11,6 +11,10 @@ const METROS_POR_ZANCADA := 0.72
 
 var partida := Partida.new()
 var contenido := Contenido.new()
+## Las decisiones políticas de la partida, que son las cargas de habilidad de
+## los combates oníricos (#88). Sin cargarlas, `cargas()` no sabe cuántas
+## historias hay y las devuelve todas a cero.
+var historias := Historias.new()
 var jornada: Dictionary = {}
 
 var _caminante: CharacterBody3D
@@ -41,6 +45,11 @@ var _desde_paso := 0.0
 ## compañero es de la oficina y del momento: llevárselo a la calle o al sueño
 ## lo convierte en una voz que te sigue.
 var _hablando := false
+var _gato: Gato
+## Contra quién se puede pelear en la sala que se está pisando (#88), por id.
+## Se llena al montar la escena del sueño: la zona que se pisa solo lleva el
+## id, y el combate necesita el nombre y las réplicas.
+var _rivales: Dictionary = {}
 
 
 ## La raíz del azar de esta partida (#147). Se lee de la partida y no se guarda
@@ -53,6 +62,7 @@ func _raiz() -> int:
 func _ready() -> void:
 	partida.cargar()
 	contenido.cargar()
+	historias.cargar()
 	jornada = Jornada.completar(partida.estado.get("jornada", Jornada.nueva(_raiz())), _raiz())
 	partida.estado["jornada"] = jornada
 
@@ -203,6 +213,14 @@ func _entrar_en(fase: String) -> void:
 	for salida in Espacio3D.construir(_mundo, espacio):
 		salida.body_entered.connect(_al_pisar_salida.bind(salida))
 
+	# El gato vive donde vive. No se le lleva de sitio en sitio: está en casa o
+	# no está, y cuando se va (#61) la casa se monta igual y él no.
+	_gato = null
+	if espacio.has("sitios_gato") and jornada["gato"]["presente"]:
+		_gato = Gato.new()
+		_mundo.add_child(_gato)
+		_gato.empezar(espacio["sitios_gato"][0], espacio["sitios_gato"])
+
 	# Cada sitio trae su luz general. El archivo no se ilumina como la calle, y
 	# con un solo ambiente para todo el día uno de los dos está siempre mal.
 	_ambiente.ambient_light_color = espacio.get("ambiente", Color(0.55, 0.55, 0.58))
@@ -237,11 +255,15 @@ func _espacio_de(fase: String) -> Dictionary:
 	# De qué está hecha esta escena (#87). El reparto es de la NOCHE y no de la
 	# sala: se calcula con la lista entera de escenas y se coge el trozo que le
 	# toca a esta, o las tres saldrían amuebladas con lo mismo.
-	var fuentes := SuenoContenido.fuentes(
-		jornada["leido_hoy"],
-		contenido.casos,
-		partida.estado["pistas_descubiertas"],
-		partida.estado.get("veredictos", {})
+	var fuentes := (
+		SuenoContenido
+		. fuentes(
+			jornada["leido_hoy"],
+			contenido.casos,
+			partida.estado["pistas_descubiertas"],
+			partida.estado.get("veredictos", {}),
+			SuenoCombate.vencidos(partida.estado),
+		)
 	)
 	var reparto := (
 		SuenoContenido
@@ -252,17 +274,25 @@ func _espacio_de(fase: String) -> Dictionary:
 		)
 	)
 	var cual: int = Sueno.ESCENAS_POR_NOCHE - jornada["sueno_escenas"].size()
-	return Sueno.espacio(
-		id, jornada["sueno_escenas"].size() - 1, reparto[clampi(cual, 0, reparto.size() - 1)]
-	)
+	var trozo: Dictionary = reparto[clampi(cual, 0, reparto.size() - 1)]
+	# Quién se deja pelear en ESTA escena (#88). Se calcula al montarla y no al
+	# pisarla: la zona de reto solo lleva un id, y quien la pise tiene que poder
+	# saber contra quién sin volver a repartir el sueño.
+	_rivales = {}
+	for quien in trozo["figuras"]:
+		if SuenoCombate.se_pelea(quien, partida.estado):
+			_rivales[quien["id"]] = quien
+	return Sueno.espacio(id, jornada["sueno_escenas"].size() - 1, trozo)
 
 
 ## El reloj de la noche. Solo corre dentro del sueño: el día no tiene prisa y
 ## el sueño sí, que es media parte de la diferencia entre los dos.
 func _process(delta: float) -> void:
 	_andar(delta)
+	if _gato != null and _pantalla == null:
+		_gato.avanzar(jornada["gato"]["dias_sin_comer"], _caminante.position, delta)
 
-	if jornada.get("fase", "") != "sueño":
+	if jornada.get("fase", "") != "sueño" or _pantalla != null:
 		return
 	if Jornada.gastar_sueno(jornada, delta):
 		var dia := Jornada.despertar_de_golpe(jornada)
@@ -319,6 +349,16 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 		_hablando = true
 		return
 
+	# Pelearse con lo que firmaste (#88). Va antes que los destinos por el
+	# mismo motivo que la frase: no lleva a otra sala, abre una pantalla.
+	# Con valor por defecto: la meta solo la pone `espacio_3d` en las zonas de
+	# reto, y una salida corriente —la de una sala sin acusados, o la que monta
+	# a mano el recorrido— no tiene por qué traerla.
+	var duelo: String = salida.get_meta("duelo", "")
+	if not duelo.is_empty() and _rivales.has(duelo):
+		_abrir_duelo(_rivales[duelo], salida)
+		return
+
 	var destino: String = salida.get_meta("destino")
 
 	# Hay dos clases de sitio que se pisan: los que llevan a otra parte del día
@@ -327,6 +367,13 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 	if destino == "expediente":
 		_sonar("documento")
 		_abrir_expediente()
+		return
+
+	# El cuenco tampoco lleva a ninguna parte: se sigue estando en casa. Es la
+	# otra mitad del gato — sin un sitio donde darle de comer, el bicho se va
+	# siempre y cuidarlo no es una decisión, es una cuenta atrás.
+	if destino == "cuenco":
+		_dar_de_comer()
 		return
 
 	# Cada tránsito es un acto de la jornada, no solo un cambio de sala: al
@@ -379,6 +426,32 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 	# tránsito pendiente se queda vacío: ya se ha entrado, y lo único que falta
 	# por hacer es escribirlo.
 	_guardar_o_avisar("")
+
+
+## Darle de comer. Se paga, así que puede no poder hacerse: ahí está la
+## decisión, y por eso el mensaje distingue los tres casos en vez de callar.
+##
+## Y un cuenco ya lleno no cobra dos veces: pasar por delante del gato recién
+## comido no puede costar una lata.
+func _dar_de_comer() -> void:
+	_hablando = false
+	var gato: Dictionary = jornada["gato"]
+	if not gato["presente"]:
+		_nomina.text = tr("DIA_SIN_GATO_AVISO")
+		return
+	if gato["dias_sin_comer"] == 0:
+		_nomina.text = tr("DIA_GATO_LLENO")
+		return
+	if not Jornada.alimentar_gato(jornada, Jornada.PRECIO_COMIDA_GATO):
+		_nomina.text = tr("DIA_GATO_SIN_DINERO") % Jornada.PRECIO_COMIDA_GATO
+		return
+	_sonar("nomina")
+	# La lata ya está cobrada: si no se puede escribir, se dice y se calla el
+	# mensaje de que ha comido (#191). Pisar el cuenco otra vez reintenta el
+	# guardado sin volver a cobrarla.
+	if not _guardar_o_avisar(""):
+		return
+	_nomina.text = tr("DIA_GATO_COME") % [Jornada.PRECIO_COMIDA_GATO, jornada["dinero"]]
 
 
 ## Los compañeros de esta vida laboral, sentados donde el sitio diga.
@@ -490,6 +563,64 @@ func _abrir_expediente() -> void:
 
 	_hablando = false
 	_nomina.text = tr("DIA_EN_EL_PUESTO")
+
+
+## El duelo onírico, encima de la sala y sin salir de ella.
+##
+## Mientras está abierto el reloj de la noche se para: perder la noche dentro
+## de un menú no sería una decisión del jugador, sería un descuido de quien
+## montó la pantalla.
+func _abrir_duelo(quien: Dictionary, zona: Area3D) -> void:
+	_caminante.set_physics_process(false)
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+	_pantalla = CanvasLayer.new()
+	add_child(_pantalla)
+	var duelo := SuenoDuelo.new()
+	duelo.figura = quien
+	duelo.cargas = historias.cargas(partida.estado)
+	duelo.terminado.connect(_cerrar_duelo.bind(quien, zona))
+	_pantalla.add_child(duelo)
+
+	_hablando = false
+	_nomina.text = ""
+
+
+func _cerrar_duelo(gano: bool, quien: Dictionary, zona: Area3D) -> void:
+	if _pantalla == null:
+		return
+	_pantalla.queue_free()
+	_pantalla = null
+
+	var final := SuenoCombate.resolver(partida.estado, jornada, quien, gano)
+	# El duelo ya está resuelto en memoria, así que se devuelve el control pase
+	# lo que pase: encerrar al jugador en una pantalla muerta no salva nada. Si
+	# no se pudo escribir, el aviso queda puesto y pisar una salida reintenta.
+	_guardar_o_avisar("")
+
+	_caminante.set_physics_process(true)
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+	if not final["gano"]:
+		# Perder corta la noche: se despierta de golpe, con lo que eso cuesta
+		# —el mapa no crece— y ni un castigo más.
+		_nomina.text = tr("DIA_DESPERTAR_DE_GOLPE") % final["dia"]
+		_entrar_en("archivo")
+		return
+
+	# Ganar: deja de estar ahí, y se ha dormido. La vida solo se dice cuando
+	# de verdad se ha recuperado alguna; al tope, decirlo sería mentir.
+	_rivales.erase(quien.get("id", ""))
+	if zona.has_meta("cuerpo"):
+		var cuerpo = zona.get_meta("cuerpo")
+		if is_instance_valid(cuerpo):
+			cuerpo.queue_free()
+	zona.queue_free()
+	_nomina.text = (
+		tr("SUENO_DUELO_VIDA") % final["vida"]
+		if final["recuperada"]
+		else tr("SUENO_DUELO_SIN_VIDA")
+	)
 
 
 func _cerrar_expediente() -> void:
