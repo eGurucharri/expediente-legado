@@ -5,6 +5,8 @@
 ## que ninguna de ellas decida el veredicto ni aplique consecuencias.
 extends "res://guion/visor_expediente.gd"
 
+const ESCENA_CINEMATICA := preload("res://escenas/cinematica.tscn")
+
 var _duelo_resuelto := false
 
 
@@ -17,7 +19,7 @@ func _al_firmar(resultado: Dictionary, formulario: Control) -> void:
 
 func _reproducir_sello(resultado: Dictionary) -> void:
 	_imputar.disabled = true
-	var reproductor: Node = load("res://escenas/cinematica.tscn").instantiate()
+	var reproductor: Node = ESCENA_CINEMATICA.instantiate()
 	add_child(reproductor)
 	reproductor.terminada.connect(_al_terminar_sello.bind(reproductor, resultado))
 	reproductor.reproducir(
@@ -69,7 +71,7 @@ func _al_terminar_careo(gano: bool, careo: Node3D, acusacion: Dictionary) -> voi
 
 func _reproducir_remate(gano: bool, acusacion: Dictionary, duelo: Dictionary) -> void:
 	var id := DueloRemateCinematica.id_de(gano)
-	var reproductor: Node = load("res://escenas/cinematica.tscn").instantiate()
+	var reproductor: Node = ESCENA_CINEMATICA.instantiate()
 	add_child(reproductor)
 	reproductor.terminada.connect(_al_terminar_remate.bind(reproductor, acusacion, duelo))
 	reproductor.reproducir(
