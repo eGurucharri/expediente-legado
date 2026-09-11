@@ -28,28 +28,6 @@ jobs:
           cache: 'npm'
           cache-dependency-path: backend/package-lock.json
 
-      # Install Godot 4 (the linux.x86_64 build runs headless via the --headless flag;
-      # since 4.x there is no separate *_linux_headless.tar.xz asset)
-      - name: Install Godot 4
-        run: |
-          set -e
-          echo "Installing Godot 4.2.2-stable"
-          GODOT_VERSION="4.2.2-stable"
-          echo "Downloading Godot $GODOT_VERSION"
-          wget --quiet --show-progress https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_linux.x86_64.zip
-          echo "Extracting Godot"
-          unzip -q Godot_v${GODOT_VERSION}_linux.x86_64.zip
-          echo "Moving binary to /usr/local/bin/godot4"
-          sudo mv Godot_v${GODOT_VERSION}_linux.x86_64 /usr/local/bin/godot4
-          sudo chmod +x /usr/local/bin/godot4
-          echo "Verifying installation"
-          godot4 --headless --version
-
-      # Install gdtoolkit for linting Godot GDScript
-      - name: Install gdtoolkit
-        run: |
-          pip install gdtoolkit
-
       # Test backend with Maven
       - name: Test backend with Maven
         run: |
@@ -64,16 +42,39 @@ jobs:
           npm ci
           npm test
 
-      # Test Godot suite
-      - name: Test Godot suite
+  godot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Instalar el motor declarado por el proyecto
+        shell: bash
         run: |
-          cd godot
-          godot4 --headless --path . --import
-          godot4 --headless --path . --script pruebas/pruebas.gd
-
-      # Lint Godot GDScript
-      - name: Lint Godot GDScript
+          set -euo pipefail
+          version="$(cat .godot-version)"
+          archivo="Godot_v${version}_linux.x86_64.zip"
+          base="https://github.com/godotengine/godot-builds/releases/download/${version}"
+          curl --fail --location --retry 3 "$base/$archivo" -o "$RUNNER_TEMP/$archivo"
+          curl --fail --location --retry 3 "$base/SHA512-SUMS.txt" -o "$RUNNER_TEMP/SHA512-SUMS.txt"
+          cd "$RUNNER_TEMP"
+          grep -F " $archivo" SHA512-SUMS.txt | sha512sum --check --strict
+          unzip -q "$archivo"
+          mkdir -p godot-bin
+          mv "Godot_v${version}_linux.x86_64" godot-bin/godot4
+          chmod +x godot-bin/godot4
+          echo "$RUNNER_TEMP/godot-bin" >> "$GITHUB_PATH"
+      - name: Instalar gdtoolkit
+        run: python -m pip install gdtoolkit==4.3.4
+      - name: Verificar el detector de falsos verdes
+        run: python -m unittest discover -s scripts -p 'test_*.py'
+      - name: Importar, ejecutar la suite y arrancar el juego
+        run: python scripts/verificar_godot.py
+      - name: Lint y formato GDScript
         run: |
-          cd godot
-          gdlint .
-          gdformat --check .
+          gdlint godot
+          gdformat --check godot

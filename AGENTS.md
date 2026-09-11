@@ -15,6 +15,10 @@ Aquí solo lo específico de trabajar como agente.
 4. Abre un PR que referencie el issue. No mergees sin revisión ni con gates en
    rojo.
 
+Para cambios en `godot/`, pasa también los gates del port en `CONTRIBUTING.md`:
+`python3 scripts/verificar_godot.py`, las pruebas del verificador, `gdlint godot`
+y `gdformat --check godot`. Usa el motor fijado en `.godot-version`.
+
 ## Archivos que no se versionan
 
 - `CLAUDE.md` está en `.gitignore`: son notas locales del agente para sí mismo,

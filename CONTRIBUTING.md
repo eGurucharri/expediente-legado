@@ -48,6 +48,21 @@ de relleno.
 
 ## Gates de calidad — nada se da por terminado sin pasarlos
 
+Para el port a Godot, usa la versión de `.godot-version` y ejecuta desde la raíz:
+
+```bash
+python3 -m unittest discover -s scripts -p 'test_*.py'
+python3 scripts/verificar_godot.py
+gdlint godot
+gdformat --check godot
+```
+
+El lint usa `gdtoolkit==4.3.4`. El verificador aísla las partidas de prueba,
+limita el tiempo de cada etapa y rechaza errores aunque Godot devuelva cero.
+`godot/pruebas/minimo.txt` registra el mínimo de comprobaciones: se aumenta
+con la suite, y no se reduce para esconder un fallo. Godot aún no tiene
+instrumentación de cobertura ni E2E de interacción automatizados.
+
 Antes de abrir o mergear un PR, desde `backend/` (o vía la imagen
 `maven:3.9-eclipse-temurin-25` si tu Maven local no es Java 25):
 

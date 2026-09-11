@@ -55,6 +55,18 @@ godot4 --headless --path godot --import          # una vez, por los class_name
 godot4 --headless --path godot --script pruebas/pruebas.gd
 ```
 
+Para verificar una entrega, usa **Godot 4.7 estable**, fijado en
+`.godot-version`, y ejecuta `python3 scripts/verificar_godot.py` desde la raíz.
+Puedes indicar otro ejecutable con `GODOT_BIN=/ruta/a/godot`. Este comando importa
+los recursos, ejecuta la suite en español y comprueba que el juego arranca,
+con datos temporales para no tocar tu partida. Falla ante errores de guion,
+recursos rotos, bloqueos o menos comprobaciones que `godot/pruebas/minimo.txt`.
+Al añadir pruebas, actualiza ese mínimo; reducirlo requiere justificar qué
+pruebas se han retirado.
+
+El CI ejecuta esta validación en un job independiente del backend, además de
+`gdlint godot` y `gdformat --check godot` con `gdtoolkit==4.3.4`.
+
 El `--import` no es solo por los `class_name`: también compila `datos/textos.csv`
 a la traducción que el juego carga. **Todo el texto vive en ese CSV** y el código
 solo nombra claves (`tr("VISOR_ELIJA")`); una pantalla que escriba una cadena a

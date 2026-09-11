@@ -649,7 +649,7 @@ static func _traducciones(comprobar: Callable) -> void:
 	while not csv.eof_reached():
 		var linea := csv.get_csv_line()
 		if primera:
-			comprobar.call("la cabecera declara clave e idioma", linea, ["clave", "es"])
+			comprobar.call("la cabecera declara clave e idioma", Array(linea), ["clave", "es"])
 			primera = false
 			continue
 		if linea.size() < 2 or linea[0].is_empty():
