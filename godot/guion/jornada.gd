@@ -45,6 +45,11 @@ const PACIENCIA_GATO := 3
 ## en lo que te queda.
 const PRECIO_COMIDA_GATO := 10
 
+## El alquiler introduce el mes sin convertirlo en un contador separado del día.
+## Se vence cada diez días y se paga manualmente en el trayecto (#83/#85).
+const DIAS_POR_MES := 10
+const PRECIO_ALQUILER := 700
+
 
 ## [param raiz] es la semilla de la partida (#147) y [param vuelta] el número
 ## de vida laboral. Juntas deciden lo que esta vuelta trae sorteado: la misma
@@ -66,6 +71,8 @@ static func nueva(raiz: int = 0, vuelta: int = 1) -> Dictionary:
 		# porque es tuyo y no del trabajo. Acaba siendo lo único cálido del
 		# registro permanente, al lado de las cartas que recuerdas.
 		"gato": {"presente": true, "dias_sin_comer": 0},
+		# Último vencimiento resuelto: pagado o registrado como impago.
+		"alquiler": {"ultimo_resuelto": 0, "pagados": 0, "impagos": 0},
 		# Lo leído hoy: es lo que alimenta el sueño de esta noche. Se vacía al
 		# despertar, porque un sueño es de su día.
 		"leido_hoy": [],
@@ -200,6 +207,50 @@ static func alimentar_gato(jornada: Dictionary, precio: int) -> bool:
 	return true
 
 
+## Día de vencimiento del alquiler. El calendario sale solo del día, no del azar.
+static func alquiler_vencimiento(dia: int) -> int:
+	return maxi(DIAS_POR_MES, int(ceil(float(dia) / DIAS_POR_MES)) * DIAS_POR_MES)
+
+
+## Si el vencimiento actual ya se resolvió, no se vuelve a ofrecer ni cobrar.
+static func alquiler_pendiente(jornada: Dictionary) -> bool:
+	var vencimiento := alquiler_vencimiento(int(jornada.get("dia", 1)))
+	return int(jornada["alquiler"].get("ultimo_resuelto", 0)) < vencimiento
+
+
+## Pagar el alquiler en la fase de trayecto. El pago consume una acción y es
+## idempotente: después de resolver el vencimiento, repetirlo no cobra nada.
+static func pagar_alquiler(jornada: Dictionary) -> Dictionary:
+	if jornada.get("fase", "") != "trayecto" or not alquiler_pendiente(jornada):
+		return {}
+	var vencimiento := alquiler_vencimiento(int(jornada["dia"]))
+	if int(jornada["dia"]) != vencimiento or jornada["acciones"] <= 0:
+		return {}
+	if not gastar(jornada, PRECIO_ALQUILER):
+		return {}
+	jornada["acciones"] -= 1
+	jornada["alquiler"]["ultimo_resuelto"] = vencimiento
+	jornada["alquiler"]["pagados"] += 1
+	return {
+		"vencimiento": vencimiento,
+		"importe": PRECIO_ALQUILER,
+		"impago": false,
+		"dinero": jornada["dinero"],
+		"acciones": jornada["acciones"],
+	}
+
+
+## Cerrar el día de vencimiento sin pagar registra un único impago. No crea
+## deuda ni saldo negativo: la consecuencia de vivienda la decide #84.
+static func resolver_impago_alquiler(jornada: Dictionary) -> bool:
+	var vencimiento := alquiler_vencimiento(int(jornada["dia"]))
+	if int(jornada["dia"]) != vencimiento or not alquiler_pendiente(jornada):
+		return false
+	jornada["alquiler"]["ultimo_resuelto"] = vencimiento
+	jornada["alquiler"]["impagos"] += 1
+	return true
+
+
 ## Dormir: cierra el día, cobra la vida y decide qué queda por la mañana.
 ##
 ## Devuelve lo que hay que contar al despertar. El gato que se va no se anuncia
@@ -209,6 +260,8 @@ static func dormir(jornada: Dictionary) -> Dictionary:
 		return {}
 
 	jornada["dinero"] = maxi(0, jornada["dinero"] - COSTE_DIARIO)
+
+	var impago := resolver_impago_alquiler(jornada)
 
 	var gato: Dictionary = jornada["gato"]
 	var se_fue := false
@@ -225,7 +278,12 @@ static func dormir(jornada: Dictionary) -> Dictionary:
 	jornada["sueno_total"] = Sueno.segundos_de_noche(jornada["sueno_escenas"])
 	jornada["sueno_resto"] = jornada["sueno_total"]
 	jornada["mapa_anoche"] = jornada["mapa"].duplicate()
-	return {"coste": COSTE_DIARIO, "dinero": jornada["dinero"], "gato_se_fue": se_fue}
+	return {
+		"coste": COSTE_DIARIO,
+		"dinero": jornada["dinero"],
+		"gato_se_fue": se_fue,
+		"alquiler_impago": impago,
+	}
 
 
 ## Despertar: día nuevo, contadores a cero y el sueño de anoche olvidado.
