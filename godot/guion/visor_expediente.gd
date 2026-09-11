@@ -162,7 +162,6 @@ func _columna_indice() -> Control:
 	_lista.add_theme_color_override("font_selected_color", EstiloSiga.BLANCO)
 	var seleccion := StyleBoxFlat.new()
 	seleccion.bg_color = EstiloSiga.AZUL_TITULO
-	seleccion.set_corner_radius_all(0)
 	_lista.add_theme_stylebox_override("selected", seleccion)
 	_lista.add_theme_stylebox_override("selected_focus", seleccion)
 	_archivo.add_theme_stylebox_override("selected", seleccion)
@@ -257,14 +256,18 @@ func _al_elegir_documento(indice: int) -> void:
 			_aviso_partida = tr("VISOR_SIN_JORNADA")
 			_refrescar_estado()
 			return
-		Jornada.anotar_lectura(jornada, registro["folio"])
-		partida.guardar()
-
-	# Abrir un documento nuevo suena a papel; releer, a nada. La diferencia se
-	# oye antes de leer el aviso, y es la que cuesta una acción.
-	Sonido.sonar(self, "documento" if not ya_visto else "pulsar")
 
 	_aviso_partida = ""
+	# El sueño recuerda lo leído, no lo cobrado: un expediente firmado también
+	# deja huella. Una apertura denegada ya ha salido por el return anterior.
+	if not ya_visto:
+		Jornada.anotar_lectura(jornada, registro["folio"])
+		if not partida.guardar():
+			_aviso_partida = tr("ARCHIVO_ERROR_GUARDAR")
+
+	# La primera lectura del día suena a papel, también si es gratuita.
+	# Las repetidas conservan el sonido de pulsar.
+	Sonido.sonar(self, "documento" if not ya_visto else "pulsar")
 	_mostrar_registro(registro)
 
 
