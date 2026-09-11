@@ -11,6 +11,13 @@ extends RefCounted
 const RUTA_PRUEBA := "user://partida-de-prueba.json"
 const RUTA_ASSETS := "res://assets"
 
+## Dos sitios donde un guardado NO puede salir bien: una carpeta que no existe
+## y un nombre ya ocupado por un directorio con algo dentro. Son las dos formas
+## de fallar de `Partida.guardar()` —el temporal y el renombrado—, provocadas a
+## propósito para comprobar que ninguna se lleva la partida por delante (#191).
+const RUTA_SIN_CARPETA := "user://carpeta-que-no-existe/partida-de-prueba.json"
+const RUTA_ESTORBADA := "user://estorbo-de-prueba.json"
+
 # --- prometeo-logic.test.js -------------------------------------------------
 
 
@@ -390,6 +397,115 @@ static func _partida(comprobar: Callable) -> void:
 	comprobar.call("y no se lee nada de ella", adelantada.estado["pistas_descubiertas"], [])
 
 	_borrar_pruebas()
+
+
+# --- Un guardado que falla no se lleva la partida por delante (#191) ----------
+
+
+static func _guardado_seguro(comprobar: Callable) -> void:
+	_borrar_pruebas()
+	_borrar_estorbo()
+
+	# Una partida de verdad, guardada bien: es la que tiene que seguir en el
+	# disco pase lo que pase después.
+	var partida := Partida.new()
+	partida.cargar(RUTA_PRUEBA)
+	partida.estado["pistas_descubiertas"] = ["antes"]
+	partida.estado["coliseo_racha_mejor"] = 4
+	comprobar.call("el guardado bueno sale", partida.guardar(RUTA_PRUEBA), true)
+	comprobar.call("y no deja nada pendiente", partida.guardado_pendiente, false)
+
+	# 1. No se puede ni crear el temporal. La jugada siguiente YA está hecha en
+	#    memoria y ahí se queda: lo que no se ha movido es el disco.
+	partida.estado["pistas_descubiertas"] = ["antes", "despues"]
+	comprobar.call(
+		"un guardado sin carpeta donde escribir dice que no",
+		partida.guardar(RUTA_SIN_CARPETA),
+		false
+	)
+	comprobar.call("y lo deja apuntado como pendiente", partida.guardado_pendiente, true)
+	comprobar.call(
+		"con un motivo que se puede enseñar", partida.fallo_de_guardado.is_empty(), false
+	)
+	comprobar.call(
+		"el estado vigente NO desaparece",
+		partida.estado["pistas_descubiertas"],
+		["antes", "despues"]
+	)
+	comprobar.call(
+		"y el guardado anterior sigue entero", _leer(RUTA_PRUEBA)["pistas_descubiertas"], ["antes"]
+	)
+
+	# 2. El temporal se escribe pero el renombrado no puede ser: un directorio
+	#    con algo dentro ocupa el sitio del fichero bueno.
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(RUTA_ESTORBADA))
+	_escribir_texto(RUTA_ESTORBADA + "/dentro", "ocupado")
+	comprobar.call("un renombrado imposible dice que no", partida.guardar(RUTA_ESTORBADA), false)
+	comprobar.call(
+		"y tampoco deja el temporal a medias por ahí",
+		FileAccess.file_exists(RUTA_ESTORBADA + ".nuevo"),
+		false
+	)
+	comprobar.call(
+		"el estado vigente sigue sin tocarse",
+		partida.estado["pistas_descubiertas"],
+		["antes", "despues"]
+	)
+
+	# 3. Reintentar es volver a guardar el MISMO estado, no rehacer la jugada.
+	#    Ni una pista, ni un duro, ni una acción de más.
+	comprobar.call("el reintento sale", partida.guardar(RUTA_PRUEBA), true)
+	comprobar.call("y ya no hay nada pendiente", partida.guardado_pendiente, false)
+	comprobar.call("ni motivo que enseñar", partida.fallo_de_guardado, "")
+	comprobar.call(
+		"reintentar otra vez no duplica nada",
+		(
+			partida.guardar(RUTA_PRUEBA)
+			and partida.estado["coliseo_racha_mejor"] == 4
+			and partida.estado["pistas_descubiertas"] == ["antes", "despues"]
+		),
+		true
+	)
+
+	# 4. Y lo que queda en el disco es lo que se ve en pantalla: se recarga
+	#    desde el guardado y sale la partida vigente, no la de antes del fallo.
+	var releida := Partida.new()
+	comprobar.call(
+		"la partida se recupera del guardado bueno",
+		releida.cargar(RUTA_PRUEBA)["resultado"],
+		"cargada"
+	)
+	comprobar.call(
+		"con lo que había en memoria cuando se reintentó",
+		[releida.estado["pistas_descubiertas"], releida.estado["coliseo_racha_mejor"]],
+		[["antes", "despues"], 4]
+	)
+	comprobar.call("y con su versión sellada", releida.estado["version"], Partida.VERSION)
+
+	# 5. La versión se sella al escribir, no al intentarlo. Una partida que
+	#    nunca llegó a guardarse no puede decir que es de la versión vigente:
+	#    mentiría sobre lo que hay en el disco.
+	var nunca := Partida.new()
+	nunca.estado["version"] = 0
+	nunca.guardar(RUTA_SIN_CARPETA)
+	comprobar.call("un guardado fallido no sella la versión", nunca.estado["version"], 0)
+
+	_borrar_estorbo()
+	_borrar_pruebas()
+
+
+static func _borrar_estorbo() -> void:
+	var carpeta := ProjectSettings.globalize_path(RUTA_ESTORBADA)
+	if DirAccess.dir_exists_absolute(carpeta):
+		for nombre in DirAccess.get_files_at(RUTA_ESTORBADA):
+			DirAccess.remove_absolute(carpeta + "/" + nombre)
+		DirAccess.remove_absolute(carpeta)
+	if FileAccess.file_exists(RUTA_ESTORBADA + ".nuevo"):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(RUTA_ESTORBADA + ".nuevo"))
+
+
+static func _leer(ruta: String) -> Dictionary:
+	return JSON.parse_string(FileAccess.open(ruta, FileAccess.READ).get_as_text())
 
 
 static func _escribir(ruta: String, datos: Dictionary) -> void:

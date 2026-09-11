@@ -42,6 +42,26 @@ class ValidacionGodotTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             validar(error, 0)
 
+    def test_el_guardado_que_falla_solo_se_espera_en_la_suite(self):
+        """Las pruebas de #191 provocan estos dos; el juego no debe imprimirlos."""
+        for error in (
+            "ERROR: No se pudo escribir user://x.json.nuevo\n",
+            "ERROR: No se pudo reemplazar user://x.json (error 1)\n",
+        ):
+            validar(error + "376 pasadas, 0 fallos\n", 0, 376)
+            with self.assertRaises(ValueError):
+                validar(error, 0)
+
+    def test_un_error_nuevo_no_se_cuela_entre_los_provocados(self):
+        """La lista es de diagnósticos concretos, no un salvoconducto."""
+        salida = (
+            "ERROR: Parse JSON failed. Error at line 0: Expected key\n"
+            "ERROR: No se pudo cargar el recurso res://escenas/dia.tscn\n"
+            "376 pasadas, 0 fallos\n"
+        )
+        with self.assertRaises(ValueError):
+            validar(salida, 0, 376)
+
 
 if __name__ == "__main__":
     unittest.main()

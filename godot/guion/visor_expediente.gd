@@ -247,7 +247,32 @@ func _icono(tipo: String) -> String:
 	return ICONOS_POR_TIPO.get(tipo, "[ ]")
 
 
+## Escribe la partida y dice si pudo. El aviso se queda en pantalla hasta que
+## un reintento salga bien: lo hecho (la acción gastada, la pista, la carta, la
+## firma) sigue siendo lo vigente en memoria, pero el disco todavía no lo sabe.
+func _guardar_o_avisar() -> bool:
+	if partida.guardar():
+		return true
+	_aviso_partida = tr("ARCHIVO_ERROR_GUARDAR")
+	_refrescar_estado()
+	return false
+
+
+## Con un guardado a medias, lo que se pulse REINTENTA escribirlo y no hace
+## nada más. Reintentar no vuelve a gastar la acción ni a firmar: solo copia a
+## disco el estado que ya está en memoria, así que puede hacerse mil veces.
+func _hay_guardado_a_medias() -> bool:
+	if not partida.guardado_pendiente:
+		return false
+	if _guardar_o_avisar():
+		_aviso_partida = tr("ARCHIVO_GUARDADO_HECHO")
+		_refrescar_estado()
+	return true
+
+
 func _al_elegir_documento(indice: int) -> void:
+	if _hay_guardado_a_medias():
+		return
 	var registro: Dictionary = caso["registros"][indice]
 
 	# Releer es GRATIS. Cobrar por volver a un documento castigaría justo lo que
@@ -264,10 +289,13 @@ func _al_elegir_documento(indice: int) -> void:
 	_aviso_partida = ""
 	# El sueño recuerda lo leído, no lo cobrado: un expediente firmado también
 	# deja huella. Una apertura denegada ya ha salido por el return anterior.
+	#
+	# Si el guardado falla, el documento se enseña IGUAL: la acción ya está
+	# gastada y cobrarla sin dar nada a cambio sería el peor de los dos males.
+	# Lo que no se borra es el aviso, que es lo que queda por arreglar.
 	if not ya_visto:
 		Jornada.anotar_lectura(jornada, registro["folio"])
-		if not partida.guardar():
-			_aviso_partida = tr("ARCHIVO_ERROR_GUARDAR")
+		_guardar_o_avisar()
 
 	# La primera lectura del día suena a papel, también si es gratuita.
 	# Las repetidas conservan el sonido de pulsar.
@@ -293,6 +321,8 @@ func _mostrar_registro(registro: Dictionary) -> void:
 
 
 func _al_pulsar_marca(meta: Variant) -> void:
+	if _hay_guardado_a_medias():
+		return
 	if Acusacion.esta_cerrado(partida.estado, caso["id"]):
 		return
 	var partes := String(meta).split(":", true, 1)
@@ -303,8 +333,7 @@ func _al_pulsar_marca(meta: Variant) -> void:
 				_refrescar_archivo()
 				# Se guarda al descubrir y no al salir: este juego se cierra
 				# leyendo un documento, no desde un menú.
-				if not partida.guardar():
-					_aviso_partida = tr("ARCHIVO_ERROR_GUARDAR")
+				_guardar_o_avisar()
 				_mostrar_registro(registro_actual)
 		"carta":
 			_al_encontrar_carta(partes[1])
@@ -325,8 +354,7 @@ func _al_encontrar_carta(carta_id: String) -> void:
 		_abrir_historia(carta_id)
 		return
 
-	if not partida.guardar():
-		_aviso_partida = tr("ARCHIVO_ERROR_GUARDAR")
+	_guardar_o_avisar()
 	_estado.text = tr("VISOR_CARTA") % carta_id
 	_refrescar_estado()
 
@@ -371,6 +399,10 @@ func _abrir_historia(carta_id: String) -> void:
 ## Abre el formulario A-7. La ventana no decide nada: rellena un papel y
 ## devuelve lo que  haya resuelto.
 func _abrir_formulario() -> void:
+	# Antes que la guarda del veredicto firme: si no, una firma que no se pudo
+	# escribir se quedaría sin puerta por la que reintentarse.
+	if _hay_guardado_a_medias():
+		return
 	if Acusacion.esta_cerrado(partida.estado, caso["id"]):
 		_aviso_partida = tr("ARCHIVO_YA_FIRMADO")
 		_refrescar_estado()
@@ -398,7 +430,8 @@ func _abrir_formulario() -> void:
 ## el esqueleto del día (#61) tiene que garantizar.
 func _al_firmar(resultado: Dictionary, formulario: Control) -> void:
 	formulario.queue_free()
-	partida.guardar()
+	if not _guardar_o_avisar():
+		return
 
 	var reasignado: String = tr("VISOR_REASIGNADO") if resultado.get("despido", false) else ""
 	_aviso_partida = (
