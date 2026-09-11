@@ -94,8 +94,10 @@ func _recorrer() -> void:
 	var antes: Array = archivo.descubiertas.duplicate()
 	archivo._al_pulsar_marca("pista:" + archivo.caso["pistas"][0]["id"])
 	_comprobar("no se modifica un expediente firmado", archivo.descubiertas, antes)
+	PruebasLecturasYReloj.lecturas(archivo, Callable(self, "_comprobar"))
 	vuelta.queue_free()
 	await process_frame
+	PruebasLecturasYReloj.reloj(Callable(self, "_comprobar"))
 
 	await _vuelta_entera()
 	await _reasignacion()
@@ -118,11 +120,11 @@ func _vuelta_entera() -> void:
 	root.add_child(dia)
 	await process_frame
 
-	# Se parte de una vida laboral recién estrenada: las pruebas anteriores han
-	# dejado su partida escrita, y una vuelta que empieza a mitad de otra no
-	# demuestra que el ciclo cierre.
-	dia.jornada = Jornada.nueva(int(dia.partida.estado.get("semilla", 0)))
-	dia.partida.estado["jornada"] = dia.jornada
+	# Se aísla también el archivo: las lecturas gratuitas ya guardan la firma
+	# del escenario anterior. Una partida sintética nueva evita que la prueba
+	# de reasignación intente volver a firmar aquel expediente ya cerrado.
+	dia.partida.estado = Partida.nueva()
+	dia.jornada = dia.partida.estado["jornada"]
 	dia._entrar_en("archivo")
 
 	dia.jornada["cerrados_hoy"] = 2

@@ -257,14 +257,18 @@ func _al_elegir_documento(indice: int) -> void:
 			_aviso_partida = tr("VISOR_SIN_JORNADA")
 			_refrescar_estado()
 			return
-		Jornada.anotar_lectura(jornada, registro["folio"])
-		partida.guardar()
-
-	# Abrir un documento nuevo suena a papel; releer, a nada. La diferencia se
-	# oye antes de leer el aviso, y es la que cuesta una acción.
-	Sonido.sonar(self, "documento" if not ya_visto else "pulsar")
 
 	_aviso_partida = ""
+	# El sueño recuerda lo leído, no lo cobrado: un expediente firmado también
+	# deja huella. Una apertura denegada ya ha salido por el return anterior.
+	if not ya_visto:
+		Jornada.anotar_lectura(jornada, registro["folio"])
+		if not partida.guardar():
+			_aviso_partida = tr("ARCHIVO_ERROR_GUARDAR")
+
+	# La primera lectura del día suena a papel, también si es gratuita.
+	# Las repetidas conservan el sonido de pulsar.
+	Sonido.sonar(self, "documento" if not ya_visto else "pulsar")
 	_mostrar_registro(registro)
 
 

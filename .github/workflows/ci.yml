@@ -77,4 +77,4 @@ jobs:
       - name: Lint y formato GDScript
         run: |
           gdlint godot
-          gdformat --check godot
+          gdformat --check --diff godot
