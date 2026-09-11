@@ -126,6 +126,20 @@ que acaben siendo 3D, pero no se rehacen sobre la marcha: primero se cierra la
 primera versión completa. Por eso todas se declaran en el formato común de
 `Cinematica`, que ya despacha `3d` y `2d`. Ver [ROADMAP.md](ROADMAP.md).
 
+## Clonar
+
+Los binarios del juego —texturas, mallas, tipografías— van por **Git LFS**, así
+que hace falta tenerlo antes de clonar:
+
+```bash
+git lfs install          # una vez por máquina
+git clone https://github.com/EspacioKoop/expediente-legado.git
+```
+
+Si ya clonaste sin él: `git lfs install && git lfs pull`. Sin LFS te quedan
+punteros de texto donde debería haber assets, y Godot falla al importar sin
+mencionar LFS por ningún lado.
+
 ## Cómo levantarlo (desarrollo)
 
 ```bash
