@@ -42,31 +42,82 @@ const RETRATOS := "res://assets/retratos/%s.jpg"
 static var _cache := {}
 
 
-## Mete el modelo [param nombre] dentro de [param cuerpo], encajado en
-## [param tam] y teñido de [param color]. Devuelve si pudo.
+## Un MUEBLE: la forma la pone el modelo y el color la casa.
 ##
-## [param cuerpo] es el `StaticBody3D` del bulto, así que el modelo hereda su
-## posición y su colisión sin saber que existen.
-static func vestir(
-	cuerpo: Node3D,
-	nombre: String,
-	tam: Vector3,
-	color: Color,
-	por_alto: bool = false,
-	retrato: String = ""
-) -> bool:
-	var escena := cargar(nombre)
-	if escena == null:
+## Se encaja en el `tam` declarado por el catálogo y se le impone el shader
+## común, porque un mueble importado con su propio material sería un objeto de
+## otro juego pegado en esta oficina. Un armario no tiene opinión sobre su color.
+static func mueble(cuerpo: Node3D, nombre: String, tam: Vector3, color: Color) -> bool:
+	var pieza := _instanciar(cuerpo, nombre)
+	if pieza == null:
 		return false
+	_encajar(pieza, tam, false)
+	_pintar(pieza, color)
+	return true
 
-	var pieza: Node3D = escena.instantiate()
-	cuerpo.add_child(pieza)
-	_encajar(pieza, tam, por_alto)
+
+## Una PERSONA: conserva lo suyo.
+##
+## Va por otro lado que un mueble a propósito, y la diferencia no es de
+## comodidad:
+##
+## - **Se mide por lo alta que es**, no por el sitio que ocupa. Una figura con
+##   los brazos separados mide más de ancho que de alto, y encajarla por el eje
+##   peor la deja del tamaño de una papelera.
+## - **Se tiñe de SU color**, el que declara cada compañero, no del de un bulto.
+##   Este modelo viene sin ropa, así que el color es su ropa: dejarle el material
+##   crudo lo deja blanco de maniquí. Si algún día hay figuras vestidas, es aquí
+##   donde se deja de teñir, y solo aquí.
+## - **Respira.** Un esqueleto sin animación no se queda de pie: se queda en la
+##   pose con la que se modeló.
+## - **Puede tener cara**, y cinco de estos la tienen de verdad.
+static func persona(
+	cuerpo: Node3D, nombre: String, alto: float, color: Color, retrato: String = ""
+) -> bool:
+	var pieza := _instanciar(cuerpo, nombre)
+	if pieza == null:
+		return false
+	_encajar(pieza, Vector3(alto, alto, alto), true)
 	_pintar(pieza, color)
 	_animar(pieza)
 	if not retrato.is_empty():
 		_poner_cara(pieza, retrato)
 	return true
+
+
+static func _instanciar(cuerpo: Node3D, nombre: String) -> Node3D:
+	var escena := cargar(nombre)
+	if escena == null:
+		return null
+	var pieza: Node3D = escena.instantiate()
+	cuerpo.add_child(pieza)
+	return pieza
+
+
+## La escena del modelo, o nulo si no está. Cachea el recurso y NO la instancia:
+## dos archivadores son dos nodos, no el mismo nodo en dos sitios.
+static func cargar(nombre: String) -> PackedScene:
+	if _cache.has(nombre):
+		return _cache[nombre]
+	var escena: PackedScene = null
+	for formato in FORMATOS:
+		var ruta := RUTA + nombre + formato
+		if ResourceLoader.exists(ruta):
+			escena = load(ruta)
+			break
+	if escena == null:
+		push_warning("No hay modelo %s en %s" % [nombre, RUTA])
+	_cache[nombre] = escena
+	return escena
+
+
+## Existe para las pruebas: el catálogo puede comprobar que todo `modelo` que
+## nombra está de verdad en el árbol, sin montar una escena 3D para verlo.
+static func hay(nombre: String) -> bool:
+	for formato in FORMATOS:
+		if ResourceLoader.exists(RUTA + nombre + formato):
+			return true
+	return false
 
 
 ## Que respiren.
@@ -109,6 +160,10 @@ static func _animar(pieza: Node3D, cual: String = "idle") -> void:
 
 ## El reproductor de animaciones, esté donde esté: unos packs lo cuelgan de la
 ## raíz y otros lo meten bajo el nodo del modelo.
+
+
+## El reproductor de animaciones, esté donde esté: unos packs lo cuelgan de la
+## raíz y otros lo meten bajo el nodo del modelo.
 static func _reproductor(nodo: Node) -> AnimationPlayer:
 	if nodo is AnimationPlayer:
 		return nodo
@@ -117,6 +172,22 @@ static func _reproductor(nodo: Node) -> AnimationPlayer:
 		if encontrado != null:
 			return encontrado
 	return null
+
+
+## Le pone a alguien SU cara.
+##
+## Cinco de los compañeros son gente que existió y que acabó de oficinista: el
+## último emperador de China ordenando papeles, el inspector de aduanas que
+## escribió Moby Dick, el de la correspondencia comercial que era varios poetas,
+## el del fielato que pintaba selvas que no había visto, el de la oficina de
+## riegos de Alejandría. El chiste entero depende de que se les RECONOZCA, y una
+## figura genérica lo borra: serían cinco oficinistas cualesquiera diciendo
+## frases raras.
+##
+## Va como un plano delante de la cabeza y no como textura de la malla: la
+## cabeza trae sus coordenadas para el atlas de su autor, y una fotografía
+## encima saldría estirada por la nuca. Un plano con una foto es además
+## exactamente como se resolvía una cara en 1998.
 
 
 ## Le pone a alguien SU cara.
@@ -181,6 +252,9 @@ static func _poner_cara(pieza: Node3D, retrato: String) -> void:
 
 
 ## El esqueleto de una figura, si lo tiene.
+
+
+## El esqueleto de una figura, si lo tiene.
 static func _esqueleto(nodo: Node) -> Skeleton3D:
 	if nodo is Skeleton3D:
 		return nodo
@@ -189,32 +263,6 @@ static func _esqueleto(nodo: Node) -> Skeleton3D:
 		if encontrado != null:
 			return encontrado
 	return null
-
-
-## La escena del modelo, o nulo si no está. Cachea el recurso y NO la instancia:
-## dos archivadores son dos nodos, no el mismo nodo en dos sitios.
-static func cargar(nombre: String) -> PackedScene:
-	if _cache.has(nombre):
-		return _cache[nombre]
-	var escena: PackedScene = null
-	for formato in FORMATOS:
-		var ruta := RUTA + nombre + formato
-		if ResourceLoader.exists(ruta):
-			escena = load(ruta)
-			break
-	if escena == null:
-		push_warning("No hay modelo %s en %s" % [nombre, RUTA])
-	_cache[nombre] = escena
-	return escena
-
-
-## Existe para las pruebas: el catálogo puede comprobar que todo `modelo` que
-## nombra está de verdad en el árbol, sin montar una escena 3D para verlo.
-static func hay(nombre: String) -> bool:
-	for formato in FORMATOS:
-		if ResourceLoader.exists(RUTA + nombre + formato):
-			return true
-	return false
 
 
 ## Escala el modelo para que quepa en [param tam] y lo APOYA en el suelo del

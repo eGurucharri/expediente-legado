@@ -31,11 +31,6 @@ const TOPE_SUBDIVISION := 14
 ## sin levantar la cabeza.
 const ALTURA_CARTEL := 1.7
 
-## Lo que ocupa una persona de pie. Sale de `FiguraSilueta` y no de un número
-## suelto: el rótulo con su nombre se cuelga a esa misma altura, y dos medidas
-## distintas para el mismo cuerpo dejan el nombre flotando o metido en la cabeza.
-const ANCHO_FIGURA := 0.7
-
 
 ## Monta el espacio bajo [param raiz] y devuelve las salidas creadas, para que
 ## quien orquesta el día pueda escucharlas.
@@ -97,7 +92,7 @@ static func construir(raiz: Node3D, espacio: Dictionary) -> Array:
 			var caja_visible := _malla_de(pieza)
 			if caja_visible != null:
 				caja_visible.visible = false
-			if not Modelos.vestir(
+			if not Modelos.mueble(
 				pieza, modelo, bulto["tam"], bulto.get("color", Color(0.45, 0.44, 0.42))
 			):
 				# Sin modelo se vuelve a la caja: un archivador cúbico es peor
@@ -143,12 +138,11 @@ static func construir(raiz: Node3D, espacio: Dictionary) -> Array:
 			# pasó, y se vio en una captura antes que en ninguna prueba.
 			cuerpo.position = figura["pos"] + Vector3(0, FiguraSilueta.altura() / 2.0, 0)
 			raiz.add_child(cuerpo)
-			if not Modelos.vestir(
+			if not Modelos.persona(
 				cuerpo,
 				modelo,
-				Vector3(ANCHO_FIGURA, FiguraSilueta.altura(), ANCHO_FIGURA),
+				FiguraSilueta.altura(),
 				color_figura,
-				true,
 				String(figura.get("retrato", ""))
 			):
 				cuerpo.queue_free()
