@@ -17,6 +17,8 @@ var _caminante: CharacterBody3D
 var _mundo: Node3D
 var _rotulo: Label
 var _nomina: Label
+var _borrar: Button
+var _borrar_confirmando := false
 var _pantalla: CanvasLayer
 ## Los rótulos del día. Se guarda para poder apagarlos mientras se pone la
 ## entrada de la vuelta.
@@ -165,12 +167,27 @@ func _montar_interfaz() -> void:
 	_nomina.add_theme_constant_override("outline_size", 4)
 	caja.add_child(_nomina)
 
+	# Empezar de cero se pide en CASA y no en la oficina: el sistema no te
+	# ofrece borrarte a ti mismo desde dentro. Dos pulsaciones, porque esto se
+	# lleva la memoria de todas las vueltas y no hay deshacer dentro del juego.
+	_borrar = Button.new()
+	_borrar.text = tr("CASA_BORRAR")
+	_borrar.visible = false
+	_borrar.pressed.connect(_al_pulsar_borrar)
+	caja.add_child(_borrar)
+
 
 func _entrar_en(fase: String) -> void:
 	if _hablando:
 		_nomina.text = ""
 		_hablando = false
 	jornada["fase"] = fase
+	if _borrar != null:
+		# Solo en casa, y la confirmación no sobrevive a salir de la habitación:
+		# volver a entrar tiene que volver a pedirla.
+		_borrar.visible = fase == "casa"
+		_borrar_confirmando = false
+		_borrar.text = tr("CASA_BORRAR")
 	if _mundo != null:
 		_mundo.queue_free()
 	_mundo = Node3D.new()
@@ -378,6 +395,30 @@ func _sonar(nombre: String) -> void:
 ## abierta manda ella, y al cerrarse el día vuelve a LEER el fichero en vez de
 ## confiar en la copia que tenía. Es la costura entre los dos, y va en un solo
 ## sitio: dos dueños del mismo estado a la vez es como se pierden partidas.
+## Empezar de cero, en dos pulsaciones.
+##
+## La primera avisa de lo que se lleva por delante; la segunda lo hace. Es el
+## mismo gesto de dos tiempos que el canje de una carta por una vida, y por el
+## mismo motivo: lo que no se puede deshacer no se dispara con un clic suelto.
+func _al_pulsar_borrar() -> void:
+	if not _borrar_confirmando:
+		_borrar_confirmando = true
+		_borrar.text = tr("CASA_BORRAR_SEGURO")
+		return
+
+	_borrar_confirmando = false
+	_borrar.text = tr("CASA_BORRAR")
+	if not partida.borrar():
+		_nomina.text = tr("ARCHIVO_ERROR_GUARDAR")
+		return
+
+	jornada = Jornada.completar(partida.estado.get("jornada", Jornada.nueva(_raiz())), _raiz())
+	partida.estado["jornada"] = jornada
+	_nomina.text = tr("CASA_BORRADO")
+	_sonar("puerta_cierra")
+	_entrar_en(jornada["fase"])
+
+
 func _abrir_expediente() -> void:
 	partida.guardar()
 	_caminante.set_physics_process(false)

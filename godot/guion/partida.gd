@@ -145,6 +145,30 @@ func guardar(ruta: String = RUTA) -> bool:
 	return true
 
 
+## Borra el avance PERMANENTE y empieza de cero.
+##
+## No es `Prometeo.reiniciar_vuelta`, que deja a cero una vida laboral y
+## conserva a propósito la memoria de por vida —las cartas ya conocidas, la
+## mejor racha, la dificultad, los logros de vitrina—. Esto borra también eso:
+## es el "no he jugado nunca", y por eso no puede ocurrir por un clic suelto.
+##
+## La partida anterior no se tira: se aparta con el mismo mecanismo que una
+## partida corrupta, así que un borrado por error sigue siendo recuperable
+## desde el disco por quien sepa buscarlo.
+##
+## Devuelve true si al terminar no queda partida guardada, que es lo que el
+## jugador ha pedido. Si no había ninguna, ya estaba hecho.
+func borrar(ruta: String = RUTA) -> bool:
+	if FileAccess.file_exists(ruta):
+		_apartar(ruta, "borrada a petición")
+		if FileAccess.file_exists(ruta):
+			push_error("No se pudo borrar %s" % ruta)
+			return false
+
+	estado = nueva()
+	return true
+
+
 ## El estado reducido a lo que es de la partida: los catálogos se quedan en sus
 ## ids y sus banderas.
 func _para_guardar() -> Dictionary:

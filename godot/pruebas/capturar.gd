@@ -101,6 +101,14 @@ func _init() -> void:
 		return
 
 	if ruta.contains("dia"):
+		# La entrada de la vida laboral (#68) se pone ENCIMA del día, así que sin
+		# saltarla todas las capturas de fase salían tapadas por ella y se
+		# estaba mirando la cinemática creyendo mirar la oficina o la casa. Para
+		# mirar la entrada a propósito está el destino "entrada".
+		if escena._entrada != null:
+			escena._entrada.saltar()
+			await process_frame
+
 		# La fase a capturar llega como argumento: el día entero no cabe en una
 		# imagen y cada sitio hay que mirarlo por separado.
 		if argumentos.size() > 1:
@@ -128,6 +136,12 @@ func _init() -> void:
 				)
 				escena.partida.estado["veredictos"] = {caso["id"]: caso["sospechosos"][0]["id"]}
 			escena._entrar_en(argumentos[1])
+
+		# Con "borrar" en el destino se pulsa UNA vez el botón de empezar de
+		# cero, para mirar el aviso. Pulsarlo dos veces borraría de verdad, y
+		# una captura no está para cambiar nada.
+		if destino.contains("borrar"):
+			escena._al_pulsar_borrar()
 		# Unos cuantos fotogramas para que la física asiente al caminante en el
 		# suelo: capturar antes lo pilla cayendo.
 		for i in 12:

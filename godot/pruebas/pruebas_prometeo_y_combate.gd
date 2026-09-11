@@ -402,6 +402,53 @@ static func _escribir_texto(ruta: String, texto: String) -> void:
 	fichero.close()
 
 
+static func _borrar_el_avance(comprobar: Callable) -> void:
+	_borrar_pruebas()
+
+	# Una partida con avance PERMANENTE: una carta conocida de una vuelta
+	# anterior y una racha, que son justo lo que `reiniciar_vuelta` conserva a
+	# propósito y lo que este borrado sí se lleva.
+	var partida := Partida.new()
+	partida.cargar(RUTA_PRUEBA)
+	partida.estado["cartas_conocidas"] = ["la-luna"]
+	partida.estado["coliseo_racha_mejor"] = 7
+	Prometeo.desbloquear_carta(partida.estado["tarot"], "la-luna")
+	comprobar.call("la partida de prueba se guarda", partida.guardar(RUTA_PRUEBA), true)
+
+	comprobar.call("borrar dice que sí", partida.borrar(RUTA_PRUEBA), true)
+	comprobar.call("y no queda partida guardada", FileAccess.file_exists(RUTA_PRUEBA), false)
+	comprobar.call(
+		"la memoria de por vida también se va", partida.estado.get("cartas_conocidas", []), []
+	)
+	comprobar.call("y la mejor racha vuelve a cero", int(partida.estado["coliseo_racha_mejor"]), 0)
+
+	# La diferencia con reiniciar_vuelta, dicha en una prueba: aquella conserva
+	# lo permanente y esta no. Si alguien las confunde, esto lo caza.
+	var otra := Partida.new()
+	otra.cargar(RUTA_PRUEBA)
+	otra.estado["cartas_conocidas"] = ["la-luna"]
+	Prometeo.reiniciar_vuelta(otra.estado, Partida.VIDA_MAXIMA)
+	comprobar.call(
+		"reiniciar una vuelta NO borra lo conocido", otra.estado["cartas_conocidas"], ["la-luna"]
+	)
+
+	# Volver a cargar después de borrar es empezar de cero, no una partida rota.
+	comprobar.call(
+		"tras borrar se empieza de nuevo", partida.cargar(RUTA_PRUEBA)["resultado"], "nueva"
+	)
+
+	# Borrar cuando no hay nada que borrar ya está hecho: el botón no puede
+	# fallar por pulsarlo dos veces.
+	comprobar.call("borrar sin partida no es un fallo", partida.borrar(RUTA_PRUEBA), true)
+
+	# Y la anterior sigue en el disco: un borrado por error es recuperable.
+	comprobar.call(
+		"la partida borrada queda apartada", FileAccess.file_exists(RUTA_PRUEBA + ".roto"), true
+	)
+
+	_borrar_pruebas()
+
+
 static func _borrar_pruebas() -> void:
 	for sufijo in ["", ".roto", ".nuevo"]:
 		var ruta: String = RUTA_PRUEBA + sufijo

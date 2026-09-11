@@ -21,6 +21,9 @@ CAREO_SIN_CARGO,Cargo no consta en el expediente
 CAREO_SIN_FOLIO,SIN NÚMERO
 CAREO_VEREDICTO_JUGADOR,cede un punto
 CAREO_VEREDICTO_RIVAL,se le impone
+CASA_BORRADO,Expediente personal borrado. No consta que haya estado usted aquí.
+CASA_BORRAR,Empezar de cero
+CASA_BORRAR_SEGURO,"¿Seguro? Se pierde TODO: cartas, logros y rachas"
 COMBATE_CRONICA,Usted: %s   ·   %s: %s   —   %s
 COMBATE_INSISTENCIA,Insistencia
 COMBATE_OBJECION,Objeción
