@@ -23,6 +23,9 @@ extends RefCounted
 ## Cuántos se sientan alrededor, sin contar al cuñado.
 const POR_VUELTA := 3
 
+## Los cuerpos disponibles en `assets/modelos`, como `persona-X.glb`.
+const CUERPOS := ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"]
+
 ## El que está siempre. No entra en el sorteo.
 const CUNADO := {
 	"id": "cunado",
@@ -107,6 +110,23 @@ static func plantilla(semilla: int) -> Array:
 		sorteo[i] = sorteo[j]
 		sorteo[j] = guardado
 	return [CUNADO] + sorteo.slice(0, mini(POR_VUELTA, sorteo.size()))
+
+
+## Qué cuerpo tiene alguien.
+##
+## Se DERIVA de su id en vez de declararse a su lado, y es a propósito: un
+## compañero nuevo tiene cuerpo el día que alguien lo escribe, no el día que
+## alguien se acuerda de asignárselo. Sin esto, el fallo sería una caja gris de
+## pie en medio de una oficina llena de gente, y encima silenciosa — que es
+## exactamente el aspecto que tenía el archivo entero antes de esto.
+##
+## Y es estable: el mismo compañero tiene el mismo cuerpo en todas las partidas.
+## Un cuñado que cambiara de cuerpo entre vueltas no sería el cuñado.
+static func cuerpo_de(companero: Dictionary) -> String:
+	var id := String(companero.get("id", ""))
+	if id.is_empty():
+		return ""
+	return "persona-%s" % CUERPOS[absi(hash(id)) % CUERPOS.size()]
 
 
 ## Lo que dice hoy. Rota con el día y no al azar: alguien que dijera otra cosa

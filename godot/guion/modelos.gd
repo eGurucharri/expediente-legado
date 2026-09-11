@@ -36,14 +36,16 @@ static var _cache := {}
 ##
 ## [param cuerpo] es el `StaticBody3D` del bulto, así que el modelo hereda su
 ## posición y su colisión sin saber que existen.
-static func vestir(cuerpo: Node3D, nombre: String, tam: Vector3, color: Color) -> bool:
+static func vestir(
+	cuerpo: Node3D, nombre: String, tam: Vector3, color: Color, por_alto: bool = false
+) -> bool:
 	var escena := cargar(nombre)
 	if escena == null:
 		return false
 
 	var pieza: Node3D = escena.instantiate()
 	cuerpo.add_child(pieza)
-	_encajar(pieza, tam)
+	_encajar(pieza, tam, por_alto)
 	_pintar(pieza, color)
 	return true
 
@@ -75,12 +77,21 @@ static func hay(nombre: String) -> bool:
 ## caja de un bulto es una medida de sitio ocupado, no un molde. Y se apoya en
 ## vez de centrarse porque un mueble descansa en el suelo — centrado por su caja,
 ## una silla más baja de lo declarado flotaría.
-static func _encajar(pieza: Node3D, tam: Vector3) -> void:
+static func _encajar(pieza: Node3D, tam: Vector3, por_alto: bool = false) -> void:
 	var caja := _limites(pieza)
 	if caja.size.x <= 0.0 or caja.size.y <= 0.0 or caja.size.z <= 0.0:
 		return
 
-	var escala := minf(minf(tam.x / caja.size.x, tam.y / caja.size.y), tam.z / caja.size.z)
+	# Un mueble se mide por el SITIO que ocupa, y por eso manda el eje peor. Una
+	# persona se mide por lo ALTA que es: una figura con los brazos abiertos mide
+	# más de ancho que de alto, así que encajarla por el eje peor la encogía
+	# hasta dejarla del tamaño de una papelera. Se vio en una captura: los
+	# rótulos con los nombres flotaban sobre mesas vacías.
+	var escala := (
+		tam.y / caja.size.y
+		if por_alto
+		else minf(minf(tam.x / caja.size.x, tam.y / caja.size.y), tam.z / caja.size.z)
+	)
 	pieza.scale = Vector3.ONE * escala
 
 	# El centro del modelo no tiene por qué ser el de su malla, así que se

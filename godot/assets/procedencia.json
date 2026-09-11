@@ -138,6 +138,94 @@
       "sha256": "0164fe828f028b321730fb8c74502e353583f751be74da1682d42fff7d3c5a42"
     },
     {
+      "ruta": "modelos/persona-a.glb",
+      "titulo": "Character A (Blocky Characters 2.0)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/blocky-characters",
+      "sha256": "8ee5dae167ec589863f6bba222467eb90ace8be357a4c5abfcab289290181616"
+    },
+    {
+      "ruta": "modelos/persona-b.glb",
+      "titulo": "Character B (Blocky Characters 2.0)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/blocky-characters",
+      "sha256": "30ed390a741a1b285f587544819aa8a02c8f7f270e552ed742eb84785034f62a"
+    },
+    {
+      "ruta": "modelos/persona-c.glb",
+      "titulo": "Character C (Blocky Characters 2.0)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/blocky-characters",
+      "sha256": "ad2425ba0da5d9adff791b949bd62389ddcb09963ff89265930eab0d6484398c"
+    },
+    {
+      "ruta": "modelos/persona-d.glb",
+      "titulo": "Character D (Blocky Characters 2.0)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/blocky-characters",
+      "sha256": "bd7cbf0d45e58f6809e3249a84502ce629ac53bfa13bc39fb0a83d171faf84bf"
+    },
+    {
+      "ruta": "modelos/persona-e.glb",
+      "titulo": "Character E (Blocky Characters 2.0)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/blocky-characters",
+      "sha256": "9a12684981bc7763aebeceaffed82abfcc458d27b1ed3e169b92bebcc4870675"
+    },
+    {
+      "ruta": "modelos/persona-f.glb",
+      "titulo": "Character F (Blocky Characters 2.0)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/blocky-characters",
+      "sha256": "04223c1c6cdce5da6fe9c9729a24e1aa9c765dec93af952379112f7da24a828a"
+    },
+    {
+      "ruta": "modelos/persona-g.glb",
+      "titulo": "Character G (Blocky Characters 2.0)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/blocky-characters",
+      "sha256": "e3249ffc0aaa55eba973696ba4b36a204b35a10574b373e9945b56d918e8c9fd"
+    },
+    {
+      "ruta": "modelos/persona-h.glb",
+      "titulo": "Character H (Blocky Characters 2.0)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/blocky-characters",
+      "sha256": "f62fcf774dc6d61d64a3616803bc3a71176e1aee252020dd3ef680ef0a95d588"
+    },
+    {
+      "ruta": "modelos/persona-i.glb",
+      "titulo": "Character I (Blocky Characters 2.0)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/blocky-characters",
+      "sha256": "2b566d3b6261faa3e151b352396d823a285834f039ff6476db248ec6da902fe8"
+    },
+    {
+      "ruta": "modelos/persona-j.glb",
+      "titulo": "Character J (Blocky Characters 2.0)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/blocky-characters",
+      "sha256": "5bae1cabb44a719fba8e18a8c519f45c92531bc02a2a1324cd316ffa5903e311"
+    },
+    {
+      "ruta": "modelos/persona-k.glb",
+      "titulo": "Character K (Blocky Characters 2.0)",
+      "autor": "Kenney",
+      "licencia": "CC0-1.0",
+      "fuente": "https://kenney.nl/assets/blocky-characters",
+      "sha256": "1b0f9b218eda8444e68e988b1b87786ca058928a6c091bc3e44986363fefbc3b"
+    },
+    {
       "ruta": "modelos/televisionVintage.glb",
       "titulo": "Television vintage (Furniture Kit)",
       "autor": "Kenney",
