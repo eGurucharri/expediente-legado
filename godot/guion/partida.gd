@@ -64,6 +64,10 @@ static func nueva() -> Dictionary:
 	return {
 		"version": VERSION,
 		"pistas_descubiertas": [],
+		# La fusión solo recupera claves del molde. Si faltan aquí, guardar
+		# escribe el día y las firmas, pero cargar los descarta silenciosamente.
+		"jornada": Jornada.nueva(),
+		"veredictos": {},
 		"logros": catalogos.get("logros", []),
 		"tarot": catalogos.get("tarot", []),
 		"vida": VIDA_MAXIMA,
@@ -177,6 +181,7 @@ func _fusionar(guardado: Dictionary) -> Dictionary:
 	fusionado["tarot"] = Prometeo.fusionar_con_guardado(
 		guardado.get("tarot", []), fusionado["tarot"], ESTADO_CARTA, ALIAS
 	)
+	Jornada.completar(fusionado["jornada"])
 	return fusionado
 
 

@@ -280,11 +280,30 @@ static func _partida(comprobar: Callable) -> void:
 	# Ida y vuelta.
 	partida.estado["pistas_descubiertas"] = ["p1", "p2"]
 	partida.estado["coliseo_racha_mejor"] = 4
+	var jornada := Jornada.nueva()
+	jornada["dia"] = 5
+	jornada["fase"] = "sueño"
+	jornada["dinero"] = 310
+	jornada["acciones"] = 2
+	jornada["plantilla"] = 427
+	jornada["gato"] = {"presente": false, "dias_sin_comer": 4}
+	jornada["leido_hoy"] = ["MEMO-1999-088"]
+	jornada["mapa"] = ["patio"]
+	jornada["sueno_escenas"] = ["peine", "crucero"]
+	jornada["sueno_resto"] = 42.5
+	partida.estado["jornada"] = jornada
+	partida.estado["veredictos"] = {"caso1": "sospechoso1"}
 	Prometeo.desbloquear_carta(partida.estado["tarot"], "la-luna")
 	comprobar.call("guardar dice que guardó", partida.guardar(RUTA_PRUEBA), true)
 
 	var releida := Partida.new()
 	comprobar.call("la partida se recupera", releida.cargar(RUTA_PRUEBA)["resultado"], "cargada")
+	comprobar.call("recargar conserva toda la jornada", releida.estado.get("jornada", {}), jornada)
+	comprobar.call(
+		"recargar conserva los veredictos firmes",
+		Acusacion.veredicto_de(releida.estado, "caso1"),
+		"sospechoso1"
+	)
 	comprobar.call(
 		"con sus pistas y su racha",
 		[releida.estado["pistas_descubiertas"], releida.estado["coliseo_racha_mejor"]],
@@ -319,11 +338,15 @@ static func _partida(comprobar: Callable) -> void:
 	# Un logro que la versión nueva añade aparece en una partida antigua sin
 	# borrar lo ya conseguido: es la fusión de #46, no una carga a secas.
 	var vieja := Partida.nueva()
+	vieja.erase("jornada")
+	vieja.erase("veredictos")
 	vieja["logros"] = [{"id": "sospecha", "desbloqueado": true}]
 	vieja["tarot"] = []
 	_escribir(RUTA_PRUEBA, vieja)
 	var migrada := Partida.new()
 	migrada.cargar(RUTA_PRUEBA)
+	comprobar.call("la partida anterior al día recibe jornada", migrada.estado["jornada"]["dia"], 1)
+	comprobar.call("la partida antigua no inventa firmas", migrada.estado["veredictos"], {})
 	comprobar.call(
 		"una partida con menos logros recupera el catálogo entero",
 		migrada.estado["logros"].size(),

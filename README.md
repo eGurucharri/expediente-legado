@@ -64,6 +64,11 @@ recursos rotos, bloqueos o menos comprobaciones que `godot/pruebas/minimo.txt`.
 Al añadir pruebas, actualiza ese mínimo; reducirlo requiere justificar qué
 pruebas se han retirado.
 
+También recorre las escenas reales de oficina, visor y casa: leer y levantarse
+conserva las acciones gastadas, y volver a abrir la partida conserva el lugar,
+el día, el dinero, los compañeros, el gato y los veredictos firmados. Las partidas
+anteriores al ciclo diario reciben los campos nuevos sin borrar las pistas.
+
 El CI ejecuta esta validación en un job independiente del backend, además de
 `gdlint godot` y `gdformat --check godot` con `gdtoolkit==4.3.4`.
 

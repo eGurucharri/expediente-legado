@@ -94,6 +94,9 @@ static func completar(jornada: Dictionary) -> Dictionary:
 	for clave in molde:
 		if not jornada.has(clave):
 			jornada[clave] = molde[clave]
+		elif typeof(molde[clave]) == TYPE_INT:
+			jornada[clave] = int(jornada[clave])
+	jornada["gato"]["dias_sin_comer"] = int(jornada["gato"].get("dias_sin_comer", 0))
 	# Y si se cargó dentro del sueño sin noche que gastar, se le da una: un
 	# sueño de cero segundos es despertarse en el mismo fotograma.
 	if jornada["fase"] == "sueño" and jornada["sueno_resto"] <= 0.0:

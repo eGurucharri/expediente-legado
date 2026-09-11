@@ -44,6 +44,8 @@ func _ready() -> void:
 	_montar_entorno()
 	_montar_interfaz()
 	_entrar_en(jornada["fase"])
+	# Conserva la plantilla inicial y las migraciones antes de abrir el visor,
+	# que lee su propia instancia de Partida.
 	_abrir_vuelta()
 
 
@@ -301,10 +303,12 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 		_:
 			pass
 
-	partida.guardar()
 	if jornada["fase"] != "sueño":
 		_sonar("puerta_abre")
 	_entrar_en(destino)
+	# El destino y el mapa ya tienen que estar asentados al escribir: en el
+	# trayecto no hay otra regla que cambie la fase a casa.
+	partida.guardar()
 
 
 ## Los compañeros de esta vida laboral, sentados donde el sitio diga.
@@ -364,6 +368,7 @@ func _sonar(nombre: String) -> void:
 ## confiar en la copia que tenía. Es la costura entre los dos, y va en un solo
 ## sitio: dos dueños del mismo estado a la vez es como se pierden partidas.
 func _abrir_expediente() -> void:
+	partida.guardar()
 	_caminante.set_physics_process(false)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
