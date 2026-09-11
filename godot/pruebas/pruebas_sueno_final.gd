@@ -248,6 +248,30 @@ static func _companeros(comprobar: Callable) -> void:
 		true
 	)
 
+	# --- El cuerpo de cada uno (#194) ---
+
+	# Un compañero sin cuerpo NO se ve como un fallo: se ve como una caja gris
+	# de pie entre gente, que es exactamente el aspecto que tenía la oficina
+	# entera antes. Así que se caza aquí y no en pantalla.
+	var sin_cuerpo := []
+	for alguien in [Companeros.CUNADO] + Array(Companeros.ROSTER):
+		var cuerpo := Companeros.cuerpo_de(alguien)
+		if cuerpo.is_empty() or not Modelos.hay(cuerpo):
+			sin_cuerpo.append(alguien["id"])
+	comprobar.call("todos tienen un cuerpo que existe", sin_cuerpo, [])
+
+	# El mismo siempre: alguien que cambiara de cuerpo entre partidas no sería
+	# la misma persona, y el cuñado es sobre todo una persona reconocible.
+	comprobar.call(
+		"el cuerpo de alguien no cambia",
+		Companeros.cuerpo_de(Companeros.CUNADO),
+		Companeros.cuerpo_de(Companeros.CUNADO)
+	)
+
+	# Y sin id no hay cuerpo, en vez de un `persona-` a medias que Modelos
+	# buscaría en el disco por nada.
+	comprobar.call("sin id no hay cuerpo", Companeros.cuerpo_de({}), "")
+
 
 # --- El sonido (#119) --------------------------------------------------------
 
