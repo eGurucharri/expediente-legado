@@ -106,7 +106,6 @@ static func construir(raiz: Node3D, espacio: Dictionary) -> Array:
 		if bulto.get("emisivo", false):
 			_emisivo(pieza, bulto.get("color", Color(0.45, 0.44, 0.42)))
 
-
 	# Las pantallas son una superficie de contenido, no un bulto: no tienen
 	# colisión ni alteran la geometría de la calle. Sin fichero muestran nieve.
 	for pantalla in espacio.get("pantallas", []):
