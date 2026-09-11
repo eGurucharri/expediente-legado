@@ -7,6 +7,23 @@ y expedientes de empleados. Detrás del sistema "roto" hay una segunda capa
 (**Prometeo**) con logros, un tarot coleccionable, dificultad, un sistema de
 vidas y varios finales.
 
+## Cómo orientarse
+
+| Dónde | Qué responde |
+| --- | --- |
+| [ROADMAP.md](ROADMAP.md) | Las fases hasta la 1.0, y qué hay en cada versión |
+| [Plan maestro #181](https://github.com/EspacioKoop/expediente-legado/issues/181) | Qué va primero, ahora mismo |
+| [Registro de reservas #182](https://github.com/EspacioKoop/expediente-legado/issues/182) | Quién está tocando qué |
+| [AGENTS.md](AGENTS.md) | Cómo trabaja aquí un agente, y las trampas conocidas |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Ramas, gates y revisión |
+| [Milestones](https://github.com/EspacioKoop/expediente-legado/milestones) | Qué falta para la siguiente versión |
+| [Releases](https://github.com/EspacioKoop/expediente-legado/releases) | Qué se puede jugar ya |
+
+Este repositorio adopta las [Normas Platino](https://github.com/EspacioKoop/normas_platino)
+para la cooperación entre agentes: se reserva antes de editar, se entrega por PR
+y **la integración siempre requiere autorización**. El detalle, en
+[AGENTS.md](AGENTS.md).
+
 ## Stack
 
 - **Backend:** Spring Boot 3 (Java 25) + Spring Data JPA + Spring Security + Thymeleaf
@@ -55,9 +72,11 @@ godot4 --headless --path godot --import          # una vez, por los class_name
 godot4 --headless --path godot --script pruebas/pruebas.gd
 ```
 
-Para verificar una entrega, usa **Godot 4.7 estable**, fijado en
+Para verificar una entrega, usa un **Godot de la línea 4.7**, declarada en
 `.godot-version`, y ejecuta `python3 scripts/verificar_godot.py` desde la raíz.
-Puedes indicar otro ejecutable con `GODOT_BIN=/ruta/a/godot`. Este comando importa
+Vale cualquier parche de esa línea —un 4.7.2 sirve para un `4.7-stable`
+declarado—; lo que se rechaza es otra línea u otro canal, que es lo que mete
+ruido en la suite. Puedes indicar otro ejecutable con `GODOT_BIN=/ruta/a/godot`. Este comando importa
 los recursos, ejecuta la suite en español y comprueba que el juego arranca,
 con datos temporales para no tocar tu partida. Falla ante errores de guion,
 recursos rotos, bloqueos o menos comprobaciones que `godot/pruebas/minimo.txt`.
@@ -93,6 +112,19 @@ a la traducción que el juego carga. **Todo el texto vive en ese CSV** y el cód
 solo nombra claves (`tr("VISOR_ELIJA")`); una pantalla que escriba una cadena a
 mano hace fallar la suite, que es lo que impide que esto se deshaga solo. El
 texto de los ocho casos sigue en `datos/casos.json` y todavía no está traducido.
+
+## Estado, sin adornos
+
+`main` tiene la suite en **464 comprobaciones** y el recorrido en **95**, ambos
+sin fallos, con `gdlint` y `gdformat` limpios. Eso es validación automática:
+**no hay playtesting humano con mando ni una partida completa jugada de
+principio a fin** (#9). Ninguna afirmación de este README va más allá de esa
+evidencia.
+
+Las cinemáticas se están haciendo en **2D de forma provisional**. El objetivo es
+que acaben siendo 3D, pero no se rehacen sobre la marcha: primero se cierra la
+primera versión completa. Por eso todas se declaran en el formato común de
+`Cinematica`, que ya despacha `3d` y `2d`. Ver [ROADMAP.md](ROADMAP.md).
 
 ## Cómo levantarlo (desarrollo)
 

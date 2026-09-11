@@ -6,7 +6,7 @@ que cualquiera —persona o agente— pueda incorporarse sin adivinar.
 
 ## Regla de oro: nunca se empuja a la rama de integración
 
-Nada se hace directamente sobre `main` ni sobre `integracion`. **Todo cambio va
+Nada se hace directamente sobre `main`. **Todo cambio va
 en su propia rama y entra por Pull Request.**
 
 - Nombra la rama según el tipo de trabajo y el issue asociado:
