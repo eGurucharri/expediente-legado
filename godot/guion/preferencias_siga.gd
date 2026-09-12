@@ -18,11 +18,18 @@ const ACCIONES := {
 
 
 static func nuevas() -> Dictionary:
-	return {"version": VERSION, "acciones": ACCIONES.duplicate(true), "reduccion_movimiento": false, "volumen": 1.0}
+	return {
+		"version": VERSION,
+		"acciones": ACCIONES.duplicate(true),
+		"reduccion_movimiento": false,
+		"volumen": 1.0,
+	}
 
 
 ## Devuelve el nombre de la acción que ya usa el evento, si existe.
-static func conflicto(preferencias: Dictionary, tipo: String, codigo: int, salvo: String = "") -> String:
+static func conflicto(
+	preferencias: Dictionary, tipo: String, codigo: int, salvo: String = ""
+) -> String:
 	for accion in preferencias.get("acciones", {}):
 		if accion == salvo:
 			continue
@@ -33,7 +40,9 @@ static func conflicto(preferencias: Dictionary, tipo: String, codigo: int, salvo
 
 
 ## Cambia una sola asignación y rechaza colisiones para no dejar controles ambiguos.
-static func remapear(preferencias: Dictionary, accion: String, tipo: String, codigo: int) -> Dictionary:
+static func remapear(
+	preferencias: Dictionary, accion: String, tipo: String, codigo: int
+) -> Dictionary:
 	if not preferencias.get("acciones", {}).has(accion) or tipo not in ["teclado", "mando"]:
 		return {"ok": false, "motivo": "accion-invalida"}
 	var ocupada := conflicto(preferencias, tipo, codigo, accion)
