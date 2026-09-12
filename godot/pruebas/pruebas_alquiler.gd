@@ -8,17 +8,23 @@ extends RefCounted
 
 static func todo(comprobar: Callable) -> void:
 	comprobar.call("la jornada calibrada tiene tres acciones", Jornada.ACCIONES_POR_DIA, 3)
-	comprobar.call("la primera lectura nueva del día es gratis", Jornada.DOCUMENTOS_GRATIS_POR_DIA, 1)
+	comprobar.call(
+		"la primera lectura nueva del día es gratis", Jornada.DOCUMENTOS_GRATIS_POR_DIA, 1
+	)
 	comprobar.call("vivir cuesta veintiséis al día", Jornada.COSTE_DIARIO, 26)
 	comprobar.call("el mes SIGA dura diez días", Jornada.DIAS_POR_MES, 10)
 	comprobar.call("el alquiler cuesta setecientos", Jornada.PRECIO_ALQUILER, 700)
 
 	var lectura := Jornada.nueva()
 	var acciones_inicio: int = lectura["acciones"]
-	comprobar.call("la primera lectura se puede abrir", Jornada.gastar_lectura(lectura, "DOC-A"), true)
+	comprobar.call(
+		"la primera lectura se puede abrir", Jornada.gastar_lectura(lectura, "DOC-A"), true
+	)
 	comprobar.call("la primera lectura no gasta acción", lectura["acciones"], acciones_inicio)
 	Jornada.anotar_lectura(lectura, "DOC-A")
-	comprobar.call("la segunda lectura se puede abrir", Jornada.gastar_lectura(lectura, "DOC-B"), true)
+	comprobar.call(
+		"la segunda lectura se puede abrir", Jornada.gastar_lectura(lectura, "DOC-B"), true
+	)
 	comprobar.call("la segunda lectura ya gasta acción", lectura["acciones"], acciones_inicio - 1)
 	Jornada.anotar_lectura(lectura, "DOC-B")
 	var acciones_tras_dos: int = lectura["acciones"]
