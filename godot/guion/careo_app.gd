@@ -97,6 +97,10 @@ func _al_jugar(tipo: String) -> void:
 	if _combate["terminado"]:
 		return
 	var ronda := Combate.jugar(_combate, tipo, "", _tirada())
+	# El sonido cuenta un daño que YA está resuelto. En empate no hay golpe y
+	# nunca interviene en la tirada, la vida ni el veredicto.
+	if ronda["veredicto"] != "empate":
+		Sonido.sonar_stream(self, Sonido.impacto_careo())
 
 	_cronica.text = (
 		tr("COMBATE_CRONICA")
