@@ -66,9 +66,7 @@ func _probar_resolucion_y_fallo() -> void:
 
 
 func _probar_salida_y_foco() -> void:
-	var ecos = Ecos.crear(
-		"F-5", "la voz llega desde una habitación que no existe", ["F-5"], 111
-	)
+	var ecos = Ecos.crear("F-5", "la voz llega desde una habitación que no existe", ["F-5"], 111)
 	_comprobar(ecos.salir(), "se puede abandonar un puzzle pendiente")
 	_comprobar(ecos.nucleo.state == Puzzle.ESTADO_ABANDONADO, "salir registra abandono")
 	_comprobar(ecos.salir(), "salir de nuevo de un terminal sigue siendo seguro")
