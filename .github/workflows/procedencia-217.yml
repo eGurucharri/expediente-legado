@@ -1,0 +1,62 @@
+name: Registrar procedencia #217
+
+on:
+  push:
+    branches:
+      - feature/217-tren-fondo
+
+permissions:
+  contents: write
+
+jobs:
+  registrar:
+    if: ${{ !contains(github.event.head_commit.message, '[procedencia-217]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/217-tren-fondo
+          fetch-depth: 0
+
+      - name: Añadir fichas con SHA-256 reales
+        shell: python
+        run: |
+          import hashlib
+          import json
+          from pathlib import Path
+
+          raiz = Path('godot/assets')
+          manifiesto = raiz / 'procedencia.json'
+          datos = json.loads(manifiesto.read_text(encoding='utf-8'))
+          fuente = 'https://quaternius.com/packs/modulartrain.html'
+          piezas = [
+              ('cc0/quaternius_modular_train/CargoTrain_WagonEmpty.obj', 'CargoTrain WagonEmpty — malla original'),
+              ('cc0/quaternius_modular_train/CargoTrain_WagonEmpty.mtl', 'CargoTrain WagonEmpty — materiales originales'),
+              ('cc0/quaternius_modular_train/RailwayTrack_Straight.obj', 'RailwayTrack Straight — malla original'),
+              ('cc0/quaternius_modular_train/RailwayTrack_Straight.mtl', 'RailwayTrack Straight — materiales originales'),
+          ]
+          existentes = {ficha['ruta'] for ficha in datos['assets']}
+          for ruta, titulo in piezas:
+              if ruta in existentes:
+                  continue
+              contenido = (raiz / ruta).read_bytes()
+              datos['assets'].append({
+                  'ruta': ruta,
+                  'titulo': titulo,
+                  'autor': 'Quaternius',
+                  'licencia': 'CC0-1.0',
+                  'fuente': fuente,
+                  'sha256': hashlib.sha256(contenido).hexdigest(),
+              })
+          manifiesto.write_text(json.dumps(datos, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+
+      - name: Retirar workflow temporal y guardar fichas
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/procedencia-217.yml
+          git add godot/assets/procedencia.json
+          git commit -m 'docs: registrar procedencia CC0 de Quaternius (#217) [procedencia-217]'
+          git push origin HEAD:feature/217-tren-fondo
