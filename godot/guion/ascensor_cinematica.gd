@@ -60,26 +60,35 @@ static func _cabina(planta: int, abierta: bool) -> Array:
 		{"rect": Rect2(145, -145, 42, 205), "color": PANEL},
 	]
 	if abierta:
-		figura.append_array(
-			[
-				{"rect": Rect2(-205, -155, 92, 250), "color": PUERTA},
-				{"rect": Rect2(113, -155, 92, 250), "color": PUERTA},
-			]
+		(
+			figura
+			. append_array(
+				[
+					{"rect": Rect2(-205, -155, 92, 250), "color": PUERTA},
+					{"rect": Rect2(113, -155, 92, 250), "color": PUERTA},
+				]
+			)
 		)
 	else:
-		figura.append_array(
-			[
-				{"rect": Rect2(-205, -155, 203, 250), "color": PUERTA},
-				{"rect": Rect2(2, -155, 203, 250), "color": PUERTA},
-			]
+		(
+			figura
+			. append_array(
+				[
+					{"rect": Rect2(-205, -155, 203, 250), "color": PUERTA},
+					{"rect": Rect2(2, -155, 203, 250), "color": PUERTA},
+				]
+			)
 		)
 
 	var activa := clampi(4 - planta, 0, 4)
 	for i in 5:
-		figura.append(
-			{
-				"rect": Rect2(156, -126 + float(i) * 35.0, 20, 20),
-				"color": LUZ if i == activa else APAGADA,
-			}
+		(
+			figura
+			. append(
+				{
+					"rect": Rect2(156, -126 + float(i) * 35.0, 20, 20),
+					"color": LUZ if i == activa else APAGADA,
+				}
+			)
 		)
 	return figura
