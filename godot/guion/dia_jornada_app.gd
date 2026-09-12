@@ -6,7 +6,7 @@
 ## devuelve el control al mismo archivo al terminar o saltar.
 extends "res://guion/dia_tren_app.gd"
 
-const ESCENA_CINEMATICA := preload("res://escenas/cinematica.tscn")
+const ESCENA_INICIO_JORNADA := preload("res://escenas/cinematica.tscn")
 const CLAVE_ULTIMO_INICIO := "inicio_jornada_ultimo"
 
 var _inicio_jornada: Node3D = null
@@ -63,7 +63,7 @@ func _abrir_inicio_jornada_si_toca() -> void:
 
 	_caminante.set_physics_process(false)
 	_hud.visible = false
-	_inicio_jornada = ESCENA_CINEMATICA.instantiate()
+	_inicio_jornada = ESCENA_INICIO_JORNADA.instantiate()
 	add_child(_inicio_jornada)
 	_inicio_jornada.terminada.connect(_cerrar_inicio_jornada)
 	var vistas := Cinematica.vistas_de(partida.estado, InicioJornadaCinematica.ID)
