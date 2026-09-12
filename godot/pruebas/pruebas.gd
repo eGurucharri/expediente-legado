@@ -44,6 +44,7 @@ func _init() -> void:
 	PruebasEspaciosYSueno._sueno(comprobar_cb)
 	PruebasEspaciosYSueno._traducciones(comprobar_cb)
 	PruebasEspaciosYSueno._sueno_contenido(comprobar_cb)
+	_noche_degradada(comprobar_cb)
 
 	PruebasSuenoFinal._compilan(comprobar_cb)
 	PruebasSuenoFinal._salida_del_sueno(comprobar_cb)
@@ -62,6 +63,66 @@ func _init() -> void:
 
 	print("\n%d pasadas, %d fallos" % [pasadas, fallos])
 	quit(1 if fallos > 0 else 0)
+
+
+## La política se prueba sobre la capa real, sin montar la interfaz.
+func _noche_degradada(comprobar_cb: Callable) -> void:
+	var dia = load("res://guion/dia_alquiler_app.gd").new()
+	dia.partida.estado = Partida.nueva()
+	dia.partida.estado["semilla"] = 86
+	dia.jornada = dia.partida.estado["jornada"]
+	dia.jornada["raiz"] = 86
+	dia.jornada["fase"] = "casa"
+	dia.jornada["alquiler"]["impagos"] = 1
+	dia.jornada["leido_hoy"] = ["folio-prueba"]
+	dia.contenido.casos = [
+		{
+			"id": "caso-prueba",
+			"registros": [{"id": "registro-prueba", "folio": "folio-prueba"}],
+			"pistas":
+			[
+				{"id": "p1", "registroOrigen": "registro-prueba", "fraseGatillo": "uno"},
+				{"id": "p2", "registroOrigen": "registro-prueba", "fraseGatillo": "dos"},
+				{"id": "p3", "registroOrigen": "registro-prueba", "fraseGatillo": "tres"}
+			]
+		}
+	]
+	dia.partida.estado["pistas_descubiertas"] = ["p1", "p2", "p3"]
+	Jornada.dormir(dia.jornada)
+	dia._aplicar_politica_sueno()
+	comprobar_cb.call("sin casa hay una sala", dia.jornada["sueno_escenas"].size(), 1)
+	var espacio: Dictionary = dia._espacio_de("sueño")
+	comprobar_cb.call("el respaldo no amplía el mapa", dia.jornada["mapa"], [])
+	comprobar_cb.call("una sala recibe todas las frases", espacio["carteles"].size(), 3)
+	var escenas: Array = dia.jornada["sueno_escenas"].duplicate()
+	dia.partida.estado = JSON.parse_string(JSON.stringify(dia.partida.estado))
+	dia.jornada = dia.partida.estado["jornada"]
+	var recargado: Dictionary = dia._espacio_de("sueño")
+	comprobar_cb.call("recargar conserva el contenido", recargado, espacio)
+	comprobar_cb.call("recargar conserva el mapa vacío", dia.jornada["mapa"], [])
+	dia.jornada["mapa"] = escenas.duplicate()
+	dia._aplicar_politica_sueno()
+	dia._espacio_de("sueño")
+	comprobar_cb.call(
+		"el sueño degradado repite lo conocido", dia.jornada["sueno_escenas"], escenas
+	)
+	comprobar_cb.call("el mapa conocido no crece", dia.jornada["mapa"], escenas)
+	dia.jornada["alquiler"]["impagos"] = 0
+	dia.jornada["mapa"] = []
+	dia.jornada["fase"] = "casa"
+	Jornada.dormir(dia.jornada)
+	dia._aplicar_politica_sueno()
+	comprobar_cb.call(
+		"con vivienda siguen siendo tres salas", dia.jornada["sueno_escenas"].size(), 3
+	)
+	var frases := 0
+	for i in 3:
+		var sala: Dictionary = dia._espacio_de("sueño")
+		frases += sala["carteles"].size()
+		dia.jornada["sueno_escenas"].pop_front()
+	comprobar_cb.call("la noche normal reparte todas las frases", frases, 3)
+	comprobar_cb.call("la noche normal amplía el mapa", dia.jornada["mapa"].size(), 3)
+	dia.free()
 
 
 ## Validación de partidas (#190) ----------------------------------------------

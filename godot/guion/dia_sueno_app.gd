@@ -39,6 +39,7 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 ## la transición, de modo que saltarla o cerrarla no decide nada.
 func _dormir_con_entrada() -> void:
 	var noche := Jornada.dormir(jornada)
+	_aplicar_politica_sueno()
 	_hablando = false
 	_nomina.text = (
 		tr("DIA_VIVIR")
