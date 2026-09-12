@@ -74,7 +74,7 @@ Toda escena derivada de esta investigación debería cumplir estas reglas:
 - No revelar IDs, pistas, conceptos ni relaciones que el jugador no haya podido conocer.
 - Si una escena deforma recuerdos o documentos, cada elemento debe ser rastreable a datos persistidos de la partida.
 - La variación cinematográfica no cambia recompensas, acciones, economía ni desenlaces salvo que otro issue lo defina expresamente.
-- El estado jugable debe resolverse y guardarse antes de una cinemática saltables; saltarla no puede perder progreso.
+- El estado jugable debe resolverse y guardarse antes de una cinemática saltable; saltarla no puede perder progreso.
 - Las transiciones deben ser saltables y tener una alternativa compatible con `reduce_motion` basada en cortes o fundidos simples.
 - La información esencial debe seguir siendo legible sin audio mediante subtítulos, texto o señal visual equivalente.
 - Las selecciones procedurales de elementos para una escena deben poder reproducirse de forma determinista en tests.
@@ -111,7 +111,7 @@ Rematar el día con una pieza breve y fría: pantalla SIGA, sonido mecánico y u
 | Elección falsa con efecto sistémico | Una decisión de presentación altera economía, progreso o veredicto sin diseño previo | Las variantes de #177 son de presentación salvo que otro issue autorice una consecuencia jugable |
 | Parpadeos o movimiento problemático | La identidad de la escena depende de flashes o paneos intensos | `reduce_motion`, evitar flashes rápidos y ofrecer corte/fundido estable equivalente |
 | Dependencia del audio | Sin sonido se pierde una pista o instrucción necesaria | Subtítulos, texto o señal visual equivalente para toda información esencial |
-| Cinématica bloqueante | Saltarla cambia el resultado o pierde progreso | Resolver y guardar el estado antes de reproducirla; la escena siempre es saltables |
+| Cinématica bloqueante | Saltarla cambia el resultado o pierde progreso | Resolver y guardar el estado antes de reproducirla; la escena siempre es saltable |
 | Aleatoriedad irreproducible | Un fallo visual no puede reconstruirse en tests | Persistir o sembrar de forma determinista la selección de fragmentos y variantes |
 
 ## Regla para futuros prototipos interactivos
