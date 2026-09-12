@@ -4,7 +4,7 @@
 ## ni otro contador: lee `jornada.gato` y traduce el mismo estado a dos señales.
 ## En SIGA es un asistente no interactivo; en el sueño es el mismo cuerpo del
 ## gato, visible junto a la entrada y orientado solo cuando está bien cuidado.
-extends "res://guion/dia_alquiler_app.gd"
+extends "res://guion/dia_objetivos_app.gd"
 
 var _gato_guia: Gato
 var _entrada_guia := Vector3.ZERO
@@ -13,16 +13,14 @@ var _hay_rumbo_guia := false
 
 
 func _espacio_de(fase: String) -> Dictionary:
-	var espacio := super._espacio_de(fase)
+	var espacio: Dictionary = super._espacio_de(fase)
 	_hay_rumbo_guia = false
 	if fase != "sueño":
 		return espacio
-
-	var salidas: Array = espacio.get("salidas", [])
-	if salidas.is_empty():
+	if _objetivos_espacio.is_empty():
 		return espacio
 	_entrada_guia = espacio.get("entrada", Vector3.ZERO)
-	_salida_guia = salidas[0].get("pos", _entrada_guia)
+	_salida_guia = _objetivos_espacio[0].get("pos", _entrada_guia)
 	_hay_rumbo_guia = true
 	return espacio
 
@@ -93,7 +91,7 @@ func _montar_guia_sueno() -> void:
 	_gato_guia.empezar(posicion, [posicion])
 
 	# Bien cuidado funciona como una brújula viva: mira en la dirección general
-	# de la salida, pero no la marca ni revela el camino entre los muros. Con
+	# del primer objetivo pendiente, pero no lo convierte en waypoint. Con
 	# hambre sigue apareciendo —es el mismo gato—, pero ya no orienta.
 	if GatoAyuda.guia_orienta(gato):
 		_gato_guia.rotation.y = atan2(direccion.x, direccion.z)
