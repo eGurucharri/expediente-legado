@@ -89,7 +89,7 @@ func _probar_reentrada() -> void:
 	var frase := "el rótulo conserva una palabra incluso después de romperse"
 	var ecos = Ecos.crear("F-6", frase, ["F-6"], 555)
 	ecos.probar([2, 0, 1])
-	var antes := ecos.presentacion.duplicate()
+	var antes: Array = ecos.presentacion.duplicate()
 	var texto := JSON.stringify(ecos.serializar())
 	var datos: Dictionary = JSON.parse_string(texto)
 	var restaurado = Ecos.restaurar(datos, frase, ["F-6"])
@@ -112,7 +112,7 @@ func _probar_reentrada() -> void:
 	fallido.probar([2, 1, 0])
 	fallido.probar([1, 0, 2])
 	fallido.probar([1, 2, 0])
-	var datos_fallido := fallido.serializar()
+	var datos_fallido: Dictionary = fallido.serializar()
 	datos_fallido["intentos"] = 1
 	_comprobar(
 		Ecos.restaurar(datos_fallido, frase, ["F-7"]) == null,
