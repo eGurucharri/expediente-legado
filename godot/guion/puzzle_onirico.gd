@@ -126,13 +126,16 @@ func _cerrar(nuevo_estado: String) -> bool:
 		return false
 	state = nuevo_estado
 	_resultado_emitido = true
-	resultado.emit(
-		{
-			"puzzle_id": puzzle_id,
-			"source_ids": source_ids.duplicate(),
-			"seed": seed,
-			"state": state,
-		}
+	(
+		resultado
+		. emit(
+			{
+				"puzzle_id": puzzle_id,
+				"source_ids": source_ids.duplicate(),
+				"seed": seed,
+				"state": state,
+			}
+		)
 	)
 	return true
 
