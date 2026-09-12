@@ -4,8 +4,6 @@
 
 config_version=5
 
-[ext_resource type="FontFile" path="res://assets/fonts/MFBOldstyle-Regular.otf" id="1_font"]
-
 [application]
 
 config/name="SIGA-98 · Expediente Legado"
@@ -18,7 +16,7 @@ renderer/rendering_method="gl_compatibility"
 
 [gui]
 
-theme/default_font=ExtResource("1_font")
+theme/custom_font="res://assets/fonts/MFBOldstyle-Regular.otf"
 
 [display]
 
