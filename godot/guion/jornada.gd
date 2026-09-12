@@ -24,13 +24,14 @@ const BASE_DIARIA := 40
 ## cerrar bien: un expediente mal cerrado paga lo mismo, y el gato come de eso.
 const POR_EXPEDIENTE := 60
 
-## Lo que cuesta vivir un día, se haga lo que se haga. #83 lo aprieta lo justo
-## para que el primer alquiler importe sin volverlo matemáticamente imposible.
-const COSTE_DIARIO := 30
+## Lo que cuesta vivir un día, se haga lo que se haga. Sube desde 25, pero solo
+## hasta 26: el día 10 hay que reservar además una acción para pagar el alquiler;
+## con siete cierres, subirlo más haría imposible reunir los 700 sin trabajillos.
+const COSTE_DIARIO := 26
 
-## Tres acciones pagadas al día. La cuarta unidad de trabajo del benchmark llega
-## de la primera lectura gratuita: 3 + 1 durante diez días = 40 operaciones,
-## justo las 32 lecturas + 8 firmas de la vuelta de referencia (#83).
+## Tres acciones pagadas al día. La primera lectura nueva sale gratis; el día de
+## alquiler una de estas acciones tiene que sobrevivir al archivo para pagar en
+## el trayecto. Así el vencimiento llega mientras todavía queda trabajo por hacer.
 const ACCIONES_POR_DIA := 3
 const DOCUMENTOS_GRATIS_POR_DIA := 1
 
