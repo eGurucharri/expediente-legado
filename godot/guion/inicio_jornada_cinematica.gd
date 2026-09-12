@@ -71,11 +71,14 @@ static func _calendario(dia: int) -> Array:
 		{"rect": Rect2(-112, -34, 172, 12), "color": TINTA},
 	]
 	for i in mini(maxi(dia, 1), 12):
-		figura.append(
-			{
-				"rect": Rect2(-112 + float(i % 6) * 38.0, 14 + float(i / 6) * 30.0, 24, 10),
-				"color": SELLO,
-			}
+		(
+			figura
+			. append(
+				{
+					"rect": Rect2(-112 + float(i % 6) * 38.0, 14 + float(i / 6) * 30.0, 24, 10),
+					"color": SELLO,
+				}
+			)
 		)
 	return figura
 
@@ -91,25 +94,29 @@ static func _estado(dinero: int, acciones: int, gato: bool) -> Array:
 
 	var bandas := clampi(int(maxi(dinero, 0) / 100), 0, 8)
 	for i in bandas:
-		figura.append(
-			{"rect": Rect2(-224, 36 - float(i) * 15.0, 108, 9), "color": SELLO}
-		)
+		figura.append({"rect": Rect2(-224, 36 - float(i) * 15.0, 108, 9), "color": SELLO})
 
 	for i in Jornada.ACCIONES_POR_DIA:
-		figura.append(
-			{
-				"rect": Rect2(-60 + float(i % 3) * 42.0, -48 + float(i / 3) * 46.0, 28, 28),
-				"color": ACTIVA if i < acciones else VACIA,
-			}
+		(
+			figura
+			. append(
+				{
+					"rect": Rect2(-60 + float(i % 3) * 42.0, -48 + float(i / 3) * 46.0, 28, 28),
+					"color": ACTIVA if i < acciones else VACIA,
+				}
+			)
 		)
 
 	var color_gato := ACTIVA if gato else VACIA
-	figura.append_array(
-		[
-			{"rect": Rect2(120, -34, 92, 70), "color": color_gato},
-			{"rect": Rect2(134, -70, 62, 42), "color": color_gato},
-			{"rect": Rect2(134, -84, 16, 18), "color": color_gato},
-			{"rect": Rect2(180, -84, 16, 18), "color": color_gato},
-		]
+	(
+		figura
+		. append_array(
+			[
+				{"rect": Rect2(120, -34, 92, 70), "color": color_gato},
+				{"rect": Rect2(134, -70, 62, 42), "color": color_gato},
+				{"rect": Rect2(134, -84, 16, 18), "color": color_gato},
+				{"rect": Rect2(180, -84, 16, 18), "color": color_gato},
+			]
+		)
 	)
 	return figura
