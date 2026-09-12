@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 import unittest
 
 
@@ -27,7 +28,7 @@ class SuenoLegibleTest(unittest.TestCase):
 
     def test_conserva_las_luces_propias_de_cada_forma(self):
         self.assertIn('var luces: Array = forma.get("luces", []).duplicate(true)', self.sueno)
-        self.assertIn("luces.append(", self.sueno)
+        self.assertRegex(self.sueno, re.compile(r"luces\s*\.\s*append\s*\("))
         self.assertIn('"luces": luces', self.sueno)
 
 
