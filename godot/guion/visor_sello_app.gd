@@ -1,4 +1,4 @@
-## Costura de #70, #72 y #73 sobre el visor existente.
+## Costura de #70, #72, #73 y #81 sobre el visor existente.
 ##
 ## El visor base conserva toda la lógica de lectura, firma y persistencia. Esta
 ## capa inserta las cinemáticas de sello, remate y reasignación sin dejar que
@@ -108,9 +108,12 @@ func _reproducir_despido(acusacion: Dictionary, duelo: Dictionary = {}) -> void:
 	add_child(reproductor)
 	reproductor.terminada.connect(_al_terminar_despido.bind(reproductor, acusacion, duelo))
 	var gato_presente := bool(jornada.get("gato", {}).get("presente", false))
+	# `vuelta` ya pertenece a la nueva vida laboral, pero es persistente: si se
+	# recarga esta transición, el cuñado conserva exactamente la misma frase.
+	var voz_cunado := Cunado.clave_despido(int(jornada.get("vuelta", 1)))
 	reproductor.reproducir(
 		DespidoCinematica.planos_de(
-			gato_presente, Cinematica.vistas_de(partida.estado, DespidoCinematica.ID)
+			gato_presente, Cinematica.vistas_de(partida.estado, DespidoCinematica.ID), voz_cunado
 		),
 		DespidoCinematica.ID,
 		partida.estado

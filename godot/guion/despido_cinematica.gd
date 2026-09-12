@@ -20,7 +20,9 @@ const GATO := Color("5c5147")
 ## v0.7 usa un corte 2D provisional, como el resto de cinemáticas de la fase.
 ## `gato_presente` solo decide si aparece la pequeña silueta que recuerda que
 ## sigue siendo tuyo; si ya se había ido, la escena no lo resucita visualmente.
-static func planos_de(gato_presente: bool, vistas: int = 0) -> Array:
+## `voz_cunado` es una CLAVE de traducción y solo aparece durante la salida: el
+## cuñado es la única persona que rompe el silencio del despido (#81).
+static func planos_de(gato_presente: bool, vistas: int = 0, voz_cunado: String = "") -> Array:
 	return (
 		Cinematica
 		. resolver(
@@ -38,6 +40,7 @@ static func planos_de(gato_presente: bool, vistas: int = 0) -> Array:
 					"figura": _salida_acompanada(),
 					"desde": Vector2.ZERO,
 					"hasta": Vector2.ZERO,
+					"voz": voz_cunado,
 				},
 				{
 					"tipo": "2d",
