@@ -81,10 +81,7 @@ func _al_relacionar() -> void:
 	if relacion.is_empty():
 		# No se afirma que la pareja jamás pueda tener sentido narrativo: solo que
 		# con la evidencia catalogada todavía no se ha demostrado una conclusión.
-		_estado.text = (
-			tr("VISOR_RELACION_NO_DEMOSTRADA")
-			% [primero, registro_actual["folio"]]
-		)
+		_estado.text = (tr("VISOR_RELACION_NO_DEMOSTRADA") % [primero, registro_actual["folio"]])
 	else:
 		var pista_id := String(relacion["id"])
 		if descubiertas.has(pista_id):
