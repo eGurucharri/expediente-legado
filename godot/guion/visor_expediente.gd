@@ -30,8 +30,8 @@ var caso: Dictionary = {}
 var descubiertas: Array = []
 var registro_actual: Dictionary = {}
 
-## La jornada en curso: abrir un documento por primera vez hoy gasta una de las
-## acciones del día.
+## La jornada en curso: la primera lectura nueva del día es gratuita; las
+## siguientes gastan acción. Releer sigue siendo gratis.
 var jornada: Dictionary = {}
 
 ## Lo que hay que contar al jugador sobre su partida guardada, si es que hay
@@ -68,8 +68,8 @@ func _ready() -> void:
 		_aviso_partida = tr("VISOR_PARTIDA_APARTADA") % [carga["motivo"], carga["copia"]]
 	caso = contenido.casos[0]
 	_construir()
-	# No se abre nada solo: abrir cuesta una acción, y un documento servido de
-	# regalo al arrancar se podría cobrar cerrando y reabriendo el juego.
+	# No se abre nada solo: la franquicia diaria es para una lectura ELEGIDA,
+	# no para un documento servido de regalo al arrancar.
 	_documento.text = ""
 	_cabecera.text = tr("VISOR_ELIJA")
 	_refrescar_estado()
@@ -276,12 +276,11 @@ func _al_elegir_documento(indice: int) -> void:
 		return
 	var registro: Dictionary = caso["registros"][indice]
 
-	# Releer es GRATIS. Cobrar por volver a un documento castigaría justo lo que
-	# el juego pide hacer; lo que cuesta es abrir uno nuevo, así que la decisión
-	# del día es QUÉ mirar y no cuánto.
+	# Releer es GRATIS. Para una lectura nueva, Jornada aplica la franquicia del
+	# día: la primera sale gratis y las siguientes consumen acción.
 	var ya_visto: bool = jornada["leido_hoy"].has(registro["folio"])
 	if not ya_visto and not Acusacion.esta_cerrado(partida.estado, caso["id"]):
-		if not Jornada.gastar_accion(jornada):
+		if not Jornada.gastar_lectura(jornada, registro["folio"]):
 			Sonido.sonar(self, "error")
 			_aviso_partida = tr("VISOR_SIN_JORNADA")
 			_refrescar_estado()
