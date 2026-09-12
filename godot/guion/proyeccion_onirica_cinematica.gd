@@ -91,17 +91,18 @@ static func _pantalla_de(estado: String) -> Array:
 		ESTADO_VALIDA:
 			figura.append({"rect": Rect2(-92, -72, 184, 104), "color": PANTALLA})
 			for i in 4:
-				figura.append(
-					{"rect": Rect2(-72, -50 + float(i) * 22.0, 144, 8), "color": NEGRO}
-				)
+				figura.append({"rect": Rect2(-72, -50 + float(i) * 22.0, 144, 8), "color": NEGRO})
 		ESTADO_CONTAMINADA:
 			figura.append({"rect": Rect2(-92, -72, 184, 104), "color": NEGRO})
 			for i in 9:
-				figura.append(
-					{
-						"rect": Rect2(-92, -70 + float(i) * 12.0, 184, 6),
-						"color": PANTALLA if i % 2 == 0 else RUIDO,
-					}
+				(
+					figura
+					. append(
+						{
+							"rect": Rect2(-92, -70 + float(i) * 12.0, 184, 6),
+							"color": PANTALLA if i % 2 == 0 else RUIDO,
+						}
+					)
 				)
 		ESTADO_BLANCO:
 			figura.append({"rect": Rect2(-92, -72, 184, 104), "color": PANTALLA})
