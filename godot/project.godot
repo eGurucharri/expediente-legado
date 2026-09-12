@@ -7,7 +7,7 @@ config_version=5
 [application]
 
 config/name="SIGA-98 · Expediente Legado"
-run/main_scene="res://escenas/dia.tscn"
+run/main_scene="res://escenas/inicio.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 
 [rendering]

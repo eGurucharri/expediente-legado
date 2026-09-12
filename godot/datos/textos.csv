@@ -207,3 +207,13 @@ HISTORIA_REINTENTAR,Reintentar guardado
 HISTORIA_NO_DISPONIBLE,Esta carta no tiene historia disponible.
 HISTORIA_OPCION,%s — %s
 ARCHIVO_GUARDADO_HECHO,"PARTIDA GUARDADA. Puede seguir."
+
+INICIO_TITULO,SIGA-98 · Expediente Legado
+INICIO_CONTINUAR,Continuar partida
+INICIO_NUEVA,Nueva partida
+INICIO_CANCELAR,Cancelar
+INICIO_EXISTENTE,Hay una partida guardada. Puedes continuar o empezar desde cero.
+INICIO_BIENVENIDA,Empieza una nueva partida para entrar al archivo.
+INICIO_CONFIRMAR,Se reiniciará todo el progreso. Se conservará una copia de la partida anterior. ¿Empezar desde cero?
+INICIO_ERROR_REINICIO,No se pudo conservar la partida anterior. No se ha iniciado una nueva.
+INICIO_ERROR_ENTRADA,No se pudo entrar al archivo. Puedes volver a intentarlo.
