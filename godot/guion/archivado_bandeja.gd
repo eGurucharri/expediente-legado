@@ -21,8 +21,9 @@ static func nueva(casos: Array, folios_leidos: Array) -> Dictionary:
 ## Coloca una carpeta si el jugador conoce su contenido y devuelve si se aceptó.
 ## Una colocación incorrecta no destruye el caso: permanece en pendientes.
 static func colocar(estado: Dictionary, caso: Dictionary, destino: String) -> bool:
-	if estado.get("cerrada", false) or not Archivado.es_clasificable(
-		caso, estado.get("folios_leidos", [])
+	if (
+		estado.get("cerrada", false)
+		or not Archivado.es_clasificable(caso, estado.get("folios_leidos", []))
 	):
 		return false
 	var colocacion := {"caso": caso, "destino": destino, "folios_leidos": estado["folios_leidos"]}
