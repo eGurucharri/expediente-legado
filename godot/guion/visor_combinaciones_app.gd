@@ -12,7 +12,7 @@ var _origen_relacion := ""
 func _columna_documento() -> Control:
 	var columna: Control = super._columna_documento()
 	_relacionar = Button.new()
-	_relacionar.text = "Relacionar este documento…"
+	_relacionar.text = tr("VISOR_RELACIONAR")
 	_relacionar.disabled = true
 	_relacionar.pressed.connect(_al_relacionar)
 	columna.add_child(_relacionar)
@@ -52,22 +52,22 @@ func _al_relacionar() -> void:
 
 	var actual := String(registro_actual["id"])
 	if not _esta_leido(actual):
-		_estado.text = "Lee el documento antes de relacionarlo."
+		_estado.text = tr("VISOR_RELACION_LEA_ANTES")
 		return
 
 	if _origen_relacion.is_empty():
 		_origen_relacion = actual
-		_estado.text = "Primer documento fijado: %s. Abre otro documento y vuelve a relacionar." % registro_actual["folio"]
+		_estado.text = tr("VISOR_RELACION_PRIMERO") % registro_actual["folio"]
 		_actualizar_boton_relacion()
 		return
 
 	if _origen_relacion == actual:
-		_estado.text = "Selecciona un segundo documento distinto."
+		_estado.text = tr("VISOR_RELACION_DISTINTO")
 		return
 
 	if not _esta_leido(_origen_relacion):
 		_origen_relacion = ""
-		_estado.text = "El primer documento ya no está disponible como lectura válida."
+		_estado.text = tr("VISOR_RELACION_PRIMERO_INVALIDO")
 		_actualizar_boton_relacion()
 		return
 
@@ -79,18 +79,21 @@ func _al_relacionar() -> void:
 	if relacion.is_empty():
 		# No se afirma que la pareja jamás pueda tener sentido narrativo: solo que
 		# con la evidencia catalogada todavía no se ha demostrado una conclusión.
-		_estado.text = "No has demostrado una relación directa entre %s y %s." % [primero, registro_actual["folio"]]
+		_estado.text = (
+			tr("VISOR_RELACION_NO_DEMOSTRADA")
+			% [primero, registro_actual["folio"]]
+		)
 		return
 
 	var pista_id := String(relacion["id"])
 	if descubiertas.has(pista_id):
-		_estado.text = "Relación ya registrada: %s" % relacion["descripcion"]
+		_estado.text = tr("VISOR_RELACION_YA_REGISTRADA") % relacion["descripcion"]
 		return
 
 	descubiertas.append(pista_id)
 	_refrescar_archivo()
 	_guardar_o_avisar()
-	_estado.text = "Relación registrada: %s" % relacion["descripcion"]
+	_estado.text = tr("VISOR_RELACION_REGISTRADA") % relacion["descripcion"]
 
 
 func _esta_leido(registro_id: String) -> bool:
@@ -111,9 +114,9 @@ func _actualizar_boton_relacion() -> void:
 	var actual := String(registro_actual.get("id", ""))
 	_relacionar.disabled = actual.is_empty() or cerrado or not _esta_leido(actual)
 	if _origen_relacion.is_empty():
-		_relacionar.text = "Relacionar este documento…"
+		_relacionar.text = tr("VISOR_RELACIONAR")
 	else:
-		_relacionar.text = "Relacionar con %s" % _folio_por_id(_origen_relacion)
+		_relacionar.text = tr("VISOR_RELACIONAR_CON") % _folio_por_id(_origen_relacion)
 
 
 ## La pareja es conmutativa: A+B y B+A descubren la misma conclusión.
