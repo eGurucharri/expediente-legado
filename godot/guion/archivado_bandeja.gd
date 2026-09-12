@@ -14,6 +14,7 @@ static func nueva(casos: Array, folios_leidos: Array) -> Dictionary:
 		"colocaciones": [],
 		"pendientes": casos.duplicate(true),
 		"cerrada": false,
+		"abandonada": false,
 	}
 
 
@@ -26,6 +27,9 @@ static func colocar(estado: Dictionary, caso: Dictionary, destino: String) -> bo
 		return false
 	var colocacion := {"caso": caso, "destino": destino, "folios_leidos": estado["folios_leidos"]}
 	estado["colocaciones"].append(colocacion)
+	var correcta := destino == Archivado.destino_de(caso)
+	if not correcta:
+		return false
 	for pendiente in estado["pendientes"]:
 		if pendiente.get("id", "") == caso.get("id", ""):
 			estado["pendientes"].erase(pendiente)
@@ -41,4 +45,7 @@ static func cerrar(estado: Dictionary) -> Dictionary:
 static func abandonar(estado: Dictionary) -> Dictionary:
 	# No cambia la bandeja ni la jornada: devuelve el resultado parcial y permite
 	# que la futura escena simplemente se descarte.
-	return Archivado.evaluar(estado.get("colocaciones", []), true)
+	estado["abandonada"] = true
+	var resultado := Archivado.evaluar(estado.get("colocaciones", []))
+	resultado["abandonada"] = true
+	return resultado
