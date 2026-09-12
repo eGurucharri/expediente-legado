@@ -191,6 +191,15 @@ VISOR_ITEM,%s  %s
 VISOR_PARTIDA_APARTADA,"PARTIDA ANTERIOR ILEGIBLE (%s), APARTADA EN %s"
 VISOR_PRECIPITADA,  ·  ACUSACIÓN PRECIPITADA: consta en su hoja de servicio.
 VISOR_REASIGNADO,"  ·  CESE POR ACUMULACIÓN: se le reasigna. Otra persona ocupará su puesto."
+VISOR_RELACIONAR,Relacionar este documento…
+VISOR_RELACIONAR_CON,Relacionar con %s
+VISOR_RELACION_DISTINTO,Selecciona un segundo documento distinto.
+VISOR_RELACION_LEA_ANTES,Lee el documento antes de relacionarlo.
+VISOR_RELACION_NO_DEMOSTRADA,No has demostrado una relación directa entre %s y %s.
+VISOR_RELACION_PRIMERO,Primer documento fijado: %s. Abre otro documento y vuelve a relacionar.
+VISOR_RELACION_PRIMERO_INVALIDO,El primer documento ya no está disponible como lectura válida.
+VISOR_RELACION_REGISTRADA,Relación registrada: %s
+VISOR_RELACION_YA_REGISTRADA,Relación ya registrada: %s
 VISOR_RESUELTO,   ·   EXPEDIENTE RESUELTO
 VISOR_SIN_FECHA,sin fecha de registro
 VISOR_SIN_JORNADA,SE ACABÓ LA JORNADA. Fiche la salida.

@@ -5,6 +5,7 @@ import unittest
 RAIZ = Path(__file__).resolve().parents[1]
 CINEMATICA = RAIZ / "godot" / "guion" / "proyeccion_onirica_cinematica.gd"
 CAPA = RAIZ / "godot" / "guion" / "visor_proyeccion_app.gd"
+CAPA_COMBINACIONES = RAIZ / "godot" / "guion" / "visor_combinaciones_app.gd"
 ESCENA_VISOR = RAIZ / "godot" / "escenas" / "visor.tscn"
 
 
@@ -12,6 +13,7 @@ class ProyeccionOniricaTest(unittest.TestCase):
     def setUp(self):
         self.cinematica = CINEMATICA.read_text(encoding="utf-8")
         self.capa = CAPA.read_text(encoding="utf-8")
+        self.capa_combinaciones = CAPA_COMBINACIONES.read_text(encoding="utf-8")
         self.escena = ESCENA_VISOR.read_text(encoding="utf-8")
 
     def test_estados_tienen_identidad_estable(self):
@@ -48,7 +50,12 @@ class ProyeccionOniricaTest(unittest.TestCase):
         self.assertIn("_reproducir_sello(resultado)", self.capa)
 
     def test_el_visor_activa_la_costura(self):
-        self.assertIn('path="res://guion/visor_proyeccion_app.gd"', self.escena)
+        # El visor puede añadir capas posteriores siempre que mantengan la
+        # proyección en su cadena de herencia. #286 añade combinaciones encima
+        # de ella, así que exigir que la escena apunte directamente a esta capa
+        # convertiría una extensión válida en un falso negativo de CI.
+        self.assertIn('path="res://guion/visor_combinaciones_app.gd"', self.escena)
+        self.assertIn('extends "res://guion/visor_proyeccion_app.gd"', self.capa_combinaciones)
 
 
 if __name__ == "__main__":
