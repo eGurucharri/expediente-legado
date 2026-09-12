@@ -9,7 +9,7 @@ extends RefCounted
 static func todo(comprobar: Callable) -> void:
 	comprobar.call("la jornada calibrada tiene tres acciones", Jornada.ACCIONES_POR_DIA, 3)
 	comprobar.call("la primera lectura nueva del día es gratis", Jornada.DOCUMENTOS_GRATIS_POR_DIA, 1)
-	comprobar.call("vivir cuesta treinta al día", Jornada.COSTE_DIARIO, 30)
+	comprobar.call("vivir cuesta veintiséis al día", Jornada.COSTE_DIARIO, 26)
 	comprobar.call("el mes SIGA dura diez días", Jornada.DIAS_POR_MES, 10)
 	comprobar.call("el alquiler cuesta setecientos", Jornada.PRECIO_ALQUILER, 700)
 
@@ -26,25 +26,32 @@ static func todo(comprobar: Callable) -> void:
 	comprobar.call("releer no vuelve a gastar", lectura["acciones"], acciones_tras_dos)
 
 	# Benchmark de #83: 32 documentos + 8 firmas = 40 operaciones. En diez días
-	# hay 30 acciones pagadas y 10 lecturas gratuitas: la vuelta cabe justo en el
-	# primer mes, por lo que el alquiler llega antes de terminar el recorrido.
-	var capacidad_mes := (
+	# hay 30 acciones pagadas y 10 lecturas gratuitas, pero el día diez UNA de
+	# las acciones pagadas se reserva para la ventanilla. Por tanto el alquiler
+	# aparece cuando quedan exactamente una operación y un cierre por hacer.
+	var capacidad_trabajo_hasta_alquiler := (
 		Jornada.ACCIONES_POR_DIA * Jornada.DIAS_POR_MES
 		+ Jornada.DOCUMENTOS_GRATIS_POR_DIA * Jornada.DIAS_POR_MES
+		- 1
 	)
-	comprobar.call("el primer mes cubre las cuarenta operaciones de referencia", capacidad_mes, 40)
+	comprobar.call(
+		"el alquiler llega antes de completar las cuarenta operaciones",
+		capacidad_trabajo_hasta_alquiler,
+		39
+	)
 
-	# Saldo inmediatamente antes del primer alquiler en el benchmark completo:
-	# 120 iniciales + diez bases + ocho cierres - nueve noches de coste. El día
-	# diez todavía no ha dormido cuando pasa por la ventanilla.
+	# Con 39 operaciones solo pueden haberse firmado siete de los ocho casos.
+	# Saldo antes de pagar el primer alquiler: 120 iniciales + diez bases + siete
+	# cierres - nueve noches de coste. El día diez aún no ha dormido.
 	var saldo_antes_alquiler := (
 		120
 		+ Jornada.BASE_DIARIA * Jornada.DIAS_POR_MES
-		+ Jornada.POR_EXPEDIENTE * 8
+		+ Jornada.POR_EXPEDIENTE * 7
 		- Jornada.COSTE_DIARIO * (Jornada.DIAS_POR_MES - 1)
 	)
 	comprobar.call("el primer alquiler sigue siendo pagable", saldo_antes_alquiler >= Jornada.PRECIO_ALQUILER, true)
 	var margen := saldo_antes_alquiler - Jornada.PRECIO_ALQUILER
+	comprobar.call("el margen del primer alquiler queda en seis", margen, 6)
 	comprobar.call(
 		"el alquiler deja menos margen que un mes de comida del gato",
 		margen < Jornada.PRECIO_COMIDA_GATO * Jornada.DIAS_POR_MES,
