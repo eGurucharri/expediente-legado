@@ -23,19 +23,28 @@ func _draw() -> void:
 	var ojo := Color(0.03, 0.03, 0.04)
 
 	# Cabeza y orejas, deliberadamente geométricas para encajar con SIGA.
-	draw_colored_polygon(PackedVector2Array([
-		Vector2(18, 35), Vector2(13, 8), Vector2(35, 24),
-		Vector2(57, 24), Vector2(80, 8), Vector2(74, 36)
-	]), papel)
+	draw_colored_polygon(
+		PackedVector2Array(
+			[
+				Vector2(18, 35),
+				Vector2(13, 8),
+				Vector2(35, 24),
+				Vector2(57, 24),
+				Vector2(80, 8),
+				Vector2(74, 36)
+			]
+		),
+		papel
+	)
 	draw_circle(Vector2(46, 50), 31.0, papel)
 	draw_arc(Vector2(46, 50), 31.0, 0.0, TAU, 32, tinta, 3.0)
 
 	# Cara.
 	draw_circle(Vector2(35, 47), 3.4, ojo)
 	draw_circle(Vector2(57, 47), 3.4, ojo)
-	draw_colored_polygon(PackedVector2Array([
-		Vector2(42, 57), Vector2(50, 57), Vector2(46, 63)
-	]), sombra)
+	draw_colored_polygon(
+		PackedVector2Array([Vector2(42, 57), Vector2(50, 57), Vector2(46, 63)]), sombra
+	)
 	draw_line(Vector2(46, 63), Vector2(46, 69), tinta, 2.0)
 	draw_line(Vector2(46, 67), Vector2(39, 72), tinta, 2.0)
 	draw_line(Vector2(46, 67), Vector2(53, 72), tinta, 2.0)
