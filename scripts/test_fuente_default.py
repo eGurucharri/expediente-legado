@@ -23,8 +23,10 @@ class FuenteDefaultTest(unittest.TestCase):
 
     def test_project_fija_la_fuente_de_forma_central(self):
         project = PROJECT.read_text(encoding="utf-8")
-        self.assertIn('type="FontFile" path="res://assets/fonts/MFBOldstyle-Regular.otf"', project)
-        self.assertIn('theme/default_font=ExtResource("1_font")', project)
+        self.assertIn(
+            'theme/custom_font="res://assets/fonts/MFBOldstyle-Regular.otf"', project
+        )
+        self.assertNotIn("ExtResource(\"1_font\")", project)
 
 
 if __name__ == "__main__":
