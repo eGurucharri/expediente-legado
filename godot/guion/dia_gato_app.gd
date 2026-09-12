@@ -60,11 +60,6 @@ func _montar_asistente_siga() -> void:
 	caja.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_child(caja)
 
-	var gato := Label.new()
-	gato.text = "=^._.^=  SIGA"
-	gato.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	caja.add_child(gato)
-
 	for clave in lineas:
 		var frase := Label.new()
 		frase.text = tr(String(clave))
