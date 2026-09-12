@@ -436,8 +436,7 @@ func _aplicar_politica_sueno() -> void:
 	if opciones.is_empty():
 		return
 	jornada["sueno_escenas"] = Sueno.noche(
-		jornada["dia"], jornada["leido_hoy"], jornada["mapa"],
-		int(jornada.get("raiz", 0)), opciones
+		jornada["dia"], jornada["leido_hoy"], jornada["mapa"], int(jornada.get("raiz", 0)), opciones
 	)
 	jornada["sueno_total"] = Sueno.segundos_de_noche(jornada["sueno_escenas"])
 	jornada["sueno_resto"] = jornada["sueno_total"]
