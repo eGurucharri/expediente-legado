@@ -22,11 +22,26 @@ func _probar() -> void:
 			},
 		]
 	}
-	_comprobar(VisorCombinaciones._buscar_relacion(ficha, "A", "B").get("id") == "conclusion", "A+B encuentra conclusión")
-	_comprobar(VisorCombinaciones._buscar_relacion(ficha, "B", "A").get("id") == "conclusion", "B+A es equivalente")
-	_comprobar(VisorCombinaciones._buscar_relacion(ficha, "A", "A").is_empty(), "rechaza mismo documento")
-	_comprobar(VisorCombinaciones._buscar_relacion(ficha, "A", "C").is_empty(), "pareja sin evidencia no inventa conclusión")
-	_comprobar(VisorCombinaciones._buscar_relacion(ficha, "", "B").is_empty(), "rechaza origen vacío")
+	_comprobar(
+		VisorCombinaciones._buscar_relacion(ficha, "A", "B").get("id") == "conclusion",
+		"A+B encuentra conclusión"
+	)
+	_comprobar(
+		VisorCombinaciones._buscar_relacion(ficha, "B", "A").get("id") == "conclusion",
+		"B+A es equivalente"
+	)
+	_comprobar(
+		VisorCombinaciones._buscar_relacion(ficha, "A", "A").is_empty(),
+		"rechaza mismo documento"
+	)
+	_comprobar(
+		VisorCombinaciones._buscar_relacion(ficha, "A", "C").is_empty(),
+		"pareja sin evidencia no inventa conclusión"
+	)
+	_comprobar(
+		VisorCombinaciones._buscar_relacion(ficha, "", "B").is_empty(),
+		"rechaza origen vacío"
+	)
 
 	var ruta := "user://prueba-combinaciones-%d.json" % Time.get_ticks_usec()
 	var partida := Partida.new()
@@ -38,8 +53,14 @@ func _probar() -> void:
 	var recargada := Partida.new()
 	var carga := recargada.cargar(ruta)
 	_comprobar(carga.get("resultado") == "cargada", "recarga partida")
-	_comprobar(recargada.estado["jornada"].get("leidos_total", []) == ["A", "B"], "lecturas sobreviven cambio de sesión")
-	_comprobar(recargada.estado["pistas_descubiertas"].count("conclusion") == 1, "conclusión persiste sin duplicado")
+	_comprobar(
+		recargada.estado["jornada"].get("leidos_total", []) == ["A", "B"],
+		"lecturas sobreviven cambio de sesión"
+	)
+	_comprobar(
+		recargada.estado["pistas_descubiertas"].count("conclusion") == 1,
+		"conclusión persiste sin duplicado"
+	)
 
 	if FileAccess.file_exists(ruta):
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(ruta))
