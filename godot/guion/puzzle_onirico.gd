@@ -21,6 +21,7 @@ const ESTADO_FALLADO := "fallado"
 const ESTADO_ABANDONADO := "abandonado"
 const ESTADOS_TERMINALES := [ESTADO_COMPLETADO, ESTADO_FALLADO, ESTADO_ABANDONADO]
 const AZAR := preload("res://guion/azar.gd")
+const _SEMILLA_GUARDABLE := 0xFFFFFFFF
 
 var puzzle_id := ""
 var source_ids: Array = []
@@ -52,13 +53,15 @@ static func crear(
 ## Derivación estable dentro del dominio del sueño.
 ##
 ## No se declara un dominio de azar aparte: los puzzles son contenido del sueño
-## y deben variar con la raíz de esa noche, sin acoplarse a un RNG global.
+## y deben variar con la raíz de esa noche, sin acoplarse a un RNG global. El
+## resultado se limita a 32 bits porque se serializa: JSON no conserva exactos
+## los enteros grandes y una semilla redondeada rerrollearía el puzzle al cargar.
 static func semilla(raiz: int, id: String, fuentes: Array) -> int:
 	var normalizadas := _normalizar_fuentes(fuentes)
 	var texto := "puzzle:" + id
 	for fuente in normalizadas:
 		texto += "|" + fuente
-	return AZAR.derivar_texto(raiz, "sueno", texto)
+	return AZAR.derivar_texto(raiz, "sueno", texto) & _SEMILLA_GUARDABLE
 
 
 ## Restaura exactamente el estado serializado, pero vuelve a comprobar el
@@ -85,7 +88,7 @@ static func restaurar(datos: Dictionary, leido_hoy: Array) -> PuzzleOnirico:
 	var puzzle := PuzzleOnirico.new()
 	puzzle.puzzle_id = id
 	puzzle.source_ids = normalizadas
-	puzzle.seed = int(datos.get("seed", 0))
+	puzzle.seed = int(datos.get("seed", 0)) & _SEMILLA_GUARDABLE
 	puzzle.state = estado
 	puzzle._resultado_emitido = emitido
 	return puzzle
