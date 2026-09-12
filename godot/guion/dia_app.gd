@@ -397,6 +397,7 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 			)
 		"casa":
 			var noche := Jornada.dormir(jornada)
+			_aplicar_politica_sueno()
 			_hablando = false
 			_nomina.text = (
 				tr("DIA_VIVIR")
@@ -417,7 +418,6 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 				_nomina.text = tr("DIA_NUEVO") % dia
 		_:
 			pass
-
 	if jornada["fase"] != "sueño":
 		_sonar("puerta_abre")
 	_entrar_en(destino)
@@ -426,6 +426,26 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 	# tránsito pendiente se queda vacío: ya se ha entrado, y lo único que falta
 	# por hacer es escribirlo.
 	_guardar_o_avisar("")
+
+
+## Hook de presentación para variantes de sueño. La jornada sigue resolviendo
+## el coste, el gato y el cambio de fase; una capa especializada solo puede
+## cambiar la selección de escenas después, sin duplicar esas reglas.
+func _aplicar_politica_sueno() -> void:
+	var opciones := _opciones_sueno()
+	if opciones.is_empty():
+		return
+	jornada["sueno_escenas"] = Sueno.noche(
+		jornada["dia"], jornada["leido_hoy"], jornada["mapa"],
+		int(jornada.get("raiz", 0)), opciones
+	)
+	jornada["sueno_total"] = Sueno.segundos_de_noche(jornada["sueno_escenas"])
+	jornada["sueno_resto"] = jornada["sueno_total"]
+	jornada["mapa_anoche"] = jornada["mapa"].duplicate()
+
+
+func _opciones_sueno() -> Dictionary:
+	return {}
 
 
 ## Darle de comer. Se paga, así que puede no poder hacerse: ahí está la
