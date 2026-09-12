@@ -25,10 +25,7 @@ func _vivienda() -> String:
 ## trayecto. Hasta entonces aún se puede desviarse a la ventanilla y pagarlo.
 func _impago_inminente() -> bool:
 	var dia := int(jornada.get("dia", 1))
-	return (
-		dia == Jornada.alquiler_vencimiento(dia)
-		and Jornada.alquiler_pendiente(jornada)
-	)
+	return dia == Jornada.alquiler_vencimiento(dia) and Jornada.alquiler_pendiente(jornada)
 
 
 ## La ventanilla existe físicamente solo cuando hoy toca pagar y el vencimiento
