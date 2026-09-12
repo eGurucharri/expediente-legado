@@ -22,6 +22,7 @@ const ESTADO_ABANDONADO := "abandonado"
 const ESTADOS_TERMINALES := [ESTADO_COMPLETADO, ESTADO_FALLADO, ESTADO_ABANDONADO]
 const AZAR := preload("res://guion/azar.gd")
 const _SEMILLA_GUARDABLE := 0xFFFFFFFF
+const _RUTA_SCRIPT := "res://guion/puzzle_onirico.gd"
 
 var puzzle_id := ""
 var source_ids: Array = []
@@ -34,16 +35,14 @@ var _resultado_emitido := false
 ##
 ## Las fuentes se ordenan y deduplican antes de derivar la semilla: presentar
 ## los mismos folios en otro orden no debe rerrollear la solución al recargar.
-static func crear(
-	id: String, fuentes: Array, leido_hoy: Array, semilla_raiz: int
-) -> PuzzleOnirico:
+static func crear(id: String, fuentes: Array, leido_hoy: Array, semilla_raiz: int):
 	var normalizadas := _normalizar_fuentes(fuentes)
 	if id.strip_edges().is_empty() or normalizadas.is_empty():
 		return null
 	if not _fuentes_permitidas(normalizadas, leido_hoy):
 		return null
 
-	var puzzle := PuzzleOnirico.new()
+	var puzzle = _nueva_instancia()
 	puzzle.puzzle_id = id
 	puzzle.source_ids = normalizadas
 	puzzle.seed = semilla(semilla_raiz, id, normalizadas)
@@ -67,7 +66,7 @@ static func semilla(raiz: int, id: String, fuentes: Array) -> int:
 ## Restaura exactamente el estado serializado, pero vuelve a comprobar el
 ## aislamiento respecto de `leido_hoy`. Un guardado manipulado o viejo no puede
 ## colar en el sueño un documento que esta jornada no abrió.
-static func restaurar(datos: Dictionary, leido_hoy: Array) -> PuzzleOnirico:
+static func restaurar(datos: Dictionary, leido_hoy: Array):
 	var id := str(datos.get("puzzle_id", ""))
 	var fuentes: Array = datos.get("source_ids", [])
 	var normalizadas := _normalizar_fuentes(fuentes)
@@ -85,7 +84,7 @@ static func restaurar(datos: Dictionary, leido_hoy: Array) -> PuzzleOnirico:
 	if emitido != ESTADOS_TERMINALES.has(estado):
 		return null
 
-	var puzzle := PuzzleOnirico.new()
+	var puzzle = _nueva_instancia()
 	puzzle.puzzle_id = id
 	puzzle.source_ids = normalizadas
 	puzzle.seed = int(datos.get("seed", 0)) & _SEMILLA_GUARDABLE
@@ -136,6 +135,18 @@ func _cerrar(nuevo_estado: String) -> bool:
 		}
 	)
 	return true
+
+
+## El runner de `unittest` carga este script antes de la importación del
+## proyecto. En ese punto Godot aún no ha construido la caché de `class_name`,
+## así que una factoría que escribiera `PuzzleOnirico.new()` no compilaría.
+## Cargar el propio Script por ruta funciona tanto antes como después de importar
+## y mantiene el contrato ejecutable en un checkout limpio.
+static func _nueva_instancia():
+	var script := load(_RUTA_SCRIPT)
+	if script == null:
+		return null
+	return script.new()
 
 
 static func _normalizar_fuentes(fuentes: Array) -> Array:
