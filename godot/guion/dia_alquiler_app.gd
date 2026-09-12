@@ -9,6 +9,14 @@ extends "res://guion/dia_ascensor_app.gd"
 const DESTINO_ALQUILER := "alquiler"
 
 
+## Dormir sin vivienda conserva el mapa de esta vida laboral, pero no lo hace
+## crecer: una sola escena repetida expresa el sueño degradado de #84.
+func _opciones_sueno() -> Dictionary:
+	if _vivienda() == "oficina":
+		return {"cantidad": 1, "priorizar_vistas": true}
+	return super._opciones_sueno()
+
+
 ## La vivienda no necesita otro contador persistido: la consecuencia sale del
 ## mismo estado de alquiler que ya se guarda. Al reasignar, Jornada crea otra
 ## vida laboral con alquiler limpio y esta función vuelve automáticamente a
