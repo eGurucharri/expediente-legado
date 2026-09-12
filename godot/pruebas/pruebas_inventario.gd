@@ -10,9 +10,27 @@ func _initialize() -> void:
 
 func _probar() -> void:
 	var estado := Inventario.nuevo()
-	var taza := {"id": "taza", "nombre": "Taza", "vendible": true, "precio": 12, "origen": "casa"}
-	var sello := {"id": "sello", "nombre": "Sello", "vendible": false, "precio": 0, "origen": "archivo"}
-	var llave_sueno := {"id": "llave-sueno", "nombre": "Llave imposible", "vendible": true, "precio": 999, "origen": "sueno"}
+	var taza := {
+		"id": "taza",
+		"nombre": "Taza",
+		"vendible": true,
+		"precio": 12,
+		"origen": "casa",
+	}
+	var sello := {
+		"id": "sello",
+		"nombre": "Sello",
+		"vendible": false,
+		"precio": 0,
+		"origen": "archivo",
+	}
+	var llave_sueno := {
+		"id": "llave-sueno",
+		"nombre": "Llave imposible",
+		"vendible": true,
+		"precio": 999,
+		"origen": "sueno",
+	}
 
 	_comprobar(Inventario.recoger(estado, taza), "recoge en carried")
 	_comprobar(estado[Inventario.CARRIED].size() == 1, "recogido queda encima")
@@ -26,7 +44,10 @@ func _probar() -> void:
 
 	_comprobar(Inventario.recoger(estado, sello), "recoge segundo objeto")
 	var no_vendible := Inventario.vender(estado, "sello")
-	_comprobar(not no_vendible["vendido"] and no_vendible["dinero"] == 0, "no vendible no da dinero")
+	_comprobar(
+		not no_vendible["vendido"] and no_vendible["dinero"] == 0,
+		"no vendible no da dinero"
+	)
 	var venta := Inventario.vender(estado, "taza")
 	_comprobar(venta["vendido"] and venta["dinero"] == 12, "venta devuelve precio")
 	_comprobar(not Inventario.contiene(estado, "taza"), "venta elimina objeto")
@@ -35,11 +56,17 @@ func _probar() -> void:
 	var venta_onirica := Inventario.vender(estado, "llave-sueno")
 	_comprobar(not venta_onirica["vendido"], "objeto onirico no se vende")
 	_comprobar(venta_onirica["dinero"] == 0, "objeto onirico nunca da dinero")
-	_comprobar(Inventario.contiene(estado, "llave-sueno"), "venta onirica rechazada conserva objeto")
+	_comprobar(
+		Inventario.contiene(estado, "llave-sueno"),
+		"venta onirica rechazada conserva objeto"
+	)
 
 	_comprobar(Inventario.guardar_en_casa(estado, "sello"), "prepara objeto guardado")
 	var perdidos := Inventario.perder_casa(estado)
-	_comprobar(perdidos.size() == 1 and perdidos[0]["id"] == "sello", "perder casa devuelve lo perdido")
+	_comprobar(
+		perdidos.size() == 1 and perdidos[0]["id"] == "sello",
+		"perder casa devuelve lo perdido"
+	)
 	_comprobar(estado[Inventario.HOME_STORAGE].is_empty(), "perder casa vacia almacen")
 	_comprobar(Inventario.contiene(estado, "llave-sueno"), "perder casa conserva carried")
 
