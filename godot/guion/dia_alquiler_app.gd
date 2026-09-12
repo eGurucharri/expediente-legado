@@ -1,16 +1,58 @@
-## Capa de #85 sobre el día completo.
+## Capa de #85 y #84 sobre el día completo.
 ##
-## La economía del alquiler vive en Jornada. Esta capa solo hace visible el
-## trámite en el trayecto del día de vencimiento y presenta el resultado: no
-## calcula importes, no resuelve impagos y no decide consecuencias de vivienda.
+## La economía del alquiler vive en Jornada. Esta capa hace visible el trámite
+## en el trayecto y traduce su impago a espacio: mientras el alquiler siga
+## pendiente en vencimiento —o ya haya un impago en esta vida laboral— la fase
+## `casa` se representa como la oficina de noche. No duplica importes ni deuda.
 extends "res://guion/dia_ascensor_app.gd"
 
 const DESTINO_ALQUILER := "alquiler"
 
 
+## La vivienda no necesita otro contador persistido: la consecuencia sale del
+## mismo estado de alquiler que ya se guarda. Al reasignar, Jornada crea otra
+## vida laboral con alquiler limpio y esta función vuelve automáticamente a
+## `casa`; el gato, en cambio, conserva su ausencia.
+func _vivienda() -> String:
+	if int(jornada.get("alquiler", {}).get("impagos", 0)) > 0:
+		return "oficina"
+	if _impago_inminente():
+		return "oficina"
+	return "casa"
+
+
+## El vencimiento pendiente se convierte en pérdida de vivienda al terminar el
+## trayecto. Hasta entonces aún se puede desviarse a la ventanilla y pagarlo.
+func _impago_inminente() -> bool:
+	var dia := int(jornada.get("dia", 1))
+	return dia == Jornada.alquiler_vencimiento(dia) and Jornada.alquiler_pendiente(jornada)
+
+
 ## La ventanilla existe físicamente solo cuando hoy toca pagar y el vencimiento
 ## sigue pendiente. En los demás días la calle conserva exactamente su planta.
+## Si ya no hay casa, la fase doméstica reutiliza la misma oficina sin reparto,
+## con un camastro provisional y una única salida para dormir.
 func _espacio_de(fase: String) -> Dictionary:
+	if fase == "casa" and _vivienda() == "oficina":
+		var refugio := EspaciosCatalogo.de_fase("archivo").duplicate(true)
+		refugio["figuras"] = []
+		refugio["bultos"].append(
+			{
+				"pos": Vector3(-4.0, 0.16, 2.5),
+				"tam": Vector3(1.2, 0.32, 2.0),
+				"color": Color(0.28, 0.28, 0.30)
+			}
+		)
+		refugio["salidas"] = [
+			{
+				"pos": Vector3(-4.0, 1.1, 2.5),
+				"destino": "sueño",
+				"rotulo": "SALIDA_DORMIR",
+				"tam": Vector3(2.0, 2.2, 2.4)
+			}
+		]
+		return refugio
+
 	var sitio: Dictionary = super._espacio_de(fase)
 	if fase != "trayecto" or not _alquiler_disponible_hoy():
 		return sitio
@@ -54,6 +96,10 @@ func _alquiler_disponible_hoy() -> bool:
 
 ## La salida especial no cambia de fase. Pisar el mostrador equivale a hacer
 ## cola y ser atendido: Jornada valida fase, vencimiento, acción y dinero.
+##
+## Si se abandona el trayecto con el vencimiento aún pendiente, el gato deja de
+## estar disponible ANTES de montar el refugio. No hay cinemática ni aviso: al
+## llegar a la oficina nocturna simplemente ya no está.
 func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 	if (
 		cuerpo == _caminante
@@ -63,6 +109,17 @@ func _al_pisar_salida(cuerpo: Node3D, salida: Area3D) -> void:
 	):
 		_pagar_alquiler()
 		return
+
+	if (
+		cuerpo == _caminante
+		and _pantalla == null
+		and not partida.guardado_pendiente
+		and jornada.get("fase", "") == "trayecto"
+		and String(salida.get_meta("destino", "")) == "casa"
+		and _impago_inminente()
+	):
+		jornada["gato"]["presente"] = false
+
 	super._al_pisar_salida(cuerpo, salida)
 
 
