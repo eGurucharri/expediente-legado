@@ -1,8 +1,8 @@
 ## Capa de progreso por objetivos para el sueño (#299).
 ##
 ## Sustituye únicamente la salida normal de las escenas oníricas: el resto del
-## día, el temporizador y las capas del gato/cinemáticas siguen heredándose.
-extends "res://guion/dia_gato_app.gd"
+## día, el temporizador y las capas superiores siguen heredándose.
+extends "res://guion/dia_alquiler_app.gd"
 
 const TAM_OBJETIVO := Vector3(2.8, 2.4, 2.8)
 const DEMORA_RESOLUCION := 0.35
@@ -12,7 +12,7 @@ var _objetivo_escena := ""
 
 
 func _espacio_de(fase: String) -> Dictionary:
-	var espacio := super._espacio_de(fase)
+	var espacio: Dictionary = super._espacio_de(fase)
 	_objetivos_espacio = []
 	_objetivo_escena = ""
 	if fase != "sueño":
@@ -22,14 +22,14 @@ func _espacio_de(fase: String) -> Dictionary:
 
 	_objetivo_escena = String(jornada["sueno_escenas"][0])
 	var salidas: Array = espacio.get("salidas", [])
-	var foco := espacio.get("entrada", Vector3.ZERO)
+	var foco: Vector3 = espacio.get("entrada", Vector3.ZERO)
 	if not salidas.is_empty():
 		# La antigua señal de #293 se conserva como anomalía ambiental, pero el
 		# trigger deja de ser una salida y pasa a ser uno de tres focos posibles.
 		foco = salidas[0].get("pos", foco)
 	espacio["salidas"] = []
 
-	var posiciones := _posiciones_objetivo(espacio, foco)
+	var posiciones: Array = _posiciones_objetivo(espacio, foco)
 	for i in SuenoObjetivos.POSIBLES_PRIMER_CORTE:
 		_objetivos_espacio.append(
 			{
@@ -37,13 +37,6 @@ func _espacio_de(fase: String) -> Dictionary:
 				"pos": posiciones[i],
 			}
 		)
-
-	# La guía ya no mira a una puerta oculta: orienta al primer objetivo
-	# pendiente. `dia_gato_app.gd` consumirá estas variables al montar el gato.
-	if not _objetivos_espacio.is_empty():
-		_entrada_guia = espacio.get("entrada", Vector3.ZERO)
-		_salida_guia = _objetivos_espacio[0]["pos"]
-		_hay_rumbo_guia = true
 	return espacio
 
 
@@ -54,7 +47,7 @@ func _entrar_en(fase: String) -> void:
 
 
 func _posiciones_objetivo(espacio: Dictionary, foco: Vector3) -> Array:
-	var posiciones := []
+	var posiciones: Array = []
 	var bloques: Array = espacio.get("planta", [])
 	if not bloques.is_empty():
 		for celda in Planta.repartidas(bloques, SuenoObjetivos.POSIBLES_PRIMER_CORTE, []):
@@ -80,9 +73,9 @@ func _estado_objetivos_actual() -> Dictionary:
 	if not jornada.has("sueno_objetivos"):
 		jornada["sueno_objetivos"] = {}
 	var estados: Dictionary = jornada["sueno_objetivos"]
-	var clave := _clave_objetivos_actual()
+	var clave: String = _clave_objetivos_actual()
 	if not estados.has(clave):
-		var ids := _objetivos_espacio.map(func(objetivo): return objetivo["id"])
+		var ids: Array = _objetivos_espacio.map(func(objetivo): return objetivo["id"])
 		estados[clave] = SuenoObjetivos.nuevo(ids)
 	return estados[clave]
 
@@ -90,7 +83,7 @@ func _estado_objetivos_actual() -> Dictionary:
 func _montar_objetivos_sueno() -> void:
 	if _objetivos_espacio.is_empty():
 		return
-	var estado := _estado_objetivos_actual()
+	var estado: Dictionary = _estado_objetivos_actual()
 	var completados: Array = estado.get("completados", [])
 	for objetivo in _objetivos_espacio:
 		if completados.has(objetivo["id"]):
@@ -113,13 +106,13 @@ func _montar_objetivos_sueno() -> void:
 func _al_pisar_objetivo(cuerpo: Node3D, zona: Area3D) -> void:
 	if cuerpo != _caminante or jornada.get("fase", "") != "sueño" or _pantalla != null:
 		return
-	var estado := _estado_objetivos_actual()
+	var estado: Dictionary = _estado_objetivos_actual()
 	var id := String(zona.get_meta("objetivo", ""))
 	if not SuenoObjetivos.completar(estado, id):
 		return
 	zona.monitoring = false
 
-	var progreso := SuenoObjetivos.progreso(estado)
+	var progreso: Vector2i = SuenoObjetivos.progreso(estado)
 	# Feedback compacto, no checklist: al primer eco la escena gana luz; al
 	# segundo se cierra el patrón y la transición ocurre tras un instante.
 	_ambiente.ambient_light_energy = minf(_ambiente.ambient_light_energy + 0.14, 1.5)
@@ -135,7 +128,7 @@ func _al_pisar_objetivo(cuerpo: Node3D, zona: Area3D) -> void:
 func _resolver_objetivos_sueno() -> void:
 	if jornada.get("fase", "") != "sueño" or _objetivo_escena.is_empty():
 		return
-	var estado := _estado_objetivos_actual()
+	var estado: Dictionary = _estado_objetivos_actual()
 	if not SuenoObjetivos.resuelto(estado):
 		return
 
