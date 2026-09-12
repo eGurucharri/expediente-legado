@@ -85,9 +85,12 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(evento: InputEvent) -> void:
-	# Saltable siempre, con lo que sea. Una cinemática que no se puede saltar es
-	# lo que hace que la segunda partida se juegue mirando a otro lado.
-	if _reproduciendo and evento.is_pressed():
+	# El salto debe ser deliberado. Las transiciones suelen empezar mientras el
+	# jugador aún mantiene movimiento; aceptar cualquier `pressed` hacía que un
+	# repeat de esa tecla cerrase la cinemática en su primer fotograma (#280).
+	if not _reproduciendo:
+		return
+	if evento.is_action_pressed("ui_accept") or evento.is_action_pressed("ui_cancel"):
 		saltar()
 
 
