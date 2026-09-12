@@ -32,6 +32,15 @@ const COLOR_ACUSADO := Color(0.46, 0.20, 0.20)
 const COLOR_TEXTO := Color(0.78, 0.77, 0.80)
 const COLOR_ACUSADO_TEXTO := Color(0.86, 0.62, 0.58)
 
+## La salida sigue sin marca ni volumen visible (#90), pero el playtest #9
+## demostró que una zona completamente muda se lee como bloqueo. Este resplandor
+## no dice "salida" ni se ve desde toda la sala: solo altera el ambiente cuando
+## el jugador ya está cerca, suficiente para que buscar tenga feedback y no sea
+## rozar paredes a ciegas.
+const COLOR_PISTA_SALIDA := Color(0.48, 0.58, 0.74)
+const ENERGIA_PISTA_SALIDA := 1.15
+const ALCANCE_PISTA_SALIDA := 4.2
+
 ## Lo que se separa un cartel de su muro. Tiene que ser MAYOR que medio grosor
 ## de muro, y ese es el número que importa: un muro es una caja centrada en la
 ## línea de la planta, así que separarse seis centímetros de la línea deja el
@@ -141,6 +150,7 @@ static func espacio(id: String, quedan: int, contenido: Dictionary = {}) -> Dict
 	var bloques: Array = forma["bloques"]
 	var entrada: Vector2i = forma["entrada"]
 	var salida := Planta.mas_lejana(bloques, entrada)
+	var posicion_salida := Planta.centro_en_metros(bloques, salida) + Vector3(0, 1.1, 0)
 
 	# Las figuras se reparten por la sala, lejos entre sí y lejos de por donde
 	# se entra y se sale: un sospechoso plantado en la puerta se ve antes de
@@ -196,6 +206,20 @@ static func espacio(id: String, quedan: int, contenido: Dictionary = {}) -> Dict
 			)
 		)
 
+	# Conserva las luces propias de cada forma y añade una señal local al final
+	# del recorrido. No lleva carcasa: en el sueño puede haber una luz sin
+	# lámpara, y precisamente así evita convertirse en una puerta/waypoint.
+	var luces: Array = forma.get("luces", []).duplicate(true)
+	luces.append(
+		{
+			"pos": posicion_salida + Vector3(0, 0.8, 0),
+			"color": COLOR_PISTA_SALIDA,
+			"energia": ENERGIA_PISTA_SALIDA,
+			"alcance": ALCANCE_PISTA_SALIDA,
+			"carcasa": false,
+		}
+	)
+
 	return {
 		"rotulo": forma["rotulo"],
 		"planta": bloques,
@@ -208,19 +232,18 @@ static func espacio(id: String, quedan: int, contenido: Dictionary = {}) -> Dict
 		"ambiente": forma.get("ambiente", Color(0.20, 0.19, 0.24)),
 		"ambiente_energia": forma.get("ambiente_energia", 0.32),
 		"sol": forma.get("sol", 0.05),
-		"luces": forma.get("luces", []),
+		"luces": luces,
 		"entrada": Planta.centro_en_metros(bloques, entrada),
 		"figuras": figuras,
 		"carteles": carteles,
 		"salidas":
 		[
 			{
-				"pos": Planta.centro_en_metros(bloques, salida) + Vector3(0, 1.1, 0),
+				"pos": posicion_salida,
 				"destino": "sueño" if quedan > 0 else "archivo",
 				"rotulo": "SALIDA_DESPERTAR" if quedan == 0 else "SUENO_ROTULO",
-				# No se ve (#90): hay que dar con ella. Lo que impide que sea una
-				# lotería no es una marca sino el MAPA que crece (#86) — la segunda
-				# vez que te toca una sala, ya sabes por dónde se salía.
+				# No se ve (#90): hay que dar con ella. El resplandor cercano da
+				# feedback ambiental, pero la zona sigue sin geometría ni marca.
 				"visible": false,
 				# Y por eso es más ancha que una puerta: buscar a ciegas un cuadro
 				# de metro y medio en una nave de cuarenta es otro juego, y no uno
