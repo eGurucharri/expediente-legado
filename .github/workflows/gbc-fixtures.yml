@@ -1,0 +1,94 @@
+name: GBC fixtures
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/gbc-fixtures.yml"
+      - "scripts/test_gbc_fixture_workflow.py"
+      - "docs/gbc-fixtures.md"
+
+permissions:
+  contents: read
+
+env:
+  RGBDS_VERSION: v1.0.3
+  RGBDS_SHA256: 280a52061a0c516999bee75ac357628d6d50784309e0486cef25f7460e6f330b
+  FIXTURES_REPO: https://github.com/tbsp/simple-gb-asm-examples.git
+  FIXTURES_COMMIT: 54270e0673ac16452447ff65cca26a1ef42eefec
+
+jobs:
+  build-fixtures:
+    name: Build CC0 joypad/vblank ROMs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout SIGA-98
+        uses: actions/checkout@v4
+
+      - name: Validate workflow contract
+        run: python -m unittest scripts.test_gbc_fixture_workflow
+
+      - name: Install pinned RGBDS
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="https://github.com/gbdev/rgbds/releases/download/${RGBDS_VERSION}/rgbds-linux-x86_64.tar.xz"
+          curl --fail --location --retry 3 --output rgbds.tar.xz "$url"
+          echo "${RGBDS_SHA256}  rgbds.tar.xz" | sha256sum --check --strict
+          mkdir rgbds
+          tar -xJf rgbds.tar.xz -C rgbds
+          (
+            cd rgbds
+            sudo ./install.sh
+          )
+          rgbasm --version
+
+      - name: Fetch pinned CC0 fixture sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          git init fixture-src
+          git -C fixture-src remote add origin "$FIXTURES_REPO"
+          git -C fixture-src fetch --depth 1 origin "$FIXTURES_COMMIT"
+          git -C fixture-src checkout --detach FETCH_HEAD
+          test "$(git -C fixture-src rev-parse HEAD)" = "$FIXTURES_COMMIT"
+
+      - name: Build joypad and vblank
+        shell: bash
+        run: |
+          set -euo pipefail
+          for fixture in joypad vblank; do
+            (
+              cd "fixture-src/src/${fixture}"
+              ../build.sh "${fixture}.asm"
+            )
+          done
+          mkdir -p gbc-fixtures
+          cp fixture-src/src/joypad/joypad.gb gbc-fixtures/
+          cp fixture-src/src/vblank/vblank.gb gbc-fixtures/
+          (
+            cd gbc-fixtures
+            sha256sum joypad.gb vblank.gb | tee SHA256SUMS
+          )
+
+      - name: Inspect ROM headers
+        shell: bash
+        run: |
+          set -euo pipefail
+          for rom in gbc-fixtures/*.gb; do
+            test -s "$rom"
+            size=$(stat -c %s "$rom")
+            test "$size" -ge 32768
+            printf '%s: %s bytes\n' "$rom" "$size"
+          done
+
+      - name: Upload ephemeral fixture ROMs
+        uses: actions/upload-artifact@v4
+        with:
+          name: gbc-cc0-fixtures-${{ github.sha }}
+          path: |
+            gbc-fixtures/joypad.gb
+            gbc-fixtures/vblank.gb
+            gbc-fixtures/SHA256SUMS
+          if-no-files-found: error
+          retention-days: 7
