@@ -201,11 +201,16 @@ func _montar_sala() -> void:
 		)
 	)
 
+	# El acusado conserva la silueta sin rostro. No es un placeholder: es la
+	# abstracción deliberada que comparten el careo y el sueño.
 	_figura(self, Vector3(0, 0, 0), Color(0.52, 0.51, 0.48))
+	# El cuñado, en cambio, es una persona concreta. Reutiliza la misma malla
+	# humana CC0 que los compañeros de oficina (#199) en vez de inventar una
+	# segunda representación de personas para las cinemáticas.
 	# Apartado de las cuatro posiciones de cámara. En la primera versión estaba
 	# en (2.4, 0, 1.9) y la cámara de la órbita cae en (2.8, 1.7, 2.0): el plano
 	# se rodaba DENTRO de su cabeza y no se veía más que un bulto negro.
-	_figura_cunado = _figura(self, Vector3(-3.2, 0, 3.4), Color(0.44, 0.42, 0.38))
+	_figura_cunado = _persona(self, Vector3(-3.2, 0, 3.4), Color(0.44, 0.42, 0.38))
 	_figura_cunado.visible = false
 
 	# La cámara del duelo es de esta escena; la de la cinemática es del
@@ -219,6 +224,18 @@ func _montar_sala() -> void:
 ## (#87) empezó a poblar sus salas con los mismos sospechosos.
 func _figura(raiz: Node3D, base: Vector3, color: Color) -> Node3D:
 	return FiguraSilueta.construir(raiz, base, color)
+
+
+## Una persona concreta usa la malla común. Si el asset no pudiera cargarse,
+## la escena sigue siendo funcional con la silueta anterior en vez de fallar al
+## montar el careo.
+func _persona(raiz: Node3D, base: Vector3, color: Color) -> Node3D:
+	var figura := Node3D.new()
+	figura.position = base
+	raiz.add_child(figura)
+	if not Modelos.persona(figura, "persona", color):
+		FiguraSilueta.construir(figura, Vector3.ZERO, color)
+	return figura
 
 
 func _montar_interfaz() -> void:
