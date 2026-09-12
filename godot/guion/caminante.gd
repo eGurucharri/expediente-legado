@@ -7,6 +7,12 @@ extends CharacterBody3D
 
 const VELOCIDAD := 2.6
 const SENSIBILIDAD := 0.0022
+const VOLUMEN_PISADA_DB := -8.0
+
+const MOVER_IZQUIERDA := "mover_izquierda"
+const MOVER_DERECHA := "mover_derecha"
+const MOVER_ADELANTE := "mover_adelante"
+const MOVER_ATRAS := "mover_atras"
 
 ## El stick derecho mira. Va en radianes POR SEGUNDO y no por fotograma, que es
 ## lo que hace que mirar cueste lo mismo en una máquina lenta que en una rápida.
@@ -24,7 +30,44 @@ const TOPE_VERTICAL := deg_to_rad(85.0)
 
 
 func _ready() -> void:
+	_asegurar_controles_movimiento()
+	# `Dia` añade el reproductor 3D de pasos justo después de meter el caminante
+	# en el árbol. Diferir un turno permite atenuarlo aquí, junto al cuerpo que
+	# los produce, sin crear un bus global que también bajaría puertas o voces.
+	call_deferred("_ajustar_volumen_pisadas")
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+
+## Declara un esquema de movimiento propio en vez de depender de las acciones
+## UI de Godot. Solo instala los valores por defecto cuando la acción no existe:
+## una futura pantalla de remapeo (#98) puede declararla antes y este código no
+## le volverá a añadir teclas a espaldas del jugador.
+func _asegurar_controles_movimiento() -> void:
+	_asegurar_accion(MOVER_IZQUIERDA, KEY_A, KEY_LEFT)
+	_asegurar_accion(MOVER_DERECHA, KEY_D, KEY_RIGHT)
+	_asegurar_accion(MOVER_ADELANTE, KEY_W, KEY_UP)
+	_asegurar_accion(MOVER_ATRAS, KEY_S, KEY_DOWN)
+
+
+func _asegurar_accion(accion: StringName, tecla_fisica: Key, flecha: Key) -> void:
+	if InputMap.has_action(accion):
+		return
+	InputMap.add_action(accion)
+
+	var wasd := InputEventKey.new()
+	wasd.physical_keycode = tecla_fisica
+	InputMap.action_add_event(accion, wasd)
+
+	var cursor := InputEventKey.new()
+	cursor.keycode = flecha
+	InputMap.action_add_event(accion, cursor)
+
+
+func _ajustar_volumen_pisadas() -> void:
+	for hijo in get_children():
+		if hijo is AudioStreamPlayer3D:
+			hijo.volume_db = VOLUMEN_PISADA_DB
+			return
 
 
 func _unhandled_input(evento: InputEvent) -> void:
@@ -49,7 +92,7 @@ func _physics_process(delta: float) -> void:
 	if not is_on_floor():
 		velocity += get_gravity() * delta
 
-	var entrada := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
+	var entrada := Input.get_vector(MOVER_IZQUIERDA, MOVER_DERECHA, MOVER_ADELANTE, MOVER_ATRAS)
 	var direccion := (transform.basis * Vector3(entrada.x, 0, entrada.y)).normalized()
 	velocity.x = direccion.x * VELOCIDAD
 	velocity.z = direccion.z * VELOCIDAD
