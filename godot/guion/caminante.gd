@@ -7,6 +7,7 @@ extends CharacterBody3D
 
 const VELOCIDAD := 2.6
 const SENSIBILIDAD := 0.0022
+const VOLUMEN_PISADA_DB := -8.0
 
 const MOVER_IZQUIERDA := "mover_izquierda"
 const MOVER_DERECHA := "mover_derecha"
@@ -30,6 +31,10 @@ const TOPE_VERTICAL := deg_to_rad(85.0)
 
 func _ready() -> void:
 	_asegurar_controles_movimiento()
+	# `Dia` añade el reproductor 3D de pasos justo después de meter el caminante
+	# en el árbol. Diferir un turno permite atenuarlo aquí, junto al cuerpo que
+	# los produce, sin crear un bus global que también bajaría puertas o voces.
+	call_deferred("_ajustar_volumen_pisadas")
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 
@@ -56,6 +61,13 @@ func _asegurar_accion(accion: StringName, tecla_fisica: Key, flecha: Key) -> voi
 	var cursor := InputEventKey.new()
 	cursor.keycode = flecha
 	InputMap.action_add_event(accion, cursor)
+
+
+func _ajustar_volumen_pisadas() -> void:
+	for hijo in get_children():
+		if hijo is AudioStreamPlayer3D:
+			hijo.volume_db = VOLUMEN_PISADA_DB
+			return
 
 
 func _unhandled_input(evento: InputEvent) -> void:
