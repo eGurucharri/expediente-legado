@@ -21,49 +21,42 @@ de aceptación vive en su issue, no aquí.
 
 El juego nació como aplicación web con Spring Boot y **se está reescribiendo en
 Godot 4** (#54) para distribuirlo sin servidor. Las dos versiones conviven: el
-backend es la fuente del contenido y sigue siendo jugable; `godot/` es donde
-está el trabajo vivo.
+backend es la fuente histórica del contenido y `godot/` es donde está el trabajo
+vivo.
 
-La última release publicada es [`v0.6.0-alpha.1`](https://github.com/EspacioKoop/expediente-legado/releases),
-una instantánea del código: recoge los 90 commits que separan al proyecto de la
-`v0.5.0-alpha.1` de julio, que fue la última que llevó binarios. El port a Godot
-todavía no puede tener binarios propios porque le falta la exportación
-automatizada (#112).
+La última release publicada sigue siendo
+[`v0.6.0-alpha.1`](https://github.com/EspacioKoop/expediente-legado/releases).
+El port a Godot todavía no publica binarios propios automáticamente porque falta
+la exportación de #112. La CI valida el código y el recorrido automatizado, pero
+**no sustituye un playtesting humano de principio a fin con mando y táctil** (#9).
 
-Lo que hay hoy en `main`, sin adornos: suite de **464 comprobaciones** y
-recorrido de **95**, ambos sin fallos, con `gdlint` y `gdformat` limpios. Eso es
-validación automática. **No hay playtesting humano con mando ni una partida
-completa jugada de principio a fin** (#9).
+### Estado de integración — 2026-09-12
 
-### Estado de integración — 2026-09-11
+La referencia operativa es `main`, no la existencia de ramas o PR antiguos.
+Durante la última tanda de integración se han cerrado o absorbido varias piezas
+que el roadmap anterior seguía contando como pendientes:
 
-Los PR integrados recientemente ya reflejan parte del roadmap y no deben volver a
-contarse como trabajo pendiente:
+- **Recorrido y persistencia:** #163 está cerrado; H2/H3 quedaron resueltos por
+  #166 y el resto del endurecimiento se integró después. #75 también está
+  cerrado: el A-7 ya conecta con el careo. #176 quedó integrado por #198.
+- **Cinemáticas:** #68, #69, #70, #72, #73 y #74 están cerrados. #71 ya estaba
+  cubierto por #175. El núcleo de la épica #66 está por tanto implementado; lo
+  que queda es remate e integración de presentación, no construir las
+  cinemáticas base.
+- **Personajes:** #199 integró la malla humana común de Quaternius. #248 avanzó
+  #80 usando esa malla para el cuñado del careo y manteniendo al acusado como
+  silueta sin rostro.
+- **Investigación cinematográfica:** #246 y #247 versionaron en documentación
+  los criterios de dirección, referencias interactivas, riesgos y guardas de
+  accesibilidad de #177. El issue sigue abierto para prototipos posteriores.
+- **Higiene v0.8:** #171 y #173 están cerrados. Siguen abiertos #172 y #174,
+  además de las piezas mayores #113 y #107.
+- **Sueño y casa:** #127, #126 y #125 están cerrados; #88 está integrado por
+  #202 y #92 tiene ya una primera pieza jugable. La economía #83 sigue siendo
+  el bloqueo principal antes de profundizar en alquiler, compras y trabajillos.
 
-- **Recorrido y persistencia:** #122 y #167 cerraron el esqueleto de #61; #145
-  fue sustituido por #203, que ya está integrado; #166 resolvió H2/H3 de #163.
-- **Sueño y casa:** #131 cerró #127; #130 cerró #126; #128 cerró #125; #129
-  avanzó #119; #202 integró los combates oníricos de #88 y el primer trozo
-  jugable de #92.
-- **Cinemáticas y tarot:** #139 cerró #68; #175 cerró #71; #180 recuperó el
-  visor ampliado de tarot.
-- **Catálogo e infraestructura:** #138 resolvió la traducción del catálogo de
-  #107; #144/#137 dejaron la CI y el verificador en una base coherente; #164
-  implementó el determinismo de #147.
-- **Arte y controles:** #123 avanzó #115/#120; #193 cerró #120; #196 entregó
-  los muebles de malla CC0 de #141; #187 avanzó el control con stick; #185
-  cerró #53 y dejó #171 como endurecimiento/regresión. #199 integró las figuras
-  humanas de #194.
-- **Pendiente de integración:** #141 ya no debe contarse como trabajo de muebles:
-  esa parte está cubierta por #196. Sigue abierto únicamente por el alcance
-  restante de vídeo/captura, que debe separarse o rebasarse con cuidado por sus
-  conflictos y por la dependencia de binarios de FFmpeg/LFS (#192), antes de
-  intentar integrarlo.
-
-PR cerrados sin merge no cuentan como integración: #136, #145, #178, #188,
-#197 y #201 fueron sustituidos, abandonados o rebasados por entregas posteriores.
-La referencia operativa sigue siendo el estado de `main`, no la existencia de
-una rama o de un PR cerrado.
+Los PR cerrados sin merge no cuentan como integración. Si una rama antigua y
+`main` discrepan, manda `main`.
 
 El trabajo abierto con milestone representa lo que aún falta para cada versión.
 Los issues de ideas y el trabajo posterior a 1.0 quedan sin milestone hasta que
@@ -73,74 +66,103 @@ el plan maestro decida incorporarlos.
 
 ### v0.6.0 · El recorrido completo
 
-Que se pueda jugar una jornada entera sin que nada se pierda por el camino. Es
-la fase de **fiabilidad**, y va primero porque todo lo demás se apoya en ella.
+El trabajo de implementación que bloqueaba el recorrido principal está
+esencialmente cerrado: #163, #75 y #176 ya no deben tratarse como tareas abiertas.
 
-- Conservar el estado si falla un guardado entre oficina y visor — #163 H1
-- Validar la estructura de una partida al cargarla — #163 H5
-- Enchufar el careo al formulario A-7 — #75
-- La historia política de una carta, en Godot — **integrada por #198**; queda
-  como referencia cerrada, no como trabajo pendiente
+La fase queda ahora como **punto de control de integración**:
 
-**Se cierra cuando** el punto de control del #181 se recorre entero con escenas
-reales: leer, firmar, carear, cobrar, volver a casa, decidir, dormir, reconocer
-algo leído y despertar, conservándolo todo al cerrar y reabrir.
+**Leer en SIGA → firmar → careo cuando corresponda → cobrar → volver a casa →
+una decisión doméstica → dormir → reconocer algo leído → despertar.**
+
+**Se cierra cuando:**
+
+- cerrar y reabrir en puntos clave conserva día, dinero, acciones, firmas y
+  consecuencias;
+- el sueño no introduce información desconocida para el jugador;
+- el recorrido se prueba como secuencia real, no solo mediante llamadas aisladas;
+- se documentan pruebas ejecutadas y limitaciones de interacción pendientes.
+
+No añadir aquí sistemas opcionales para “rellenar” el milestone: si aparece un
+fallo nuevo del recorrido, se abre como regresión concreta.
 
 ### v0.7.0 · Todas las cinemáticas
 
-La épica #66. El reproductor común ya existe y la cinemática de tarot (#71) ya
-está integrada por #175; falta conectar el resto de momentos.
+La infraestructura y los momentos principales de la épica #66 ya están
+implementados: #67 y #68–#74 están cerrados, y #71 quedó integrado por #175.
 
-- El principio del juego — #68
-- El inicio de cada día — #69
-- Cerrar un expediente, el sello — #70
-- Los finales de duelo — #72
-- El despido / reasignación — #73
-- Dormir y entrar en el sueño — #74
+El cierre de esta fase debe concentrarse en los **bordes que aún quedan abiertos**:
 
-**Nota de dirección:** las cinemáticas 2D de esta fase son **provisionales**. El
-objetivo es que acaben siendo 3D, pero no se rehacen sobre la marcha: primero se
-cierra la primera versión completa y después se migran. Por eso todas se
-declaran en el formato de `Cinematica`, que ya despacha `3d` y `2d` — el salto
-será cambiar los datos del plano, no el reproductor ni sus llamantes.
+- #81 — llevar al cuñado también a la oficina y al despido, manteniendo la guarda
+  de que nunca da información accionable;
+- #80 — terminar de revisar qué personajes concretos deben usar la malla humana
+  común y qué apariciones deben seguir siendo siluetas deliberadas; #248 ya
+  resolvió el cuñado del careo;
+- #66 — actualizar y cerrar la épica cuando sus criterios estén realmente
+  cubiertos por los sub-issues;
+- #135 — tratarlo como diseño de espacio/transición, no como bloqueo para cerrar
+  las cinemáticas base. Puede continuar después si no afecta al recorrido.
+
+**Se cierra cuando** no quede ninguna cinemática necesaria dependiendo de una
+implementación paralela o provisional no documentada, y #66 refleje el estado
+real del árbol de sub-issues.
 
 ### v0.8.0 · Que se vea y se pueda jugar con mando
 
-Presentación, accesibilidad e idioma. Aquí están las piezas cortas y cerradas,
-buenas para entrar al proyecto.
+Presentación, accesibilidad e idioma. El orden recomendado es cerrar primero las
+regresiones pequeñas y después abordar las superficies amplias:
 
-- Foco de teclado y mando en el A-7 — #174, dentro de la regresión #98
-- Menús, opciones y remapeo — #113
-- Empaquetar una tipografía libre — #172, dentro de #110
-- Traducir el catálogo — #173 está integrado por #200; queda #107 para el
-  catálogo completo
-- El caso 8 sin año, y la prueba que debió cazarlo — #171; #53 ya está
-  integrado por #185
+1. #174 — foco de teclado y mando en el A-7.
+2. #172 — empaquetar una tipografía libre y fijarla como fuente por defecto.
+3. #113 — menús, opciones y remapeo de teclado/mando.
+4. #107 — completar la traducción del catálogo más allá del corte de #173.
+
+Ya resueltos en esta fase:
+
+- #171 — dato del caso 8 y guarda de regresión;
+- #173 — primera rebanada de traducción del catálogo.
+
+#98 sigue siendo la regresión paraguas de accesibilidad y debe cerrarse solo
+cuando sus superficies pendientes estén cubiertas o explícitamente divididas.
 
 ### v0.9.0 · Vida cotidiana
 
-Que el dinero, la casa y el gato signifiquen algo.
+Que el dinero, la casa, el gato y el sueño signifiquen algo como conjunto.
 
-- Calibrar la economía — #83, con simulación antes de tocar valores
-- La casa, el gato y los trabajillos — #78, #92, #93, #94
-- Alquiler y sus consecuencias — #84, #85
-- El sueño alimentado por el archivo — #79, #86, #87; #88 ya está integrado
-  por #202 y #92 continúa en curso
+El bloqueo de diseño es **#83**: calibrar acciones por día, coste de vivir y
+alquiler mediante simulación antes de cambiar valores. A partir de esa decisión:
+
+- economía doméstica y compras — #78, #93 y #94;
+- alquiler y sus consecuencias — #84 y #85;
+- gato observable y compartido entre casa/SIGA/sueño — #92 y #132;
+- sueño alimentado por el archivo — #79, #86, #87 y #90; #88 ya está integrado.
+
+No conviene implementar primero los minijuegos domésticos: deben asentarse sobre
+la economía y el ciclo de vida, no definirlos por accidente.
 
 ### v1.0.0 · Primera versión completa
 
-- Exportar y publicar desde CI — #112
-- Publicar en itch.io y Steam, con lo que eso implica — #99
-- **Playtesting real de principio a fin** — #9; la automatización está hecha,
-  pero siguen pendientes mando físico y pantalla táctil
+- Exportar y publicar desde CI — #112.
+- Publicar en itch.io y preparar el marco para Steam — #99.
+- **Playtesting real de principio a fin** — #9; la automatización no sustituye
+  mando físico, táctil ni una partida humana completa.
+
+La 1.0 debe salir del recorrido completo y de la accesibilidad mínima, no de
+haber agotado todas las ideas del backlog.
 
 ### Después de la 1.0
 
-Lo opcional, que espera a que el recorrido aguante entero: minijuegos y
-colecciones (#148–#162 y sus sub-issues), el emulador de Game Boy (#124), los
-logros de Steam (#114), arte y muebles restantes (#132–#135, #141) — y la
-**migración de las cinemáticas a 3D**. #169 y #170 son cortes técnicos de #157 y
-#159; no constituyen por sí solos los minijuegos completos.
+Lo opcional espera a que el recorrido aguante entero:
+
+- minijuegos y colecciones (#148–#162 y sus sub-issues);
+- emulador de Game Boy Color (#124, #244, #245);
+- logros externos de Steam (#114);
+- arte, ambientación y espacio no imprescindibles para el recorrido (#133–#135,
+  #141, #216 y sus sub-issues);
+- migración o expansión de cinemáticas a 3D cuando aporte algo más que sustituir
+  una representación ya funcional.
+
+#169 y #170 son cortes técnicos de #157 y #159: no constituyen por sí solos los
+minijuegos completos y no deben adelantar el trabajo estructural.
 
 ## Cómo se usan milestones, projects y releases
 
@@ -157,9 +179,8 @@ manda el plan maestro.
   está, uno de los dos miente.
 - **Release**: se corta al cerrar un milestone, con etiqueta `vMAJOR.MINOR.PATCH`.
   Mientras el juego no esté completo van marcadas como **pre-release** con
-  sufijo (`-alpha.N`, `-beta.N`), como ya se hizo con `v0.5.0-alpha.1`. Las notas
-  dicen **qué se ha probado y qué no**: una release no afirma que algo funciona
-  porque la CI esté verde.
+  sufijo (`-alpha.N`, `-beta.N`). Las notas dicen **qué se ha probado y qué no**:
+  una release no afirma que algo funciona porque la CI esté verde.
 
 Una release del port a Godot necesita antes la exportación de #112. Hasta
-entonces, lo publicable es la web.
+entonces, lo publicable sigue siendo la web.
