@@ -2,6 +2,14 @@
   "_regla": "Todo fichero bajo assets/ necesita su ficha aquí, con sha256. Una prueba lo exige en las dos direcciones: ni ficheros sin ficha ni fichas sin fichero. Ver LEEME.md.",
   "assets": [
     {
+      "ruta": "fonts/MFBOldstyle-Regular.otf",
+      "titulo": "MFB Oldstyle Regular",
+      "autor": "Daniel Benjamin Miller",
+      "licencia": "CC0-1.0",
+      "fuente": "https://ctan.org/tex-archive/fonts/mfb-oldstyle",
+      "sha256": "3fc8e4f6c4f2b5418f9e3e9370637343cf9b12dc07fd54902acd0b44f8c307a0"
+    },
+    {
       "ruta": "audio/bookFlip1.ogg",
       "titulo": "Book flip 1 (RPG Audio)",
       "autor": "Kenney",
