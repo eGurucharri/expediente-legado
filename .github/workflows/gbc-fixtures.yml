@@ -37,7 +37,10 @@ jobs:
           echo "${RGBDS_SHA256}  rgbds.tar.xz" | sha256sum --check --strict
           mkdir rgbds
           tar -xJf rgbds.tar.xz -C rgbds
-          sudo ./rgbds/install.sh
+          (
+            cd rgbds
+            sudo ./install.sh
+          )
           rgbasm --version
 
       - name: Fetch pinned CC0 fixture sources
