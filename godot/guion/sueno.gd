@@ -210,14 +210,17 @@ static func espacio(id: String, quedan: int, contenido: Dictionary = {}) -> Dict
 	# del recorrido. No lleva carcasa: en el sueño puede haber una luz sin
 	# lámpara, y precisamente así evita convertirse en una puerta/waypoint.
 	var luces: Array = forma.get("luces", []).duplicate(true)
-	luces.append(
-		{
-			"pos": posicion_salida + Vector3(0, 0.8, 0),
-			"color": COLOR_PISTA_SALIDA,
-			"energia": ENERGIA_PISTA_SALIDA,
-			"alcance": ALCANCE_PISTA_SALIDA,
-			"carcasa": false,
-		}
+	(
+		luces
+		. append(
+			{
+				"pos": posicion_salida + Vector3(0, 0.8, 0),
+				"color": COLOR_PISTA_SALIDA,
+				"energia": ENERGIA_PISTA_SALIDA,
+				"alcance": ALCANCE_PISTA_SALIDA,
+				"carcasa": false,
+			}
+		)
 	)
 
 	return {
