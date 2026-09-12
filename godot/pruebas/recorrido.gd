@@ -52,9 +52,7 @@ func _recorrer() -> void:
 	dia._cerrar_expediente()
 	await process_frame
 	_comprobar("levantarse conserva la lectura", dia.jornada["leido_hoy"].size(), 1)
-	_comprobar(
-		"levantarse no regala acciones", dia.jornada["acciones"], Jornada.ACCIONES_POR_DIA
-	)
+	_comprobar("levantarse no regala acciones", dia.jornada["acciones"], Jornada.ACCIONES_POR_DIA)
 
 	# Reproducir la salida real del trayecto. Antes se guardaba la fase anterior.
 	dia._entrar_en("trayecto")
