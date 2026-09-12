@@ -28,7 +28,8 @@ class ArchivadoBandejaTest(unittest.TestCase):
         self.assertIn('estado["colocaciones"].append', self.source)
 
     def test_abandono_es_valido_y_no_cierra_la_bandeja(self):
-        self.assertIn('return Archivado.evaluar(estado.get("colocaciones", []), true)', self.source)
+        self.assertIn('estado["abandonada"] = true', self.source)
+        self.assertIn('Archivado.evaluar(estado.get("colocaciones", []))', self.source)
         self.assertIn('estado["cerrada"] = true', self.source)
 
 
