@@ -51,20 +51,27 @@ func _montar_asistente_siga() -> void:
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
 	panel.offset_left = 12
-	panel.offset_top = -132
-	panel.offset_right = 430
+	panel.offset_top = -144
+	panel.offset_right = 520
 	panel.offset_bottom = -12
 	_pantalla.add_child(panel)
 
+	var fila := HBoxContainer.new()
+	fila.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_child(fila)
+
+	var avatar := GatoAsistente2D.new()
+	fila.add_child(avatar)
+
 	var caja := VBoxContainer.new()
 	caja.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_child(caja)
+	fila.add_child(caja)
 
 	for clave in lineas:
 		var frase := Label.new()
 		frase.text = tr(String(clave))
 		frase.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		frase.custom_minimum_size.x = 390
+		frase.custom_minimum_size.x = 370
 		frase.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		caja.add_child(frase)
 
