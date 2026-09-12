@@ -240,6 +240,38 @@
       "licencia": "CC0-1.0",
       "fuente": "https://ambientcg.com/view?id=OfficeCeiling001",
       "sha256": "1a34c9db312a12c49365875630136e421d77e729f275ef93529ad20c0b336208"
+    },
+    {
+      "ruta": "cc0/quaternius_modular_train/CargoTrain_WagonEmpty.obj",
+      "titulo": "CargoTrain WagonEmpty — malla original",
+      "autor": "Quaternius",
+      "licencia": "CC0-1.0",
+      "fuente": "https://quaternius.com/packs/modulartrain.html",
+      "sha256": "0ededa1fe89ac2b8f85c73cab653ea4098e89224afa7c70e2d3233a8f0a6a6cb"
+    },
+    {
+      "ruta": "cc0/quaternius_modular_train/CargoTrain_WagonEmpty.mtl",
+      "titulo": "CargoTrain WagonEmpty — materiales originales",
+      "autor": "Quaternius",
+      "licencia": "CC0-1.0",
+      "fuente": "https://quaternius.com/packs/modulartrain.html",
+      "sha256": "d37bd61c15fdd4b1ae848a4dad6ddaeedf3a1662694513ca225b16d38e032885"
+    },
+    {
+      "ruta": "cc0/quaternius_modular_train/RailwayTrack_Straight.obj",
+      "titulo": "RailwayTrack Straight — malla original",
+      "autor": "Quaternius",
+      "licencia": "CC0-1.0",
+      "fuente": "https://quaternius.com/packs/modulartrain.html",
+      "sha256": "8704b2f032696773415348c1a7ef88f5d9f2435152630d33405acd1a05241e57"
+    },
+    {
+      "ruta": "cc0/quaternius_modular_train/RailwayTrack_Straight.mtl",
+      "titulo": "RailwayTrack Straight — materiales originales",
+      "autor": "Quaternius",
+      "licencia": "CC0-1.0",
+      "fuente": "https://quaternius.com/packs/modulartrain.html",
+      "sha256": "80bf00b974430ade2b5d3f0eccdafb99d29d1048f7191374d6a8edb4b7b0bafc"
     }
   ]
 }
