@@ -57,7 +57,8 @@ func _init() -> void:
 	)
 
 	# La cabeza, corta y casi redonda, y el hocico más claro: es lo único que
-	# le da cara sin dibujar ojos.
+	# le da cara sin dibujar ojos. El primer anillo coincide con el extremo del
+	# lomo para que desde arriba o 3/4 no aparezca una ranura oscura entre ambos.
 	(
 		MallaOrganica
 		. pieza(
@@ -72,7 +73,7 @@ func _init() -> void:
 					]
 				)
 			),
-			Vector3(0, ALTO + 0.12, -0.24),
+			Vector3(0, ALTO + 0.12, -0.20),
 			Vector3.ZERO,
 			COLOR
 		)
@@ -187,11 +188,13 @@ func avanzar(hambre: int, jugador: Vector3, delta: float) -> void:
 	var antes := position
 	position = estado["pos"]
 
-	# Mira hacia donde anda. Parado conserva el rumbo: un gato que gira sobre
-	# sí mismo al llegar se ve como un error de física, no como un gato.
+	# Mira hacia donde anda. El morro del modelo apunta a -Z, así que el yaw
+	# necesita media vuelta respecto a la convención habitual (+Z hacia avance).
+	# Parado conserva el rumbo: un gato que gira sobre sí mismo al llegar se ve
+	# como un error de física, no como un gato.
 	var avance := position - antes
 	if avance.length() > 0.001:
-		_cuerpo.rotation.y = atan2(avance.x, avance.z)
+		_cuerpo.rotation.y = atan2(avance.x, avance.z) + PI
 
 	# La cola. Más deprisa con hambre, que es la otra mitad de la señal: si no
 	# viene y además está tensa, algo pasa.
