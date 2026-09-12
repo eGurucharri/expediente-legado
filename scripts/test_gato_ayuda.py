@@ -4,6 +4,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 POLITICA = ROOT / "godot" / "guion" / "gato_ayuda.gd"
+AVATAR = ROOT / "godot" / "guion" / "gato_asistente_2d.gd"
 CAPA = ROOT / "godot" / "guion" / "dia_gato_app.gd"
 ESCENA = ROOT / "godot" / "escenas" / "dia.tscn"
 
@@ -11,6 +12,7 @@ ESCENA = ROOT / "godot" / "escenas" / "dia.tscn"
 class GatoAyudaTest(unittest.TestCase):
     def setUp(self):
         self.politica = POLITICA.read_text(encoding="utf-8")
+        self.avatar = AVATAR.read_text(encoding="utf-8")
         self.capa = CAPA.read_text(encoding="utf-8")
         self.escena = ESCENA.read_text(encoding="utf-8")
 
@@ -29,6 +31,16 @@ class GatoAyudaTest(unittest.TestCase):
         self.assertIn("return []", self.politica)
         for clave in ("PUESTO_LEVANTARSE", "ARCHIVO_ERROR_GUARDAR", "A7_PRESENTAR"):
             self.assertNotIn(clave, self.politica)
+
+    def test_hay_un_gato_2d_visible_tipo_ayudante_de_escritorio(self):
+        self.assertIn("class_name GatoAsistente2D", self.avatar)
+        self.assertIn("extends Control", self.avatar)
+        self.assertIn("func _draw()", self.avatar)
+        self.assertIn("draw_circle", self.avatar)
+        self.assertIn("draw_colored_polygon", self.avatar)
+        self.assertIn("GatoAsistente2D.new()", self.capa)
+        self.assertNotIn("Sprite2D", self.avatar)
+        self.assertNotIn("load(", self.avatar)
 
     def test_el_mismo_nivel_gobierna_el_guia(self):
         self.assertIn("static func guia_visible", self.politica)
