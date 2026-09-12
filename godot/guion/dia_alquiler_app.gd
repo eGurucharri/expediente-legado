@@ -31,15 +31,18 @@ func _espacio_de(fase: String) -> Dictionary:
 			"color": Color(0.47, 0.45, 0.41)
 		}
 	)
-	sitio["salidas"].append(
-		{
-			"pos": Vector3(2.45, 1.1, 9.0),
-			"destino": DESTINO_ALQUILER,
-			# Es la MISMA ventanilla de #58: el rótulo común deja esa decisión
-			# visible sin crear una segunda institución en la calle.
-			"rotulo": "VENTANILLA_TITULO",
-			"tam": Vector3(1.8, 2.2, 2.2)
-		}
+	(
+		sitio["salidas"]
+		. append(
+			{
+				"pos": Vector3(2.45, 1.1, 9.0),
+				"destino": DESTINO_ALQUILER,
+				# Es la MISMA ventanilla de #58: el rótulo común deja esa decisión
+				# visible sin crear una segunda institución en la calle.
+				"rotulo": "VENTANILLA_TITULO",
+				"tam": Vector3(1.8, 2.2, 2.2)
+			}
+		)
 	)
 	return sitio
 
@@ -72,8 +75,7 @@ func _pagar_alquiler() -> void:
 		# no inventa un cobro ni una explicación nueva. El sonido marca que la
 		# operación no se produjo y Jornada conserva el estado intacto.
 		_nomina.text = (
-			tr("DIA_ROTULO")
-			% [jornada["dia"], tr("VENTANILLA_TITULO"), jornada["dinero"], ""]
+			tr("DIA_ROTULO") % [jornada["dia"], tr("VENTANILLA_TITULO"), jornada["dinero"], ""]
 		)
 		return
 
