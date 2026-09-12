@@ -243,14 +243,20 @@ func _espacio_de(fase: String) -> Dictionary:
 		sitio["figuras"] = _plantilla_en(sitio)
 		return sitio
 
+	var opciones := _opciones_sueno()
+	var cantidad := clampi(
+		int(opciones.get("cantidad", Sueno.ESCENAS_POR_NOCHE)), 1, SuenoFormas.ids().size()
+	)
 	if jornada["sueno_escenas"].is_empty():
 		jornada["sueno_escenas"] = Sueno.noche(
-			jornada["dia"], jornada["leido_hoy"], jornada["mapa"], _raiz()
+			jornada["dia"], jornada["leido_hoy"], jornada["mapa"], _raiz(), opciones
 		)
 	var id: String = jornada["sueno_escenas"][0]
 	# Se apunta al ENTRAR y no al salir: el mapa es lo que has pisado, y
 	# despertarse de golpe en mitad de una sala no la borra de haber estado.
-	Sueno.recordar(jornada["mapa"], id)
+	# La sala de respaldo sin vivienda no se convierte en progreso del mapa.
+	if bool(opciones.get("recordar_mapa", true)):
+		Sueno.recordar(jornada["mapa"], id)
 
 	# De qué está hecha esta escena (#87). El reparto es de la NOCHE y no de la
 	# sala: se calcula con la lista entera de escenas y se coge el trozo que le
@@ -269,11 +275,11 @@ func _espacio_de(fase: String) -> Dictionary:
 		SuenoContenido
 		. repartir(
 			fuentes,
-			Sueno.ESCENAS_POR_NOCHE,
+			cantidad,
 			Sueno.semilla(jornada["dia"], jornada["leido_hoy"], _raiz()),
 		)
 	)
-	var cual: int = Sueno.ESCENAS_POR_NOCHE - jornada["sueno_escenas"].size()
+	var cual: int = cantidad - jornada["sueno_escenas"].size()
 	var trozo: Dictionary = reparto[clampi(cual, 0, reparto.size() - 1)]
 	# Quién se deja pelear en ESTA escena (#88). Se calcula al montarla y no al
 	# pisarla: la zona de reto solo lleva un id, y quien la pise tiene que poder

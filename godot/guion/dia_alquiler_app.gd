@@ -13,7 +13,7 @@ const DESTINO_ALQUILER := "alquiler"
 ## crecer: una sola escena repetida expresa el sueño degradado de #84.
 func _opciones_sueno() -> Dictionary:
 	if _vivienda() == "oficina":
-		return {"cantidad": 1, "priorizar_vistas": true}
+		return {"cantidad": 1, "priorizar_vistas": true, "recordar_mapa": false}
 	return super._opciones_sueno()
 
 
