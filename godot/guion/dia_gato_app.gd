@@ -38,11 +38,14 @@ func _espacio_de(fase: String) -> Dictionary:
 
 	var posiciones: Array = _posiciones_objetivo(espacio, foco)
 	for i in SuenoObjetivos.POSIBLES_PRIMER_CORTE:
-		_objetivos_espacio.append(
-			{
-				"id": "%s:%d" % [_objetivo_escena, i],
-				"pos": posiciones[i],
-			}
+		(
+			_objetivos_espacio
+			. append(
+				{
+					"id": "%s:%d" % [_objetivo_escena, i],
+					"pos": posiciones[i],
+				}
+			)
 		)
 
 	if not _objetivos_espacio.is_empty():
