@@ -7,6 +7,50 @@ extends RefCounted
 
 
 static func todo(comprobar: Callable) -> void:
+	comprobar.call("la jornada calibrada tiene tres acciones", Jornada.ACCIONES_POR_DIA, 3)
+	comprobar.call("la primera lectura nueva del día es gratis", Jornada.DOCUMENTOS_GRATIS_POR_DIA, 1)
+	comprobar.call("vivir cuesta treinta al día", Jornada.COSTE_DIARIO, 30)
+	comprobar.call("el mes SIGA dura diez días", Jornada.DIAS_POR_MES, 10)
+	comprobar.call("el alquiler cuesta setecientos", Jornada.PRECIO_ALQUILER, 700)
+
+	var lectura := Jornada.nueva()
+	var acciones_inicio: int = lectura["acciones"]
+	comprobar.call("la primera lectura se puede abrir", Jornada.gastar_lectura(lectura, "DOC-A"), true)
+	comprobar.call("la primera lectura no gasta acción", lectura["acciones"], acciones_inicio)
+	Jornada.anotar_lectura(lectura, "DOC-A")
+	comprobar.call("la segunda lectura se puede abrir", Jornada.gastar_lectura(lectura, "DOC-B"), true)
+	comprobar.call("la segunda lectura ya gasta acción", lectura["acciones"], acciones_inicio - 1)
+	Jornada.anotar_lectura(lectura, "DOC-B")
+	var acciones_tras_dos: int = lectura["acciones"]
+	comprobar.call("releer sigue permitido", Jornada.gastar_lectura(lectura, "DOC-A"), true)
+	comprobar.call("releer no vuelve a gastar", lectura["acciones"], acciones_tras_dos)
+
+	# Benchmark de #83: 32 documentos + 8 firmas = 40 operaciones. En diez días
+	# hay 30 acciones pagadas y 10 lecturas gratuitas: la vuelta cabe justo en el
+	# primer mes, por lo que el alquiler llega antes de terminar el recorrido.
+	var capacidad_mes := (
+		Jornada.ACCIONES_POR_DIA * Jornada.DIAS_POR_MES
+		+ Jornada.DOCUMENTOS_GRATIS_POR_DIA * Jornada.DIAS_POR_MES
+	)
+	comprobar.call("el primer mes cubre las cuarenta operaciones de referencia", capacidad_mes, 40)
+
+	# Saldo inmediatamente antes del primer alquiler en el benchmark completo:
+	# 120 iniciales + diez bases + ocho cierres - nueve noches de coste. El día
+	# diez todavía no ha dormido cuando pasa por la ventanilla.
+	var saldo_antes_alquiler := (
+		120
+		+ Jornada.BASE_DIARIA * Jornada.DIAS_POR_MES
+		+ Jornada.POR_EXPEDIENTE * 8
+		- Jornada.COSTE_DIARIO * (Jornada.DIAS_POR_MES - 1)
+	)
+	comprobar.call("el primer alquiler sigue siendo pagable", saldo_antes_alquiler >= Jornada.PRECIO_ALQUILER, true)
+	var margen := saldo_antes_alquiler - Jornada.PRECIO_ALQUILER
+	comprobar.call(
+		"el alquiler deja menos margen que un mes de comida del gato",
+		margen < Jornada.PRECIO_COMIDA_GATO * Jornada.DIAS_POR_MES,
+		true
+	)
+
 	var pago := Jornada.nueva()
 	pago["dia"] = 10
 	pago["fase"] = "trayecto"
