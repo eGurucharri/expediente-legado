@@ -23,7 +23,7 @@ func _recorrer() -> void:
 	await process_frame
 	dia.jornada["plantilla"] = 427
 	dia.jornada["dia"] = 5
-	dia.jornada["acciones"] = 3
+	dia.jornada["acciones"] = Jornada.ACCIONES_POR_DIA
 	dia._abrir_expediente()
 	await process_frame
 	var visor = dia._pantalla.get_child(0)
@@ -40,7 +40,7 @@ func _recorrer() -> void:
 			visor._lista.item_count,
 			visor.caso["registros"].size()
 		)
-	_comprobar("navegar no consume jornada", visor.jornada["acciones"], 3)
+	_comprobar("navegar no consume jornada", visor.jornada["acciones"], Jornada.ACCIONES_POR_DIA)
 	_comprobar("navegar no abre un documento a escondidas", visor._documento.text, "")
 	_comprobar(
 		"el confidencial se identifica",
@@ -52,7 +52,9 @@ func _recorrer() -> void:
 	dia._cerrar_expediente()
 	await process_frame
 	_comprobar("levantarse conserva la lectura", dia.jornada["leido_hoy"].size(), 1)
-	_comprobar("levantarse no regala acciones", dia.jornada["acciones"], 2)
+	_comprobar(
+		"levantarse no regala acciones", dia.jornada["acciones"], Jornada.ACCIONES_POR_DIA
+	)
 
 	# Reproducir la salida real del trayecto. Antes se guardaba la fase anterior.
 	dia._entrar_en("trayecto")
@@ -74,7 +76,11 @@ func _recorrer() -> void:
 	root.add_child(vuelta)
 	await process_frame
 	_comprobar("reiniciar abre en casa", vuelta.jornada["fase"], "casa")
-	_comprobar("reiniciar conserva las acciones gastadas", vuelta.jornada["acciones"], 2)
+	_comprobar(
+		"reiniciar conserva las acciones gastadas",
+		vuelta.jornada["acciones"],
+		Jornada.ACCIONES_POR_DIA
+	)
 	vuelta._abrir_expediente()
 	await process_frame
 	var archivo = vuelta._pantalla.get_child(0)
@@ -84,7 +90,11 @@ func _recorrer() -> void:
 	_comprobar(
 		"un expediente firmado sigue siendo legible", archivo._documento.text.is_empty(), false
 	)
-	_comprobar("releer un expediente firmado es gratis", archivo.jornada["acciones"], 2)
+	_comprobar(
+		"releer un expediente firmado es gratis",
+		archivo.jornada["acciones"],
+		Jornada.ACCIONES_POR_DIA
+	)
 	_comprobar("una firma firme desactiva imputar", archivo._imputar.disabled, true)
 	_comprobar(
 		"el expediente firmado cambia de fondo",
