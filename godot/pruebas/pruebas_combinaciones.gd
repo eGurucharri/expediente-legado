@@ -12,7 +12,8 @@ func _initialize() -> void:
 
 func _probar() -> void:
 	var ficha := {
-		"pistas": [
+		"pistas":
+		[
 			{"id": "simple", "registroOrigen": "A", "fraseGatillo": "x"},
 			{
 				"id": "conclusion",
@@ -31,16 +32,14 @@ func _probar() -> void:
 		"B+A es equivalente"
 	)
 	_comprobar(
-		VisorCombinaciones._buscar_relacion(ficha, "A", "A").is_empty(),
-		"rechaza mismo documento"
+		VisorCombinaciones._buscar_relacion(ficha, "A", "A").is_empty(), "rechaza mismo documento"
 	)
 	_comprobar(
 		VisorCombinaciones._buscar_relacion(ficha, "A", "C").is_empty(),
 		"pareja sin evidencia no inventa conclusión"
 	)
 	_comprobar(
-		VisorCombinaciones._buscar_relacion(ficha, "", "B").is_empty(),
-		"rechaza origen vacío"
+		VisorCombinaciones._buscar_relacion(ficha, "", "B").is_empty(), "rechaza origen vacío"
 	)
 
 	var ruta := "user://prueba-combinaciones-%d.json" % Time.get_ticks_usec()
