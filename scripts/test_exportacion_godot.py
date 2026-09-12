@@ -29,7 +29,9 @@ class ExportacionGodotTest(unittest.TestCase):
 
     def test_el_script_exporta_release_y_no_publica(self):
         texto = SCRIPT.read_text(encoding="utf-8")
-        self.assertEqual(2, texto.count("--export-release"))
+        self.assertEqual(1, texto.count("--export-release"))
+        self.assertIn('exportar "Linux x86_64"', texto)
+        self.assertIn('exportar "Windows x86_64"', texto)
         self.assertNotIn("--export-debug", texto)
         self.assertNotIn("butler", texto.lower())
         self.assertNotIn("ITCH", texto)
