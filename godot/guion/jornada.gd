@@ -24,16 +24,15 @@ const BASE_DIARIA := 40
 ## cerrar bien: un expediente mal cerrado paga lo mismo, y el gato come de eso.
 const POR_EXPEDIENTE := 60
 
-## Lo que cuesta vivir un día, se haga lo que se haga.
-const COSTE_DIARIO := 25
+## Lo que cuesta vivir un día, se haga lo que se haga. #83 lo aprieta lo justo
+## para que el primer alquiler importe sin volverlo matemáticamente imposible.
+const COSTE_DIARIO := 30
 
-## Cuántas cosas se pueden hacer en un día: abrir un documento, acusar, atender
-## la Ventanilla. Es lo que obliga a fichar la salida — sin un tope, lo óptimo
-## sería no salir nunca de la oficina y el resto del día no existiría.
-##
-## Lo que se decide con esto no es leer deprisa sino QUÉ leer: un expediente
-## tiene más documentos de los que caben en una jornada.
-const ACCIONES_POR_DIA := 6
+## Tres acciones pagadas al día. La cuarta unidad de trabajo del benchmark llega
+## de la primera lectura gratuita: 3 + 1 durante diez días = 40 operaciones,
+## justo las 32 lecturas + 8 firmas de la vuelta de referencia (#83).
+const ACCIONES_POR_DIA := 3
+const DOCUMENTOS_GRATIS_POR_DIA := 1
 
 ## Días seguidos sin comer que aguanta el gato antes de irse. No se muere ni
 ## deja cadáver: un día no está. En este sistema las cosas no terminan, se
@@ -159,6 +158,19 @@ static func gastar_accion(jornada: Dictionary) -> bool:
 		return false
 	jornada["acciones"] -= 1
 	return true
+
+
+## Abrir un documento nuevo tiene una franquicia diaria: la primera lectura
+## nueva sale gratis. Releer nunca llega aquí desde el visor, pero se acepta de
+## forma idempotente para que el contrato siga siendo seguro desde otros sitios.
+static func gastar_lectura(jornada: Dictionary, folio: String) -> bool:
+	if jornada["fase"] != "archivo":
+		return false
+	if jornada["leido_hoy"].has(folio):
+		return true
+	if jornada["leido_hoy"].size() < DOCUMENTOS_GRATIS_POR_DIA:
+		return true
+	return gastar_accion(jornada)
 
 
 ## Si ya no queda nada que hacer hoy. Quien pinte la oficina lo usa para decir
