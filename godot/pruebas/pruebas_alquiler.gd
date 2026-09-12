@@ -49,7 +49,11 @@ static func todo(comprobar: Callable) -> void:
 		+ Jornada.POR_EXPEDIENTE * 7
 		- Jornada.COSTE_DIARIO * (Jornada.DIAS_POR_MES - 1)
 	)
-	comprobar.call("el primer alquiler sigue siendo pagable", saldo_antes_alquiler >= Jornada.PRECIO_ALQUILER, true)
+	comprobar.call(
+		"el primer alquiler sigue siendo pagable",
+		saldo_antes_alquiler >= Jornada.PRECIO_ALQUILER,
+		true
+	)
 	var margen := saldo_antes_alquiler - Jornada.PRECIO_ALQUILER
 	comprobar.call("el margen del primer alquiler queda en seis", margen, 6)
 	comprobar.call(
