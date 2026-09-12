@@ -45,9 +45,11 @@ func _al_elegir_caso(indice: int) -> void:
 
 
 func _al_relacionar() -> void:
-	if _hay_guardado_a_medias():
-		return
-	if registro_actual.is_empty() or Acusacion.esta_cerrado(partida.estado, caso["id"]):
+	if (
+		_hay_guardado_a_medias()
+		or registro_actual.is_empty()
+		or Acusacion.esta_cerrado(partida.estado, caso["id"])
+	):
 		return
 
 	var actual := String(registro_actual["id"])
@@ -83,17 +85,15 @@ func _al_relacionar() -> void:
 			tr("VISOR_RELACION_NO_DEMOSTRADA")
 			% [primero, registro_actual["folio"]]
 		)
-		return
-
-	var pista_id := String(relacion["id"])
-	if descubiertas.has(pista_id):
-		_estado.text = tr("VISOR_RELACION_YA_REGISTRADA") % relacion["descripcion"]
-		return
-
-	descubiertas.append(pista_id)
-	_refrescar_archivo()
-	_guardar_o_avisar()
-	_estado.text = tr("VISOR_RELACION_REGISTRADA") % relacion["descripcion"]
+	else:
+		var pista_id := String(relacion["id"])
+		if descubiertas.has(pista_id):
+			_estado.text = tr("VISOR_RELACION_YA_REGISTRADA") % relacion["descripcion"]
+		else:
+			descubiertas.append(pista_id)
+			_refrescar_archivo()
+			_guardar_o_avisar()
+			_estado.text = tr("VISOR_RELACION_REGISTRADA") % relacion["descripcion"]
 
 
 func _esta_leido(registro_id: String) -> bool:
