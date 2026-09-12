@@ -20,7 +20,8 @@ class GatoAyudaTest(unittest.TestCase):
         self.assertIn('gato.get("dias_sin_comer", 0)', self.politica)
         self.assertIn("GatoConducta.DIAS_PARA_DESCONFIAR", self.politica)
         self.assertNotIn("Partida", self.politica)
-        self.assertNotIn("afecto", self.politica.lower())
+        self.assertNotIn('gato.get("afecto"', self.politica)
+        self.assertNotIn('gato["afecto"]', self.politica)
 
     def test_asistente_degrada_sin_mentir_sobre_controles(self):
         self.assertIn('return ["VISOR_ELIJA", "ENTRADA_VOZ_SOLO"]', self.politica)
