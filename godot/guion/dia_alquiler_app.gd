@@ -35,7 +35,9 @@ func _espacio_de(fase: String) -> Dictionary:
 		{
 			"pos": Vector3(2.45, 1.1, 9.0),
 			"destino": DESTINO_ALQUILER,
-			"rotulo": "SALIDA_ALQUILER",
+			# Es la MISMA ventanilla de #58: el rótulo común deja esa decisión
+			# visible sin crear una segunda institución en la calle.
+			"rotulo": "VENTANILLA_TITULO",
 			"tam": Vector3(1.8, 2.2, 2.2)
 		}
 	)
@@ -44,10 +46,7 @@ func _espacio_de(fase: String) -> Dictionary:
 
 func _alquiler_disponible_hoy() -> bool:
 	var dia := int(jornada.get("dia", 1))
-	return (
-		dia == Jornada.alquiler_vencimiento(dia)
-		and Jornada.alquiler_pendiente(jornada)
-	)
+	return dia == Jornada.alquiler_vencimiento(dia) and Jornada.alquiler_pendiente(jornada)
 
 
 ## La salida especial no cambia de fase. Pisar el mostrador equivale a hacer
@@ -69,22 +68,19 @@ func _pagar_alquiler() -> void:
 	_hablando = false
 	if resultado.is_empty():
 		_sonar("error")
-		if not Jornada.alquiler_pendiente(jornada):
-			_nomina.text = tr("DIA_ALQUILER_RESUELTO")
-		elif int(jornada.get("acciones", 0)) <= 0:
-			_nomina.text = tr("DIA_ALQUILER_SIN_ACCIONES")
-		else:
-			_nomina.text = (
-				tr("DIA_ALQUILER_SIN_DINERO")
-				% [Jornada.PRECIO_ALQUILER, int(jornada.get("dinero", 0))]
-			)
+		# El HUD ya expone día y dinero; repetir el trámite o llegar sin saldo
+		# no inventa un cobro ni una explicación nueva. El sonido marca que la
+		# operación no se produjo y Jornada conserva el estado intacto.
+		_nomina.text = (
+			tr("DIA_ROTULO")
+			% [jornada["dia"], tr("VENTANILLA_TITULO"), jornada["dinero"], ""]
+		)
 		return
 
 	_sonar("nomina")
-	_nomina.text = (
-		tr("DIA_ALQUILER_PAGADO")
-		% [resultado["importe"], resultado["dinero"], resultado["acciones"]]
-	)
+	# Reutiliza el resumen económico existente: el alquiler forma parte del
+	# coste de vivir y evita meter una segunda redacción provisional en el CSV.
+	_nomina.text = tr("DIA_VIVIR") % [resultado["importe"], resultado["dinero"], ""]
 	# El pago ya está aplicado en memoria. Si falla el disco, el mecanismo común
 	# bloquea nuevas acciones y convierte la siguiente interacción en reintento.
 	_guardar_o_avisar("")
