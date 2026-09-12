@@ -1,0 +1,77 @@
+name: Alpha playtest
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/alpha-playtest.yml'
+      - 'godot/**'
+      - 'dist/exportar-godot-alpha.sh'
+      - '.godot-version'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export-alpha:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Instalar Godot y Export Templates declarados por el proyecto
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(cat .godot-version)"
+          archivo="Godot_v${version}_linux.x86_64.zip"
+          plantillas="Godot_v${version}_export_templates.tpz"
+          base="https://github.com/godotengine/godot-builds/releases/download/${version}"
+
+          curl --fail --location --retry 3 "$base/$archivo" -o "$RUNNER_TEMP/$archivo"
+          curl --fail --location --retry 3 "$base/$plantillas" -o "$RUNNER_TEMP/$plantillas"
+          curl --fail --location --retry 3 "$base/SHA512-SUMS.txt" -o "$RUNNER_TEMP/SHA512-SUMS.txt"
+
+          cd "$RUNNER_TEMP"
+          grep -F " $archivo" SHA512-SUMS.txt | sha512sum --check --strict
+          grep -F " $plantillas" SHA512-SUMS.txt | sha512sum --check --strict
+
+          unzip -q "$archivo"
+          mkdir -p godot-bin
+          mv "Godot_v${version}_linux.x86_64" godot-bin/godot4
+          chmod +x godot-bin/godot4
+          echo "$RUNNER_TEMP/godot-bin" >> "$GITHUB_PATH"
+
+          template_dir="$HOME/.local/share/godot/export_templates/${version/-/.}"
+          mkdir -p "$template_dir"
+          unzip -q "$plantillas" -d "$RUNNER_TEMP/export-templates"
+          cp -a "$RUNNER_TEMP/export-templates/templates/." "$template_dir/"
+
+      - name: Exportar alpha Linux y Windows
+        env:
+          GODOT_BIN: godot4
+        run: bash dist/exportar-godot-alpha.sh
+
+      - name: Adjuntar alpha Linux
+        uses: actions/upload-artifact@v4
+        with:
+          name: SIGA-98-godot-alpha-linux
+          path: dist/salida/SIGA-98-godot-alpha-linux.zip
+          if-no-files-found: error
+
+      - name: Adjuntar alpha Windows
+        uses: actions/upload-artifact@v4
+        with:
+          name: SIGA-98-godot-alpha-windows
+          path: dist/salida/SIGA-98-godot-alpha-windows.zip
+          if-no-files-found: error
+
+      - name: Adjuntar checksums
+        uses: actions/upload-artifact@v4
+        with:
+          name: SIGA-98-godot-alpha-checksums
+          path: dist/salida/SIGA-98-godot-alpha-SHA256SUMS.txt
+          if-no-files-found: error
