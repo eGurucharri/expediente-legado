@@ -5,6 +5,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 REGLA = ROOT / "godot" / "guion" / "sueno_objetivos.gd"
 CAPA = ROOT / "godot" / "guion" / "dia_objetivos_app.gd"
+GATO = ROOT / "godot" / "guion" / "dia_gato_app.gd"
 ESCENA = ROOT / "godot" / "escenas" / "dia.tscn"
 
 
@@ -12,6 +13,7 @@ class SuenoObjetivosTest(unittest.TestCase):
     def setUp(self):
         self.regla = REGLA.read_text(encoding="utf-8")
         self.capa = CAPA.read_text(encoding="utf-8")
+        self.gato = GATO.read_text(encoding="utf-8")
         self.escena = ESCENA.read_text(encoding="utf-8")
 
     def test_vertical_tres_objetivos_dos_requeridos(self):
@@ -34,11 +36,13 @@ class SuenoObjetivosTest(unittest.TestCase):
         self.assertIn('_entrar_en(destino)', self.capa)
 
     def test_el_gato_apunta_a_objetivo_y_no_a_puerta(self):
-        self.assertIn('_salida_guia = _objetivos_espacio[0]["pos"]', self.capa)
-        self.assertIn("_hay_rumbo_guia = true", self.capa)
+        self.assertIn('extends "res://guion/dia_objetivos_app.gd"', self.gato)
+        self.assertIn('_salida_guia = _objetivos_espacio[0].get("pos", _entrada_guia)', self.gato)
+        self.assertIn("_hay_rumbo_guia = true", self.gato)
 
-    def test_la_escena_activa_la_capa_nueva(self):
-        self.assertIn('path="res://guion/dia_objetivos_app.gd"', self.escena)
+    def test_la_escena_conserva_la_capa_raiz_del_gato(self):
+        self.assertIn('path="res://guion/dia_gato_app.gd"', self.escena)
+        self.assertIn('extends "res://guion/dia_alquiler_app.gd"', self.capa)
 
 
 if __name__ == "__main__":
