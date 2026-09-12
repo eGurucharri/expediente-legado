@@ -26,7 +26,7 @@ class PuzzleOniricoTest(unittest.TestCase):
             check=False,
         )
         self.assertEqual(resultado.returncode, 0, resultado.stdout)
-        self.assertIn("19 pasadas, 0 fallos", resultado.stdout)
+        self.assertIn("20 pasadas, 0 fallos", resultado.stdout)
         self.assertNotIn("SCRIPT ERROR:", resultado.stdout)
         self.assertNotIn("Parse Error:", resultado.stdout)
 
